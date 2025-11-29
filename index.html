@@ -75,7 +75,7 @@
       position:absolute; right:10px; width:18px; height:18px; opacity:.8; pointer-events:none;
       background: radial-gradient(circle, rgba(255,255,255,.9) 40%, rgba(255,255,255,.0) 41%);
       -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 5 1.5-1.5-5-5zM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>') center/contain no-repeat;
-              mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 5 1.5-1.5-5-5zM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>') center/contain no-repeat;
+              mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 A6.5 6.5 0 1 0 9.5 16 c1.61 0 3.09-.59 4.23-1.57 l.27.28 v.79 l5 5 1.5-1.5 -5-5 zM9.5 14 C7.01 14 5 11.99 5 9.5 S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14 z"/></svg>') center/contain no-repeat;
     }
 
     .side-section{padding:10px 10px 14px; border-top:1px dashed rgba(255,255,255,.06);}
@@ -117,17 +117,47 @@
     .badge.primary{ background:rgba(255,122,26,.20); border-color:rgba(255,122,26,.45); color:#ffe4cf; }
 
     .desc{padding:12px 16px; font-size:.95rem; color:#d8d8d8; border-bottom:1px dashed rgba(255,255,255,.06);}
-    .desc .link-season{
-      display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px;
-      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); margin-left:8px; cursor:pointer;
-    }
-    .desc .link-season:hover{background:rgba(255,122,26,.16); border-color:rgba(255,255,255,.35)}
 
     .grid{display:grid; gap:14px; padding:14px 14px 18px; grid-template-columns: 1.1fr .9fr;}
     @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
 
     .chapters{background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:12px; overflow:hidden;}
-    .chap-head{padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:6px; background:linear-gradient(90deg, rgba(255,122,26,.12), transparent); border-bottom:1px solid rgba(255,255,255,.06);}
+    .chap-head{
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:linear-gradient(90deg, rgba(255,122,26,.12), transparent);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      flex-wrap:wrap;
+    }
+    .chap-title-block{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .chap-title-block strong{font-size:.98rem;}
+    .lang-switch{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .lang-btn{
+      font-size:.8rem;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      cursor:pointer;
+      transition:.15s ease all;
+      opacity:.85;
+    }
+    .lang-btn.active{
+      background:rgba(255,122,26,.3);
+      border-color:rgba(255,122,26,.65);
+      opacity:1;
+    }
     .chap-list{display:flex; flex-direction:column}
     .chap-item{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 14px; border-top:1px solid rgba(255,255,255,.06); background:transparent; cursor:pointer;}
     .chap-item:hover{background:rgba(255,122,26,.06)}
@@ -259,31 +289,19 @@
           </div>
         </div>
 
-        <!-- Contadores por serie -->
-        <div id="series-stats" 
-             style="display:flex; gap:12px; align-items:center; 
-                    padding:10px 16px; border-bottom:1px dashed rgba(255,255,255,.06)">
-          <!-- Visitas -->
-          <span style="display:inline-flex; gap:6px; align-items:center; opacity:.9">
-            👁️ <strong id="views-count">—</strong> vistas
-          </span>
-
-          <!-- Likes -->
-          <button id="like-btn" class="btn" type="button" title="Me gusta">
-            👍 <span id="likes-count">—</span>
-          </button>
-
-          <!-- Mensaje de estado (errores / guardado local) -->
-          <span id="like-hint" style="font-size:.85rem; opacity:.8;"></span>
-        </div>
-
         <div class="desc" id="category-note"></div>
 
         <div class="grid">
           <div class="chapters">
             <div class="chap-head">
-              <strong id="chapters-title">Capítulos</strong>
-              <span class="tag">elige uno</span>
+              <div class="chap-title-block">
+                <strong id="chapters-title">Capítulos</strong>
+                <div class="lang-switch">
+                  <button class="lang-btn active" id="lang-latino" data-lang="latino">Latino</button>
+                  <button class="lang-btn" id="lang-sub" data-lang="sub">Sub Español</button>
+                </div>
+              </div>
+              <span class="tag" id="chapters-lang-label">Latino</span>
             </div>
             <div class="chap-list" id="chapters-list"></div>
           </div>
@@ -308,7 +326,7 @@
             <div class="mini" style="opacity:.8">Puedes usar un <strong>link</strong> (mp3/stream) o una <strong>ruta local</strong>.</div>
           </div>
 
-          <!-- Playlist con imagen (visible SIEMPRE en BD RPmods) -->
+          <!-- Playlist con imagen -->
           <div class="playlist-box" id="playlist-box" style="display:none">
             <div class="playlist-cover" id="playlist-cover"></div>
             <div class="playlist-body">
@@ -354,84 +372,84 @@
       bd: {
         "Las Quintillizas (Temporada 1)": {
           cover: "portada/portadas1gnh.jpg",
-          season2Key: "Las Quintillizas (Temporada 2)",
           openingUrl: "",   // Opening propio
           endingUrl: "",    // Ending propio
           info: {
-            audio: "Japonés",
-            subs: "Español (SUB)",
-            oped: "Clean Version",
+            audio: "Latino / Japonés",
+            subs: "Latino",
+            oped: "Clean Version (BD RPmods)",
             karaoke: "Sí",
-            quality: "1080p (BD RPmods)",
+            quality: "1080p (BD)",
             note: "Edición Blu-ray con mejoras de imagen, audio y extras exclusivos."
           },
-          chapters: [
-            { id:"gtn-t1-c01-02", title:"Capítulo 01 y 02", info:"BD RPmods — 1080p",
-              players:{ player1:"https://rodrigorpmods.rpmlive.online/#assgjc", player2:"", fb:"https://www.facebook.com/lasanta.biblia.969/videos/1330372222162963?idorvanity=815386104663635", fb720:"https://video.fhan5-11.fna.fbcdn.net/o1/v/t2/f2/m366/AQN-fgjOXFzYRKfC64q0Zh8aTurJWTHk1XRXntfuo0g8gmpKXO68usKrpfyGtJqXku2Gq88iCYj9cxI9oOgJLUzsSTkWzpO6fS4tCIUfrP4GfQ.mp4?_nc_cat=100&_nc_oc=Adn1ne2kPXl4daB3XMVYunRC0YHhqoBYZfVyeIjgKi2XvtTA5mKf66WH97wB1Hfohfg&_nc_sid=5e9851&_nc_ht=video.fhan5-11.fna.fbcdn.net&_nc_ohc=RNStPlwH_hQQ7kNvwEZJFET&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMTI4MC5kYXNoX2gyNjQtYmFzaWMtZ2VuMl83MjBwIiwieHB2X2Fzc2V0X2lkIjozOTMxMTA0ODI3MTgwMjYzLCJhc3NldF9hZ2VfZGF5cyI6MCwidmlfdXNlY2FzZV9pZCI6MTAxMjEsImR1cmF0aW9uX3MiOjI2NjUsInVybGdlbl9zb3VyY2UiOiJ3d3cifQ%3D%3D&ccb=17-1&vs=cf83aa790cf19965&_nc_vs=HBksFQIYRWZiX2VwaGVtZXJhbC8wQzRDNjQ1NEI4QTgwMkE1REMxNEZBOEM4MzExMUVCMV9tdF8xX3ZpZGVvX2Rhc2hpbml0Lm1wNBUAAsgBEgAVAhhAZmJfcGVybWFuZW50Lzk3NDYyNjgzM0ExQkQ2QkUyREM0QjBDQ0Y1MkE2RTk0X2F1ZGlvX2Rhc2hpbml0Lm1wNBUCAsgBEgAoABgAGwKIB3VzZV9vaWwBMRJwcm9ncmVzc2l2ZV9yZWNpcGUBMRUAACbOk-SstdT7DRUCKAJDMywXQKTSlHrhR64YGWRhc2hfaDI2NC1iYXNpYy1nZW4yXzcyMHARAHUCZZKeAQA&_nc_gid=PyMWoqzV_0xRVcWFQD2KiQ&edm=AGo2L-IEAAAA&_nc_zt=28&oh=00_Afjbm5LoI1AIZGVfshDQi8_7zsyMfuuH7wPk_PmuaZGpWw&oe=69272370&bitrate=750104&tag=dash_h264-basic-gen2_720p" } },
-            { id:"gtn-t1-c03-04", title:"Capítulo 03 y 04", info:"BD RPmods — 1080p",
-              players:{ player1:"https://rodrigorpmods.rpmlive.online/#qyy5ic", player2:"", fb:"https://www.facebook.com/lasanta.biblia.969/videos/1371281951266727?idorvanity=815386104663635", fb720:"https://video.fhan5-9.fna.fbcdn.net/o1/v/t2/f2/m366/AQP23R_ANjPZriOcs0K_TvBAU2vN_anEPTZyFNakaQNmlTlQKqvFQnbx_yAmQzcS8Blv-X6H0pilD_xMi2waIXwep3wFeRKbJe91_k1VDaAzYg.mp4?_nc_cat=110&_nc_oc=Adl_S1nkzyOp_d_9F0oRD8Jp05OYr5lFS50IhYMgS6oKAnUYxWPvj6AJg8AUVhtQeZU&_nc_sid=5e9851&_nc_ht=video.fhan5-9.fna.fbcdn.net&_nc_ohc=RU6FrFpnIM8Q7kNvwEaoFey&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMTI4MC5kYXNoX2gyNjQtYmFzaWMtZ2VuMl83MjBwIiwieHB2X2Fzc2V0X2lkIjoyMzA4Njg3NTg2MjI1ODY4LCJhc3NldF9hZ2VfZGF5cyI6MCwidmlfdXNlY2FzZV9pZCI6MTAxMjEsImR1cmF0aW9uX3MiOjI2NzksInVybGdlbl9zb3VyY2UiOiJ3d3cifQ%3D%3D&ccb=17-1&vs=f21c358fd2f077aa&_nc_vs=HBksFQIYRWZiX2VwaGVtZXJhbC84NTQ2MUJDMTMxMzQyRTMxMTYyNjlCNjlFOTA4MkJCQV9tdF8xX3ZpZGVvX2Rhc2hpbml0Lm1wNBUAAsgBEgAVAhhAZmJfcGVybWFuZW50Lzk4NEM4RDdCREFDMjhBRjAxOEUxQ0UwOEE0OTRGOTg1X2F1ZGlvX2Rhc2hpbml0Lm1wNBUCAsgBEgAoABgAGwKIB3VzZV9vaWwBMRJwcm9ncmVzc2l2ZV9yZWNpcGUBMRUAACaYu8v3pu-ZCBUCKAJDMywXQKTuhiTdLxsYGWRhc2hfaDI2NC1iYXNpYy1nZW4yXzcyMHARAHUCZZKeAQA&_nc_gid=eHYLEQkY75h_bTtvHsRjnw&edm=AGo2L-IEAAAA&_nc_zt=28&oh=00_Afij2OqlJIMWeBXhLdSHwY70qE6qCQQ8e-4xqbac4gTAFA&oe=6927217E&bitrate=752200&tag=dash_h264-basic-gen2_720p", player3:"" } },
-            { id:"gtn-t1-prox1", title:"Próximamente — Capítulos 05 y 06", info:"Esperando estreno", status:"Próximo",
-              players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } }
-          ],
+          chapters: {
+            latino: [
+              { id:"gtn-t1-lat-prox1", title:"Próximamente — Capítulos 01 y 02", info:"Audio Latino — Esperando estreno", status:"Próximo",
+                players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"gtn-t1-lat-prox2", title:"Próximamente — Capítulos 03 y 04", info:"Audio Latino — Esperando estreno", status:"Próximo",
+                players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"gtn-t1-lat-prox3", title:"Próximamente — Capítulos 05 y 06", info:"Audio Latino — Esperando estreno", status:"Próximo",
+                players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } }
+            ],
+            sub: [
+              { id:"gtn-t1-sub-c01-02", title:"Capítulo 01 y 02", info:"Sub Español — BD RPmods 1080p",
+                players:{ player1:"https://rodrigorpmods.rpmlive.online/#assgjc", player2:"", fb:"", fb720:"", player3:"https://www.burstcloud.co/embed/e26685e0e94c3f13648e0fa29968af01af467c43f2e8cfe1e15f15905fbfddeb/GNH_CAP01RPMODS.mp4" } },
+              { id:"gtn-t1-sub-c03-04", title:"Capítulo 03 y 04", info:"Sub Español — BD RPmods 1080p",
+                players:{ player1:"https://rodrigorpmods.rpmlive.online/#qyy5ic", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"gtn-t1-sub-prox1", title:"Próximamente — Capítulos 05 y 06", info:"Sub Español — Esperando estreno", status:"Próximo",
+                players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } }
+            ]
+          },
           extrasAudio: { title: "OST — Quintillizas", url: "" },
           extras: [
             { id:"gtn-extra-1", title:"Extra 01 — Entrevista Seiyuu", url:"" },
             { id:"gtn-extra-2", title:"Extra 02 — Clean OP (BD)", url:"" },
             { id:"gtn-extra-3", title:"Extra 03 — Clean ED (BD)", url:"" }
           ],
-          extrasPlaylist: { cover:"extra/cover_quintillizas_t1.jpg", title:"Playlist — Quintillizas T1", tracks: [] }
+          extrasPlaylist: {
+            cover:"extra/cover_quintillizas_t1.jpg",
+            title:"Playlist — Quintillizas T1",
+            tracks: []
+          }
         },
-        "Las Quintillizas (Temporada 2)": {
-          cover: "",
-          season2Key: null,
-          openingUrl: "",
-          endingUrl: "",
+        "KonoSuba (Temporada 1)": {
+          cover: "portada/portadas1fk.png",
+          openingUrl: "https://www.burstcloud.co/embed/67a4691f55a6d1fe64dc1e1b6f67ba290af75cf63c59a84a2d02de0e7cbecefe/Opening.mp4",  // ejemplo
+          endingUrl: "https://www.burstcloud.co/embed/1c16c761c9fbc8d957132e51116d96aea716a255ece139a88225d5f95a6a0cd9/Edning%20%20Full%20Version.mp4",
           info: {
             audio: "Japonés",
             subs: "Español (SUB)",
             oped: "Clean Version",
             karaoke: "Sí",
             quality: "1080p (BD RPmods)",
-            note: "Temporada 2 en edición Blu-ray con añadidos."
-          },
-          chapters: [
-            { id:"gtn-t2-prox0", title:"Próximamente — Capítulos 01 y 02", info:"Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
-            { id:"gtn-t2-prox1", title:"Próximamente — Capítulos 03 y 04", info:"Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
-            { id:"gtn-t2-prox2", title:"Próximamente — Capítulos 05 y 06", info:"Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
-			      { id:"gtn-t2-prox3", title:"Próximamente — Capítulos 07 y 08", info:"Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } }
-          ],
-          extrasAudio: { title: "OST — Quintillizas T2", url: "" },
-          extras: [
-            { id:"gtn2-extra-1", title:"Extra 01 — PV T2", url:"" },
-            { id:"gtn2-extra-2", title:"Extra 02 — Clean OP (BD)", url:"" },
-            { id:"gtn2-extra-3", title:"Extra 03 — Clean ED (BD)", url:"" }
-          ],
-          extrasPlaylist: { cover:"extra/cover_quintillizas_t2.jpg", title:"Playlist — Quintillizas T2", tracks: [] }
-        },
-        "KonoSuba (Temporada 1)": {
-          cover: "portada/portadas1fk.png",
-          season2Key: "KonoSuba (Temporada 2)",
-          openingUrl: "https://www.burstcloud.co/embed/67a4691f55a6d1fe64dc1e1b6f67ba290af75cf63c59a84a2d02de0e7cbecefe/Opening.mp4",  // ejemplo
-          endingUrl: "https://www.burstcloud.co/embed/1c16c761c9fbc8d957132e51116d96aea716a255ece139a88225d5f95a6a0cd9/Edning%20%20Full%20Version.mp4",
-          info: {
-            audio: "Latino",
-            subs: "Español (textos)",
-            oped: "Clean Version",
-            karaoke: "Sí",
-            quality: "1080p (BD RPmods)",
             note: "Edición Blu-ray con timing de karaoke y filtros de imagen."
           },
-          chapters: [
-            { id:"ksb-t1-c01-02", title:"Capítulo 01 y 02", info:"BD RPmods — 1080p", players:{ player1:"https://rodrigorpmods.rpmlive.online/#8kqexi", player2:"", fb:"https://www.facebook.com/lasanta.biblia.969/videos/822209670437682?idorvanity=815386104663635", fb720:"https://video-lga3-2.xx.fbcdn.net/o1/v/t2/f2/m366/AQOSW_n99MeNdMSYCVohAxlBlrk6hRYXWOw02fhpGdHvIYAF-i-OEo0NnTf7Yqhea-wE9Ael9-1Ne0D-FNMyPdI8iVaI8mE3j5isJyyMWuaL5w.mp4?_nc_cat=101&_nc_sid=5e9851&_nc_ht=video-lga3-2.xx.fbcdn.net&_nc_ohc=_irR9yFMEioQ7kNvwGr6EB0&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMTI4MC5kYXNoX2gyNjQtYmFzaWMtZ2VuMl83MjBwIiwieHB2X2Fzc2V0X2lkIjo4NTI4OTYwNjM3ODA3MjMsImFzc2V0X2FnZV9kYXlzIjowLCJ2aV91c2VjYXNlX2lkIjoxMDEyMSwiZHVyYXRpb25fcyI6Mjc0NCwidXJsZ2VuX3NvdXJjZSI6Ind3dyJ9&ccb=17-1&vs=a80277de1b9369f9&_nc_vs=HBksFQIYRWZiX2VwaGVtZXJhbC8zMDRGQzk4NUQ4ODk2Rjk4NjkyNjIyNUFBRTcyMUE5RV9tdF8xX3ZpZGVvX2Rhc2hpbml0Lm1wNBUAAsgBEgAVAhhAZmJfcGVybWFuZW50LzQ1NDM1MkVGQkRGNUU5REE1MTUzMzBENjYxQjJGRThFX2F1ZGlvX2Rhc2hpbml0Lm1wNBUCAsgBEgAoABgAGwKIB3VzZV9vaWwBMRJwcm9ncmVzc2l2ZV9yZWNpcGUBMRUAACbm3cvuiu2DAxUCKAJDMywXQKVxZ--dsi0YGWRhc2hfaDI2NC1iYXNpYy1nZW4yXzcyMHARAHUCZZKeAQA&_nc_gid=bgklwLlBxrrYpvOZUeoFfQ&_nc_zt=28&oh=00_Afj0Vclv-pIbtSrXM_mdjc7ciJi0HXwlVYRH039vLjsasg&oe=69271857&bitrate=783701&tag=dash_h264-basic-gen2_720p", player3:"" } },
-            { id:"ksb-t1-c03-04", title:"Capítulo 03 y 04", info:"BD RPmods — 1080p", players:{ player1:"https://rodrigorpmods.rpmlive.online/#61wy1p", player2:"", fb:"https://www.facebook.com/lasanta.biblia.969/videos/1799278064098425?idorvanity=815386104663635", fb720:"https://scontent-lga3-2.xx.fbcdn.net/o1/v/t2/f2/m366/AQOSVpdbW0MDPtdOB75e5ydg633QQT4-qS1lWfz0d6Jw6_9Ko7SKxlSKmbwc6HI1OOO-WICeCNdh3cmIaTZgeu369vA-EhHLVq2bXl7muSz3wA.mp4?_nc_cat=100&_nc_sid=5e9851&_nc_ht=scontent-lga3-2.xx.fbcdn.net&_nc_ohc=MZFmmrpyKOkQ7kNvwG9eIAD&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMTI4MC5kYXNoX2gyNjQtYmFzaWMtZ2VuMl83MjBwIiwieHB2X2Fzc2V0X2lkIjoxMTk2NjE2Njk5MDE1NDY5LCJhc3NldF9hZ2VfZGF5cyI6MCwidmlfdXNlY2FzZV9pZCI6MTAxMjEsImR1cmF0aW9uX3MiOjI2NTEsInVybGdlbl9zb3VyY2UiOiJ3d3cifQ==&ccb=17-1&vs=cfe40bb0e4614a15&_nc_vs=HBksFQIYRWZiX2VwaGVtZXJhbC85RjRDQjI2MkI0OTQ1RDhEMTQ5QkY0ODI5RjcxMEZCNF9tdF8xX3ZpZGVvX2Rhc2hpbml0Lm1wNBUAAsgBEgAVAhhAZmJfcGVybWFuZW50LzQ3NEQ1NUVFOEQ1MDIxMzkyNTJFQjIwMzc4Mjc5OEE3X2F1ZGlvX2Rhc2hpbml0Lm1wNBUCAsgBEgAoABgAGwKIB3VzZV9vaWwBMRJwcm9ncmVzc2l2ZV9yZWNpcGUBMRUAACbaxLeUoZSgBBUCKAJDMywXQKS2ok3S8aoYGWRhc2hfaDI2NC1iYXNpYy1nZW4yXzcyMHARAHUCZZKeAQA&_nc_gid=9uzirhJi4XUEK-MnQbKXhA&_nc_zt=28&oh=00_AfhGOO08zdFh6V2LUW11aK7cZDrc60TMHUj9pEY0fLCjlw&oe=69271EA4&bitrate=761228&tag=dash_h264-basic-gen2_720p", player3:"" } },
-            { id:"ksb-t1-c05-06", title:"Capítulo 05 y 06", info:"BD RPmods — 1080p", players:{ player1:"https://rodrigorpmods.rpmlive.online/#qyx9cu", player2:"", fb:"https://www.facebook.com/lasanta.biblia.969/videos/1532819994714762?idorvanity=815386104663635", fb720:"https://video.fhan15-2.fna.fbcdn.net/o1/v/t2/f2/m366/AQNBK8zbJtiK4yxJJddWWDNtJdgPBc0ZfDgQcEjeBHbPXREY3JmflwnqvbZpgkIKWOtO3UVKiLJ5fOyE3S-tGeEUsEFwubd3jYZ0SF5AioFTCQ.mp4?_nc_cat=111&_nc_oc=AdnG-G6u0gNE9et05FXaHrh1HeC2cMO8JVFl16TRqbtXFH66cplPVLjzeiI5URQtNfQ&_nc_sid=5e9851&_nc_ht=video.fhan15-2.fna.fbcdn.net&_nc_ohc=MxVxqJcMcFMQ7kNvwEVPDUW&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMTI4MC5kYXNoX2gyNjQtYmFzaWMtZ2VuMl83MjBwIiwieHB2X2Fzc2V0X2lkIjoyNDk5NDE0MzUyNjkxNzA4NCwiYXNzZXRfYWdlX2RheXMiOjAsInZpX3VzZWNhc2VfaWQiOjEwMTIxLCJkdXJhdGlvbl9zIjoyNjM4LCJ1cmxnZW5fc291cmNlIjoid3d3In0%3D&ccb=17-1&vs=ffd1d2f6a742ee73&_nc_vs=HBksFQIYRWZiX2VwaGVtZXJhbC85NDRCMTREQTk5NjlBRjQ1NkY0NUE3NEJFOTAzMTg4Q19tdF8xX3ZpZGVvX2Rhc2hpbml0Lm1wNBUAAsgBEgAVAhhAZmJfcGVybWFuZW50L0I5NDVFMDQ4QjhDNEQ2MjUzOURCMUQ2QzZGREE0QTk3X2F1ZGlvX2Rhc2hpbml0Lm1wNBUCAsgBEgAoABgAGwKIB3VzZV9vaWwBMRJwcm9ncmVzc2l2ZV9yZWNpcGUBMRUAACa4z5jm0ILmWBUCKAJDMywXQKSdRqfvnbIYGWRhc2hfaDI2NC1iYXNpYy1nZW4yXzcyMHARAHUCZZKeAQA&_nc_gid=mZPJEzQB4FsBa__jfIlI-Q&edm=AGo2L-IEAAAA&_nc_zt=28&oh=00_Afh88yR5Kb0gknyW4V-lYXFKOEK2J9217lAyjLr-BnhYJg&oe=69270415&bitrate=875444&tag=dash_h264-basic-gen2_720p", player3:"" } },
-			{ id:"ksb-t1-c07-08", title:"Capítulo 07 y 08", info:"BD RPmods — 1080p", players:{ player1:"https://rodrigorpmods.rpmlive.online/#gwdze9", player2:"", fb:"https://www.facebook.com/lasanta.biblia.969/videos/1390960725864673?idorvanity=815386104663635", fb720:"https://scontent-lga3-3.xx.fbcdn.net/o1/v/t2/f2/m366/AQNnUyzZwF1C-CuVfBOuFqVjYyuswK5JnYGp7PNaNhi44EmmxqOUDwvWO5KIWZkTVwWU63ZgauZkHZxdOE_diIBnZkYZf_dNz672kcu_sZhtUA.mp4?_nc_cat=110&_nc_sid=5e9851&_nc_ht=scontent-lga3-3.xx.fbcdn.net&_nc_ohc=vqc0maoEbpQQ7kNvwHXCfhc&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMTI4MC5kYXNoX2gyNjQtYmFzaWMtZ2VuMl83MjBwIiwieHB2X2Fzc2V0X2lkIjo4MzMxNDE2MTk0NzI3MjYsImFzc2V0X2FnZV9kYXlzIjowLCJ2aV91c2VjYXNlX2lkIjoxMDEyMSwiZHVyYXRpb25fcyI6MjY0MCwidXJsZ2VuX3NvdXJjZSI6Ind3dyJ9&ccb=17-1&vs=ad50cd20015d2644&_nc_vs=HBksFQIYRWZiX2VwaGVtZXJhbC9GODQ5QzEyMzU3MEFCNjhGRjREMzNBNTk5RjYwRkVBNl9tdF8xX3ZpZGVvX2Rhc2hpbml0Lm1wNBUAAsgBEgAVAhhAZmJfcGVybWFuZW50L0IxNDRCQjcwREI5RDY0MkZEQTI4MUQxRjFDMUU2NDlBX2F1ZGlvX2Rhc2hpbml0Lm1wNBUCAsgBEgAoABgAGwKIB3VzZV9vaWwBMRJwcm9ncmVzc2l2ZV9yZWNpcGUBMRUAACas5bXknO_6AhUCKAJDMywXQKSgR64UeuEYGWRhc2hfaDI2NC1iYXNpYy1nZW4yXzcyMHARAHUCZZKeAQA&_nc_gid=6NCFi3S_BYZpRl59lPYJjQ&_nc_zt=28&oh=00_Afh6rx_Xf6PhSNcIfyTrVvOss1WZlIWB3yyxvqjyaGNU0Q&oe=6927032E&bitrate=637627&tag=dash_h264-basic-gen2_720p", player3:"" } },
-			{ id:"ksb-t1-c09-10-11", title:"Capítulo 09 - 10 y 11 (OVA) FINAL", info:"BD RPmods — 1080p", players:{ player1:"https://rodrigorpmods.rpmlive.online/#xuakg9", player2:"", fb:"https://www.facebook.com/lasanta.biblia.969/videos/1401897678213769?idorvanity=815386104663635", fb720:"https://video-lga3-2.xx.fbcdn.net/o1/v/t2/f2/m366/AQMHEvq4ceoHY5sGG3eWtnOfbSSBFqvfBey10z87R4N8Q5aBIJrQ21pmMTfklUbzYOW8nEj7JWyeAs15gdu8IbnIRUsMAq5IE4aXccPxFtpQeA.mp4?_nc_cat=107&_nc_sid=5e9851&_nc_ht=video-lga3-2.xx.fbcdn.net&_nc_ohc=XY02nHJY6LAQ7kNvwEHSLXv&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMTI4MC5kYXNoX2gyNjQtYmFzaWMtZ2VuMl83MjBwIiwieHB2X2Fzc2V0X2lkIjoxNTA5MDkwNjA3MDkzNDQ3LCJhc3NldF9hZ2VfZGF5cyI6MCwidmlfdXNlY2FzZV9pZCI6MTAxMjEsImR1cmF0aW9uX3MiOjM5NjksInVybGdlbl9zb3VyY2UiOiJ3d3cifQ==&ccb=17-1&vs=480aa5799d51ab67&_nc_vs=HBksFQIYRWZiX2VwaGVtZXJhbC84MTQwNUVEOUVDQTM5ODU2RERENDNFMjUyNTM4MjZBMF9tdF8xX3ZpZGVvX2Rhc2hpbml0Lm1wNBUAAsgBEgAVAhhAZmJfZXBoZW1lcmFsLzZCNERDRUU0MTk2REUxODlBRjNCNzU2OEVDMDI4RkE5X2F1ZGlvX2Rhc2hpbml0Lm1wNBUCAsgBEgAoABgAGwKIB3VzZV9vaWwBMRJwcm9ncmVzc2l2ZV9yZWNpcGUBMRUAACaO246Z0aCuBRUCKAJDMywXQK8CGp--dskYGWRhc2hfaDI2NC1iYXNpYy1nZW4yXzcyMHARAHUCZZKeAQA&_nc_gid=2NJ4V2PSW9qcxd6QBS8T7Q&_nc_zt=28&oh=00_Afi0bZOPUaay-42uLCtzyqP9tCKx1fcG5x4pOGKFmWS9Tg&oe=69272415&bitrate=673194&tag=dash_h264-basic-gen2_720p", player3:"" } }
-          ],
+          chapters: {
+            latino: [
+              { id:"ksb-t1-lat-c01-02", title:"Capítulo 01 y 02", info:"Audio Latino — BD RPmods 1080p",
+                players:{ player1:"https://rodrigorpmods.rpmlive.online/#8kqexi", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"ksb-t1-lat-c03-04", title:"Capítulo 03 y 04", info:"Audio Latino — BD RPmods 1080p",
+                players:{ player1:"https://rodrigorpmods.rpmlive.online/#61wy1p", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"ksb-t1-lat-c05-06", title:"Capítulo 05 y 06", info:"Audio Latino — BD RPmods 1080p",
+                players:{ player1:"https://rodrigorpmods.rpmlive.online/#qyx9cu", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"ksb-t1-lat-c07-08", title:"Capítulo 07 y 08", info:"Audio Latino — BD RPmods 1080p",
+                players:{ player1:"https://rodrigorpmods.rpmlive.online/#gwdze9", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"ksb-t1-lat-c09-10-11", title:"Capítulo 09 - 10 y 11 (OVA)", info:"Audio Latino — BD RPmods 1080p",
+                players:{ player1:"https://rodrigorpmods.rpmlive.online/#xuakg9", player2:"", fb:"", fb720:"", player3:"" } }
+            ],
+            sub: [
+              { id:"ksb-t1-sub-c01-02", title:"Capítulo 01", info:"Sub Español — BD RPmods 1080p",
+                players:{ player1:"https://www.burstcloud.co/embed/8bba8c60b5711fc8e4b2b8c8ab0fdab782e684b8588bcd18e89baa0f62271430/capitulo%2001%20version%20jap%C3%83%C2%B3nes%20completo%20BD.mp4", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"ksb-t1-sub-prox1", title:"Próximamente — Capítulo 02", info:"Sub Español — Esperando estreno", status:"Próximo",
+                players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"ksb-t1-sub-prox2", title:"Próximamente — Capítulo 03", info:"Sub Español — Esperando estreno", status:"Próximo",
+                players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } }
+            ]
+          },
           extrasAudio: { title: "Radio KonoSuba — Selección", url: "" },
           extras: [
             { id:"ksb-extra-1", title:"Konosuba Opening (JAPONÉS) (Crunchyroll)", url:"https://www.youtube.com/watch?v=fpG3BPNQepY" },
-            { id:"ksb-extra-2", title:"Konosuba Ending (JAPONÉS) (Crunchyroll)", url:"https://www.youtube.com/watch?v=JhiU4IAZtug" },
+            { id:"ksb-extra-2", title:"Konosuba Ending (JAPONÉS) (Crunchyroll)", url:"https://www.youtube.com/watch?v=JhiU4IAZtug" }
           ],
           extrasPlaylist: {
             cover: "extra/CB_COVER.png",
@@ -444,38 +462,11 @@
               { src: "extra/05CBI.mp3",  title: "Chiisana Boukensha (Instrumental)" }
             ]
           }
-        },
-        "KonoSuba (Temporada 2)": {
-          cover: "",
-          season2Key: null,
-          openingUrl: "",
-          endingUrl: "",
-          info: {
-            audio: "Japonés",
-            subs: "Español (SUB)",
-            oped: "Clean Version",
-            karaoke: "Sí",
-            quality: "1080p (BD RPmods)",
-            note: "Temporada 2 con mejoras BD RPmods."
-          },
-          chapters: [
-            { id:"ksb-t2-prox0", title:"Próximamente — Capítulos 01 y 02", info:"Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
-            { id:"ksb-t2-prox1", title:"Próximamente — Capítulos 03 y 04", info:"Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
-            { id:"ksb-t2-prox2", title:"Próximamente — Capítulos 05 y 06", info:"Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } }
-          ],
-          extrasAudio: { title: "Radio KonoSuba T2 — Selección", url: "" },
-          extras: [
-            { id:"ksb2-extra-1", title:"Extra 01 — PV T2", url:"" },
-            { id:"ksb2-extra-2", title:"Extra 02 — Clean OP (BD)", url:"" },
-            { id:"ksb2-extra-3", title:"Extra 03 — Clean ED (BD)", url:"" }
-          ],
-          extrasPlaylist: { cover:"extra/cover_konosuba_t2.jpg", title:"Playlist — KonoSuba T2", tracks: [] }
         }
       },
       tv: {
         "Las 100 Novias": {
           cover: "",
-          season2Key: null,
           info: {
             audio: "Japonés",
             subs: "Español (SUB)",
@@ -484,11 +475,18 @@
             quality: "1080p",
             note: "Edición estándar para streaming."
           },
-          chapters: [
-            { id:"100nv-prox0", title:"Próximamente — Capítulos 01 y 02", info:"Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
-            { id:"100nv-prox1", title:"Próximamente — Capítulos 03 y 04", info:"Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
-            { id:"100nv-prox2", title:"Próximamente — Capítulos 05 y 06", info:"Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } }
-          ],
+          chapters: {
+            latino: [
+              { id:"100nv-lat-prox0", title:"Próximamente — Capítulos 01 y 02", info:"Latino — Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"100nv-lat-prox1", title:"Próximamente — Capítulos 03 y 04", info:"Latino — Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"100nv-lat-prox2", title:"Próximamente — Capítulos 05 y 06", info:"Latino — Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } }
+            ],
+            sub: [
+              { id:"100nv-sub-prox0", title:"Próximamente — Capítulos 01 y 02", info:"Sub Español — Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"100nv-sub-prox1", title:"Próximamente — Capítulos 03 y 04", info:"Sub Español — Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"100nv-sub-prox2", title:"Próximamente — Capítulos 05 y 06", info:"Sub Español — Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } }
+            ]
+          },
           extrasAudio: { title: "OST — 100 Novias", url: "" },
           extras: [
             { id:"100nv-extra-1", title:"Extra 01 — PV #1", url:"" },
@@ -505,52 +503,6 @@
        =========================== */
     const $  = sel => document.querySelector(sel);
     const $$ = sel => Array.from(document.querySelectorAll(sel));
-
-    /* ===========================
-       COUNTAPI (likes + visitas)
-       =========================== */
-    const COUNTAPI_BASE = 'https://api.countapi.xyz';
-    const COUNTAPI_NS   = 'rodrigorpmods'; // namespace global
-
-    function slugifySeries(scope, key){
-      let base = (key || '').toLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .replace(/[()]/g, '')
-        .replace(/[^a-z0-9]+/g, '_')
-        .replace(/^_+|_+$/g, '');
-      return `${scope}_${base}`;
-    }
-    async function countapi(path){
-      const res = await fetch(`${COUNTAPI_BASE}${path}`);
-      if(!res.ok) throw new Error(`CountAPI ${res.status}`);
-      return res.json();
-    }
-    async function ensureKey(type, slug){
-      const key = `${type}:${slug}`;
-      try {
-        const r = await countapi(`/get/${COUNTAPI_NS}/${key}`);
-        if(typeof r.value === 'number') return r.value;
-      } catch(e) {}
-      const r2 = await countapi(`/create?namespace=${encodeURIComponent(COUNTAPI_NS)}&key=${encodeURIComponent(key)}&value=0`);
-      return r2.value ?? 0;
-    }
-    async function hitView(slug){
-      const key = `views:${slug}`;
-      const r = await countapi(`/hit/${COUNTAPI_NS}/${key}`);
-      return r.value;
-    }
-    async function getLikes(slug){
-      await ensureKey('likes', slug);
-      const r = await countapi(`/get/${COUNTAPI_NS}/likes:${slug}`);
-      return r.value || 0;
-    }
-    async function addLike(slug){
-      const r = await countapi(`/update/${COUNTAPI_NS}/likes:${slug}?amount=1`);
-      return r.value;
-    }
-    function localLikeKey(slug){ return `rp_like_${slug}`; }
-    function hasLiked(slug){ return localStorage.getItem(localLikeKey(slug)) === '1'; }
-    function markLiked(slug){ localStorage.setItem(localLikeKey(slug), '1'); }
 
     const tabButtons = $$('.tab');
     const tabAnimes  = $('#tab-animes');
@@ -570,6 +522,7 @@
     let currentScope = 'bd';
     let currentAnimeKey = null;
     let currentChapterId = null;
+    let currentLang = 'latino';
 
     // Elementos dinámicos
     const listBD = $('#list-bd');
@@ -584,11 +537,6 @@
     const chaptersList = $('#chapters-list');
     const playerButtonsWrap = $('#player-buttons');
     const viewer = $('#viewer');
-    // Contadores (UI)
-    const viewsCount = $('#views-count');
-    const likesCount = $('#likes-count');
-    const likeBtn    = $('#like-btn');
-    const likeHint   = $('#like-hint');
     const extrasGrid = document.querySelector('#extras-grid');
 
     // Audio único (opcional)
@@ -606,6 +554,31 @@
     const btnPlay = $('#btn-play');
     const btnNext = $('#btn-next');
     const playlistAudio = $('#playlist-audio');
+
+    // Botones idioma capítulos
+    const langLatBtn = $('#lang-latino');
+    const langSubBtn = $('#lang-sub');
+    const chaptersLangLabel = $('#chapters-lang-label');
+
+    /* Cambiar idioma (Latino / Sub) */
+    function setLang(lang){
+      if(lang !== 'latino' && lang !== 'sub') return;
+      currentLang = lang;
+
+      langLatBtn.classList.toggle('active', lang === 'latino');
+      langSubBtn.classList.toggle('active', lang === 'sub');
+      chaptersLangLabel.textContent = (lang === 'latino') ? 'Latino' : 'Sub Español';
+
+      if(currentScope && currentAnimeKey){
+        setChapters(currentScope, currentAnimeKey);
+        currentChapterId = null;
+        playerButtonsWrap.innerHTML = '';
+        resetViewer(); // mantiene portada
+      }
+    }
+
+    langLatBtn.addEventListener('click', ()=> setLang('latino'));
+    langSubBtn.addEventListener('click', ()=> setLang('sub'));
 
     /* Render Sidebar con filtro unificado */
     function renderSidebar(filter = ""){
@@ -647,54 +620,6 @@
       return item;
     }
 
-    // === Contadores por serie ===
-    async function updateCounters(scope, key){
-      const slug = slugifySeries(scope, key);
-
-      // VISITAS
-      try {
-        const v = await hitView(slug);
-        viewsCount.textContent = v;
-      } catch(e){
-        viewsCount.textContent = '—';
-      }
-
-      // LIKES
-      likeHint.textContent = '';
-      likeBtn.disabled = false;
-      likeBtn.classList.remove('disabled');
-      likeBtn.onclick = null; // limpia handlers anteriores
-
-      try {
-        const currentLikes = await getLikes(slug);
-        likesCount.textContent = currentLikes;
-
-        if(hasLiked(slug)){
-          likeBtn.disabled = true;
-          likeBtn.classList.add('disabled');
-          likeHint.textContent = 'Ya diste like a esta serie en este dispositivo.';
-        } else {
-          likeBtn.onclick = async ()=>{
-            if(likeBtn.disabled) return;
-            likeBtn.disabled = true;
-            try {
-              const newVal = await addLike(slug);
-              likesCount.textContent = newVal;
-              markLiked(slug);
-              likeHint.textContent = '¡Gracias por tu like!';
-              likeBtn.classList.add('disabled');
-            } catch(e){
-              likeBtn.disabled = false;
-              likeHint.textContent = 'Error al dar like. Intenta de nuevo.';
-            }
-          };
-        }
-      } catch(e){
-        likesCount.textContent = '—';
-        likeHint.textContent = 'No se pudo cargar likes.';
-      }
-    }
-
     function selectSeries(scope, key){
       currentScope = scope;
       currentAnimeKey = key;
@@ -708,31 +633,15 @@
       setExtras(scope, key);
       setCategoryText(scope, key);
       resetViewer(); // portada placeholder
-
-      // NUEVO: actualizar likes/visitas por serie
-      updateCounters(scope, key);
     }
 
-    /* Texto por categoría y botón "Ir a Temporada 2" en BD RPmods */
+    /* Texto por categoría */
     function setCategoryText(scope, key){
-      const series = DATA[scope][key];
       const baseText = scope==='bd'
         ? `<strong>Anime BD RPmods:</strong> versiones Blu-ray mejoradas con añadidos especiales.`
         : `<strong>Anime:</strong> ediciones estándar para streaming.`;
 
-      const hasT2 = (scope === 'bd') && series && series.season2Key && !!DATA.bd[series.season2Key];
-      const seasonLink = hasT2 ? ` <span id="season-jump" class="link-season">Ir a Temporada 2 ⤴</span>` : '';
-
-      categoryNote.innerHTML = baseText + seasonLink;
-
-      if(hasT2){
-        const jump = document.getElementById('season-jump');
-        jump.onclick = ()=>{
-          const t2Key = series.season2Key;
-          const target = document.querySelector(`.side-item[data-scope="bd"][data-key="${CSS.escape(t2Key)}"]`);
-          if(target) target.click(); else selectSeries('bd', t2Key);
-        };
-      }
+      categoryNote.innerHTML = baseText;
     }
 
     function setCrumbs(scope, key){
@@ -758,7 +667,26 @@
       const series = DATA[scope][key];
       chaptersTitle.textContent = `Capítulos — ${key}`;
       chaptersList.innerHTML = '';
-      series.chapters.forEach((ch, idx)=>{
+
+      let list = [];
+      if(Array.isArray(series.chapters)){
+        list = series.chapters;
+      }else if(series.chapters && Array.isArray(series.chapters[currentLang])){
+        list = series.chapters[currentLang];
+      }
+
+      if(!list.length){
+        const row = document.createElement('div');
+        row.className = 'chap-item';
+        row.innerHTML = `
+          <div><strong>Sin capítulos en este idioma</strong></div>
+          <span class="tag">Próximamente</span>
+        `;
+        chaptersList.appendChild(row);
+        return;
+      }
+
+      list.forEach((ch)=>{
         const row = document.createElement('div');
         row.className = 'chap-item';
         row.dataset.id = ch.id;
@@ -800,7 +728,7 @@
         btn.addEventListener('click', (e)=>{
           const u = e.currentTarget.dataset.url;
           if(!u) return;
-          // Solo "Ver en Facebook" abre nueva pestaña
+          // "Ver en Facebook" abre nueva pestaña
           if(def.key === 'fb'){
             window.open(u, '_blank');
           }else{
@@ -851,8 +779,8 @@
       if(isBD){
         // Opening/Ending por serie
         extrasToRender.push(
-          { id:"opening", title:"Opening Clean Version", url: series.openingUrl || "" },
-          { id:"ending",  title:"Ending Clean Version",  url: series.endingUrl  || "" },
+          { id:"opening", title:"Opening Latino Clean Version", url: series.openingUrl || "" },
+          { id:"ending",  title:"Ending Latino Clean Version",  url: series.endingUrl  || "" }
         );
       }
 
@@ -1007,12 +935,4 @@
     if(firstBD){ firstBD.click(); }
   </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
