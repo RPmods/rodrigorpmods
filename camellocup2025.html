@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Camello Cup 2025 — Mapas Oficiales</title>
+
+  <style>
+    :root {
+      --bg: #050506;
+      --panel: #111217;
+      --panel-soft: #171822;
+      --accent: #e63946;
+      --accent-soft: rgba(230, 57, 70, 0.14);
+      --muted: #b0b3c0;
+      --border-soft: rgba(255, 255, 255, 0.06);
+      --radius: 14px;
+      --shadow: 0 26px 60px rgba(0, 0, 0, 0.7);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #171822 0, #050506 55%, #020203 100%);
+      color: #f5f5f5;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(230, 57, 70, 0.16), transparent 55%),
+                  radial-gradient(circle at bottom, rgba(0, 0, 0, 0.96), rgba(0, 0, 0, 1) 70%);
+      backdrop-filter: blur(3px);
+      z-index: -1;
+    }
+
+    .card {
+      width: min(1020px, 100%);
+      background: linear-gradient(145deg, #171822, #101118);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+    }
+
+    /* HEADER */
+    .card-header {
+      position: relative;
+      padding: 18px 24px 18px 24px;
+      background: linear-gradient(120deg, #e63946, #f95738);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .badge {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .title-main {
+      font-size: clamp(22px, 2.3vw, 26px);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .title-main span.year {
+      font-size: 16px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .card-header-right {
+      text-align: right;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.9);
+      max-width: 260px;
+    }
+
+    .card-header-right strong {
+      font-size: 13px;
+    }
+
+    /* BODY */
+    .card-body {
+      padding: 20px 22px 22px 22px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .subtitle span.dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .helper-text {
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 620px;
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+
+    /* Bloque de info del servidor */
+    .server-info {
+      display: grid;
+      grid-template-columns: 2fr 1.6fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .server-card,
+    .stream-card {
+      padding: 10px 12px;
+      background: rgba(10, 11, 18, 0.94);
+      border-radius: 11px;
+      border: 1px solid var(--border-soft);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .server-card-title,
+    .stream-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #f5f5f5;
+      margin-bottom: 4px;
+    }
+
+    .server-ip {
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 13px;
+      color: #ffffff;
+      padding: 4px 8px;
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 8px;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+
+    .server-location {
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .stream-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .stream-link {
+      text-decoration: none;
+      font-size: 11px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #f5f5f5;
+      background: rgba(5, 6, 12, 0.96);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .stream-link span.icon {
+      font-size: 13px;
+    }
+
+    .stream-link:hover {
+      transform: translateY(-1px);
+      background: rgba(249, 65, 68, 0.9);
+      border-color: rgba(249, 65, 68, 1);
+    }
+
+    /* LISTA DE MAPAS */
+    .maps-wrapper {
+      margin-top: 2px;
+      border-radius: 13px;
+      background: radial-gradient(circle at top left, rgba(249, 65, 68, 0.09), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(88, 86, 214, 0.08), transparent 50%);
+      border: 1px solid var(--border-soft);
+      max-height: min(480px, 60vh);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .maps-header {
+      padding: 10px 14px;
+      display: grid;
+      grid-template-columns: 1.5fr 0.9fr 0.9fr;
+      gap: 10px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: #9ca3b5;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      background: rgba(10, 11, 18, 0.96);
+    }
+
+    .maps-scroll {
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    .maps-scroll::-webkit-scrollbar {
+      width: 7px;
+    }
+    .maps-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .maps-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+    }
+
+    .map-row {
+      display: grid;
+      grid-template-columns: 1.5fr 0.9fr 0.9fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 14px;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.012), transparent);
+    }
+
+    .map-row:nth-child(odd) {
+      background: radial-gradient(circle at left, rgba(255, 255, 255, 0.02), transparent 65%);
+    }
+
+    .map-name {
+      font-weight: 500;
+    }
+
+    .map-date {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .map-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-map {
+      padding: 7px 15px;
+      font-size: 12px;
+      text-decoration: none;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(5, 6, 12, 0.96);
+      color: #f5f5f5;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 600;
+      transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn-map span.icon {
+      font-size: 14px;
+    }
+
+    .btn-map:hover {
+      background: rgba(249, 65, 68, 0.9);
+      border-color: rgba(249, 65, 68, 1);
+      transform: translateY(-1px);
+    }
+
+    /* FOOTER */
+    .card-footer {
+      padding: 10px 22px 16px 22px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-footer strong {
+      color: #f5f5f5;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 12px;
+      }
+
+      .card {
+        border-radius: 14px;
+      }
+
+      .card-header {
+        align-items: flex-start;
+      }
+
+      .card-header-right {
+        text-align: left;
+        max-width: none;
+      }
+
+      .server-info {
+        grid-template-columns: 1fr;
+      }
+
+      .maps-header,
+      .map-row {
+        grid-template-columns: 1.4fr 0.9fr;
+      }
+      .maps-header div:nth-child(3),
+      .map-row .map-actions {
+        grid-column: 1 / -1;
+      }
+      .map-actions {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="backdrop"></div>
+
+  <main class="card" aria-label="Listado de mapas oficiales Camello Cup 2025">
+    <!-- HEADER -->
+    <header class="card-header">
+      <div class="card-header-left">
+        <div class="badge">Left 4 Dead 2 — Torneo</div>
+        <div class="title-main">
+          CAMELLO CUP
+          <span class="year">2025</span>
+        </div>
+      </div>
+      <div class="card-header-right">
+        <strong>Mapas oficiales de competición</strong><br>
+        Descarga e instala todos los mapas antes de entrar al servidor para evitar errores y desconexiones.
+      </div>
+    </header>
+
+    <!-- BODY -->
+    <section class="card-body">
+      <div class="subtitle">
+        <span class="dot"></span>
+        Información de conexión
+      </div>
+
+      <p class="helper-text">
+        Usa los datos de abajo para conectarte al servidor del torneo y revisa la lista de mapas para descargarlos uno por uno.
+      </p>
+
+      <!-- INFO SERVIDOR + ENLACES -->
+      <div class="server-info">
+        <div class="server-card">
+          <div class="server-card-title">IP del servidor</div>
+          <div class="server-ip">23.230.3.145:25808</div>
+          <div class="server-location">Servidor ubicado en <strong>Miami</strong>.</div>
+        </div>
+
+        <div class="stream-card">
+          <div class="stream-card-title">Redes Sociales "Organizador"</div>
+          <div>Streams y contenido relacionado con Camello Cup 2025:</div>
+          <div class="stream-links">
+            <a class="stream-link" href="https://kick.com/raullm" target="_blank" rel="noopener">
+              <span class="icon">▶</span> Kick / raullm
+            </a>
+            <a class="stream-link" href="https://www.tiktok.com/@raullm_" target="_blank" rel="noopener">
+              <span class="icon">🎵</span> TikTok / @raullm_
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="subtitle" style="margin-top: 4px;">
+        <span class="dot"></span>
+        Lista de mapas
+      </div>
+
+      <!-- LISTA DE MAPAS -->
+      <div class="maps-wrapper">
+        <div class="maps-header">
+          <div>Mapas Competitivos</div>
+          <div>Última actualización</div>
+          <div>Descarga</div>
+        </div>
+
+        <div class="maps-scroll">
+
+          <div class="map-row">
+            <div class="map-name">Carried Off</div>
+            <div class="map-date">31/Mar/2024</div>
+            <div class="map-actions">
+              <a class="btn-map" href="https://l4d2center.com/maps/servers/carriedoff.7z" target="_blank">
+                <span class="icon">⬇</span> Download
+              </a>
+            </div>
+          </div>
+
+          <div class="map-row">
+            <div class="map-name">Dark Carnival Remix</div>
+            <div class="map-date">08/May/2024</div>
+            <div class="map-actions">
+              <a class="btn-map" href="https://l4d2center.com/maps/servers/dark%20carnival%20remix.7z" target="_blank">
+                <span class="icon">⬇</span> Download
+              </a>
+            </div>
+          </div>
+
+          <div class="map-row">
+            <div class="map-name">Fatal Freight</div>
+            <div class="map-date">16/Jan/2024</div>
+            <div class="map-actions">
+              <a class="btn-map" href="https://l4d2center.com/maps/servers/cmpn_FatalFreightFix.7z" target="_blank">
+                <span class="icon">⬇</span> Download
+              </a>
+            </div>
+          </div>
+
+          <div class="map-row">
+            <div class="map-name">Parish Overgrowth</div>
+            <div class="map-date">16/Jan/2025</div>
+            <div class="map-actions">
+              <a class="btn-map" href="https://l4d2center.com/maps/servers/parish%20overgrowth.7z" target="_blank">
+                <span class="icon">⬇</span> Download
+              </a>
+            </div>
+          </div>
+
+          <div class="map-row">
+            <div class="map-name">Dead Center 2025</div>
+            <div class="map-date">25/Sep/2025</div>
+            <div class="map-actions">
+              <a class="btn-map" href="https://l4d2center.com/maps/servers/dead_center_2025.7z" target="_blank">
+                <span class="icon">⬇</span> Download
+              </a>
+            </div>
+          </div>
+
+          <div class="map-row">
+            <div class="map-name">No Mercy Rehab</div>
+            <div class="map-date">19/Oct/2024</div>
+            <div class="map-actions">
+              <a class="btn-map" href="https://l4d2center.com/maps/servers/nomercyrehab.7z" target="_blank">
+                <span class="icon">⬇</span> Download
+              </a>
+            </div>
+          </div>
+
+          <div class="map-row">
+            <div class="map-name">Detour Ahead</div>
+            <div class="map-date">07/Jan/2023</div>
+            <div class="map-actions">
+              <a class="btn-map" href="https://l4d2center.com/maps/servers/detourahead.7z" target="_blank">
+                <span class="icon">⬇</span> Download
+              </a>
+            </div>
+          </div>
+
+          <div class="map-row">
+            <div class="map-name">Dead Before Dawn</div>
+            <div class="map-date">23/Jan/2023</div>
+            <div class="map-actions">
+              <a class="btn-map" href="https://l4d2center.com/maps/servers/deadbeforedawn2_dc.7z" target="_blank">
+                <span class="icon">⬇</span> Download
+              </a>
+            </div>
+          </div>
+
+          <div class="map-row">
+            <div class="map-name">Diescraper Redux</div>
+            <div class="map-date">07/Jan/2023</div>
+            <div class="map-actions">
+              <a class="btn-map" href="https://l4d2center.com/maps/servers/l4d2_diescraper_362.7z" target="_blank">
+                <span class="icon">⬇</span> Download
+              </a>
+            </div>
+          </div>
+
+          <div class="map-row">
+            <div class="map-name">Hard Rain Downpour</div>
+            <div class="map-date">07/Jan/2023</div>
+            <div class="map-actions">
+              <a class="btn-map" href="https://l4d2center.com/maps/servers/downpour.7z" target="_blank">
+                <span class="icon">⬇</span> Download
+              </a>
+            </div>
+          </div>
+
+          <div class="map-row">
+            <div class="map-name">Suicide Blitz 2</div>
+            <div class="map-date">05/Nov/2023</div>
+            <div class="map-actions">
+              <a class="btn-map" href="https://l4d2center.com/maps/servers/suicideblitz2.7z" target="_blank">
+                <span class="icon">⬇</span> Download
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="card-footer">
+      <div>
+        <strong>Nota:</strong> los enlaces de descarga de mapas están basados en los paquetes provistos por
+        <strong>L4D2Center.com</strong>. Todos los créditos de los mapas corresponden a sus respectivos autores.
+      </div>
+      <div>
+        Cualquier error o bug del servidor, contactar al developer <strong>RodrigoRPmods</strong> por Discord:
+        <strong>rodrigorpmods#6553</strong>.
+      </div>
+    </footer>
+  </main>
+</body>
+</html>
