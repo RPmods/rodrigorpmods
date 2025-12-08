@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>FNAF COLLECTION 2025 — RPmods</title>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    html,body{
+      height:100%;
+      font-family:Arial, sans-serif;
+      background:#000;
+      color:#fff;
+    }
+
+    /* CENTRADO GENERAL */
+    body{
+      display:flex;
+      align-items:center;      /* centra vertical */
+      justify-content:center;  /* centra horizontal */
+      padding:16px;
+      overflow:hidden;         /* scroll interno va dentro de .content */
+    }
+
+    /* VIDEO DE FONDO */
+    .video-bg{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      overflow:hidden;
+    }
+    .video-bg video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      pointer-events:none;
+      background:#000;
+    }
+
+    /* OSCURECER BASE */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.35);
+      z-index:1;
+    }
+
+    /* CAPA PARA EL FADE (cambio de video) */
+    .fade-layer{
+      position:fixed;
+      inset:0;
+      background:#000;
+      opacity:0;
+      pointer-events:none;
+      z-index:2;
+      transition:opacity 0.35s ease;
+    }
+    .fade-layer.active{
+      opacity:1;
+    }
+
+    /* PANEL CENTRAL */
+    .content{
+      position:relative;
+      z-index:3;                     /* por encima del fade */
+      width:min(900px,100%);
+      max-height:90vh;
+      padding:20px;
+      background:rgba(0,0,0,0.55);
+      border:1px solid rgba(255,255,255,0.25);
+      border-radius:12px;
+      backdrop-filter:blur(4px);
+      overflow-y:auto;
+    }
+
+    /* CABECERA */
+    .badge{
+      font-size:11px;
+      opacity:0.8;
+      margin-bottom:4px;
+      letter-spacing:0.15em;
+      text-transform:uppercase;
+    }
+    .title{
+      font-size:24px;
+      font-weight:800;
+      margin-bottom:4px;
+      text-transform:uppercase;
+    }
+    .subtitle{
+      font-size:12px;
+      opacity:0.9;
+      margin-bottom:10px;
+    }
+
+    /* BOTÓN DE SONIDO */
+    .sound-btn{
+      border:1px solid rgba(255,255,255,0.8);
+      background:rgba(0,0,0,0.4);
+      padding:6px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      font-size:12px;
+      letter-spacing:0.08em;
+      margin-bottom:14px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    /* TABS (centradas, más grandes y llamativas) */
+    .tabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      border-bottom:1px solid rgba(255,255,255,0.2);
+      margin-bottom:12px;
+      justify-content:center;
+    }
+    .tab-btn{
+      padding:8px 18px;
+      font-size:13px;
+      border:1px solid rgba(255,255,255,0.2);
+      background:rgba(0,0,0,0.4);
+      color:#ddd;
+      cursor:pointer;
+      border-radius:999px 999px 0 0;
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+      transition:background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+    }
+    .tab-btn:hover{
+      background:rgba(255,255,255,0.14);
+      border-color:rgba(255,255,255,0.5);
+      transform:translateY(-1px);
+    }
+    .tab-btn.active{
+      background:rgba(230,57,70,0.85);
+      border-color:rgba(230,57,70,1);
+      color:#fff;
+    }
+
+    .tab-pane{display:none}
+    .tab-pane.active{display:block}
+
+    /* LAYOUT: portada + info */
+    .game-layout{
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+
+    .game-cover{
+      flex:0 0 150px;
+      max-width:180px;
+    }
+    .game-cover img{
+      width:100%;
+      display:block;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.35);
+      box-shadow:0 6px 18px rgba(0,0,0,0.6);
+      object-fit:cover;
+    }
+
+    .game-info{
+      flex:1 1 0;
+      min-width:0;
+    }
+
+    .game-title{
+      font-size:17px;
+      font-weight:700;
+      margin-bottom:5px;
+    }
+    .game-desc{
+      font-size:13px;
+      opacity:0.9;
+      margin-bottom:12px;
+    }
+
+    .game-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    /* BOTONES CON ESPACIO PARA LOGO */
+    .btn-download{
+      padding:6px 14px;
+      border-radius:999px;
+      font-size:12px;
+      text-decoration:none;
+      text-transform:uppercase;
+      color:#fff;
+      border:1px solid rgba(255,255,255,0.4);
+      background:rgba(0,0,0,0.65);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      min-height:34px;
+    }
+    .btn-download:hover{
+      background:#e63946;
+      border-color:#e63946;
+    }
+    .btn-download.secondary{
+      background:rgba(255,255,255,0.1);
+    }
+    .btn-download.mod{
+      background:rgba(88,86,214,0.25);
+      border-color:rgba(88,86,214,0.7);
+    }
+    .btn-download.mod:hover{
+      background:rgba(88,86,214,0.55);
+      border-color:#5856d6;
+    }
+
+    .btn-logo{
+      width:20px;
+      height:20px;
+      border-radius:4px;
+      overflow:hidden;
+      flex-shrink:0;
+      background:rgba(255,255,255,0.06);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .btn-logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+    }
+
+    .btn-label{
+      white-space:nowrap;
+    }
+
+    .footer{
+      margin-top:18px;
+      font-size:11px;
+      opacity:0.8;
+    }
+
+    /* SPLASH DE DESCARGA */
+    .download-splash{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.85);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:999;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity 0.25s ease;
+    }
+    .download-splash.active{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .download-splash-box{
+      padding:18px 22px;
+      border-radius:10px;
+      background:rgba(10,10,10,0.95);
+      border:1px solid rgba(255,255,255,0.35);
+      max-width:320px;
+      text-align:center;
+      box-shadow:0 10px 30px rgba(0,0,0,0.8);
+    }
+    .download-splash-title{
+      font-size:15px;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+    .download-splash-sub{
+      font-size:12px;
+      opacity:0.88;
+      margin-bottom:10px;
+    }
+    .download-splash-hint{
+      font-size:11px;
+      opacity:0.75;
+    }
+
+    @media (max-width:700px){
+      body{
+        padding:10px;
+      }
+      .content{
+        padding:14px;
+      }
+      .game-layout{
+        flex-direction:column;
+      }
+      .game-cover{
+        max-width:220px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- VIDEO DE FONDO -->
+  <div class="video-bg">
+    <video id="bgVideo" autoplay loop playsinline muted>
+      <!-- VIDEO POR DEFECTO (ej: FNAF 1) -->
+      <source id="bgSource" src="bg-video-1.mp4" type="video/mp4">
+      Tu navegador no soporta video HTML5.
+    </video>
+  </div>
+
+  <!-- CAPA OSCURA BASE -->
+  <div class="overlay"></div>
+
+  <!-- CAPA PARA FADE -->
+  <div class="fade-layer" id="fadeLayer"></div>
+
+  <!-- SPLASH DE DESCARGA -->
+  <div class="download-splash" id="downloadSplash">
+    <div class="download-splash-box">
+      <div class="download-splash-title">Haciendo un link seguro de descarga…</div>
+      <div class="download-splash-sub">Por favor espera unos segundos mientras preparamos tu descarga.</div>
+      <div class="download-splash-hint">No cierres esta ventana. Serás redirigido automáticamente.</div>
+    </div>
+  </div>
+
+  <!-- PANEL CENTRAL -->
+  <div class="content">
+
+    <div class="badge">RodrigoRPmods Games "Private Space"</div>
+    <div class="title">FNAF COLLECTION GAMES 2025</div>
+    <div class="subtitle">Descargas — Steam, no Steam y Spanish Project MOD. DESCARGAS VERIFICADAS</div>
+
+    <button id="soundToggle" class="sound-btn">
+      <span class="icon">🔇</span> Fondo
+    </button>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="f1">FNAF 1</button>
+      <button class="tab-btn" data-tab="f2">FNAF 2</button>
+      <button class="tab-btn" data-tab="f3">FNAF 3</button>
+      <button class="tab-btn" data-tab="f4">FNAF 4</button>
+      <button class="tab-btn" data-tab="sl">FNAF SL</button>
+      <button class="tab-btn" data-tab="ucn">FNAF UCN</button>
+    </div>
+
+    <!-- CONTENIDO DE CADA JUEGO -->
+
+    <!-- FNAF 1 -->
+    <div id="f1" class="tab-pane active">
+      <div class="game-layout">
+        <div class="game-cover">
+          <!-- PORTADA FNAF 1 -->
+          <img src="covers/portada1.png" alt="Portada FNAF 1">
+        </div>
+        <div class="game-info">
+          <div class="game-title">Five Nights at Freddy's 1</div>
+          <div class="game-desc">
+            El clásico que inició toda la saga. Vigila cámaras, administra energía y sobrevive a los animatrónicos durante cinco noches.
+          </div>
+          <div class="game-actions">
+            <!-- No Steam: con splash -->
+            <a href="#"
+               class="btn-download"
+               data-url="https://www.mediafire.com/file/ysyqevytme41unq/Five%252BNights%252Bat%252BFreddys%252B1.rar/file">
+              <span class="btn-logo">
+                <img src="covers/logo 2.png" alt="">
+              </span>
+              <span class="btn-label">Descarga no Steam</span>
+            </a>
+
+            <!-- Steam: sin splash (va directo) -->
+            <a href="https://store.steampowered.com/app/319510"
+               class="btn-download secondary no-splash"
+               target="_blank" rel="noopener">
+              <span class="btn-logo">
+                <img src="covers/Icon.jpeg" alt="">
+              </span>
+              <span class="btn-label">Descarga Steam</span>
+            </a>
+
+            <!-- Spanish Project MOD: con splash -->
+            <a href="#"
+               class="btn-download mod"
+               data-url="https://www.mediafire.com/file/k5pj0giyyfdwihe/Five_Nights_at_Freddys_Edicion_Ultra.exe/file">
+              <span class="btn-logo">
+                <img src="covers/logo 2.png" alt="">
+              </span>
+              <span class="btn-label">Spanish Project MOD</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FNAF 2 -->
+    <div id="f2" class="tab-pane">
+      <div class="game-layout">
+        <div class="game-cover">
+          <img src="covers/portada2.png" alt="Portada FNAF 2">
+        </div>
+        <div class="game-info">
+          <div class="game-title">Five Nights at Freddy's 2</div>
+          <div class="game-desc">
+            Precuela con nuevos animatrónicos, máscara de Freddy y un sistema de cámaras más agresivo. La vigilancia es constante.
+          </div>
+          <div class="game-actions">
+            <a href="#"
+               class="btn-download"
+               data-url="https://www.mediafire.com/file/2v9icq5mps81jma/Five%252BNights%252Bat%252BFreddys%252B2.rar/file">
+              <span class="btn-logo">
+                <img src="covers/logo 2.png" alt="">
+              </span>
+              <span class="btn-label">Descarga no Steam</span>
+            </a>
+
+            <a href="https://store.steampowered.com/app/332800"
+               class="btn-download secondary no-splash"
+               target="_blank" rel="noopener">
+              <span class="btn-logo">
+                <img src="covers/Icon.jpeg" alt="">
+              </span>
+              <span class="btn-label">Descarga Steam</span>
+            </a>
+
+            <a href="#"
+               class="btn-download mod"
+               data-url="https://www.mediafire.com/file/6nigs93pugt11z2/Five+Nights+at+Freddy%27s+2.exe">
+              <span class="btn-logo">
+                <img src="covers/logo 2.png" alt="">
+              </span>
+              <span class="btn-label">Spanish Project MOD</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FNAF 3 -->
+    <div id="f3" class="tab-pane">
+      <div class="game-layout">
+        <div class="game-cover">
+          <img src="covers/portada3.png" alt="Portada FNAF 3">
+        </div>
+        <div class="game-info">
+          <div class="game-title">Five Nights at Freddy's 3</div>
+          <div class="game-desc">
+            Años después del cierre del restaurante original, un parque de terror reabre con una sola amenaza real: Springtrap.
+          </div>
+          <div class="game-actions">
+            <a href="#"
+               class="btn-download"
+               data-url="https://www.mediafire.com/file/y9z5x0p47s7gyr6/Five%252BNights%252Bat%252BFreddys%252B3.rar/file">
+              <span class="btn-logo">
+                <img src="covers/logo 2.png" alt="">
+              </span>
+              <span class="btn-label">Descarga no Steam</span>
+            </a>
+
+            <a href="https://store.steampowered.com/app/354140"
+               class="btn-download secondary no-splash"
+               target="_blank" rel="noopener">
+              <span class="btn-logo">
+                <img src="covers/Icon.jpeg" alt="">
+              </span>
+              <span class="btn-label">Descarga Steam</span>
+            </a>
+
+            <a href="#"
+               class="btn-download mod"
+               data-url="https://www.mediafire.com/file/1rxjwsgflvdmtq7/Five+Nights+at+Freddy%27s+3.exe">
+              <span class="btn-logo">
+                <img src="covers/logo 2.png" alt="">
+              </span>
+              <span class="btn-label">Spanish Project MOD</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FNAF 4 -->
+    <div id="f4" class="tab-pane">
+      <div class="game-layout">
+        <div class="game-cover">
+          <img src="covers/portada4.png" alt="Portada FNAF 4">
+        </div>
+        <div class="game-info">
+          <div class="game-title">Five Nights at Freddy's 4</div>
+          <div class="game-desc">
+            El terror se traslada a la habitación de un niño. No hay cámaras, solo tus oídos y una linterna para sobrevivir.
+          </div>
+          <div class="game-actions">
+            <a href="#"
+               class="btn-download"
+               data-url="https://www.mediafire.com/file/2qwlf0c3xslhwdl/fnaf4%252Bhalloween%252Bedition.rar/file">
+              <span class="btn-logo">
+                <img src="covers/logo 2.png" alt="">
+              </span>
+              <span class="btn-label">Descarga no Steam</span>
+            </a>
+
+            <a href="https://store.steampowered.com/app/388090"
+               class="btn-download secondary no-splash"
+               target="_blank" rel="noopener">
+              <span class="btn-logo">
+                <img src="covers/Icon.jpeg" alt="">
+              </span>
+              <span class="btn-label">Descarga Steam</span>
+            </a>
+
+            <a href="#"
+               class="btn-download mod"
+               data-url="https://www.mediafire.com/folder/coom4nkiz9gsg/FNAF+4+en+Espa%C3%B1ol+%7C+Windows">
+              <span class="btn-logo">
+                <img src="covers/logo 2.png" alt="">
+              </span>
+              <span class="btn-label">Spanish Project MOD</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SISTER LOCATION -->
+    <div id="sl" class="tab-pane">
+      <div class="game-layout">
+        <div class="game-cover">
+          <img src="covers/portada5.png" alt="Portada FNAF Sister Location">
+        </div>
+        <div class="game-info">
+          <div class="game-title">Sister Location</div>
+          <div class="game-desc">
+            Una experiencia más guiada, con misiones, cinemáticas y nuevas mecánicas en Circus Baby's Entertainment & Rental.
+          </div>
+          <div class="game-actions">
+            <a href="#"
+               class="btn-download"
+               data-url="https://www.mediafire.com/file/a03mwwybu9fwjv4/Fnaf-Sister_Location.rar/file">
+              <span class="btn-logo">
+                <img src="covers/logo 2.png" alt="">
+              </span>
+              <span class="btn-label">Descarga no Steam</span>
+            </a>
+
+            <a href="https://store.steampowered.com/app/506610"
+               class="btn-download secondary no-splash"
+               target="_blank" rel="noopener">
+              <span class="btn-logo">
+                <img src="covers/Icon.jpeg" alt="">
+              </span>
+              <span class="btn-label">Descarga Steam</span>
+            </a>
+
+            <a href="#"
+               class="btn-download mod"
+               data-url="https://www.mediafire.com/file/xf4uqp4shdkuysf/Sister+Location+en+Espa%C3%B1ol.exe">
+              <span class="btn-logo">
+                <img src="covers/logo 2.png" alt="">
+              </span>
+              <span class="btn-label">Spanish Project MOD</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ULTIMATE CUSTOM NIGHT -->
+    <div id="ucn" class="tab-pane">
+      <div class="game-layout">
+        <div class="game-cover">
+          <img src="covers/portada6.png" alt="Portada Ultimate Custom Night">
+        </div>
+        <div class="game-info">
+          <div class="game-title">Ultimate Custom Night</div>
+          <div class="game-desc">
+            Personaliza tu noche con decenas de animatrónicos, oficinas y desafíos. Es el laboratorio definitivo para fans de la saga.
+          </div>
+          <div class="game-actions">
+            <a href="#"
+               class="btn-download"
+               data-url="https://store.steampowered.com/app/871720">
+              <span class="btn-logo">
+                <img src="covers/logo 2.png" alt="">
+              </span>
+              <span class="btn-label">Descarga no Steam</span>
+            </a>
+
+            <a href="https://store.steampowered.com/app/871720"
+               class="btn-download secondary no-splash"
+               target="_blank" rel="noopener">
+              <span class="btn-logo">
+                <img src="covers/Icon.jpeg" alt="">
+              </span>
+              <span class="btn-label">Descarga Steam</span>
+            </a>
+
+            <a href="#"
+               class="btn-download mod"
+               data-url="https://store.steampowered.com/app/871720">
+              <span class="btn-logo">
+                <img src="covers/logo 2.png" alt="">
+              </span>
+              <span class="btn-label">Spanish Project MOD</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Si algún enlace falla, contacta a <strong>RodrigoRPmods</strong> (Discord: <strong>rodrigorpmods#6553</strong>).
+    </div>
+
+  </div>
+
+  <script>
+    const video       = document.getElementById("bgVideo");
+    const videoSource = document.getElementById("bgSource");
+    const btnSound    = document.getElementById("soundToggle");
+    const tabBtns     = document.querySelectorAll(".tab-btn");
+    const panes       = document.querySelectorAll(".tab-pane");
+    const fadeLayer   = document.getElementById("fadeLayer");
+    const splash      = document.getElementById("downloadSplash");
+
+    // Mapa pestaña → video de fondo
+    // Cambia estos nombres por tus archivos reales.
+    const videoByTab = {
+      f1: "bg-video-1.mp4",
+      f2: "bg-video-2.mp4",
+      f3: "bg-video-3.mp4",
+      f4: "bg-video-4.mp4",
+      sl: "bg-video-5.mp4",
+      ucn: "bg-video-6.mp4"
+    };
+
+    // Estado inicial del video
+    video.muted  = true;
+    video.volume = 0.45;
+    video.play().catch(()=>{});
+
+    // Activar audio en primer click/tecla
+    function enableAudioOnce(){
+      video.muted = false;
+      video.play().catch(()=>{});
+      btnSound.innerHTML = '<span class="icon">🔊</span> Fondo';
+      document.removeEventListener("click",  enableAudioOnce);
+      document.removeEventListener("keydown", enableAudioOnce);
+    }
+    document.addEventListener("click",  enableAudioOnce);
+    document.addEventListener("keydown", enableAudioOnce);
+
+    // Botón manual de sonido
+    btnSound.addEventListener("click", () => {
+      if(video.muted){
+        video.muted = false;
+        btnSound.innerHTML = '<span class="icon">🔊</span> Fondo';
+      } else {
+        video.muted = true;
+        btnSound.innerHTML = '<span class="icon">🔇</span> Fondo';
+      }
+      video.play().catch(()=>{});
+    });
+
+    // Cambio de video con fade
+    function changeBackgroundVideo(tabKey){
+      const file = videoByTab[tabKey];
+      if(!file) return;
+
+      const wasMuted = video.muted;
+
+      if(fadeLayer){
+        // fade-in
+        fadeLayer.classList.add("active");
+
+        setTimeout(() => {
+          videoSource.src = file;
+          video.load();
+          video.muted  = wasMuted;
+          video.volume = 0.45;
+          video.play().catch(()=>{});
+
+          // fade-out
+          setTimeout(() => {
+            fadeLayer.classList.remove("active");
+          }, 350);
+        }, 200);
+      } else {
+        // sin fade (fallback)
+        videoSource.src = file;
+        video.load();
+        video.muted  = wasMuted;
+        video.volume = 0.45;
+        video.play().catch(()=>{});
+      }
+    }
+
+    // Tabs: contenido + video
+    tabBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.tab;
+
+        tabBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        panes.forEach(p => p.classList.remove("active"));
+        const pane = document.getElementById(key);
+        if(pane) pane.classList.add("active");
+
+        changeBackgroundVideo(key);
+      });
+    });
+
+    // Splash de descarga para "no Steam" y "MOD"
+    const downloadButtons = document.querySelectorAll(".btn-download");
+
+    downloadButtons.forEach(a => {
+      // Si tiene .no-splash (Descarga Steam), se va directo.
+      if(a.classList.contains("no-splash")) return;
+
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        const url = a.dataset.url;
+        if(!url) return; // si no hay URL configurada, no hacemos nada
+
+        // Mostrar splash
+        splash.classList.add("active");
+
+        // Esperar unos segundos y redirigir
+        setTimeout(() => {
+          window.open(url, "_blank");
+          // opcional: ocultar splash después de un tiempo extra
+          setTimeout(() => {
+            splash.classList.remove("active");
+          }, 2000);
+        }, 2500); // 2.5s "preparando el link"
+      });
+    });
+  </script>
+
+</body>
+</html>
