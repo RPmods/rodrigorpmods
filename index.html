@@ -936,6 +936,77 @@
     const firstBD = listBD.querySelector('.side-item');
     if(firstBD){ firstBD.click(); }
   </script>
+
+<!-- 🔥 AVISO EMERGENTE AÑADIDO (VERSIÓN MEJORADA) -->
+<div id="aviso-renovacion">
+  <div class="aviso-box">
+    <p>
+      <strong>⚠ La página está en versión BETA.</strong><br><br>
+      Actualmente este sitio web se encuentra en una fase de prueba previa al rediseño final.<br>
+      En los próximos días será <strong>remodelado por completo</strong> para integrar nuevas funciones,
+      mejorar el diseño visual y optimizar el rendimiento.<br><br>
+      Gracias por su comprensión.
+    </p>
+    <button id="cerrar-aviso">Cerrar aviso</button>
+  </div>
+</div>
+
+<style>
+  #aviso-renovacion {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.4s ease forwards;
+  }
+  .aviso-box {
+    background: #151515;
+    padding: 32px 42px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,.15);
+    box-shadow: 0 10px 30px rgba(0,0,0,.5);
+    text-align: center;
+    width: 520px;
+    max-width: 90%;
+    font-size: 1.05rem;
+    line-height: 1.55rem;
+  }
+  .aviso-box button {
+    margin-top: 18px;
+    padding: 10px 22px;
+    background: #ff7a1a;
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+  @keyframes fadeOut { from {opacity:1;} to {opacity:0;} }
+</style>
+
+<script>
+  const aviso = document.getElementById("aviso-renovacion");
+  const cerrar = document.getElementById("cerrar-aviso");
+
+  cerrar.addEventListener("click", () => {
+    aviso.style.animation = "fadeOut 0.4s ease forwards";
+    setTimeout(() => aviso.remove(), 400);
+  });
+
+  // auto hide after 7 seconds
+  setTimeout(() => {
+    if (aviso) {
+      aviso.style.animation = "fadeOut 0.4s ease forwards";
+      setTimeout(() => aviso.remove(), 400);
+    }
+  }, 80000);
+</script>
+
 </body>
 
 </html>
