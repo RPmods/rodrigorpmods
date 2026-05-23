@@ -7,23 +7,24 @@
 
   <style>
     :root{
-      --bg:#0a0a0a;
-      --bg2:#111111;
-      --accent:#ff7a1a;       /* naranja oscuro principal */
-      --accent-2:#c75a12;     /* naranja más oscuro para hover/bordes */
-      --muted:#bfbfbf;
-      --text:#eeeeee;
-      --card:#151515;
-      --card-2:#1b1b1b;
+      --bg:#06111d;
+      --bg2:#0b1730;
+      --accent:#38bdf8;       /* celeste principal */
+      --accent-2:#2563eb;     /* azul para hover/bordes */
+      --accent-3:#8b5cf6;     /* morado suave para detalles */
+      --muted:#b9d8ef;
+      --text:#eef8ff;
+      --card:#0b1726;
+      --card-2:#0e1d33;
       --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --grad: radial-gradient(1200px 700px at 0% -10%, rgba(255,122,26,.15), transparent 60%),
-              radial-gradient(1000px 600px at 100% 110%, rgba(255,122,26,.10), transparent 60%),
-              linear-gradient(180deg, #0b0b0b, #0a0a0a 35%, #0a0a0a);
+      --grad: radial-gradient(1100px 680px at 0% -10%, rgba(56,189,248,.16), transparent 60%),
+              radial-gradient(900px 560px at 100% 110%, rgba(139,92,246,.14), transparent 62%),
+              linear-gradient(180deg, #06111d, #071426 44%, #07111f);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; color:var(--text); background:#000;
+      margin:0; color:var(--text); background:var(--grad);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
       line-height:1.4;
     }
@@ -37,6 +38,19 @@
       inset:0;
       z-index:-3;
       overflow:hidden;
+      background:#000;
+    }
+    .video-bg,
+    .video-overlay,
+    .fade-layer{
+      display:none;
+    }
+    body.view-animes .video-bg,
+    body.view-animes .video-overlay,
+    body.view-animes .fade-layer{
+      display:block;
+    }
+    body.view-animes{
       background:#000;
     }
     .video-bg video{
@@ -53,7 +67,7 @@
       z-index:-2;
       pointer-events:none;
       background:
-        radial-gradient(900px 520px at 15% 5%, rgba(255,122,26,.22), transparent 62%),
+        radial-gradient(900px 520px at 15% 5%, rgba(56,189,248,.22), transparent 62%),
         linear-gradient(180deg, rgba(0,0,0,.46), rgba(0,0,0,.72));
     }
     .fade-layer{
@@ -67,20 +81,21 @@
     }
     .fade-layer.active{opacity:1;}
     .sound-btn{
+      display:none;
       border:1px solid rgba(255,255,255,.14);
       background:rgba(0,0,0,.38);
       color:#fff;
       padding:8px 12px;
       border-radius:999px;
       cursor:pointer;
-      display:inline-flex;
       align-items:center;
       gap:7px;
       letter-spacing:.03em;
       transition:.18s ease all;
     }
-    .sound-btn:hover{background:rgba(255,122,26,.18); border-color:rgba(255,122,26,.45); transform:translateY(-1px);}
+    .sound-btn:hover{background:rgba(56,189,248,.18); border-color:rgba(56,189,248,.45); transform:translateY(-1px);}
     .menu-toggle{
+      display:none;
       border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.05);
       color:#fff;
@@ -88,13 +103,15 @@
       height:40px;
       border-radius:12px;
       cursor:pointer;
-      display:inline-grid;
       place-items:center;
       font-size:1.15rem;
       transition:.18s ease all;
     }
-    .menu-toggle:hover{background:rgba(255,122,26,.15); border-color:rgba(255,122,26,.45);}
-    body.sidebar-open .sidebar-backdrop{opacity:1; pointer-events:auto;}
+    .menu-toggle:hover{background:rgba(56,189,248,.15); border-color:rgba(56,189,248,.45);}
+    body.view-animes .menu-toggle{display:inline-grid;}
+    body.view-animes .sound-btn{display:inline-flex;}
+    body:not(.view-animes) .sidebar{display:none;}
+    body.view-animes.sidebar-open .sidebar-backdrop{opacity:1; pointer-events:auto;}
     .sidebar-backdrop{
       position:fixed;
       inset:0;
@@ -127,7 +144,7 @@
       box-shadow:var(--shadow);
       backdrop-filter:blur(7px);
     }
-    .home-kicker{color:#ffddc2; text-transform:uppercase; letter-spacing:.16em; font-size:.78rem; margin-bottom:8px;}
+    .home-kicker{color:#c7f3ff; text-transform:uppercase; letter-spacing:.16em; font-size:.78rem; margin-bottom:8px;}
     .home-title{font-size:clamp(2rem, 6vw, 4.2rem); line-height:.95; margin:0 0 12px; font-weight:900;}
     .home-desc{max-width:760px; color:#e8e8e8; opacity:.9; font-size:1.02rem;}
     .home-actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:18px;}
@@ -155,30 +172,47 @@
       inset:-40% -20% auto auto;
       width:190px;
       height:190px;
-      background:radial-gradient(circle, rgba(255,122,26,.22), transparent 62%);
+      background:radial-gradient(circle, rgba(56,189,248,.22), transparent 62%);
       transform:rotate(20deg);
     }
-    .home-tile:hover{transform:translateY(-3px); border-color:rgba(255,122,26,.45); background:linear-gradient(180deg, rgba(255,122,26,.16), rgba(255,255,255,.04));}
-    .home-tile strong{font-size:1.05rem; position:relative;}
-    .home-tile span{font-size:.9rem; opacity:.8; position:relative;}
+    .home-tile:hover{transform:translateY(-3px); border-color:rgba(56,189,248,.45); background:linear-gradient(180deg, rgba(56,189,248,.16), rgba(255,255,255,.04));}
+    .home-tile strong{font-size:1.05rem; position:relative; z-index:2;}
+    .home-tile span{font-size:.9rem; opacity:.8; position:relative; z-index:2;}
+    .home-tile.has-cover{
+      background-image:
+        linear-gradient(180deg, rgba(4,12,22,.10), rgba(4,12,22,.72)),
+        var(--home-cover);
+      background-size:cover;
+      background-position:center;
+      background-repeat:no-repeat;
+    }
+    .home-tile.has-cover::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, rgba(0,0,0,.06), rgba(0,0,0,.58));
+      z-index:0;
+      pointer-events:none;
+    }
+    .home-tile.has-cover::before{z-index:1;}
 
     header{
       position:sticky; top:0; z-index:30;
-      background: linear-gradient(90deg, rgba(255,122,26,.12), rgba(255,122,26,.02));
+      background: linear-gradient(90deg, rgba(56,189,248,.12), rgba(56,189,248,.02));
       border-bottom:1px solid rgba(255,255,255,.06);
       padding:14px 18px;
       display:flex; align-items:center; justify-content:space-between; gap:12px;
       backdrop-filter: blur(6px);
     }
     .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.2px;}
-    .brand .dot{width:10px; height:10px; border-radius:99px; background:var(--accent); box-shadow:0 0 20px rgba(255,122,26,.55);}
+    .brand .dot{width:10px; height:10px; border-radius:99px; background:var(--accent); box-shadow:0 0 20px rgba(56,189,248,.55);}
     .title{font-size:1.05rem}
     .tabs{display:flex; gap:8px; align-items:center; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); padding:4px; border-radius:12px;}
     .tab{padding:8px 12px; border-radius:10px; cursor:pointer; user-select:none; transition: all .18s ease; color:#ddd;}
     .tab.active{
-      background: linear-gradient(180deg, rgba(255,122,26,.22), rgba(255,122,26,.14));
-      color:#fff; border:1px solid rgba(255,122,26,.45);
-      box-shadow: inset 0 0 0 1px rgba(255,122,26,.15), 0 3px 10px rgba(0,0,0,.25);
+      background: linear-gradient(180deg, rgba(56,189,248,.22), rgba(56,189,248,.14));
+      color:#fff; border:1px solid rgba(56,189,248,.45);
+      box-shadow: inset 0 0 0 1px rgba(56,189,248,.15), 0 3px 10px rgba(0,0,0,.25);
     }
     .tab:hover{transform: translateY(-1px);}
 
@@ -187,11 +221,11 @@
 
     .sidebar{
       position:fixed;
-      top:74px;
+      top:108px;
       left:14px;
       z-index:25;
       width:min(330px, calc(100vw - 28px));
-      max-height:calc(100vh - 92px);
+      max-height:calc(100vh - 126px);
       background: linear-gradient(180deg, rgba(21,21,21,.95), rgba(27,27,27,.92));
       border:1px solid rgba(255,255,255,.08);
       border-radius:14px;
@@ -203,7 +237,7 @@
     }
     body.sidebar-open .sidebar{transform:translateX(0);}
     .side-head{
-      padding:12px 14px; background:linear-gradient(90deg, rgba(255,122,26,.14), transparent);
+      padding:12px 14px; background:linear-gradient(90deg, rgba(56,189,248,.14), transparent);
       border-bottom:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; gap:10px;
     }
     .side-head-top{display:flex; justify-content:space-between; align-items:center; gap:6px}
@@ -224,19 +258,28 @@
 
     .side-section{padding:10px 10px 14px; border-top:1px dashed rgba(255,255,255,.06);}
     .side-section:first-of-type{border-top:none}
-    .side-section h4{margin:10px 6px 8px; font-size:.94rem; color:#ffddc2; letter-spacing:.2px; display:flex; align-items:center; gap:8px; font-weight:700;}
+    .side-section h4{margin:10px 6px 8px; font-size:.94rem; color:#c7f3ff; letter-spacing:.2px; display:flex; align-items:center; gap:8px; font-weight:700;}
     .side-list{display:flex; flex-direction:column; gap:10px; padding:0 4px}
 
     .side-item{
+      width:100%; color:inherit; text-align:left; font:inherit;
       padding:10px; border-radius:12px; background:rgba(255,255,255,.03);
       border:1px solid rgba(255,255,255,.06);
       cursor:pointer; transition:all .15s ease; display:flex; gap:10px; align-items:center;
+      appearance:none; -webkit-appearance:none;
     }
-    .side-item:hover{transform:translateX(2px); background:rgba(255,122,26,.10)}
+    .side-item:hover{transform:translateX(2px); background:rgba(56,189,248,.10)}
     .side-item.active{
-      background: linear-gradient(180deg, rgba(255,122,26,.24), rgba(255,122,26,.12));
-      border-color: rgba(255,122,26,.45);
-      box-shadow: inset 0 0 0 1px rgba(255,122,26,.12);
+      background: linear-gradient(180deg, rgba(56,189,248,.24), rgba(56,189,248,.12));
+      border-color: rgba(56,189,248,.45);
+      box-shadow: inset 0 0 0 1px rgba(56,189,248,.12);
+    }
+
+    .side-item{
+      width:100%;
+      color:inherit;
+      text-align:left;
+      font:inherit;
     }
     .side-thumb{
       width:44px; height:44px; border-radius:8px; flex:0 0 44px; background:#222 center/cover no-repeat;
@@ -253,12 +296,12 @@
     .panel-head{
       padding:14px 16px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
       border-bottom:1px solid rgba(255,255,255,.06);
-      background:linear-gradient(90deg, rgba(255,122,26,.08), transparent);
+      background:linear-gradient(90deg, rgba(56,189,248,.08), transparent);
     }
-    .crumbs{font-size:.92rem; color:#ffdbc1}
+    .crumbs{font-size:.92rem; color:#bae6fd}
     .badges{display:flex; gap:8px; flex-wrap:wrap}
     .badge{font-size:.78rem; padding:4px 8px; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08);}
-    .badge.primary{ background:rgba(255,122,26,.20); border-color:rgba(255,122,26,.45); color:#ffe4cf; }
+    .badge.primary{ background:rgba(56,189,248,.20); border-color:rgba(56,189,248,.45); color:#dff7ff; }
 
     .desc{padding:12px 16px; font-size:.95rem; color:#d8d8d8; border-bottom:1px dashed rgba(255,255,255,.06);}
 
@@ -272,7 +315,7 @@
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      background:linear-gradient(90deg, rgba(255,122,26,.12), transparent);
+      background:linear-gradient(90deg, rgba(56,189,248,.12), transparent);
       border-bottom:1px solid rgba(255,255,255,.06);
       flex-wrap:wrap;
     }
@@ -298,21 +341,21 @@
       opacity:.85;
     }
     .lang-btn.active{
-      background:rgba(255,122,26,.3);
-      border-color:rgba(255,122,26,.65);
+      background:rgba(56,189,248,.3);
+      border-color:rgba(56,189,248,.65);
       opacity:1;
     }
     .chap-list{display:flex; flex-direction:column}
     .chap-item{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 14px; border-top:1px solid rgba(255,255,255,.06); background:transparent; cursor:pointer;}
-    .chap-item:hover{background:rgba(255,122,26,.06)}
-    .chap-item.active{background:rgba(255,122,26,.14)}
+    .chap-item:hover{background:rgba(56,189,248,.06)}
+    .chap-item.active{background:rgba(56,189,248,.14)}
     .tag{font-size:.75rem; padding:2px 6px; border-radius:6px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08);}
 
     .players{background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:10px; min-height:320px;}
     .player-buttons{display:flex; flex-wrap:wrap; gap:8px;}
     .btn{border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.06); color:#fff; padding:9px 12px; border-radius:10px; cursor:pointer; transition:.15s ease all; font-size:.92rem;}
     .btn:hover{transform:translateY(-1px)}
-    .btn.primary{background: linear-gradient(180deg, rgba(255,122,26,.28), rgba(255,122,26,.16)); border-color: rgba(255,122,26,.45);}
+    .btn.primary{background: linear-gradient(180deg, rgba(56,189,248,.28), rgba(56,189,248,.16)); border-color: rgba(56,189,248,.45);}
     .btn.disabled{background:rgba(255,255,255,.04)!important; border-color:rgba(255,255,255,.06)!important; color:#999!important; cursor:not-allowed!important; filter:grayscale(.6); box-shadow:none!important; transform:none!important;}
     .viewer{margin-top:8px; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,.08); background:#000; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; color:#999; font-size:.92rem; position:relative;}
     .viewer iframe{width:100%; height:100%; border:0}
@@ -363,8 +406,8 @@
       padding:8px 10px; border-radius:8px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
       cursor:pointer;
     }
-    .track-item:hover{background:rgba(255,122,26,.10)}
-    .track-item.active{background:rgba(255,122,26,.20); border-color:rgba(255,255,255,.35)}
+    .track-item:hover{background:rgba(56,189,248,.10)}
+    .track-item.active{background:rgba(56,189,248,.20); border-color:rgba(255,255,255,.35)}
     .controls{display:flex; gap:8px; flex-wrap:wrap}
     .controls .btn{padding:7px 10px; font-size:.88rem}
 
@@ -377,13 +420,21 @@
 
     .placeholder{padding:18px; font-size:1rem; color:#d0d0d0;}
     .note{margin:10px 16px 0; padding:10px 12px; border-radius:10px; background:rgba(25,25,25,.6); border:1px dashed rgba(255,255,255,.10); color:#e9e9e9; font-size:.92rem;}
+
+
+    /* FIX: La barra lateral está dentro de #tab-animes.
+       Subimos el apartado Animes sobre el fondo oscuro para que los clicks
+       lleguen a los botones de categoría y no al backdrop. */
+    body.view-animes #tab-animes{z-index:35;}
+    body.view-animes .sidebar-backdrop{z-index:30;}
+    body.view-animes .sidebar{z-index:45;}
   </style>
 </head>
 <body>
   <!-- VIDEO DE FONDO DINÁMICO -->
   <div class="video-bg">
-    <video id="bgVideo" autoplay loop playsinline muted>
-      <source id="bgSource" src="bg-video-5.mp4" type="video/mp4">
+    <video id="bgVideo" loop playsinline muted>
+      <source id="bgSource" src="bg-video-6.mp4" type="video/mp4">
       Tu navegador no soporta video HTML5.
     </video>
   </div>
@@ -414,7 +465,7 @@
           <div class="home-kicker">RodrigoRPmods Web</div>
           <h1 class="home-title">Biblioteca Anime RPmods</h1>
           <p class="home-desc">
-            Menú principal con acceso rápido a las secciones ya establecidas. Al entrar a cada apartado, el video de fondo cambia automáticamente para dar una identidad visual a cada categoría.
+            Menú principal con acceso rápido a las secciones ya establecidas. El efecto de video se activa únicamente dentro del apartado Animes y cambia según la categoría seleccionada.
           </p>
           <div class="home-actions">
             <button class="btn primary home-jump" data-tab-target="animes">Ver animes</button>
@@ -423,11 +474,11 @@
         </div>
 
         <div class="home-grid">
-          <div class="home-tile home-series" data-scope="bd" data-key="Las Quintillizas (Temporada 1)">
+          <div class="home-tile home-series has-cover" data-scope="bd" data-key="Las Quintillizas (Temporada 1)" style="--home-cover:url('portada/portadas1gnh.jpg')">
             <strong>Las Quintillizas</strong>
             <span>Anime BD RPmods</span>
           </div>
-          <div class="home-tile home-series" data-scope="bd" data-key="KonoSuba (Temporada 1)">
+          <div class="home-tile home-series has-cover" data-scope="bd" data-key="KonoSuba (Temporada 1)" style="--home-cover:url('portada/portadas1fk.png')">
             <strong>KonoSuba</strong>
             <span>Anime BD RPmods</span>
           </div>
@@ -713,8 +764,6 @@
     // Videos de fondo por apartado/anime.
     // Coloca estos MP4 junto al HTML, o cambia la ruta si los guardas en una carpeta.
     const videoByView = {
-      inicio: "bg-video-5.mp4",
-      juegos: "bg-video-5.mp4",
       "Las Quintillizas (Temporada 1)": "bg-video-6.mp4",
       "KonoSuba (Temporada 1)": "bg-video-8.mp4",
       "Las 100 Novias": "bg-video-9.mp4"
@@ -722,13 +771,14 @@
 
     video.muted = true;
     video.volume = 0.45;
-    video.play().catch(()=>{});
+    video.pause();
 
     function setSoundButton(){
       btnSound.innerHTML = video.muted ? '<span class="icon">🔇</span> Fondo' : '<span class="icon">🔊</span> Fondo';
     }
 
     function enableAudioOnce(){
+      if(!document.body.classList.contains('view-animes')) return;
       video.muted = false;
       setSoundButton();
       video.play().catch(()=>{});
@@ -740,14 +790,24 @@
 
     btnSound.addEventListener('click', (e)=>{
       e.stopPropagation();
+      if(!document.body.classList.contains('view-animes')) return;
       video.muted = !video.muted;
       setSoundButton();
       video.play().catch(()=>{});
     });
 
     function changeBackgroundVideo(key){
-      const file = videoByView[key] || videoByView.animes;
-      if(!file || videoSource.getAttribute('src') === file) return;
+      if(!document.body.classList.contains('view-animes')){
+        video.pause();
+        fadeLayer.classList.remove('active');
+        return;
+      }
+      const file = videoByView[key];
+      if(!file) return;
+      if(videoSource.getAttribute('src') === file){
+        video.play().catch(()=>{});
+        return;
+      }
       const wasMuted = video.muted;
       fadeLayer.classList.add('active');
       setTimeout(()=>{
@@ -761,6 +821,7 @@
     }
 
     function setSidebar(open){
+      if(open && !document.body.classList.contains('view-animes')) return;
       document.body.classList.toggle('sidebar-open', !!open);
     }
     sidebarToggle.addEventListener('click', (e)=>{
@@ -785,10 +846,16 @@
 
       if(id === 'animes'){
         // Al entrar a Animes se queda automáticamente en Las Quintillizas.
-        if(!currentAnimeKey) currentAnimeKey = 'Las Quintillizas (Temporada 1)';
+        if(!currentAnimeKey){
+          selectSeries('bd', 'Las Quintillizas (Temporada 1)');
+        }else{
+          selectSeries(currentScope, currentAnimeKey);
+        }
+        renderSidebar(searchAll.value || '');
         changeBackgroundVideo(currentAnimeKey);
       }else{
-        changeBackgroundVideo(id);
+        video.pause();
+        fadeLayer.classList.remove('active');
       }
     }
 
@@ -872,24 +939,33 @@
     langSubBtn.addEventListener('click', ()=> setLang('sub'));
 
     /* Render Sidebar con filtro unificado */
+    function safeCssEscape(value){
+      if(window.CSS && typeof CSS.escape === 'function') return CSS.escape(value);
+      return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    }
+
     function renderSidebar(filter = ""){
+      const normalizedFilter = String(filter || '').toLowerCase().trim();
+
       listBD.innerHTML = '';
       listTV.innerHTML = '';
 
       Object.keys(DATA.bd)
-        .filter(k => k.toLowerCase().includes(filter.toLowerCase()))
+        .filter(k => k.toLowerCase().includes(normalizedFilter))
         .forEach(key => listBD.appendChild(createSideItem('bd', key, 'BD RPmods')));
 
       Object.keys(DATA.tv)
-        .filter(k => k.toLowerCase().includes(filter.toLowerCase()))
+        .filter(k => k.toLowerCase().includes(normalizedFilter))
         .forEach(key => listTV.appendChild(createSideItem('tv', key, 'Anime')));
 
-      const active = $(`.side-item[data-scope="${currentScope}"][data-key="${CSS.escape(currentAnimeKey||'')}"]`);
+      const activeSelector = `.side-item[data-scope="${currentScope}"][data-key="${safeCssEscape(currentAnimeKey || '')}"]`;
+      const active = document.querySelector(activeSelector);
       if(active) active.classList.add('active');
     }
 
     function createSideItem(scope, key, catLabel){
-      const item = document.createElement('div');
+      const item = document.createElement('button');
+      item.type = 'button';
       item.className = 'side-item';
       item.dataset.scope = scope;
       item.dataset.key = key;
@@ -903,21 +979,26 @@
           <div class="side-sub">${catLabel}</div>
         </div>
       `;
-      item.addEventListener('click', ()=>{
-        $$('.side-item').forEach(i=>i.classList.remove('active'));
-        item.classList.add('active');
+      item.addEventListener('click', (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
         selectSeries(scope, key);
+        renderSidebar(searchAll.value || '');
+        setSidebar(true);
       });
       return item;
     }
 
     function selectSeries(scope, key){
+      if(!DATA[scope] || !DATA[scope][key]) return;
+
       currentScope = scope;
       currentAnimeKey = key;
       currentChapterId = null;
 
-      const info = DATA[scope][key].info;
+      const info = DATA[scope][key].info || {};
 
+      playerButtonsWrap.innerHTML = '';
       setCrumbs(scope, key);
       setBadges(info);
       setChapters(scope, key);
@@ -1228,7 +1309,7 @@
       currentScope = firstBD.dataset.scope;
       currentAnimeKey = firstBD.dataset.key;
       selectSeries(currentScope, currentAnimeKey);
-      changeBackgroundVideo('inicio');
+      video.pause();
     }
     selectMainTab('inicio');
   </script>
@@ -1273,7 +1354,7 @@
   .aviso-box button {
     margin-top: 18px;
     padding: 10px 22px;
-    background: #ff7a1a;
+    background: #38bdf8;
     color: #000;
     border: none;
     border-radius: 10px;
