@@ -451,7 +451,7 @@
     <nav class="tabs" role="tablist" aria-label="Secciones">
       <div class="tab active" role="tab" aria-selected="true" data-tab="inicio">Inicio</div>
       <div class="tab" role="tab" aria-selected="false" data-tab="animes">Animes</div>
-      <div class="tab" role="tab" aria-selected="false" data-tab="juegos">Juegos</div>
+      <a class="tab" href="https://rpmods.github.io/rodrigorpmods/fnafrpmods">FNAF collection</a>
     </nav>
     <button id="soundToggle" class="sound-btn"><span class="icon">🔇</span> Fondo</button>
   </header>
@@ -469,7 +469,7 @@
           </p>
           <div class="home-actions">
             <button class="btn primary home-jump" data-tab-target="animes">Ver animes</button>
-            <button class="btn home-jump" data-tab-target="juegos">Ver juegos</button>
+            <a class="btn" href="https://rpmods.github.io/rodrigorpmods/fnafrpmods">FNAF collection</a>
           </div>
         </div>
 
@@ -482,9 +482,9 @@
             <strong>KonoSuba</strong>
             <span>Anime BD RPmods</span>
           </div>
-          <div class="home-tile home-series" data-scope="tv" data-key="Las 100 Novias">
+          <div class="home-tile home-series" data-scope="bd" data-key="Las 100 Novias">
             <strong>Las 100 Novias</strong>
-            <span>Anime</span>
+            <span>Anime BD RPmods</span>
           </div>
         </div>
       </div>
@@ -497,7 +497,7 @@
         <div class="side-head">
           <div class="side-head-top">
             <strong>Categorías</strong>
-            <span class="pill">Anime BD RPmods / Anime</span>
+            <span class="pill">Anime BD RPmods Principal</span>
           </div>
 
           <!-- Buscador unificado -->
@@ -512,10 +512,6 @@
           <div class="side-list" id="list-bd"></div>
         </div>
 
-        <div class="side-section">
-          <h4>Anime <span class="tag">Secundario</span></h4>
-          <div class="side-list" id="list-tv"></div>
-        </div>
       </aside>
 
       <!-- Panel principal -->
@@ -635,24 +631,24 @@
             ],
             sub: [
               { id:"gtn-t1-sub-c01-02", title:"Capítulo 01 y 02", info:"Sub Español — BD RPmods 1080p",
-                players:{ player1:"https://rodrigorpmods.rpmlive.online/#assgjc", player2:"", fb:"", fb720:"", player3:"https://www.burstcloud.co/embed/e26685e0e94c3f13648e0fa29968af01af467c43f2e8cfe1e15f15905fbfddeb/GNH_CAP01RPMODS.mp4" } },
-              { id:"gtn-t1-sub-c03-04", title:"Capítulo 03 y 04", info:"Sub Español — BD RPmods 1080p",
-                players:{ player1:"https://rodrigorpmods.rpmlive.online/#qyy5ic", player2:"", fb:"", fb720:"", player3:"" } },
+                players:{ player1:"", player2:"", fb:"", fb720:"", player3:"https://www.burstcloud.co/embed/e26685e0e94c3f13648e0fa29968af01af467c43f2e8cfe1e15f15905fbfddeb/GNH_CAP01RPMODS.mp4" } },
+              { id:"gtn-t1-sub-c03-04", title:"Próximamente — Capítulos 03 y 04", info:"Sub Español — BD RPmods 1080p",
+                players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
               { id:"gtn-t1-sub-prox1", title:"Próximamente — Capítulos 05 y 06", info:"Sub Español — Esperando estreno", status:"Próximo",
                 players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } }
             ]
           },
           extrasAudio: { title: "OST — Quintillizas", url: "" },
           extras: [
-            { id:"gtn-extra-1", title:"Extra 01 — Entrevista Seiyuu", url:"" },
-            { id:"gtn-extra-2", title:"Extra 02 — Clean OP (BD)", url:"" },
-            { id:"gtn-extra-3", title:"Extra 03 — Clean ED (BD)", url:"" }
+            { id:"gtn-ichika-song", title:"Ichika Nakano Character Song (TEMPORADA 1 SOUNDTRACK)", url:"https://youtu.be/DQAvf2QL_FY?list=RDDQAvf2QL_FY" },
+            { id:"gtn-nino-song", title:"Nino Nakano Character Song (TEMPORADA 1 SOUNDTRACK)", url:"https://youtu.be/owHEYLpX1Os?list=RDowHEYLpX1Os" },
+            { id:"gtn-miku-song", title:"Miku Nakano Character Song (TEMPORADA 1 SOUNDTRACK)", url:"https://youtu.be/_ufd5hpRwYw?list=RD_ufd5hpRwYw" },
+            { id:"gtn-yotsuba-song", title:"Yotsuba Nakano Character Song (TEMPORADA 1 SOUNDTRACK)", url:"https://youtu.be/U67uJ_yvALw?list=RDU67uJ_yvALw" },
+            { id:"gtn-itsuki-song", title:"Itsuki Nakano Character Song (TEMPORADA 1 SOUNDTRACK)", url:"https://youtu.be/Sl_mEByL0yQ?list=RDSl_mEByL0yQ" },
+            { id:"gtn-opening-clean-crunchyroll", title:"Gotoubun no Hanayome Opening Clean (crunchyroll)", url:"https://youtu.be/FKIT6G_lw7c?list=RDFKIT6G_lw7c" },
+            { id:"gtn-ending-crunchyroll", title:"Gotoubun no Hanayome Opening Ending (crunchyroll)", url:"https://youtu.be/3_2J9wkieEE?list=RD3_2J9wkieEE" }
           ],
-          extrasPlaylist: {
-            cover:"extra/cover_quintillizas_t1.jpg",
-            title:"Playlist — Quintillizas T1",
-            tracks: []
-          }
+          extrasPlaylist: null
         },
         "KonoSuba (Temporada 1)": {
           cover: "portada/portadas1fk.png",
@@ -671,13 +667,13 @@
               { id:"ksb-t1-lat-c01-02", title:"Capítulo 01 y 02", info:"Audio Latino — BD RPmods 1080p",
                 players:{ player1:"https://rodrigorpmods.rpmlive.online/#8kqexi", player2:"", fb:"", fb720:"", player3:"" } },
               { id:"ksb-t1-lat-c03-04", title:"Capítulo 03 y 04", info:"Audio Latino — BD RPmods 1080p",
-                players:{ player1:"https://rodrigorpmods.rpmlive.online/#61wy1p", player2:"", fb:"", fb720:"", player3:"" } },
+                players:{ player1:"https://rodrigorpmods.rpmlive.online/#z618pi", player2:"", fb:"", fb720:"", player3:"" } },
               { id:"ksb-t1-lat-c05-06", title:"Capítulo 05 y 06", info:"Audio Latino — BD RPmods 1080p",
-                players:{ player1:"https://rodrigorpmods.rpmlive.online/#qyx9cu", player2:"", fb:"", fb720:"", player3:"" } },
+                players:{ player1:"https://rodrigorpmods.rpmlive.online/#b1ck3y", player2:"", fb:"", fb720:"", player3:"" } },
               { id:"ksb-t1-lat-c07-08", title:"Capítulo 07 y 08", info:"Audio Latino — BD RPmods 1080p",
-                players:{ player1:"https://rodrigorpmods.rpmlive.online/#gwdze9", player2:"", fb:"", fb720:"", player3:"" } },
+                players:{ player1:"https://rodrigorpmods.rpmlive.online/#tprzna", player2:"", fb:"", fb720:"", player3:"" } },
               { id:"ksb-t1-lat-c09-10-11", title:"Capítulo 09 - 10 y 11 (OVA)", info:"Audio Latino — BD RPmods 1080p",
-                players:{ player1:"https://rodrigorpmods.rpmlive.online/#xuakg9", player2:"", fb:"", fb720:"", player3:"" } }
+                players:{ player1:"https://rodrigorpmods.rpmlive.online/#noxa68", player2:"", fb:"", fb720:"", player3:"" } }
             ],
             sub: [
               { id:"ksb-t1-sub-c01", title:"Capítulo 01", info:"Sub Español — BD RPmods 1080p",
@@ -706,27 +702,25 @@
               { src: "extra/05CBI.mp3",  title: "Chiisana Boukensha (Instrumental)" }
             ]
           }
-        }
-      },
-      tv: {
+        },
         "Las 100 Novias": {
-          cover: "",
+          cover: "portada/portadala100novias.jpg",
           info: {
-            audio: "Japonés",
+            audio: "Latino / Japonés",
             subs: "Español (SUB)",
-            oped: "Versión TV",
-            karaoke: "No",
+            oped: "Clean Version",
+            karaoke: "Sí",
             quality: "1080p",
-            note: "Edición estándar para streaming."
+            note: "Edición Blu-ray con mejoras de imagen, audio y extras exclusivos."
           },
           chapters: {
             latino: [
-              { id:"100nv-lat-prox0", title:"Próximamente — Capítulos 01 y 02", info:"Latino — Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"100nv-lat-prox0", title:"Capítulos 01 y 02", info:"Audio Latino — BD RPmods 1080p", players:{ player1:"https://rodrigorpmods.rpmlive.online/#xasjpf", player2:"", fb:"", fb720:"", player3:"" } },
               { id:"100nv-lat-prox1", title:"Próximamente — Capítulos 03 y 04", info:"Latino — Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
               { id:"100nv-lat-prox2", title:"Próximamente — Capítulos 05 y 06", info:"Latino — Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } }
             ],
             sub: [
-              { id:"100nv-sub-prox0", title:"Próximamente — Capítulos 01 y 02", info:"Sub Español — Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
+              { id:"100nv-sub-prox0", title:"Capítulos 01 y 02", info:"Sub Español — BD RPmods 1080p", players:{ player1:"https://rodrigorpmods.rpmlive.online/#gdnh8d", player2:"", fb:"", fb720:"", player3:"" } },
               { id:"100nv-sub-prox1", title:"Próximamente — Capítulos 03 y 04", info:"Sub Español — Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } },
               { id:"100nv-sub-prox2", title:"Próximamente — Capítulos 05 y 06", info:"Sub Español — Esperando estreno", status:"Próximo", players:{ player1:"", player2:"", fb:"", fb720:"", player3:"" } }
             ]
@@ -739,7 +733,8 @@
           ],
           extrasPlaylist: { cover:"extra/cover_100novias.jpg", title:"Playlist — 100 Novias", tracks: [] }
         }
-      }
+      },
+      tv: {}
     };
 
     /* ===========================
@@ -948,15 +943,10 @@
       const normalizedFilter = String(filter || '').toLowerCase().trim();
 
       listBD.innerHTML = '';
-      listTV.innerHTML = '';
 
       Object.keys(DATA.bd)
         .filter(k => k.toLowerCase().includes(normalizedFilter))
         .forEach(key => listBD.appendChild(createSideItem('bd', key, 'BD RPmods')));
-
-      Object.keys(DATA.tv)
-        .filter(k => k.toLowerCase().includes(normalizedFilter))
-        .forEach(key => listTV.appendChild(createSideItem('tv', key, 'Anime')));
 
       const activeSelector = `.side-item[data-scope="${currentScope}"][data-key="${safeCssEscape(currentAnimeKey || '')}"]`;
       const active = document.querySelector(activeSelector);
@@ -1130,18 +1120,14 @@
 
       // Playlist:
       const pl = series.extrasPlaylist;
-      const isBD = (scope === 'bd');
+      const hasPlaylist = !!(pl && Array.isArray(pl.tracks) && pl.tracks.length);
 
-      if(isBD){
-        renderPlaylist(`${scope}|${key}`, pl || { cover:'', title:'Playlist', tracks: [] }, { forceShow:true });
+      if(hasPlaylist){
+        renderPlaylist(`${scope}|${key}`, pl, { forceShow:false });
       }else{
-        if(pl && Array.isArray(pl.tracks) && pl.tracks.length){
-          renderPlaylist(`${scope}|${key}`, pl, { forceShow:false });
-        }else{
-          playlistBox.style.display = 'none';
-          trackList.innerHTML = '';
-          playlistAudio.pause();
-        }
+        playlistBox.style.display = 'none';
+        trackList.innerHTML = '';
+        playlistAudio.pause();
       }
 
       // Tarjetas extra (todas en NUEVA pestaña)
@@ -1149,12 +1135,14 @@
 
       let extrasToRender = [];
 
-      if(isBD){
-        // Opening/Ending por serie
-        extrasToRender.push(
-          { id:"opening", title:"Opening Latino Clean Version", url: series.openingUrl || "" },
-          { id:"ending",  title:"Ending Latino Clean Version",  url: series.endingUrl  || "" }
-        );
+      if(scope === 'bd'){
+        // Opening/Ending por serie: solo se muestran si tienen enlace.
+        if(series.openingUrl && series.openingUrl.trim()){
+          extrasToRender.push({ id:"opening", title:"Opening Latino Clean Version", url: series.openingUrl });
+        }
+        if(series.endingUrl && series.endingUrl.trim()){
+          extrasToRender.push({ id:"ending", title:"Ending Latino Clean Version", url: series.endingUrl });
+        }
       }
 
       // + extras propios
