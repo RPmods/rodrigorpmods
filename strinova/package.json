@@ -1,0 +1,25 @@
+{
+  "name": "draft-simulator",
+  "version": "1.2.0",
+  "description": "Draft competitivo con interfaz estilo videojuego, fondo animado, voces y resumen visual",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "electron": "latest",
+    "electron-builder": "latest"
+  },
+  "build": {
+    "appId": "com.draftsimulator.app",
+    "productName": "DraftSimulator",
+    "files": [
+      "**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "artifactName": "DraftSimulator.exe"
+    }
+  }
+}
