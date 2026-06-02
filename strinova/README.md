@@ -597,3 +597,89 @@ Qué hace cada valor:
 - `statusBottom`: baja o sube el panel de fase. Menor = más abajo, mayor = más arriba.
 
 Los PNG full quedan por detrás del HUD, laterales, paneles y selector inferior.
+
+
+## V3.27: movimiento, roulette arcade y selección de mapa
+
+### Movimiento leve de PNG full en draft
+Los personajes grandes dentro del draft tienen una animación suave de flotación.  
+Está en `css/styles.css`, sección:
+
+```text
+AJUSTES V3.27 - movimiento, roulette, mapa y resumen animado
+```
+
+Si quieres quitarlo, elimina o comenta:
+
+```css
+.fullbody-card.idle-fullbody .fullbody-frame {
+  animation: draftFullbodyFloat 5.6s ease-in-out infinite;
+}
+```
+
+### Sonido del roulette arcade
+Cuando el tiempo llega a 0, las casillas del menú de personajes empiezan a pasar aleatoriamente hasta elegir un personaje.
+
+Coloca el sonido en:
+
+```text
+audio/roulette.ogg
+```
+
+También acepta:
+
+```text
+audio/roulette.mp3
+audio/roulette.mp4
+```
+
+Para el roulette de mapas puedes usar otro sonido:
+
+```text
+audio/map_roulette.ogg
+audio/map_roulette.mp3
+audio/map_roulette.mp4
+```
+
+Si no colocas `map_roulette`, puedes copiar el mismo audio y renombrarlo como `map_roulette`.
+
+### Selección de mapa
+Después del draft aparece una pantalla de selección de mapa antes del resumen.
+
+Los mapas se configuran aquí:
+
+```text
+js/map_config.js
+```
+
+Ejemplo:
+
+```javascript
+window.MAP_CONFIG = {
+  maps: [
+    { name: "Área 88", image: "img/maps/area_88.png" },
+    { name: "Distrito Sakura", image: "img/maps/distrito_sakura.png" }
+  ]
+};
+```
+
+Las imágenes de mapas deben colocarse en:
+
+```text
+img/maps/
+```
+
+Recomendado:
+
+```text
+640x360
+1280x720
+formato 16:9
+PNG, JPG o WebP
+```
+
+Cuando el mapa se elige, el resumen final lo muestra en un recuadro pequeño con imagen y nombre.
+
+### Intro del resumen
+Antes de mostrar el resumen final, aparece una intro con el overlay de `RESUMEN FINAL`.  
+Luego el resumen entra con una animación suave en lugar de aparecer bruscamente.

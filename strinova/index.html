@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Draft Simulator</title>
+  <title>STRINOVA Draft Competitive Rework v2.3 by RPmods</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -29,7 +29,7 @@
   <main id="setup-screen" class="screen setup-screen active">
     <section class="setup-shell settings-surface">
       <header class="settings-topbar">
-        <div class="settings-brand">DRAFT SIMULATOR</div>
+        <div class="settings-brand">STRINOVA Draft Competitive Rework v2.3 by RPmods</div>
         <nav class="settings-tabs">
           <button type="button" class="settings-tab setup-top-tab is-active" data-tab="menu">MENÚ</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="volumen">VOLUMEN</button>
@@ -50,7 +50,7 @@
 
       <header class="setup-top">
         <p class="eyebrow">Sistema competitivo</p>
-        <h1>Draft Simulator</h1>
+        <h1>STRINOVA Draft Competitive Rework v2.3 by RPmods</h1>
         <p>Configura los nombres y entra directamente a la fase de bloqueos.</p>
       </header>
 
@@ -108,8 +108,8 @@
                   <small>Controla la canción de fondo</small>
                 </div>
                 <div class="volume-control">
-                  <input id="music-volume-range" class="turn-time-range" type="range" min="0" max="100" step="1" value="100" />
-                  <span id="music-volume-value" class="volume-value">100</span>
+                  <input id="music-volume-range" class="turn-time-range" type="range" min="0" max="100" step="1" value="40" />
+                  <span id="music-volume-value" class="volume-value">40</span>
                 </div>
               </label>
 
@@ -320,9 +320,6 @@
         </section>
       </div>
 
-      <footer class="asset-note">
-        Video: <b>video/background.mp4</b> · Retratos: <b>img/characters/thumbs/Nombre.png</b> · PNG grande: <b>img/characters/full/Nombre.png</b>
-      </footer>
     </section>
   </main>
 
@@ -411,10 +408,42 @@
     </section>
   </main>
 
+
+  <main id="map-screen" class="screen map-screen">
+    <section class="map-shell settings-surface">
+      <header class="settings-topbar" aria-hidden="true">
+        <div class="settings-brand">STRINOVA Draft Competitive Rework v2.3 by RPmods</div>
+        <nav class="settings-tabs">
+          <span class="settings-tab is-active">SELECCIÓN DE MAPA</span>
+        </nav>
+      </header>
+      <div class="settings-canvas"></div>
+      <div class="settings-preview-pane" aria-hidden="true"></div>
+      <div class="settings-scroll-rail" aria-hidden="true"></div>
+
+      <header class="map-header">
+        <p class="eyebrow">Draft completado</p>
+        <h1>Selección de mapa</h1>
+        <p>El mapa se elegirá con aleatorización antes de mostrar el resumen final.</p>
+      </header>
+
+      <div id="map-grid" class="map-grid"></div>
+
+      <div class="map-action-panel">
+        <div class="map-selected-copy">
+          <span>MAPA SELECCIONADO</span>
+          <strong id="selected-map-name">Esperando selección</strong>
+        </div>
+        <button id="randomize-map" class="primary-button small-primary" type="button">ALEATORIZAR MAPA</button>
+      </div>
+    </section>
+  </main>
+
+
   <main id="summary-screen" class="screen summary-screen">
     <section class="summary-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">DRAFT SIMULATOR</div>
+        <div class="settings-brand">STRINOVA Draft Competitive Rework v2.3 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab">BÁSICO</span>
           <span class="settings-tab">EQUIPOS</span>
@@ -431,6 +460,16 @@
         <p class="eyebrow">Draft finalizado</p>
         <h1>Resumen del draft</h1>
       </header>
+
+      <section id="summary-map-card" class="summary-map-card">
+        <div class="summary-map-image">
+          <span>MAPA</span>
+        </div>
+        <div class="summary-map-copy">
+          <span>Mapa seleccionado</span>
+          <strong id="summary-map-name">Sin mapa</strong>
+        </div>
+      </section>
 
       <div class="summary-versus-layout">
         <section class="summary-team summary-team-a">
@@ -465,6 +504,7 @@
   </div>
   </div>
   <script src="js/character_layout_config.js"></script>
+  <script src="js/map_config.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
