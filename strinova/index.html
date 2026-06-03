@@ -36,6 +36,9 @@
           <button type="button" class="settings-tab setup-top-tab" data-tab="configuracion">CONFIGURACIÓN</button>
           <button type="button" class="settings-tab setup-top-tab is-unavailable" data-tab="development" disabled title="Development no disponible. Edita js/character_layout_config.js manualmente.">DEVELOPMENT · NO DISP.</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="random">RANDOM SELECTOR</button>
+          <button type="button" class="settings-tab setup-top-tab" data-tab="idioma">IDIOMA</button>
+          <button type="button" class="settings-tab setup-top-tab" data-tab="updates">UPDATES/HISTORIAL</button>
+          <button type="button" class="settings-tab setup-top-tab" data-tab="creditos">CRÉDITOS</button>
         </nav>
       </header>
       <div class="settings-canvas"></div>
@@ -77,6 +80,16 @@
               <div class="menu-panel-copy">
                 <p>Prepara los nombres de cada equipo, revisa los recursos cargados y entra directamente al draft competitivo.</p>
               </div>
+              <div class="player-name-mode-panel">
+                <div class="subconfig-heading compact-heading">
+                  <span>Nombres de jugadores</span>
+                  <strong>Modo manual / automático</strong>
+                </div>
+                <div class="player-name-mode-actions">
+                  <button id="manual-player-names" type="button" class="secondary-button">MODO MANUAL</button>
+                  <button id="random-player-names" type="button" class="primary-button small-primary">NOMBRES ALEATORIOS</button>
+                </div>
+              </div>
               <div class="menu-panel-highlights">
                 <span>Fase de bloqueos y selección</span>
                 <span>Resumen final automático</span>
@@ -108,8 +121,8 @@
                   <small>Controla la canción de fondo</small>
                 </div>
                 <div class="volume-control">
-                  <input id="music-volume-range" class="turn-time-range" type="range" min="0" max="100" step="1" value="40" />
-                  <span id="music-volume-value" class="volume-value">40</span>
+                  <input id="music-volume-range" class="turn-time-range" type="range" min="0" max="100" step="1" value="35" />
+                  <span id="music-volume-value" class="volume-value">35</span>
                 </div>
               </label>
 
@@ -119,19 +132,30 @@
                   <small>Clicks, warning y confirmaciones</small>
                 </div>
                 <div class="volume-control">
-                  <input id="sfx-volume-range" class="turn-time-range" type="range" min="0" max="100" step="1" value="100" />
-                  <span id="sfx-volume-value" class="volume-value">100</span>
+                  <input id="sfx-volume-range" class="turn-time-range" type="range" min="0" max="100" step="1" value="60" />
+                  <span id="sfx-volume-value" class="volume-value">60</span>
                 </div>
               </label>
 
-              <label class="volume-row" for="voice-volume-range">
+              <label class="volume-row" for="narration-volume-range">
                 <div class="subconfig-copy">
-                  <span>Volumen de voces</span>
-                  <small>Líneas de narración y voces de personajes</small>
+                  <span>Volumen de líneas de narración</span>
+                  <small>Fases, turnos de equipo y selección aleatoria</small>
                 </div>
                 <div class="volume-control">
-                  <input id="voice-volume-range" class="turn-time-range" type="range" min="0" max="100" step="1" value="100" />
-                  <span id="voice-volume-value" class="volume-value">100</span>
+                  <input id="narration-volume-range" class="turn-time-range" type="range" min="0" max="100" step="1" value="85" />
+                  <span id="narration-volume-value" class="volume-value">85</span>
+                </div>
+              </label>
+
+              <label class="volume-row" for="character-voice-volume-range">
+                <div class="subconfig-copy">
+                  <span>Volumen de voces de personajes</span>
+                  <small>Voces individuales al seleccionar o bloquear laminantes</small>
+                </div>
+                <div class="volume-control">
+                  <input id="character-voice-volume-range" class="turn-time-range" type="range" min="0" max="100" step="1" value="100" />
+                  <span id="character-voice-volume-value" class="volume-value">100</span>
                 </div>
               </label>
             </section>
@@ -249,6 +273,91 @@
               </label>
             </section>
 
+
+            <section class="setup-panel" data-panel="idioma">
+              <div class="subconfig-heading idioma-heading">
+                <span>Idioma</span>
+                <strong>Texto de la interfaz</strong>
+              </div>
+
+              <div class="idioma-panel-grid">
+                <label class="language-row" for="language-select">
+                  <div class="subconfig-copy">
+                    <span>Idioma del texto</span>
+                    <small>Cambia únicamente los textos de la interfaz.</small>
+                  </div>
+                  <select id="language-select" class="language-select">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                    <option value="ja">日本語</option>
+                    <option value="ru">Русский</option>
+                    <option value="zh">中文</option>
+                  </select>
+                </label>
+
+                <label class="language-row locked-language-row">
+                  <div class="subconfig-copy">
+                    <span>Audio de narración</span>
+                    <small>Por el momento esta opción no está disponible para cambiarse.</small>
+                  </div>
+                  <select class="language-select locked-language-select" disabled>
+                    <option>Default</option>
+                  </select>
+                </label>
+
+                <label class="language-row locked-language-row">
+                  <div class="subconfig-copy">
+                    <span>Audio de personajes</span>
+                    <small>Por el momento esta opción no está disponible para cambiarse.</small>
+                  </div>
+                  <select class="language-select locked-language-select" disabled>
+                    <option>Default</option>
+                  </select>
+                </label>
+
+                <div class="language-note-panel">
+                  <strong>Configuración de audio bloqueada</strong>
+                  <p>Las líneas de narración y las voces de personajes se mantendrán en Default. Solo cambia el idioma del texto visible.</p>
+                </div>
+              </div>
+            </section>
+
+
+            <section class="setup-panel" data-panel="updates">
+              <div class="subconfig-heading updates-heading">
+                <span>Updates / Historial</span>
+                <strong>Mejoras importantes</strong>
+              </div>
+
+              <div class="updates-history-panel">
+                <ul>
+                  <li>Interfaz principal adaptada a estilo competitivo de videojuego.</li>
+                  <li>Sistema completo de bloqueos y selección por equipos.</li>
+                  <li>Soporte de música, efectos, líneas de narración y voces de personajes.</li>
+                  <li>Ruleta arcade para selección aleatoria de personajes por tiempo agotado.</li>
+                  <li>Selección aleatoria de mapas antes del resumen final.</li>
+                  <li>Resumen final con mapa seleccionado, picks y bloqueos por equipo.</li>
+                  <li>Configuración de nombres manuales o aleatorios desde archivo externo.</li>
+                  <li>Compatibilidad con MP3, OGG y MP4 para los audios principales.</li>
+                  <li>Ajustes separados de volumen para música, efectos, narración y voces.</li>
+                </ul>
+              </div>
+            </section>
+
+            <section class="setup-panel" data-panel="creditos">
+              <div class="subconfig-heading">
+                <span>Créditos</span>
+                <strong>Voces</strong>
+              </div>
+
+              <div class="credits-panel">
+                <div class="credits-card">
+                  <span>Voces</span>
+                  <strong>system voice : wizz</strong>
+                </div>
+              </div>
+            </section>
+
             <section class="setup-panel" data-panel="configuracion">
               <div class="subconfig-heading">
                 <span>Sub configuración</span>
@@ -277,9 +386,9 @@
                   <small>Ajusta overlays y confirmaciones</small>
                 </div>
                 <div class="subconfig-control">
-                  <input id="animation-duration-range" class="turn-time-range" type="range" min="60" max="180" step="5" value="100" />
+                  <input id="animation-duration-range" class="turn-time-range" type="range" min="60" max="180" step="5" value="160" />
                   <div class="turn-time-meta">
-                    <span id="animation-duration-value" class="volume-value">1.00x</span>
+                    <span id="animation-duration-value" class="volume-value">1.60x</span>
                   </div>
                 </div>
               </label>
@@ -505,6 +614,8 @@
   </div>
   <script src="js/character_layout_config.js"></script>
   <script src="js/map_config.js"></script>
+  <script src="js/player_names_config.js"></script>
+  <script src="js/i18n_config.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

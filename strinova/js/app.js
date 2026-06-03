@@ -255,18 +255,60 @@ const sounds = {
   warning: "audio/timer_warning.mp3",
   roulette: "audio/roulette",
   mapRoulette: "audio/map_roulette",
-  banPhase: "audio/voice_ban_phase.mp3",
-  pickPhase: "audio/voice_pick_phase.mp3",
+  banPhase: "audio/voice_ban_phase",
+  pickPhase: "audio/voice_pick_phase",
+  randomStart: "audio/random_start",
+};
+
+const systemDraftVoiceLines = {
+  voice_ban_phase: {
+    src: sounds.banPhase,
+    text: "¡La fase de bloqueos de laminantes ha comenzado!",
+  },
+  voice_pick_phase: {
+    src: sounds.pickPhase,
+    text: "¡La fase de selección de laminantes ha comenzado!",
+  },
+  team_a_ban: {
+    src: "audio/turns/team_a_ban",
+    text: "Los atacantes están bloqueando un laminante.",
+  },
+  team_b_ban: {
+    src: "audio/turns/team_b_ban",
+    text: "Los defensores están bloqueando un laminante.",
+  },
+  team_a_ban_scissors: {
+    src: "audio/turns/team_a_ban_scissors",
+    text: "Los atacantes están bloqueando un laminante de las Cizallas.",
+  },
+  team_b_ban_scissors: {
+    src: "audio/turns/team_b_ban_scissors",
+    text: "Los defensores están bloqueando un laminante de las Cizallas.",
+  },
+  team_a_pick: {
+    src: "audio/turns/team_a_pick",
+    text: "Los atacantes están eligiendo un laminante.",
+  },
+  team_b_pick: {
+    src: "audio/turns/team_b_pick",
+    text: "Los defensores están eligiendo un laminante.",
+  },
+  random_start: {
+    src: sounds.randomStart,
+    text: "Tiempo agotado. Iniciando selección aleatoria.",
+  },
 };
 
 const turnVoices = {
   A: {
-    ban: "audio/turns/team_a_ban",
-    pick: "audio/turns/team_a_pick",
+    ban: systemDraftVoiceLines.team_a_ban.src,
+    ban_scissors: systemDraftVoiceLines.team_a_ban_scissors.src,
+    pick: systemDraftVoiceLines.team_a_pick.src,
   },
   B: {
-    ban: "audio/turns/team_b_ban",
-    pick: "audio/turns/team_b_pick",
+    ban: systemDraftVoiceLines.team_b_ban.src,
+    ban_scissors: systemDraftVoiceLines.team_b_ban_scissors.src,
+    pick: systemDraftVoiceLines.team_b_pick.src,
   },
 };
 
@@ -299,6 +341,7 @@ const state = {
     active: false,
     highlightedName: null,
     finalName: null,
+    previewCharacter: null,
   },
   selectedMap: null,
   mapRoulette: {
@@ -308,13 +351,15 @@ const state = {
   },
   settings: {
     masterVolume: 1,
-    musicVolume: 0.4,
-    sfxVolume: 1,
-    voiceVolume: 1,
+    musicVolume: 0.35,
+    sfxVolume: 0.6,
+    narrationVolume: 0.85,
+    characterVoiceVolume: 1,
+    language: "es",
     narrationEnabled: true,
     selectionAnimationEnabled: true,
     autoResolveEnabled: true,
-    animationDuration: 1,
+    animationDuration: 1.6,
   },
   devSelectedCharacter: "Ming",
 };
@@ -335,6 +380,8 @@ const summaryMapName = $("#summary-map-name");
 const timerCore = $(".timer-core");
 const setupShell = document.querySelector(".setup-shell");
 const simulateSummaryButton = $("#simulate-summary");
+const randomPlayerNamesButton = $("#random-player-names");
+const manualPlayerNamesButton = $("#manual-player-names");
 const cancelDraftButton = $("#cancel-draft");
 const turnTimeRange = $("#turn-time-range");
 const turnTimeInput = $("#turn-time-input");
@@ -349,11 +396,69 @@ const autoResolveToggle = $("#auto-resolve-toggle");
 const masterVolumeRange = $("#master-volume-range");
 const musicVolumeRange = $("#music-volume-range");
 const sfxVolumeRange = $("#sfx-volume-range");
-const voiceVolumeRange = $("#voice-volume-range");
+const narrationVolumeRange = $("#narration-volume-range");
+const characterVoiceVolumeRange = $("#character-voice-volume-range");
 const masterVolumeValue = $("#master-volume-value");
 const musicVolumeValue = $("#music-volume-value");
 const sfxVolumeValue = $("#sfx-volume-value");
-const voiceVolumeValue = $("#voice-volume-value");
+const narrationVolumeValue = $("#narration-volume-value");
+const characterVoiceVolumeValue = $("#character-voice-volume-value");
+const languageSelect = $("#language-select");
+
+
+const i18nConfig = window.I18N_CONFIG || { defaultLanguage: "es", text: { es: {} } };
+function currentLanguage() { return state?.settings?.language || i18nConfig.defaultLanguage || "es"; }
+function t(key, vars = {}) {
+  const lang = currentLanguage();
+  const bundle = i18nConfig.text?.[lang] || i18nConfig.text?.es || {};
+  const fallback = i18nConfig.text?.es || {};
+  let value = bundle[key] ?? fallback[key] ?? key;
+  Object.entries(vars).forEach(([name, replacement]) => { value = String(value).replaceAll(`{${name}}`, replacement); });
+  return value;
+}
+function setText(selector, key, vars = {}) { const el = document.querySelector(selector); if (el) el.textContent = t(key, vars); }
+function setAllText(selector, key, vars = {}) { document.querySelectorAll(selector).forEach(el => { el.textContent = t(key, vars); }); }
+function updateSetupRulesText() {
+  const rules = document.querySelectorAll(".setup-rules span");
+  if (rules[0]) rules[0].innerHTML = t("setup_rules_1", { time: `<b id="setup-turn-time-copy">${state.turnDuration}</b>` });
+  if (rules[1]) rules[1].textContent = t("setup_rules_2");
+  if (rules[2]) rules[2].textContent = t("setup_rules_3");
+}
+function translateRoleLabel(label) {
+  const map = { "Centinela":"role_sentinel", "Duelista":"role_duelist", "Controlador":"role_controller", "Vanguardia":"role_vanguard", "Soporte":"role_support", "Sin rol":"role_none" };
+  return t(map[label] || "role_none");
+}
+function applyLanguage(lang = currentLanguage()) {
+  state.settings.language = lang;
+  document.documentElement.lang = lang;
+  if (languageSelect) languageSelect.value = lang;
+  setText('.setup-top .eyebrow','setup_eyebrow'); setText('.setup-top h1','setup_title'); setText('.setup-top p:last-child','setup_subtitle');
+  setAllText('.setup-team-a .setup-team-heading span, .team-column-a .team-title span, .summary-team-a .summary-team-title span','team_a');
+  setAllText('.setup-team-b .setup-team-heading span, .team-column-b .team-title span, .summary-team-b .summary-team-title span','team_b');
+  setAllText('.setup-team-a .setup-team-heading strong, .team-column-a .team-title strong, .summary-team-a .summary-team-title strong','attackers');
+  setAllText('.setup-team-b .setup-team-heading strong, .team-column-b .team-title strong, .summary-team-b .summary-team-title strong','defenders');
+  setText('.versus-core','vs'); setText('.menu-panel-copy p','setup_copy'); updateSetupRulesText();
+  setText('.player-name-mode-panel .subconfig-heading span','names_heading_small'); setText('.player-name-mode-panel .subconfig-heading strong','names_heading'); setText('#manual-player-names','manual_mode'); setText('#random-player-names','random_names'); setText('#start-draft','start_draft');
+  const highlights=document.querySelectorAll('.menu-panel-highlights span'); if(highlights[0])highlights[0].textContent=t('highlight_1'); if(highlights[1])highlights[1].textContent=t('highlight_2'); if(highlights[2])highlights[2].textContent=t('highlight_3');
+  document.querySelectorAll('.setup-top-tab').forEach(button=>{ const key={menu:'tab_menu',volumen:'tab_volume',configuracion:'tab_config',random:'tab_random',idioma:'tab_language',updates:'tab_updates',creditos:'tab_credits'}[button.dataset.tab]; if(key) button.textContent=t(key); });
+  setText('[data-panel="volumen"] .subconfig-heading span','sound'); setText('[data-panel="volumen"] .subconfig-heading strong','volume');
+  [['master_volume','master_volume_desc'],['music_volume','music_volume_desc'],['sfx_volume','sfx_volume_desc'],['narration_volume','narration_volume_desc'],['character_voice_volume','character_voice_volume_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="volumen"] .volume-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
+  setText('[data-panel="idioma"] .subconfig-heading span','language'); setText('[data-panel="idioma"] .subconfig-heading strong','interface_text');
+  [['text_language','text_language_desc'],['narration_audio','audio_locked_desc'],['character_audio','audio_locked_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="idioma"] .language-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
+  document.querySelectorAll('.locked-language-select option').forEach(o=>{o.textContent=t('default')}); setText('.language-note-panel strong','audio_locked_title'); setText('.language-note-panel p','audio_locked_body');
+  setText('[data-panel="random"] .subconfig-heading span','random_selector'); setText('[data-panel="random"] .subconfig-heading strong','random_summary'); setText('[data-panel="random"] .subconfig-copy span','random_summary_action'); setText('[data-panel="random"] .subconfig-copy small','random_summary_desc'); setText('#simulate-summary','simulate');
+  setText('[data-panel="updates"] .subconfig-heading span','updates'); setText('[data-panel="updates"] .subconfig-heading strong','important_improvements'); document.querySelectorAll('.updates-history-panel li').forEach((li,i)=>{ li.textContent=t(`update_${i+1}`); });
+  setText('[data-panel="creditos"] .subconfig-heading span','credits'); setText('[data-panel="creditos"] .subconfig-heading strong','voices'); setText('.credits-line strong','system_voice');
+  setText('[data-panel="configuracion"] .subconfig-heading span','config'); setText('[data-panel="configuracion"] .subconfig-heading strong','game_settings');
+  [['turn_time','turn_time_desc'],['animation_duration','animation_duration_desc'],['narration_toggle','narration_toggle_desc'],['selection_animation','selection_animation_desc'],['auto_resolve','auto_resolve_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="configuracion"] .subconfig-row, [data-panel="configuracion"] .toggle-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
+  setText('#cancel-draft','cancel'); setText('#confirm-action','confirm'); setText('.team-column-a .ban-stack > span','ban_stack_a'); setText('.team-column-b .ban-stack > span','ban_stack_b');
+  const ribbons=document.querySelectorAll('.team-ribbon span'); if(ribbons[0])ribbons[0].textContent=`${t('team_a')} (${t('attackers')})`; if(ribbons[1])ribbons[1].textContent=`${t('team_b')} (${t('defenders')})`;
+  setText('.map-header .eyebrow','map_completed'); setText('.map-header h1','map_selection'); setText('.map-header p:last-child','map_desc'); setText('.map-selected-copy span','selected_map'); setText('#randomize-map','randomize_map');
+  setText('.summary-header .eyebrow','summary_finished'); setText('.summary-header h1','summary_title'); setText('.summary-map-copy span','selected_map_label'); setAllText('.summary-team h3','bans_done'); setText('#restart-draft','restart');
+  updateSelectedMapCopy?.();
+  if (document.querySelector('.draft-screen.active')) renderAll();
+  if (document.querySelector('.map-screen.active')) renderMapGrid();
+}
 
 /*
   AJUSTE DIRECTO DE LA BOX DEL PNG FULL EN DRAFT
@@ -740,7 +845,7 @@ function voicePath(name, type) {
 }
 
 function roleOf(name) {
-  return roles[name] || "Sin rol";
+  return translateRoleLabel(roles[name] || "Sin rol");
 }
 
 function initials(name) {
@@ -763,12 +868,15 @@ function normalizedPercent(value) {
 function channelVolume(channel = "sfx") {
   const settings = state.settings || {};
   const master = clamp01(settings.masterVolume ?? 1);
-  const channelValue = channel === "music"
-    ? clamp01(settings.musicVolume ?? 1)
-    : channel === "voice"
-      ? clamp01(settings.voiceVolume ?? 1)
-      : clamp01(settings.sfxVolume ?? 1);
-  return clamp01(master * channelValue);
+
+  let channelValue = settings.sfxVolume ?? 1;
+  if (channel === "music") channelValue = settings.musicVolume ?? 1;
+  if (channel === "narration") channelValue = settings.narrationVolume ?? 1;
+  if (channel === "characterVoice") channelValue = settings.characterVoiceVolume ?? 1;
+  // Compatibilidad con versiones anteriores: si algo llama "voice", usa narración.
+  if (channel === "voice") channelValue = settings.characterVoiceVolume ?? 1;
+
+  return clamp01(master * clamp01(channelValue));
 }
 
 function updateMusicVolume() {
@@ -862,7 +970,7 @@ function speakFallback(text) {
   try {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "es-ES";
+    utterance.lang = { es: "es-ES", en: "en-US", ja: "ja-JP", ru: "ru-RU", zh: "zh-CN" }[currentLanguage()] || "es-ES";
     utterance.rate = 0.95;
     utterance.pitch = 0.92;
     utterance.volume = 0.95;
@@ -881,7 +989,7 @@ function playNarration(src, fallbackText, volume = 0.92) {
   }
 
   const audio = new Audio();
-  audio.volume = Math.max(0, Math.min(1, volume * channelVolume("voice")));
+  audio.volume = Math.max(0, Math.min(1, volume * channelVolume("narration")));
   let playedByAudio = false;
 
   const tryNext = () => {
@@ -906,7 +1014,7 @@ function playNarration(src, fallbackText, volume = 0.92) {
 
 function playCharacterVoice(character, type) {
   if (!state.settings.narrationEnabled) return;
-  audioPlay(voicePath(character.name, type), 0.95, "voice");
+  audioPlay(voicePath(character.name, type), 0.95, "characterVoice");
 }
 
 function formatTimer(seconds) {
@@ -1006,6 +1114,55 @@ function createPlayerInput(team, index) {
   return row;
 }
 
+function setPlayerInputValue(team, index, value) {
+  const input = document.querySelector(`.player-input[data-team="${team}"][data-index="${index}"]`);
+  if (input) input.value = value;
+  state.players[team][index] = value;
+}
+
+function shuffleList(list) {
+  return [...list].sort(() => Math.random() - 0.5);
+}
+
+function defaultPlayerName(team, index) {
+  return `Jugador ${team}${index + 1}`;
+}
+
+function getConfiguredRandomNamePool(team) {
+  const config = window.PLAYER_NAMES_CONFIG || {};
+  const teamPool = Array.isArray(config[team]) ? config[team] : [];
+  const genericPool = Array.isArray(config.names) ? config.names : [];
+  const combined = [...teamPool, ...genericPool]
+    .map(name => String(name || "").trim())
+    .filter(Boolean);
+  return combined.length ? combined : [
+    "Wizz", "RPmods", "Laminante", "Striker", "Nova",
+    "Raptor", "Zero", "Echo", "Valkyrie", "Pulse",
+  ];
+}
+
+function applyManualPlayerNames() {
+  for (let i = 0; i < 5; i += 1) {
+    setPlayerInputValue("A", i, defaultPlayerName("A", i));
+    setPlayerInputValue("B", i, defaultPlayerName("B", i));
+  }
+}
+
+function applyRandomPlayerNames() {
+  const used = new Set();
+  const takeName = (team, index) => {
+    const candidates = shuffleList(getConfiguredRandomNamePool(team));
+    const chosen = candidates.find(name => !used.has(name)) || `${candidates[0] || "Jugador"} ${team}${index + 1}`;
+    used.add(chosen);
+    return chosen;
+  };
+
+  for (let i = 0; i < 5; i += 1) {
+    setPlayerInputValue("A", i, takeName("A", i));
+    setPlayerInputValue("B", i, takeName("B", i));
+  }
+}
+
 function readPlayers() {
   document.querySelectorAll(".player-input").forEach(input => {
     const team = input.dataset.team;
@@ -1034,7 +1191,7 @@ function activateSetupTab(tabName) {
     panel.classList.toggle("is-active", panel.dataset.panel === tabName);
   });
   if (setupShell) {
-    setupShell.classList.remove("view-menu", "view-volumen", "view-configuracion", "view-development", "view-random");
+    setupShell.classList.remove("view-menu", "view-volumen", "view-configuracion", "view-development", "view-random", "view-idioma", "view-creditos", "view-updates");
     setupShell.classList.add(`view-${tabName}`);
   }
 }
@@ -1064,7 +1221,13 @@ function setupConfigControls() {
   bindVolumeRange(masterVolumeRange, masterVolumeValue, "masterVolume");
   bindVolumeRange(musicVolumeRange, musicVolumeValue, "musicVolume");
   bindVolumeRange(sfxVolumeRange, sfxVolumeValue, "sfxVolume");
-  bindVolumeRange(voiceVolumeRange, voiceVolumeValue, "voiceVolume");
+  bindVolumeRange(narrationVolumeRange, narrationVolumeValue, "narrationVolume");
+  bindVolumeRange(characterVoiceVolumeRange, characterVoiceVolumeValue, "characterVoiceVolume");
+
+  if (languageSelect) {
+    languageSelect.value = state.settings.language;
+    languageSelect.addEventListener("change", () => applyLanguage(languageSelect.value));
+  }
 
   const animationApply = () => {
     const raw = Math.max(60, Math.min(180, Number(animationDurationRange?.value) || 100));
@@ -1174,8 +1337,8 @@ function showPhaseOverlay(text, voiceSrc, subtitle, callback) {
   document.body.classList.add("overlay-lock");
 
   title.textContent = text;
-  subtitleElement.textContent = subtitle || "Preparando turno";
-  kicker.textContent = text.includes("RESUMEN") ? "RESULTADO" : text.includes("BLOQUEO") ? "BLOQUEOS" : "SELECCIÓN";
+  subtitleElement.textContent = subtitle || t("phase_preparing");
+  kicker.textContent = text.includes("RESUMEN") || text.includes("SUMMARY") ? t("phase_result") : text.includes("BLOQUEO") || text.includes("BAN") ? t("phase_ban") : t("phase_selection");
 
   overlay.classList.remove("hidden", "animate");
   void overlay.offsetWidth;
@@ -1233,13 +1396,17 @@ function renderTeamSlots(team, container) {
     slot.className = "player-slot";
 
     const isActivePickSlot = turn?.type === "pick" && turn.team === team && i === state.picks[team].length;
+    const previewPick = isActivePickSlot ? currentRoulettePreviewCharacter(turn) : null;
     if (isActivePickSlot) slot.classList.add("active-turn");
+    if (previewPick) slot.classList.add("roulette-preview-slot");
     if (pick && state.flashPick === pick.name) slot.classList.add("pick-flash");
 
     const portrait = document.createElement("div");
     portrait.className = "slot-portrait";
     if (pick) {
       portrait.appendChild(makeImage([thumbPath(pick.name), legacyPath(pick.name)], "", pick.name));
+    } else if (previewPick) {
+      portrait.appendChild(makeImage([thumbPath(previewPick.name), legacyPath(previewPick.name)], "", previewPick.name));
     } else {
       const placeholder = document.createElement("span");
       placeholder.className = "slot-placeholder";
@@ -1254,7 +1421,11 @@ function renderTeamSlots(team, container) {
     playerName.textContent = state.players[team][i];
     const characterName = document.createElement("p");
     characterName.className = "slot-character";
-    characterName.textContent = pick ? `${pick.name} · ${factions[pick.faction].label}` : "Sin seleccionar";
+    characterName.textContent = pick
+      ? `${pick.name} · ${factions[pick.faction].label}`
+      : previewPick
+        ? `${previewPick.name} · ${factions[previewPick.faction].label}`
+        : t("not_selected");
     details.appendChild(playerName);
     details.appendChild(characterName);
 
@@ -1277,10 +1448,14 @@ function renderBans() {
 
 function renderBanList(team, container) {
   container.innerHTML = "";
+  const turn = currentTurn();
   for (let i = 0; i < 2; i += 1) {
     const character = state.bans[team][i] || null;
+    const isActiveBanSlot = turn?.type === "ban" && turn.team === team && i === state.bans[team].length;
+    const previewBan = isActiveBanSlot ? currentRoulettePreviewCharacter(turn) : null;
     const slot = document.createElement("div");
     slot.className = `ban-slot ${character ? "filled" : "empty"}`;
+    if (previewBan) slot.classList.add("roulette-preview-slot");
     if (character && state.flashBan === character.name) slot.classList.add("ban-flash");
 
     const thumb = document.createElement("div");
@@ -1288,6 +1463,8 @@ function renderBanList(team, container) {
 
     if (character) {
       thumb.appendChild(makeImage([thumbPath(character.name), legacyPath(character.name)], "", character.name));
+    } else if (previewBan) {
+      thumb.appendChild(makeImage([thumbPath(previewBan.name), legacyPath(previewBan.name)], "", previewBan.name));
     } else {
       const placeholder = document.createElement("span");
       placeholder.className = "ban-thumb-placeholder";
@@ -1297,7 +1474,7 @@ function renderBanList(team, container) {
 
     const label = document.createElement("div");
     label.className = "ban-slot-label";
-    label.textContent = character ? character.name : "Vacío";
+    label.textContent = character ? character.name : previewBan ? previewBan.name : t("empty");
 
     slot.appendChild(thumb);
     slot.appendChild(label);
@@ -1368,7 +1545,14 @@ function updateCharacterRouletteClasses() {
 function clearCharacterRouletteVisuals() {
   state.roulette.highlightedName = null;
   state.roulette.finalName = null;
+  state.roulette.previewCharacter = null;
   updateCharacterRouletteClasses();
+}
+
+function currentRoulettePreviewCharacter(turn = currentTurn()) {
+  const preview = state.roulette.active ? state.roulette.previewCharacter : null;
+  if (!preview || !turn) return null;
+  return isCharacterAvailable(preview, turn) ? preview : null;
 }
 
 function renderStageCharacters() {
@@ -1422,11 +1606,17 @@ function renderStageCharacters() {
   let shownCharacters = [];
   const groupPicks = turn.type === "pick" ? (state.pickBatchSelections[turn.groupId] || []) : [];
 
+  const roulettePreview = currentRoulettePreviewCharacter(turn);
+
   if (turn.type === "pick") {
     shownCharacters = [...groupPicks];
-    if (state.selected && isCharacterAvailable(state.selected, turn)) {
+    if (roulettePreview) {
+      shownCharacters.push(roulettePreview);
+    } else if (state.selected && isCharacterAvailable(state.selected, turn)) {
       shownCharacters.push(state.selected);
     }
+  } else if (roulettePreview) {
+    shownCharacters = [roulettePreview];
   } else if (state.selected && isCharacterAvailable(state.selected, turn)) {
     shownCharacters = [state.selected];
   }
@@ -1474,8 +1664,8 @@ function renderSelected() {
 
   const selectedCharacter = state.selected && isCharacterAvailable(state.selected, turn) ? state.selected : null;
 
-  if (statusName) statusName.textContent = selectedCharacter ? selectedCharacter.name.toUpperCase() : "NINGUNO";
-  if (statusFaction) statusFaction.textContent = selectedCharacter ? `${factions[selectedCharacter.faction].label} · ${roleOf(selectedCharacter.name)}` : "Sin selección";
+  if (statusName) statusName.textContent = selectedCharacter ? selectedCharacter.name.toUpperCase() : t("none");
+  if (statusFaction) statusFaction.textContent = selectedCharacter ? `${factions[selectedCharacter.faction].label} · ${roleOf(selectedCharacter.name)}` : t("no_selection");
 
   if (!selectedCharacter) {
     button.classList.add("hidden");
@@ -1485,10 +1675,10 @@ function renderSelected() {
   button.classList.remove("hidden", "ban");
 
   if (turn.type === "ban") {
-    button.textContent = "BANEAR";
+    button.textContent = t("ban");
     button.classList.add("ban");
   } else {
-    button.textContent = "SELECCIONAR";
+    button.textContent = t("select");
   }
 }
 
@@ -1527,25 +1717,25 @@ function renderTurnInfo() {
   }
 
   if (turn.type === "ban") {
-    const roundText = `Bloqueo ${state.turnIndex + 1} de ${banTurns.length}`;
-    phaseLabel.textContent = "Bloquear personaje";
-    turnLabel.textContent = `TEAM ${turn.team} BLOQUEA`;
-    restriction.textContent = turn.text;
+    const roundText = t("ban_round", { current: state.turnIndex + 1, total: banTurns.length });
+    phaseLabel.textContent = t("block_character");
+    turnLabel.textContent = t("team_blocks", { team: turn.team });
+    restriction.textContent = `${t("team_blocks", { team: turn.team })}: ${factions[turn.faction].label}.`;
     batchIndicator.textContent = roundText;
     dockTitle.textContent = "";
-    if (statusPhase) statusPhase.textContent = `FASE DE BLOQUEOS · ${roundText}`;
-    if (statusTurn) statusTurn.textContent = `TEAM ${turn.team} BLOQUEA`;
+    if (statusPhase) statusPhase.textContent = `${t("phase_ban")} · ${roundText}`;
+    if (statusTurn) statusTurn.textContent = t("team_blocks", { team: turn.team });
   } else {
     const pickNumber = state.picks[turn.team].length + 1;
     const playerName = state.players[turn.team][pickNumber - 1];
-    const roundText = `Ronda TEAM ${turn.team}: selección ${turn.groupSlot + 1} de ${turn.groupCount}`;
-    phaseLabel.textContent = "Seleccionar personaje";
-    turnLabel.textContent = `TEAM ${turn.team} SELECCIONA · ${playerName}`;
-    restriction.textContent = `TEAM ${turn.team} puede elegir ${getAllowedFactionKeysForPick(turn.team).map(key => factions[key].label).join(" o ")}.`;
+    const roundText = t("pick_round", { team: turn.team, current: turn.groupSlot + 1, total: turn.groupCount });
+    phaseLabel.textContent = t("pick_character");
+    turnLabel.textContent = t("team_picks_player", { team: turn.team, player: playerName });
+    restriction.textContent = t("team_can_pick", { team: turn.team, factions: getAllowedFactionKeysForPick(turn.team).map(key => factions[key].label).join(t("and_or")) });
     batchIndicator.textContent = roundText;
     dockTitle.textContent = "";
-    if (statusPhase) statusPhase.textContent = `FASE DE SELECCIÓN · ${roundText}`;
-    if (statusTurn) statusTurn.textContent = `TEAM ${turn.team} SELECCIONA`;
+    if (statusPhase) statusPhase.textContent = `${t("phase_pick")} · ${roundText}`;
+    if (statusTurn) statusTurn.textContent = t("team_picks", { team: turn.team });
   }
 }
 
@@ -1596,7 +1786,7 @@ function resetTimer() {
           state.selected = valid[Math.floor(Math.random() * valid.length)];
         }
         const restriction = $("#current-restriction");
-        if (restriction) restriction.textContent = "Tiempo agotado. Confirma manualmente o cambia la selección.";
+        if (restriction) restriction.textContent = t("time_over_manual");
         renderAll();
       }
     }
@@ -1616,6 +1806,15 @@ function weightedRandomDelay(step, total) {
   return 42 + Math.round(165 * progress * progress);
 }
 
+function updateCharacterRoulettePreview(character) {
+  state.roulette.previewCharacter = character || null;
+  updateCharacterRouletteClasses();
+  renderStageCharacters();
+  renderSlots();
+  renderBans();
+  renderSelected();
+}
+
 async function runCharacterRoulette(validCharacters) {
   const valid = validCharacters.filter(Boolean);
   if (!valid.length) return null;
@@ -1623,6 +1822,7 @@ async function runCharacterRoulette(validCharacters) {
   state.roulette.active = true;
   state.roulette.finalName = null;
   state.roulette.highlightedName = null;
+  state.roulette.previewCharacter = null;
   state.locked = true;
 
   // Evita el “tick” visual: durante la ruleta ya no se re-renderiza todo el draft.
@@ -1635,7 +1835,7 @@ async function runCharacterRoulette(validCharacters) {
     selected = randomFrom(valid);
     state.roulette.highlightedName = selected.name;
     audioPlay(sounds.roulette, 0.82, "sfx");
-    updateCharacterRouletteClasses();
+    updateCharacterRoulettePreview(selected);
     await delay(weightedRandomDelay(step, totalSteps));
   }
 
@@ -1644,14 +1844,14 @@ async function runCharacterRoulette(validCharacters) {
   state.roulette.highlightedName = selected.name;
   state.roulette.finalName = selected.name;
   state.selected = selected;
-  updateCharacterRouletteClasses();
-  renderStageCharacters();
-  renderSelected();
+  updateCharacterRoulettePreview(selected);
   await delay(520);
 
   state.roulette.active = false;
   clearCharacterRouletteVisuals();
   renderStageCharacters();
+  renderSlots();
+  renderBans();
   renderSelected();
   return selected;
 }
@@ -1659,6 +1859,12 @@ async function runCharacterRoulette(validCharacters) {
 async function autoResolveTurn() {
   if (state.locked || state.roulette.active) return;
   const valid = getValidCharacters();
+
+  // Primero se reproduce la línea "Tiempo agotado".
+  // Después de 2 segundos empieza la ruleta visual + audio roulette.
+  state.locked = true;
+  playNarration(systemDraftVoiceLines.random_start.src, "", 0.9);
+  await delay(2000);
 
   const selected = await runCharacterRoulette(valid);
   if (!selected) {
@@ -1683,9 +1889,9 @@ function proceedAfterTurn() {
   const justEnteredPickPhase = state.turnIndex === banTurns.length;
   if (justEnteredPickPhase && nextTurn.type === "pick") {
     showPhaseOverlay(
-      "FASE DE SELECCIÓN",
-      sounds.pickPhase,
-      "Comienza la fase de selección.",
+      t("phase_pick"),
+      systemDraftVoiceLines.voice_pick_phase.src,
+      systemDraftVoiceLines.voice_pick_phase.text,
       startTurn,
     );
   } else {
@@ -1739,19 +1945,41 @@ function confirmTurn(isAuto = false) {
   }, wait);
 }
 
+function turnVoiceKey(turn) {
+  if (!turn) return "";
+  if (turn.type === "pick") return "pick";
+
+  if (turn.type === "ban") {
+    const banIndex = banTurns.indexOf(turn);
+    // Orden solicitado:
+    // Bloqueo 1: TEAM A => team_a_ban
+    // Bloqueo 2: TEAM B => team_b_ban
+    // Bloqueo 3: TEAM A => team_a_ban_scissors
+    // Bloqueo 4: TEAM B => team_b_ban_scissors
+    return banIndex >= 2 ? "ban_scissors" : "ban";
+  }
+
+  return "ban";
+}
+
 function turnNarrationText(turn) {
   if (!turn) return "";
-  if (turn.type === "ban") {
-    return `El equipo ${turn.team} está bloqueando un laminante.`;
-  }
-  return `El equipo ${turn.team} está eligiendo un laminante.`;
+  const key = turnVoiceKey(turn);
+  if (turn.team === "A" && key === "ban_scissors") return systemDraftVoiceLines.team_a_ban_scissors.text;
+  if (turn.team === "B" && key === "ban_scissors") return systemDraftVoiceLines.team_b_ban_scissors.text;
+  if (turn.team === "A" && key === "ban") return systemDraftVoiceLines.team_a_ban.text;
+  if (turn.team === "B" && key === "ban") return systemDraftVoiceLines.team_b_ban.text;
+  if (turn.team === "A" && key === "pick") return systemDraftVoiceLines.team_a_pick.text;
+  if (turn.team === "B" && key === "pick") return systemDraftVoiceLines.team_b_pick.text;
+  return "";
 }
 
 function playTurnNarration(turn) {
   if (!turn) return;
-  const src = turnVoices[turn.team]?.[turn.type];
+  const key = turnVoiceKey(turn);
+  const src = turnVoices[turn.team]?.[key];
   // Las voces de turno deben reproducir archivos reales en audio/turns/.
-  // No usamos speechSynthesis aquí para evitar que suene la voz default.
+  // No usamos speechSynthesis aquí para evitar que suene la voz default si falta el audio.
   playNarration(src, "", 0.88);
 }
 
@@ -1776,16 +2004,16 @@ function startDraft() {
   state.flashPick = null;
   state.banAnimation = null;
   state.pickAnimation = null;
-  state.roulette = { active: false, highlightedName: null, finalName: null };
+  state.roulette = { active: false, highlightedName: null, finalName: null, previewCharacter: null };
   state.selectedMap = null;
   state.mapRoulette = { active: false, highlightedId: null, finalId: null };
   switchScreen(draftScreen);
   setupBackgroundVideo();
   startMusic();
   showPhaseOverlay(
-    "FASE DE BLOQUEOS",
-    sounds.banPhase,
-    "Comienza la fase de bloqueo de laminantes.",
+    t("phase_ban"),
+    systemDraftVoiceLines.voice_ban_phase.src,
+    systemDraftVoiceLines.voice_ban_phase.text,
     startTurn,
   );
 }
@@ -1904,7 +2132,7 @@ function cancelDraft() {
   state.flashPick = null;
   state.banAnimation = null;
   state.pickAnimation = null;
-  state.roulette = { active: false, highlightedName: null, finalName: null };
+  state.roulette = { active: false, highlightedName: null, finalName: null, previewCharacter: null };
   state.mapRoulette = { active: false, highlightedId: null, finalId: null };
   state.selectedMap = null;
   state.pickBatchSelections = {};
@@ -1954,7 +2182,7 @@ function renderMapGrid() {
     image.className = "map-card-image";
     image.appendChild(makeImage([mapImagePath(map)], "", map.name));
     const imageFallback = document.createElement("span");
-    imageFallback.textContent = "MAPA";
+    imageFallback.textContent = t("map");
     image.appendChild(imageFallback);
 
     const name = document.createElement("strong");
@@ -1976,7 +2204,7 @@ function renderMapGrid() {
 }
 
 function updateSelectedMapCopy() {
-  if (selectedMapName) selectedMapName.textContent = state.selectedMap?.name || "Esperando selección";
+  if (selectedMapName) selectedMapName.textContent = state.selectedMap?.name || t("waiting_selection");
 }
 
 async function runMapRoulette() {
@@ -2021,7 +2249,7 @@ function startMapSelection() {
   state.flashPick = null;
   state.banAnimation = null;
   state.pickAnimation = null;
-  state.roulette = { active: false, highlightedName: null, finalName: null };
+  state.roulette = { active: false, highlightedName: null, finalName: null, previewCharacter: null };
   state.mapRoulette = { active: false, highlightedId: null, finalId: null };
   switchScreen(mapScreen);
   mapScreen?.classList.remove("map-enter");
@@ -2042,22 +2270,22 @@ function renderSummaryMap() {
     if (map) {
       imageBox.appendChild(makeImage([mapImagePath(map)], "", map.name));
       const fallback = document.createElement("span");
-      fallback.textContent = "MAPA";
+      fallback.textContent = t("map");
       imageBox.appendChild(fallback);
     } else {
       const fallback = document.createElement("span");
-      fallback.textContent = "MAPA";
+      fallback.textContent = t("map");
       imageBox.appendChild(fallback);
     }
   }
-  if (summaryMapName) summaryMapName.textContent = map?.name || "Sin mapa";
+  if (summaryMapName) summaryMapName.textContent = map?.name || t("no_map");
 }
 
 function showSummaryIntro() {
   showPhaseOverlay(
-    "RESUMEN FINAL",
+    t("summary_final"),
     "",
-    state.selectedMap ? `Mapa seleccionado: ${state.selectedMap.name}` : "Preparando resumen del draft.",
+    state.selectedMap ? t("summary_map_selected", { map: state.selectedMap.name }) : t("summary_prepare"),
     finishDraft,
   );
 }
@@ -2084,7 +2312,7 @@ function restartDraft() {
   state.locked = false;
   state.banAnimation = null;
   state.pickAnimation = null;
-  state.roulette = { active: false, highlightedName: null, finalName: null };
+  state.roulette = { active: false, highlightedName: null, finalName: null, previewCharacter: null };
   state.mapRoulette = { active: false, highlightedId: null, finalId: null };
   state.selectedMap = null;
   document.body.classList.remove("overlay-lock");
@@ -2098,6 +2326,7 @@ function init() {
   window.addEventListener("resize", resizeGameRoot);
   setupInputs();
   setupConfigControls();
+  applyLanguage(state.settings.language);
   setupDevelopmentTools();
   setupBackgroundVideo();
   renderAll();
@@ -2107,6 +2336,8 @@ function init() {
   cancelDraftButton?.addEventListener("click", cancelDraft);
   $("#restart-draft").addEventListener("click", restartDraft);
   simulateSummaryButton?.addEventListener("click", simulateRandomSummary);
+  randomPlayerNamesButton?.addEventListener("click", applyRandomPlayerNames);
+  manualPlayerNamesButton?.addEventListener("click", applyManualPlayerNames);
   randomizeMapButton?.addEventListener("click", runMapRoulette);
 }
 

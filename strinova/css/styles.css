@@ -4665,3 +4665,1192 @@ body {
 #music-volume-range {
   accent-color: #f33d49;
 }
+
+/* =========================================================
+   AJUSTE V3.34 - resumen organizado sin solapar botón
+   ========================================================= */
+.summary-screen {
+  padding: 6px !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  overflow: hidden !important;
+}
+
+.summary-shell {
+  width: calc(100vw - 12px) !important;
+  height: calc(100vh - 12px) !important;
+  min-height: 0 !important;
+  max-height: calc(100vh - 12px) !important;
+  padding: 58px 34px 16px !important;
+  display: grid !important;
+  grid-template-rows: auto auto minmax(0, 1fr) auto !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+}
+
+.summary-header {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.summary-header .eyebrow {
+  margin-bottom: 4px !important;
+}
+
+.summary-header h1 {
+  font-size: clamp(3.15rem, 4.6vw, 4.9rem) !important;
+  line-height: 0.88 !important;
+  margin: 0 !important;
+}
+
+.summary-map-card {
+  margin: 0 auto !important;
+  width: min(560px, 44vw) !important;
+  min-height: 64px !important;
+  max-height: 74px !important;
+  padding: 8px 14px !important;
+}
+
+.summary-map-image {
+  width: 150px !important;
+  height: 52px !important;
+}
+
+.summary-versus-layout {
+  min-height: 0 !important;
+  height: 100% !important;
+  margin: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 86px minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 18px !important;
+  overflow: hidden !important;
+}
+
+.summary-team {
+  min-height: 0 !important;
+  height: 100% !important;
+  display: grid !important;
+  grid-template-rows: auto 250px auto auto auto !important;
+  align-content: start !important;
+  padding: 14px 16px 12px !important;
+  overflow: hidden !important;
+}
+
+.summary-team-title {
+  margin: 0 0 8px !important;
+}
+
+.summary-lineup {
+  height: 250px !important;
+  min-height: 250px !important;
+  max-height: 250px !important;
+  margin-top: 0 !important;
+}
+
+.summary-fullbody {
+  height: 246px !important;
+  max-height: 246px !important;
+}
+
+.summary-picks {
+  margin-top: 8px !important;
+  gap: 5px !important;
+}
+
+.summary-pick {
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 4px 8px !important;
+}
+
+.summary-thumb {
+  width: 54px !important;
+  height: 34px !important;
+}
+
+.summary-team h3 {
+  margin-top: 8px !important;
+  margin-bottom: 6px !important;
+}
+
+.summary-bans {
+  margin-top: 0 !important;
+  gap: 8px !important;
+  align-self: end !important;
+  overflow: visible !important;
+}
+
+.summary-bans .ban-pill {
+  width: 180px !important;
+  min-height: 50px !important;
+  grid-template-columns: 5px 46px minmax(0, 1fr) !important;
+  gap: 8px !important;
+  padding: 5px 8px !important;
+}
+
+.summary-bans .ban-faction-swatch {
+  height: 38px !important;
+}
+
+.summary-bans .ban-thumb {
+  width: 46px !important;
+  height: 34px !important;
+}
+
+.summary-bans .ban-pill > span:last-child {
+  font-size: 0.70rem !important;
+  line-height: 1.05 !important;
+}
+
+.summary-vs {
+  align-self: center !important;
+  justify-self: center !important;
+  font-size: clamp(2.9rem, 4vw, 4.2rem) !important;
+}
+
+.summary-screen #restart-draft {
+  position: static !important;
+  justify-self: start !important;
+  align-self: end !important;
+  z-index: 20 !important;
+  min-width: 245px !important;
+  min-height: 40px !important;
+  padding: 9px 22px !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+@media (max-height: 920px) {
+  .summary-shell {
+    padding-top: 54px !important;
+    gap: 8px !important;
+  }
+
+  .summary-header h1 {
+    font-size: clamp(2.7rem, 4.2vw, 4.25rem) !important;
+  }
+
+  .summary-map-card {
+    min-height: 56px !important;
+    max-height: 62px !important;
+  }
+
+  .summary-team {
+    grid-template-rows: auto 220px auto auto auto !important;
+    padding: 12px 14px 10px !important;
+  }
+
+  .summary-lineup {
+    height: 220px !important;
+    min-height: 220px !important;
+    max-height: 220px !important;
+  }
+
+  .summary-fullbody {
+    height: 216px !important;
+    max-height: 216px !important;
+  }
+
+  .summary-pick {
+    min-height: 38px !important;
+    height: 38px !important;
+  }
+
+  .summary-bans .ban-pill {
+    width: 164px !important;
+    min-height: 46px !important;
+  }
+
+  .summary-screen #restart-draft {
+    min-height: 36px !important;
+  }
+}
+
+
+/* =========================================================
+   AJUSTES V3.35 - nombres aleatorios + créditos
+   ========================================================= */
+.setup-top-tab[data-tab="creditos"] {
+  min-width: 126px;
+}
+
+.player-name-mode-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(68,76,89,0.10);
+  border: 1px solid rgba(86,95,110,0.14);
+  text-align: left;
+}
+
+.compact-heading {
+  gap: 1px;
+}
+
+.player-name-mode-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.player-name-mode-actions .primary-button,
+.player-name-mode-actions .secondary-button {
+  min-height: 42px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+}
+
+.player-name-mode-note {
+  color: #56616e;
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.credits-panel {
+  display: grid;
+  gap: 14px;
+  padding: 4px 0;
+}
+
+.credits-card {
+  min-height: 120px;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  padding: 18px 20px;
+  background: rgba(68,76,89,0.10);
+  border: 1px solid rgba(86,95,110,0.14);
+  box-shadow: inset 4px 0 0 #f33d49;
+  text-align: left;
+}
+
+.credits-card span {
+  color: #5d6570;
+  font-size: 0.84rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.credits-card strong {
+  color: #242d36;
+  font-size: 1.35rem;
+  font-weight: 1000;
+  letter-spacing: 0.04em;
+}
+
+.setup-shell.view-creditos .setup-team,
+.setup-shell.view-creditos .setup-hero {
+  display: none !important;
+}
+
+.setup-shell.view-creditos .setup-teams {
+  grid-template-columns: minmax(0, 760px);
+  justify-content: center;
+  margin-top: 22px;
+}
+
+.setup-shell.view-creditos .setup-center-card {
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: 16px 22px 18px;
+}
+
+.setup-shell.view-creditos .setup-center-card .versus-core,
+.setup-shell.view-creditos .setup-rules,
+.setup-shell.view-creditos .menu-panel-copy,
+.setup-shell.view-creditos .menu-panel-highlights,
+.setup-shell.view-creditos .player-name-mode-panel,
+.setup-shell.view-creditos #start-draft {
+  display: none !important;
+}
+
+.setup-shell.view-creditos .setup-panels {
+  min-height: 0;
+}
+
+.setup-shell.view-creditos .setup-panel.is-active {
+  padding: 6px 2px 2px;
+  gap: 12px;
+}
+
+/* =========================================================
+   AJUSTES V3.36 - setup estable, tabs visibles y nombres al costado
+   ========================================================= */
+
+/* Hace que la barra superior siempre se vea y no sea tapada por el título. */
+.setup-screen .settings-surface {
+  overflow: hidden !important;
+}
+
+.setup-screen .settings-topbar {
+  height: 56px !important;
+  min-height: 56px !important;
+  z-index: 999 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 14px !important;
+  overflow: visible !important;
+}
+
+.setup-screen .settings-brand {
+  flex: 0 0 360px !important;
+  max-width: 360px !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.055em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.setup-screen .settings-tabs {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 4px !important;
+  margin-left: 0 !important;
+  overflow: visible !important;
+}
+
+.setup-screen .setup-top-tab,
+.setup-screen .setup-top-tab[data-tab="random"],
+.setup-screen .setup-top-tab[data-tab="development"],
+.setup-screen .setup-top-tab[data-tab="creditos"] {
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+  height: 42px !important;
+  padding: 0 10px !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.075em !important;
+  line-height: 1 !important;
+}
+
+.setup-screen .setup-top-tab[data-tab="random"] {
+  padding-inline: 12px !important;
+}
+
+.setup-screen .setup-top-tab[data-tab="development"] {
+  max-width: 132px !important;
+}
+
+/* Se reserva espacio real para la barra superior; así no desaparece al cambiar de categoría. */
+.setup-screen .setup-shell {
+  width: min(1520px, calc(100vw - 44px)) !important;
+  height: min(930px, calc(100vh - 28px)) !important;
+  min-height: min(930px, calc(100vh - 28px)) !important;
+  padding: 82px 34px 28px !important;
+}
+
+.setup-screen .setup-top {
+  max-width: 780px !important;
+  min-height: 148px !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+.setup-screen .setup-top h1 {
+  max-width: 760px !important;
+  font-size: clamp(2.45rem, 3.45vw, 4.0rem) !important;
+  line-height: 0.97 !important;
+  letter-spacing: -0.045em !important;
+}
+
+.setup-screen .setup-top p:last-child {
+  display: none !important;
+}
+
+/* El layout principal mantiene siempre el mismo tamaño base para evitar saltos al cambiar tabs. */
+.setup-screen .setup-teams {
+  margin: 22px 0 0 !important;
+  min-height: 535px !important;
+  align-items: stretch !important;
+}
+
+.setup-shell.view-menu .setup-teams {
+  grid-template-columns: minmax(420px, 1fr) 250px minmax(420px, 1fr) !important;
+  gap: 18px !important;
+}
+
+.setup-screen .setup-team {
+  min-height: 535px !important;
+  padding: 18px 18px 16px !important;
+}
+
+.setup-screen .setup-inputs {
+  gap: 14px !important;
+  margin-top: 22px !important;
+}
+
+.setup-screen .setup-player-row {
+  min-height: 42px !important;
+}
+
+.setup-screen .setup-player-avatar {
+  width: 58px !important;
+  height: 42px !important;
+}
+
+.setup-screen .player-input {
+  min-height: 42px !important;
+}
+
+.setup-screen .setup-center-card {
+  min-height: 535px !important;
+  padding: 18px 14px 16px !important;
+  align-self: stretch !important;
+}
+
+.setup-screen .versus-core {
+  font-size: clamp(3.0rem, 4vw, 4.6rem) !important;
+  margin-bottom: 10px !important;
+}
+
+/* Las opciones de nombres ya no ocupan el centro; quedan al costado inferior. */
+.setup-shell.view-menu .player-name-mode-panel {
+  position: absolute !important;
+  right: 34px !important;
+  bottom: 30px !important;
+  width: 382px !important;
+  z-index: 35 !important;
+  padding: 12px 14px !important;
+  background: rgba(225, 231, 238, 0.86) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(45, 54, 68, 0.12) !important;
+  box-shadow: 0 18px 34px rgba(23, 29, 41, 0.12), inset 4px 0 0 #f33d49 !important;
+}
+
+.setup-shell:not(.view-menu) .player-name-mode-panel {
+  display: none !important;
+}
+
+.setup-shell.view-menu .player-name-mode-actions {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+.setup-shell.view-menu .player-name-mode-actions .primary-button,
+.setup-shell.view-menu .player-name-mode-actions .secondary-button {
+  min-height: 40px !important;
+  padding: 8px 10px !important;
+  font-size: 0.70rem !important;
+}
+
+.setup-shell.view-menu .player-name-mode-note {
+  font-size: 0.68rem !important;
+}
+
+/* El centro vuelve a ser limpio: VS, reglas y botón de iniciar. */
+.setup-shell.view-menu .setup-center-card .menu-panel-copy {
+  display: grid !important;
+  min-height: 118px !important;
+  align-content: center !important;
+  margin: 10px 0 !important;
+  padding: 14px 12px !important;
+}
+
+.setup-shell.view-menu .menu-panel-highlights {
+  margin-top: 12px !important;
+}
+
+.setup-shell.view-menu .menu-panel-highlights span {
+  min-height: 34px !important;
+  font-size: 0.72rem !important;
+}
+
+.setup-shell.view-menu #start-draft {
+  margin-top: auto !important;
+  min-height: 48px !important;
+}
+
+/* Las subcategorías que no son MENÚ usan un panel centrado estable, sin cambiar todo el tamaño. */
+.setup-shell.view-volumen .setup-team,
+.setup-shell.view-configuracion .setup-team,
+.setup-shell.view-random .setup-team,
+.setup-shell.view-creditos .setup-team,
+.setup-shell.view-development .setup-team,
+.setup-shell.view-volumen .setup-hero,
+.setup-shell.view-configuracion .setup-hero,
+.setup-shell.view-random .setup-hero,
+.setup-shell.view-creditos .setup-hero,
+.setup-shell.view-development .setup-hero {
+  display: none !important;
+}
+
+.setup-shell.view-volumen .setup-teams,
+.setup-shell.view-configuracion .setup-teams,
+.setup-shell.view-random .setup-teams,
+.setup-shell.view-creditos .setup-teams,
+.setup-shell.view-development .setup-teams {
+  grid-template-columns: minmax(0, 820px) !important;
+  justify-content: center !important;
+  align-items: start !important;
+  min-height: 535px !important;
+  margin-top: 22px !important;
+}
+
+.setup-shell.view-volumen .setup-center-card,
+.setup-shell.view-configuracion .setup-center-card,
+.setup-shell.view-random .setup-center-card,
+.setup-shell.view-creditos .setup-center-card,
+.setup-shell.view-development .setup-center-card {
+  width: min(820px, 100%) !important;
+  min-height: 0 !important;
+  margin: 0 auto !important;
+  padding: 18px 22px 20px !important;
+}
+
+.setup-shell.view-volumen .setup-center-card .versus-core,
+.setup-shell.view-configuracion .setup-center-card .versus-core,
+.setup-shell.view-random .setup-center-card .versus-core,
+.setup-shell.view-creditos .setup-center-card .versus-core,
+.setup-shell.view-development .setup-center-card .versus-core,
+.setup-shell.view-volumen .setup-rules,
+.setup-shell.view-configuracion .setup-rules,
+.setup-shell.view-random .setup-rules,
+.setup-shell.view-creditos .setup-rules,
+.setup-shell.view-development .setup-rules,
+.setup-shell.view-volumen .menu-panel-copy,
+.setup-shell.view-configuracion .menu-panel-copy,
+.setup-shell.view-random .menu-panel-copy,
+.setup-shell.view-creditos .menu-panel-copy,
+.setup-shell.view-development .menu-panel-copy,
+.setup-shell.view-volumen .menu-panel-highlights,
+.setup-shell.view-configuracion .menu-panel-highlights,
+.setup-shell.view-random .menu-panel-highlights,
+.setup-shell.view-creditos .menu-panel-highlights,
+.setup-shell.view-development .menu-panel-highlights,
+.setup-shell.view-volumen #start-draft,
+.setup-shell.view-configuracion #start-draft,
+.setup-shell.view-random #start-draft,
+.setup-shell.view-creditos #start-draft,
+.setup-shell.view-development #start-draft {
+  display: none !important;
+}
+
+.setup-shell.view-volumen .setup-panels,
+.setup-shell.view-configuracion .setup-panels,
+.setup-shell.view-random .setup-panels,
+.setup-shell.view-creditos .setup-panels,
+.setup-shell.view-development .setup-panels {
+  min-height: 0 !important;
+}
+
+.setup-shell.view-volumen .setup-panel.is-active,
+.setup-shell.view-configuracion .setup-panel.is-active,
+.setup-shell.view-random .setup-panel.is-active,
+.setup-shell.view-creditos .setup-panel.is-active,
+.setup-shell.view-development .setup-panel.is-active {
+  padding: 4px 0 0 !important;
+  gap: 12px !important;
+}
+
+/* Mantiene la barra superior estable incluso en pantallas angostas. */
+@media (max-width: 1500px) {
+  .setup-screen .settings-brand {
+    flex-basis: 285px !important;
+    max-width: 285px !important;
+    font-size: 0.68rem !important;
+  }
+
+  .setup-screen .setup-top-tab,
+  .setup-screen .setup-top-tab[data-tab="random"],
+  .setup-screen .setup-top-tab[data-tab="development"],
+  .setup-screen .setup-top-tab[data-tab="creditos"] {
+    padding: 0 7px !important;
+    font-size: 0.60rem !important;
+  }
+}
+
+/* =========================================================
+   AJUSTES V3.37 - panel de nombres aleatorios a la izquierda
+   ========================================================= */
+
+/* El panel de nombres ya no se coloca encima del botón INICIAR DRAFT.
+   Ahora queda anclado al costado inferior izquierdo, dentro de la zona libre
+   del TEAM A. */
+.setup-shell.view-menu .player-name-mode-panel {
+  left: 34px !important;
+  right: auto !important;
+  bottom: 30px !important;
+  width: 360px !important;
+  max-width: calc(100% - 68px) !important;
+  z-index: 36 !important;
+}
+
+/* Mantiene el botón principal por encima de su panel central, pero sin pelear
+   visualmente con el panel de nombres. */
+.setup-shell.view-menu #start-draft {
+  position: relative !important;
+  z-index: 20 !important;
+}
+
+/* Pequeña reducción para que el panel izquierdo se vea más integrado y no tape
+   demasiado espacio vacío del equipo. */
+.setup-shell.view-menu .player-name-mode-panel .compact-heading strong {
+  font-size: 0.98rem !important;
+  line-height: 1.05 !important;
+}
+
+.setup-shell.view-menu .player-name-mode-actions .primary-button,
+.setup-shell.view-menu .player-name-mode-actions .secondary-button {
+  min-height: 38px !important;
+  font-size: 0.66rem !important;
+}
+
+.setup-shell.view-menu .player-name-mode-note {
+  font-size: 0.64rem !important;
+  line-height: 1.22 !important;
+}
+
+@media (max-width: 1500px) {
+  .setup-shell.view-menu .player-name-mode-panel {
+    left: 28px !important;
+    bottom: 24px !important;
+    width: 330px !important;
+  }
+}
+
+/* =========================================================
+   AJUSTES V3.38 - panel de nombres realmente anclado al TEAM A
+   ========================================================= */
+
+/* El problema era que el panel seguía posicionándose relativo al cuadro central
+   del VS. Dejamos ese contenedor sin referencia absoluta para que el panel se
+   ancle al shell completo del menú. */
+.setup-shell.view-menu .setup-center-card {
+  position: static !important;
+}
+
+/* Panel de nombres manual/aleatorio colocado en la zona inferior libre del TEAM A. */
+.setup-shell.view-menu .player-name-mode-panel {
+  position: absolute !important;
+  left: 58px !important;
+  right: auto !important;
+  bottom: 62px !important;
+  width: 315px !important;
+  max-width: 315px !important;
+  z-index: 45 !important;
+  padding: 10px 12px !important;
+  transform: none !important;
+}
+
+.setup-shell.view-menu .player-name-mode-panel .compact-heading strong {
+  font-size: 0.88rem !important;
+  line-height: 1.06 !important;
+}
+
+.setup-shell.view-menu .player-name-mode-panel .compact-heading span {
+  font-size: 0.62rem !important;
+}
+
+.setup-shell.view-menu .player-name-mode-actions {
+  gap: 8px !important;
+}
+
+.setup-shell.view-menu .player-name-mode-actions .primary-button,
+.setup-shell.view-menu .player-name-mode-actions .secondary-button {
+  min-height: 34px !important;
+  padding: 7px 8px !important;
+  font-size: 0.58rem !important;
+  letter-spacing: 0.065em !important;
+}
+
+.setup-shell.view-menu .player-name-mode-note {
+  font-size: 0.58rem !important;
+  line-height: 1.16 !important;
+  margin-top: 8px !important;
+}
+
+/* Asegura que el botón principal del centro no quede debajo ni sea cubierto. */
+.setup-shell.view-menu #start-draft {
+  position: relative !important;
+  z-index: 30 !important;
+}
+
+@media (max-width: 1500px) {
+  .setup-shell.view-menu .player-name-mode-panel {
+    left: 48px !important;
+    bottom: 52px !important;
+    width: 292px !important;
+    max-width: 292px !important;
+  }
+}
+
+/* =========================================================
+   AJUSTES V3.39 - panel de nombres fijado realmente a la izquierda
+   ========================================================= */
+
+/* El panel estaba quedando relativo a .setup-panels, que está dentro del bloque
+   central. Esto lo libera para que se posicione respecto al .setup-shell completo. */
+.setup-shell.view-menu .setup-panels {
+  position: static !important;
+}
+
+.setup-shell.view-menu .setup-panel.is-active {
+  position: static !important;
+}
+
+.setup-shell.view-menu .setup-center-card {
+  position: static !important;
+}
+
+/* Panel manual/aleatorio colocado en la zona inferior izquierda del menú,
+   dentro del espacio libre del TEAM A y lejos del botón INICIAR DRAFT. */
+.setup-shell.view-menu .player-name-mode-panel {
+  position: absolute !important;
+  left: 46px !important;
+  right: auto !important;
+  bottom: 44px !important;
+  width: 350px !important;
+  max-width: 350px !important;
+  z-index: 60 !important;
+  transform: none !important;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+}
+
+/* Mantiene el centro despejado. */
+.setup-shell.view-menu #start-draft {
+  position: relative !important;
+  z-index: 30 !important;
+}
+
+@media (max-width: 1500px) {
+  .setup-shell.view-menu .player-name-mode-panel {
+    left: 36px !important;
+    bottom: 36px !important;
+    width: 315px !important;
+    max-width: 315px !important;
+  }
+}
+
+/* =========================================================
+   AJUSTES V3.41 - panel defensores + animaciones reforzadas
+   ========================================================= */
+
+/* TEAM B se mantiene pegado al lateral derecho y el texto ya no se desborda */
+.team-column-b {
+  align-items: flex-end !important;
+  justify-items: end !important;
+  padding-right: 6px !important;
+}
+
+.team-column-b .team-title,
+.team-column-b .ban-stack {
+  width: 100% !important;
+  max-width: 330px !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  text-align: right !important;
+}
+
+.team-column-b .team-title {
+  padding-right: 4px !important;
+}
+
+.team-column-b .slots-list {
+  width: 100% !important;
+  max-width: 330px !important;
+  justify-items: end !important;
+  align-items: end !important;
+  margin-left: auto !important;
+}
+
+.team-column-b .player-slot {
+  width: 330px !important;
+  grid-template-columns: minmax(0, 224px) 90px !important;
+  gap: 14px !important;
+  justify-self: end !important;
+  justify-items: stretch !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
+.team-column-b .slot-details {
+  justify-self: end !important;
+  align-self: center !important;
+  width: 100% !important;
+  max-width: 224px !important;
+  min-width: 0 !important;
+  text-align: right !important;
+  overflow: hidden !important;
+}
+
+.team-column-b .slot-name,
+.team-column-b .slot-character {
+  width: 100% !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  text-align: right !important;
+}
+
+.team-column-b .slot-portrait {
+  justify-self: end !important;
+  flex: 0 0 auto !important;
+}
+
+.team-column-b .ban-list {
+  width: 100% !important;
+  justify-content: flex-end !important;
+}
+
+/* Si la pantalla es muy estrecha, mantenemos el lateral ordenado sin romper textos */
+@media (max-width: 1360px) {
+  .team-column-b .player-slot {
+    width: 300px !important;
+    grid-template-columns: minmax(0, 196px) 88px !important;
+    gap: 12px !important;
+  }
+  .team-column-b .slot-details {
+    max-width: 196px !important;
+  }
+}
+
+/* Animación de selección más vistosa en el PNG full */
+.fullbody-card.selecting,
+.fullbody-card.selection-burst {
+  animation: selectionBurstCardPlus 1.18s cubic-bezier(.17,.84,.32,1) both !important;
+  isolation: isolate;
+}
+
+.fullbody-card.selecting::before,
+.fullbody-card.selection-burst::before {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 0 !important;
+  inset: 4% 4% 6% !important;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255,255,255,0.58), rgba(108,228,255,0.38) 24%, rgba(108,228,255,0.0) 60%),
+    conic-gradient(from 0deg, transparent 0deg, rgba(103,228,255,0.38) 48deg, transparent 92deg, rgba(255,255,255,0.28) 154deg, transparent 224deg, rgba(103,228,255,0.30) 292deg, transparent 360deg);
+  filter: blur(12px) saturate(1.24) !important;
+  opacity: 0 !important;
+  transform: scale(0.70) rotate(-10deg) !important;
+  pointer-events: none !important;
+  animation: selectionAuraPlus 1.18s ease-out both !important;
+}
+
+.fullbody-card.selecting::after,
+.fullbody-card.selection-burst::after {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 4 !important;
+  inset: -6% -8% -2% !important;
+  background:
+    linear-gradient(105deg, transparent 8%, rgba(255,255,255,0.0) 29%, rgba(255,255,255,0.72) 47%, rgba(118,230,255,0.58) 54%, transparent 72%),
+    radial-gradient(circle at 24% 24%, rgba(255,255,255,0.95) 0 2px, transparent 3px),
+    radial-gradient(circle at 78% 30%, rgba(122,235,255,0.95) 0 2px, transparent 3px),
+    radial-gradient(circle at 32% 78%, rgba(255,255,255,0.72) 0 2px, transparent 3px),
+    radial-gradient(circle at 68% 74%, rgba(122,235,255,0.78) 0 1.8px, transparent 3px);
+  mix-blend-mode: screen !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  animation: selectionLightSweepPlus 1.12s ease-out both !important;
+}
+
+.fullbody-card.selecting .fullbody-img,
+.fullbody-card.selection-burst .fullbody-img {
+  filter:
+    drop-shadow(0 22px 28px rgba(0,0,0,0.40))
+    drop-shadow(0 0 28px rgba(116,222,255,0.72))
+    drop-shadow(0 0 52px rgba(116,222,255,0.30))
+    brightness(1.20)
+    saturate(1.18) !important;
+}
+
+@keyframes selectionBurstCardPlus {
+  0%   { opacity: 0; transform: scale(0.935); }
+  18%  { opacity: 1; transform: scale(1.045); }
+  46%  { transform: scale(1.018); }
+  100% { transform: scale(1); }
+}
+
+@keyframes selectionAuraPlus {
+  0%   { opacity: 0; transform: scale(0.72) rotate(-16deg); }
+  28%  { opacity: 1; transform: scale(1.06) rotate(0deg); }
+  100% { opacity: 0.45; transform: scale(1.20) rotate(24deg); }
+}
+
+@keyframes selectionLightSweepPlus {
+  0%   { opacity: 0; transform: translateX(-34%) skewX(-12deg); }
+  20%  { opacity: 1; }
+  58%  { opacity: 0.82; }
+  100% { opacity: 0; transform: translateX(38%) skewX(-12deg); }
+}
+
+/* Cuadros de selección: más brillo, borde y pulso sin cambiar layout */
+.player-slot.pick-flash {
+  position: relative;
+  overflow: visible;
+  animation: pickSlotFlashPlus 1.28s ease both !important;
+}
+
+.player-slot.pick-flash::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border: 1px solid rgba(122,232,255,0.92);
+  box-shadow: 0 0 22px rgba(122,232,255,0.58), inset 0 0 18px rgba(122,232,255,0.22);
+  opacity: 0;
+  pointer-events: none;
+  animation: pickSlotBorderPlus 1.28s ease both;
+}
+
+.player-slot.pick-flash .slot-portrait {
+  animation: pickPortraitPulsePlus 1.28s ease both !important;
+}
+
+.player-slot.pick-flash .slot-details {
+  animation: pickTextGlowPlus 1.28s ease both !important;
+}
+
+@keyframes pickSlotFlashPlus {
+  0%   { filter: brightness(1); transform: translateX(0); }
+  16%  { filter: brightness(1.24); transform: translateX(2px); }
+  42%  { filter: brightness(1.14); transform: translateX(0); }
+  100% { filter: brightness(1); transform: translateX(0); }
+}
+
+@keyframes pickSlotBorderPlus {
+  0%   { opacity: 0; transform: scaleX(0.96); }
+  18%  { opacity: 1; transform: scaleX(1); }
+  70%  { opacity: 0.45; }
+  100% { opacity: 0; transform: scaleX(1.02); }
+}
+
+@keyframes pickPortraitPulsePlus {
+  0%   { filter: brightness(1) saturate(1); box-shadow: inset 0 0 24px rgba(0,0,0,0.3), 0 8px 18px rgba(0,0,0,0.18); }
+  22%  { filter: brightness(1.65) saturate(1.28); box-shadow: 0 0 24px rgba(122,232,255,0.78), inset 0 0 26px rgba(122,232,255,0.16); }
+  100% { filter: brightness(1) saturate(1); box-shadow: inset 0 0 24px rgba(0,0,0,0.3), 0 8px 18px rgba(0,0,0,0.18); }
+}
+
+@keyframes pickTextGlowPlus {
+  0%   { text-shadow: 0 2px 6px rgba(0,0,0,0.45); }
+  24%  { text-shadow: 0 0 10px rgba(122,232,255,0.92), 0 2px 6px rgba(0,0,0,0.55); }
+  100% { text-shadow: 0 2px 6px rgba(0,0,0,0.45); }
+}
+
+/* Animación de baneo más fuerte en PNG full y cuadros */
+.fullbody-card.banishing::before {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 2 !important;
+  inset: 3% 8% 8% !important;
+  background:
+    radial-gradient(circle at center, rgba(255,69,88,0.24), rgba(255,69,88,0) 62%),
+    repeating-linear-gradient(-12deg, rgba(255,69,88,0.14) 0 4px, transparent 4px 12px) !important;
+  filter: blur(2px) !important;
+  opacity: 0 !important;
+  animation: banAuraPlus 1.12s ease both !important;
+}
+
+.fullbody-card.banishing::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 45% !important;
+  z-index: 5 !important;
+  width: 116% !important;
+  height: 5px !important;
+  transform: translate(-50%, -50%) rotate(-14deg) scaleX(0) !important;
+  transform-origin: center !important;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,42,70,0.98) 18%, rgba(255,255,255,1) 50%, rgba(255,42,70,0.98) 82%, transparent 100%) !important;
+  box-shadow: 0 0 26px rgba(255,42,70,0.95), 0 0 48px rgba(255,42,70,0.45) !important;
+  opacity: 0 !important;
+  animation: banSlashPlus 0.92s ease forwards !important;
+}
+
+.fullbody-card.banishing .fullbody-img {
+  animation: banishedModelPlus 1.12s ease forwards !important;
+}
+
+@keyframes banAuraPlus {
+  0%   { opacity: 0; transform: scale(0.96); }
+  22%  { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 0; transform: scale(1.06); }
+}
+
+@keyframes banSlashPlus {
+  0%   { opacity: 0; transform: translate(-50%, -50%) rotate(-14deg) scaleX(0); }
+  20%  { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scaleX(1); }
+  58%  { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scaleX(1.02); }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(-14deg) scaleX(1.04); }
+}
+
+@keyframes banishedModelPlus {
+  0%   { filter: grayscale(0) brightness(1); opacity: 1; transform: scale(1); }
+  30%  { filter: grayscale(1) contrast(1.18) brightness(1.28); opacity: 1; transform: scale(1.018); }
+  100% { filter: grayscale(1) contrast(1.02) brightness(0.72); opacity: 0.18; transform: scale(0.985); }
+}
+
+.ban-slot.ban-flash {
+  position: relative;
+  overflow: visible;
+  animation: banSlotFlashPlus 1.2s ease both !important;
+}
+
+.ban-slot.ban-flash::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border: 1px solid rgba(255,66,86,0.92);
+  box-shadow: 0 0 22px rgba(255,66,86,0.65), inset 0 0 18px rgba(255,66,86,0.18);
+  opacity: 0;
+  pointer-events: none;
+  animation: banSlotBorderPlus 1.2s ease both;
+}
+
+.ban-slot.ban-flash .ban-thumb {
+  animation: banThumbPulsePlus 1.2s ease both;
+}
+
+@keyframes banSlotFlashPlus {
+  0%   { filter: grayscale(0); transform: scale(1); }
+  18%  { filter: grayscale(1) brightness(1.38); transform: scale(1.08); }
+  58%  { filter: grayscale(1) brightness(1.08); transform: scale(1.02); }
+  100% { filter: grayscale(1); transform: scale(1); }
+}
+
+@keyframes banSlotBorderPlus {
+  0%   { opacity: 0; transform: scale(0.94); }
+  18%  { opacity: 1; transform: scale(1); }
+  70%  { opacity: 0.50; }
+  100% { opacity: 0; transform: scale(1.04); }
+}
+
+@keyframes banThumbPulsePlus {
+  0%   { filter: grayscale(0) brightness(1); }
+  22%  { filter: grayscale(1) brightness(1.42) contrast(1.18); }
+  100% { filter: grayscale(1) brightness(0.9); }
+}
+
+
+/* =========================================================
+   AJUSTES V3.42 - preview full en ruleta + defaults + historial
+   ========================================================= */
+.player-slot.roulette-preview-slot,
+.ban-slot.roulette-preview-slot {
+  outline: 2px solid rgba(255, 218, 78, 0.85) !important;
+  box-shadow:
+    0 0 18px rgba(255, 218, 78, 0.38),
+    inset 0 0 18px rgba(255, 218, 78, 0.12) !important;
+}
+
+.player-slot.roulette-preview-slot .slot-portrait,
+.ban-slot.roulette-preview-slot .ban-thumb {
+  filter: brightness(1.18) saturate(1.2);
+}
+
+.player-slot.roulette-preview-slot .slot-character,
+.ban-slot.roulette-preview-slot .ban-slot-label {
+  color: #ffe070 !important;
+  text-shadow: 0 0 10px rgba(255, 218, 78, 0.4);
+}
+
+.fullbody-card.idle-fullbody:not(.locked-picked) .fullbody-img {
+  transition: filter 0.14s ease, transform 0.14s ease;
+}
+
+.setup-top-tab[data-tab="updates"] {
+  min-width: 190px !important;
+}
+
+.setup-shell.view-updates .setup-team,
+.setup-shell.view-updates .setup-hero {
+  display: none !important;
+}
+
+.setup-shell.view-updates .setup-teams {
+  grid-template-columns: minmax(0, 780px) !important;
+  justify-content: center !important;
+  margin-top: 22px !important;
+}
+
+.setup-shell.view-updates .setup-center-card {
+  width: min(780px, 100%) !important;
+  margin: 0 auto !important;
+  padding: 18px 24px 22px !important;
+}
+
+.setup-shell.view-updates .setup-center-card .versus-core,
+.setup-shell.view-updates .setup-rules,
+.setup-shell.view-updates .menu-panel-copy,
+.setup-shell.view-updates .menu-panel-highlights,
+.setup-shell.view-updates #start-draft,
+.setup-shell.view-updates .player-name-mode-panel {
+  display: none !important;
+}
+
+.setup-shell.view-updates .setup-panels {
+  min-height: 0 !important;
+}
+
+.setup-shell.view-updates .setup-panel.is-active {
+  display: grid !important;
+  justify-items: center !important;
+  text-align: center !important;
+  gap: 18px !important;
+}
+
+.updates-heading {
+  text-align: center !important;
+  justify-items: center !important;
+}
+
+.updates-history-panel {
+  width: min(680px, 100%);
+  padding: 22px 28px;
+  border: 1px solid rgba(36, 45, 58, 0.14);
+  background: rgba(255, 255, 255, 0.30);
+  box-shadow: inset 0 -3px 0 rgba(243, 61, 73, 0.45);
+}
+
+.updates-history-panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  text-align: center;
+}
+
+.updates-history-panel li {
+  font-weight: 900;
+  color: #28313e;
+  letter-spacing: 0.02em;
+  line-height: 1.32;
+}
+
+
+/* =========================================================
+   AJUSTES V3.44 - IDIOMA / traducción de texto
+   ========================================================= */
+.setup-top-tab[data-tab="idioma"] { min-width: 116px; }
+.setup-shell.view-idioma .setup-team,
+.setup-shell.view-idioma .setup-hero { display: none !important; }
+.setup-shell.view-idioma .setup-teams { grid-template-columns: minmax(0, 760px); justify-content: center; margin-top: 22px; }
+.setup-shell.view-idioma .setup-center-card { width: min(760px, 100%); margin: 0 auto; padding: 16px 22px 18px; }
+.setup-shell.view-idioma .setup-center-card .versus-core,
+.setup-shell.view-idioma .setup-rules,
+.setup-shell.view-idioma .menu-panel-copy,
+.setup-shell.view-idioma .menu-panel-highlights,
+.setup-shell.view-idioma #start-draft,
+.setup-shell.view-idioma .player-name-mode-panel { display: none !important; }
+.setup-shell.view-idioma .setup-panels { min-height: 0; }
+.setup-shell.view-idioma .setup-panel.is-active { padding: 6px 2px 2px; gap: 12px; }
+.idioma-panel-grid { display: grid; gap: 14px; }
+.language-row { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 16px; align-items: center; }
+.language-select { min-height: 40px; padding: 0 12px; border: 1px solid rgba(27,32,42,0.12); background: #535964; color: #f3f6fb; font-weight: 900; box-shadow: inset 0 -2px 0 #f33d49; }
+.locked-language-select:disabled { opacity: 0.58; cursor: not-allowed; filter: grayscale(0.35); }
+.locked-language-row { opacity: 0.84; }
+.language-note-panel { padding: 14px 16px; background: rgba(68,76,89,0.10); border-left: 4px solid #f33d49; color: #2c3542; }
+.language-note-panel strong { display: block; margin-bottom: 6px; font-weight: 1000; letter-spacing: 0.06em; text-transform: uppercase; }
+.language-note-panel p { margin: 0; font-size: 0.88rem; line-height: 1.45; font-weight: 800; }
