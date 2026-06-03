@@ -1361,6 +1361,16 @@ function pickedNames() {
   return [...state.picks.A, ...state.picks.B].map(item => item.name);
 }
 
+function pickedTeamForCharacter(name) {
+  if (state.picks.A.some(item => item.name === name)) return "A";
+  if (state.picks.B.some(item => item.name === name)) return "B";
+  return null;
+}
+
+function currentTeamClass(turn = currentTurn()) {
+  return turn?.team === "B" ? "team-b" : "team-a";
+}
+
 function bannedNames() {
   return [...state.bans.A, ...state.bans.B].map(item => item.name);
 }
@@ -1482,63 +1492,97 @@ function renderBanList(team, container) {
   }
 }
 
+function createCharacterMenuCard(character, turn) {
+  const faction = factions[character.faction];
+  const card = document.createElement("button");
+  card.type = "button";
+  card.className = `character-card faction-${faction.key}`;
+  card.dataset.name = character.name;
+
+  const pickedTeam = pickedTeamForCharacter(character.name);
+
+  if (!isCharacterAvailable(character, turn)) card.classList.add("disabled");
+  if (state.selected?.name === character.name) {
+    card.classList.add("selected", `selected-${currentTeamClass(turn)}`);
+  }
+  if (bannedNames().includes(character.name)) card.classList.add("banned");
+  if (pickedTeam) card.classList.add("picked", `picked-team-${pickedTeam.toLowerCase()}`);
+  if (state.flashBan === character.name) card.classList.add("ban-flash");
+  if (state.flashPick === character.name) card.classList.add("pick-flash");
+  if (state.roulette.active && state.roulette.highlightedName === character.name) card.classList.add("roulette-highlight");
+  if (state.roulette.finalName === character.name) card.classList.add("roulette-winner");
+
+  const thumbWrap = document.createElement("div");
+  thumbWrap.className = "thumb-wrap";
+  const fallback = document.createElement("div");
+  fallback.className = "thumb-fallback";
+  fallback.textContent = initials(character.name);
+  thumbWrap.appendChild(fallback);
+  thumbWrap.appendChild(makeImage([thumbPath(character.name), legacyPath(character.name)], "", character.name));
+
+  const name = document.createElement("div");
+  name.className = "character-name";
+  name.textContent = character.name;
+
+  const strip = document.createElement("div");
+  strip.className = `faction-strip strip-${faction.key}`;
+
+  const slash = document.createElement("div");
+  slash.className = "ban-slash";
+
+  card.appendChild(thumbWrap);
+  card.appendChild(name);
+  card.appendChild(strip);
+  card.appendChild(slash);
+  card.addEventListener("click", () => {
+    if (state.roulette.active) return;
+    preselectCharacter(character);
+  });
+  return card;
+}
+
 function renderCharacterGrid() {
   const turn = currentTurn();
   characterGrid.innerHTML = "";
 
-  characters.forEach(character => {
-    const faction = factions[character.faction];
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = `character-card faction-${faction.key}`;
-    card.dataset.name = character.name;
+  const rows = [
+    { key: "scissors", label: "The Scissors" },
+    { key: "urbino", label: "Urbinos" },
+    { key: "pus", label: "P.U.S" },
+  ];
 
-    if (!isCharacterAvailable(character, turn)) card.classList.add("disabled");
-    if (state.selected?.name === character.name) card.classList.add("selected");
-    if (bannedNames().includes(character.name)) card.classList.add("banned");
-    if (pickedNames().includes(character.name)) card.classList.add("picked");
-    if (state.flashBan === character.name) card.classList.add("ban-flash");
-    if (state.flashPick === character.name) card.classList.add("pick-flash");
-    if (state.roulette.active && state.roulette.highlightedName === character.name) card.classList.add("roulette-highlight");
-    if (state.roulette.finalName === character.name) card.classList.add("roulette-winner");
+  rows.forEach(rowConfig => {
+    const row = document.createElement("section");
+    row.className = `faction-row faction-row-${rowConfig.key}`;
 
-    const thumbWrap = document.createElement("div");
-    thumbWrap.className = "thumb-wrap";
-    const fallback = document.createElement("div");
-    fallback.className = "thumb-fallback";
-    fallback.textContent = initials(character.name);
-    thumbWrap.appendChild(fallback);
-    thumbWrap.appendChild(makeImage([thumbPath(character.name), legacyPath(character.name)], "", character.name));
+    const label = document.createElement("div");
+    label.className = `faction-row-label label-${rowConfig.key}`;
+    label.textContent = rowConfig.label;
 
-    const name = document.createElement("div");
-    name.className = "character-name";
-    name.textContent = character.name;
+    const cards = document.createElement("div");
+    cards.className = `faction-row-cards cards-${rowConfig.key}`;
 
-    const strip = document.createElement("div");
-    strip.className = `faction-strip strip-${faction.key}`;
+    characters
+      .filter(character => character.faction === rowConfig.key)
+      .forEach(character => cards.appendChild(createCharacterMenuCard(character, turn)));
 
-    const slash = document.createElement("div");
-    slash.className = "ban-slash";
-
-    card.appendChild(thumbWrap);
-    card.appendChild(name);
-    card.appendChild(strip);
-    card.appendChild(slash);
-    card.addEventListener("click", () => {
-      if (state.roulette.active) return;
-      preselectCharacter(character);
-    });
-    characterGrid.appendChild(card);
+    row.appendChild(label);
+    row.appendChild(cards);
+    characterGrid.appendChild(row);
   });
 }
 
 function updateCharacterRouletteClasses() {
   const selectedName = state.selected?.name || null;
+  const teamClass = `selected-${currentTeamClass(currentTurn())}`;
   document.querySelectorAll(".character-card").forEach(card => {
     const name = card.dataset.name;
     card.classList.toggle("roulette-highlight", state.roulette.active && state.roulette.highlightedName === name);
     card.classList.toggle("roulette-winner", Boolean(state.roulette.finalName) && state.roulette.finalName === name);
-    card.classList.toggle("selected", Boolean(selectedName) && selectedName === name);
+    card.classList.remove("selected-team-a", "selected-team-b");
+    const isSelected = Boolean(selectedName) && selectedName === name;
+    card.classList.toggle("selected", isSelected);
+    if (isSelected) card.classList.add(teamClass);
   });
 }
 
@@ -1553,6 +1597,27 @@ function currentRoulettePreviewCharacter(turn = currentTurn()) {
   const preview = state.roulette.active ? state.roulette.previewCharacter : null;
   if (!preview || !turn) return null;
   return isCharacterAvailable(preview, turn) ? preview : null;
+}
+
+function appendStageActionBadge(card, turn, isConfirmed = false) {
+  if (!card || !turn) return;
+  card.classList.add("turn-action-card", `turn-${turn.type}`, `team-${turn.team.toLowerCase()}`);
+  if (isConfirmed) card.classList.add("action-confirmed");
+
+  const badge = document.createElement("div");
+  badge.className = `fullbody-action-badge action-${turn.type} team-${turn.team.toLowerCase()}`;
+
+  const main = document.createElement("span");
+  main.className = "badge-main";
+  main.textContent = turn.type === "ban" ? "BAN" : "PICK";
+
+  const sub = document.createElement("span");
+  sub.className = "badge-sub";
+  sub.textContent = turn.type === "ban" ? "BLOQUEADO" : "SELECCIONADO";
+
+  badge.appendChild(main);
+  badge.appendChild(sub);
+  card.appendChild(badge);
 }
 
 function renderStageCharacters() {
@@ -1576,6 +1641,7 @@ function renderStageCharacters() {
 
     box.appendChild(frame);
     card.appendChild(box);
+    appendStageActionBadge(card, turn || currentTurn());
     stage.appendChild(card);
     return;
   }
@@ -1595,6 +1661,7 @@ function renderStageCharacters() {
 
     box.appendChild(frame);
     card.appendChild(box);
+    appendStageActionBadge(card, turn || currentTurn());
     stage.appendChild(card);
     return;
   }
@@ -1638,6 +1705,7 @@ function renderStageCharacters() {
 
     const isAlreadyConfirmedInThisBatch = groupPicks.some(pick => pick.name === character.name);
     if (isAlreadyConfirmedInThisBatch) card.classList.add("locked-picked");
+    if (roulettePreview && character.name === roulettePreview.name) card.classList.add("roulette-preview-fullbody");
 
     const box = document.createElement("div");
     box.className = stageBoxClass(character.name);
@@ -1650,6 +1718,7 @@ function renderStageCharacters() {
 
     box.appendChild(frame);
     card.appendChild(box);
+    appendStageActionBadge(card, turn, isAlreadyConfirmedInThisBatch);
     stage.appendChild(card);
   }
 }
