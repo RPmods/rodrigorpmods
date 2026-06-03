@@ -241,12 +241,18 @@ function createFullbodyImage(name, mode = "stage", groupSize = 1) {
   return img;
 }
 
-const musicPlaylist = [
-  "audio/music/track1.mp3",
-  "audio/music/track2.mp3",
-  "audio/music/track3.mp3",
-  "audio/music/track4.mp3",
+const menuMusicPlaylist = [
+  "audio/music/menu",
 ];
+
+const draftMusicPlaylist = [
+  "audio/music/track1",
+];
+
+const musicPlaylists = {
+  menu: menuMusicPlaylist,
+  draft: draftMusicPlaylist,
+};
 
 const sounds = {
   select: "audio/select.mp3",
@@ -255,6 +261,8 @@ const sounds = {
   warning: "audio/timer_warning.mp3",
   roulette: "audio/roulette",
   mapRoulette: "audio/map_roulette",
+  startDraft: "audio/ui/start_draft",
+  backConfig: "audio/ui/back_config",
   banPhase: "audio/voice_ban_phase",
   pickPhase: "audio/voice_pick_phase",
   randomStart: "audio/random_start",
@@ -327,11 +335,14 @@ const state = {
   timerId: null,
   lastWarningSecond: null,
   musicIndex: 0,
+  musicMode: "menu",
   musicEnabled: true,
   musicAudio: null,
   musicErrorCount: 0,
   musicCandidateSources: [],
   musicCandidateIndex: 0,
+  musicResumeHandlerBound: false,
+  musicCurrentTrack: "",
   locked: false,
   flashBan: null,
   flashPick: null,
@@ -1268,50 +1279,144 @@ function setupConfigControls() {
 function switchScreen(screen) {
   [setupScreen, draftScreen, mapScreen, summaryScreen].filter(Boolean).forEach(item => item.classList.remove("active"));
   screen?.classList.add("active");
+
+  if (screen === setupScreen) {
+    startMusic("menu");
+  } else if (screen === draftScreen || screen === mapScreen || screen === summaryScreen) {
+    startMusic("draft");
+  }
 }
 
-function prepareMusicTrack() {
-  if (!state.musicAudio) {
-    state.musicAudio = new Audio();
-    state.musicAudio.volume = 0.42;
-    state.musicAudio.addEventListener("ended", playNextTrack);
-    state.musicAudio.addEventListener("error", playNextMusicCandidate);
+function currentMusicPlaylist() {
+  return musicPlaylists[state.musicMode] || draftMusicPlaylist;
+}
+
+function ensureMusicAudio() {
+  if (state.musicAudio) return state.musicAudio;
+
+  state.musicAudio = new Audio();
+  state.musicAudio.preload = "auto";
+  state.musicAudio.loop = true;
+  state.musicAudio.volume = 0.42;
+  state.musicAudio.addEventListener("ended", restartCurrentMusicLoop);
+  state.musicAudio.addEventListener("error", playNextMusicCandidate);
+  state.musicAudio.addEventListener("stalled", () => setTimeout(resumeMusicIfNeeded, 350));
+  state.musicAudio.addEventListener("suspend", () => setTimeout(resumeMusicIfNeeded, 350));
+  state.musicAudio.addEventListener("pause", () => {
+    if (state.musicEnabled && !document.hidden) setTimeout(resumeMusicIfNeeded, 350);
+  });
+
+  if (!state.musicResumeHandlerBound) {
+    state.musicResumeHandlerBound = true;
+    document.addEventListener("pointerdown", resumeMusicIfNeeded, { passive: true });
+    document.addEventListener("keydown", resumeMusicIfNeeded);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) resumeMusicIfNeeded();
+    });
   }
 
-  state.musicCandidateSources = audioCandidates(musicPlaylist[state.musicIndex]);
+  return state.musicAudio;
+}
+
+function prepareMusicTrack(force = false) {
+  const playlist = currentMusicPlaylist();
+  if (!playlist.length) return;
+
+  const audio = ensureMusicAudio();
+  const track = playlist[state.musicIndex % playlist.length];
+
+  if (!force && state.musicCurrentTrack === track && audio.src) {
+    updateMusicVolume();
+    audio.loop = true;
+    return;
+  }
+
+  state.musicCurrentTrack = track;
+  state.musicCandidateSources = audioCandidates(track);
   state.musicCandidateIndex = 0;
-  setAudioElementSourceWithFallback(state.musicAudio, state.musicCandidateSources, 0);
+  audio.loop = true;
+  setAudioElementSourceWithFallback(audio, state.musicCandidateSources, 0);
   updateMusicVolume();
-  state.musicAudio.load();
+  audio.load();
 }
 
 function playNextMusicCandidate() {
   if (!state.musicAudio || !state.musicEnabled) return;
+
   const nextIndex = state.musicCandidateIndex + 1;
   if (state.musicCandidateSources[nextIndex]) {
     state.musicCandidateIndex = nextIndex;
     setAudioElementSourceWithFallback(state.musicAudio, state.musicCandidateSources, nextIndex);
+    state.musicAudio.loop = true;
     state.musicAudio.load();
     state.musicAudio.play().catch(() => {});
     return;
   }
 
+  const playlist = currentMusicPlaylist();
+  if (!playlist.length) return;
+
+  // Si fallan todas las extensiones del track actual, probamos otro track de la lista.
   state.musicErrorCount += 1;
-  if (state.musicErrorCount < musicPlaylist.length) playNextTrack();
+  if (state.musicErrorCount < playlist.length) {
+    playNextTrack();
+    return;
+  }
+
+  // Evita que la música muera para siempre: reinicia el contador después de un pequeño descanso.
+  setTimeout(() => {
+    state.musicErrorCount = 0;
+    if (state.musicEnabled) startMusic(state.musicMode);
+  }, 1200);
 }
 
-function startMusic() {
-  if (!state.musicEnabled || state.musicErrorCount >= musicPlaylist.length) return;
-  if (!state.musicAudio || !state.musicAudio.src) prepareMusicTrack();
+function restartCurrentMusicLoop() {
+  if (!state.musicAudio || !state.musicEnabled) return;
+  try {
+    state.musicAudio.currentTime = 0;
+  } catch (_) {
+    // Algunos navegadores no permiten mover currentTime hasta cargar metadatos.
+  }
+  state.musicAudio.loop = true;
+  state.musicAudio.play().catch(() => {});
+}
+
+function startMusic(mode = state.musicMode || "menu") {
+  if (!state.musicEnabled) return;
+
+  const normalizedMode = musicPlaylists[mode] ? mode : "draft";
+  const modeChanged = state.musicMode !== normalizedMode;
+  state.musicMode = normalizedMode;
+
+  if (modeChanged) {
+    state.musicIndex = 0;
+    state.musicErrorCount = 0;
+    state.musicCurrentTrack = "";
+  }
+
+  if (!state.musicAudio || !state.musicAudio.src || modeChanged) prepareMusicTrack(true);
+  else prepareMusicTrack(false);
+
+  resumeMusicIfNeeded();
+}
+
+function resumeMusicIfNeeded() {
+  if (!state.musicEnabled || !state.musicAudio) return;
+  updateMusicVolume();
+  state.musicAudio.loop = true;
   state.musicAudio.play().catch(() => {});
 }
 
 function playNextTrack() {
   if (!state.musicEnabled) return;
-  if (state.musicErrorCount >= musicPlaylist.length) return;
-  state.musicIndex = (state.musicIndex + 1) % musicPlaylist.length;
-  prepareMusicTrack();
-  state.musicAudio.play().catch(() => {});
+
+  const playlist = currentMusicPlaylist();
+  if (!playlist.length) return;
+
+  state.musicIndex = (state.musicIndex + 1) % playlist.length;
+  state.musicCurrentTrack = "";
+  prepareMusicTrack(true);
+  resumeMusicIfNeeded();
 }
 
 function toggleMusic() {
@@ -1320,7 +1425,7 @@ function toggleMusic() {
   if (state.musicEnabled) {
     button.textContent = "♫ ON";
     state.musicErrorCount = 0;
-    startMusic();
+    startMusic(state.musicMode || "menu");
   } else {
     button.textContent = "♫ OFF";
     state.musicAudio?.pause();
@@ -2062,6 +2167,7 @@ function startTurn() {
 }
 
 function startDraft() {
+  audioPlay(sounds.startDraft, 0.95, "sfx");
   readPlayers();
   state.picks = { A: [], B: [] };
   state.bans = { A: [], B: [] };
@@ -2078,7 +2184,7 @@ function startDraft() {
   state.mapRoulette = { active: false, highlightedId: null, finalId: null };
   switchScreen(draftScreen);
   setupBackgroundVideo();
-  startMusic();
+  startMusic("draft");
   showPhaseOverlay(
     t("phase_ban"),
     systemDraftVoiceLines.voice_ban_phase.src,
@@ -2194,6 +2300,7 @@ function simulateRandomSummary() {
 }
 
 function cancelDraft() {
+  audioPlay(sounds.backConfig, 0.92, "sfx");
   clearInterval(state.timerId);
   state.locked = false;
   state.selected = null;
@@ -2377,6 +2484,7 @@ function finishDraft() {
 }
 
 function restartDraft() {
+  audioPlay(sounds.backConfig, 0.92, "sfx");
   clearInterval(state.timerId);
   state.locked = false;
   state.banAnimation = null;
@@ -2398,6 +2506,7 @@ function init() {
   applyLanguage(state.settings.language);
   setupDevelopmentTools();
   setupBackgroundVideo();
+  startMusic("menu");
   renderAll();
   $("#start-draft").addEventListener("click", startDraft);
   $("#confirm-action").addEventListener("click", () => confirmTurn(false));
