@@ -5,7 +5,7 @@ const AUDIO_EXTENSIONS = ["ogg", "mp3", "mp4"];
 const factions = {
   scissors: { label: "The Scissors", key: "the-scissors", color: "red" },
   pus: { label: "P.U.S", key: "pus", color: "blue" },
-  urbino: { label: "Urbino", key: "urbino", color: "yellow" },
+  urbino: { label: "Cizallas", key: "urbino", color: "yellow" },
 };
 
 const characters = [
@@ -17,8 +17,8 @@ const characters = [
 const banTurns = [
   { type: "ban", team: "A", faction: "pus", text: "TEAM A bloquea un personaje de P.U.S" },
   { type: "ban", team: "B", faction: "scissors", text: "TEAM B bloquea un personaje de The Scissors" },
-  { type: "ban", team: "A", faction: "urbino", text: "TEAM A bloquea un personaje de Urbino" },
-  { type: "ban", team: "B", faction: "urbino", text: "TEAM B bloquea un personaje de Urbino" },
+  { type: "ban", team: "A", faction: "urbino", text: "TEAM A bloquea un personaje de Cizallas" },
+  { type: "ban", team: "B", faction: "urbino", text: "TEAM B bloquea un personaje de Cizallas" },
 ];
 
 const pickGroups = [
@@ -330,6 +330,7 @@ const state = {
   pickBatchSelections: {},
   turnIndex: 0,
   selected: null,
+  preselectLocked: false,
   turnDuration: 20,
   timer: 20,
   timerId: null,
@@ -338,6 +339,7 @@ const state = {
   musicMode: "menu",
   musicEnabled: true,
   musicAudio: null,
+  activeSounds: [],
   musicErrorCount: 0,
   musicCandidateSources: [],
   musicCandidateIndex: 0,
@@ -920,25 +922,71 @@ function makeImage(srcList, className, altText) {
   return img;
 }
 
+function keepTransientAudioReference(audio) {
+  if (!audio) return audio;
+  if (!Array.isArray(state.activeSounds)) state.activeSounds = [];
+  state.activeSounds.push(audio);
+
+  const cleanup = () => {
+    state.activeSounds = (state.activeSounds || []).filter(item => item !== audio);
+  };
+
+  audio.addEventListener("ended", cleanup, { once: true });
+  window.setTimeout(cleanup, 18000);
+  return audio;
+}
+
 function audioPlay(src, volume = 0.78, channel = "sfx") {
   const sources = audioCandidates(src);
   if (!sources.length) return null;
 
   const audio = new Audio();
+  audio.preload = "auto";
   audio.volume = Math.max(0, Math.min(1, volume * channelVolume(channel)));
 
   const tryNext = () => {
     const allSources = JSON.parse(audio.dataset.sources || "[]");
     const nextIndex = Number(audio.dataset.sourceIndex || "0") + 1;
-    if (!allSources[nextIndex]) return;
+    if (!allSources[nextIndex]) {
+      return;
+    }
     setAudioElementSourceWithFallback(audio, allSources, nextIndex);
+    audio.load?.();
     audio.play().catch(() => tryNext());
   };
 
   audio.addEventListener("error", tryNext);
   setAudioElementSourceWithFallback(audio, sources, 0);
+  audio.load?.();
+  keepTransientAudioReference(audio);
   audio.play().catch(() => tryNext());
   return audio;
+}
+
+function uiAudioCandidates(src) {
+  if (!src) return [];
+  const match = src.match(/\.(mp3|ogg|mp4)$/i);
+  if (match) return audioCandidates(src);
+  return ["mp3", "ogg", "mp4"].map(ext => `${src}.${ext}`);
+}
+
+async function resolveExistingAudioSource(src, mode = "normal") {
+  const sources = mode === "ui" ? uiAudioCandidates(src) : audioCandidates(src);
+  if (!sources.length) return "";
+  for (const source of sources) {
+    try {
+      const response = await fetch(source, { method: "HEAD", cache: "no-store" });
+      if (response.ok) return source;
+    } catch (_) {
+      // Si se abre localmente o el navegador bloquea HEAD, se usa el fallback normal.
+    }
+  }
+  return sources[0];
+}
+
+async function playUiSound(src, volume = 1) {
+  const resolved = await resolveExistingAudioSource(src, "ui");
+  return audioPlay(resolved || src, volume, "sfx");
 }
 
 function audioLoopPlay(src, volume = 0.78, channel = "sfx") {
@@ -1609,6 +1657,7 @@ function createCharacterMenuCard(character, turn) {
   if (!isCharacterAvailable(character, turn)) card.classList.add("disabled");
   if (state.selected?.name === character.name) {
     card.classList.add("selected", `selected-${currentTeamClass(turn)}`);
+    if (state.preselectLocked) card.classList.add("preselect-locked");
   }
   if (bannedNames().includes(character.name)) card.classList.add("banned");
   if (pickedTeam) card.classList.add("picked", `picked-team-${pickedTeam.toLowerCase()}`);
@@ -1639,9 +1688,34 @@ function createCharacterMenuCard(character, turn) {
   card.appendChild(name);
   card.appendChild(strip);
   card.appendChild(slash);
+  const triggerPreselect = (eventSource = "hover") => {
+    if (state.roulette.active || state.locked) return;
+    // Si el usuario ya fijó un personaje con click, no permitir cambiar
+    // ni por hover ni por click hasta presionar la X.
+    if (state.preselectLocked) return;
+    preselectCharacter(character, { source: eventSource });
+  };
+
+  card.addEventListener("mouseenter", () => triggerPreselect("hover"));
+  card.addEventListener("focus", () => triggerPreselect("focus"));
   card.addEventListener("click", () => {
-    if (state.roulette.active) return;
-    preselectCharacter(character);
+    if (state.roulette.active || state.locked) return;
+    if (!isCharacterAvailable(character)) return;
+
+    // Si ya hay un personaje fijado, el click en otros iconos queda bloqueado.
+    // Para cambiar, primero se debe presionar la X roja.
+    if (state.preselectLocked) return;
+
+    // En PC: si estaba en hover sobre este personaje, el click solo lo fija.
+    // En móvil/touch: el click preselecciona y fija a la vez.
+    const isTouchLike = window.matchMedia && window.matchMedia("(hover: none)").matches;
+    if (!state.selected || state.selected.name !== character.name) {
+      preselectCharacter(character, { source: isTouchLike ? "touch" : "click" });
+    }
+
+    state.preselectLocked = true;
+    audioPlay(sounds.select, 0.72, "sfx");
+    renderAll();
   });
   return card;
 }
@@ -1652,7 +1726,7 @@ function renderCharacterGrid() {
 
   const rows = [
     { key: "scissors", label: "The Scissors" },
-    { key: "urbino", label: "Urbinos" },
+    { key: "urbino", label: "Cizallas" },
     { key: "pus", label: "P.U.S" },
   ];
 
@@ -1684,10 +1758,13 @@ function updateCharacterRouletteClasses() {
     const name = card.dataset.name;
     card.classList.toggle("roulette-highlight", state.roulette.active && state.roulette.highlightedName === name);
     card.classList.toggle("roulette-winner", Boolean(state.roulette.finalName) && state.roulette.finalName === name);
-    card.classList.remove("selected-team-a", "selected-team-b");
+    card.classList.remove("selected-team-a", "selected-team-b", "preselect-locked");
     const isSelected = Boolean(selectedName) && selectedName === name;
     card.classList.toggle("selected", isSelected);
-    if (isSelected) card.classList.add(teamClass);
+    if (isSelected) {
+      card.classList.add(teamClass);
+      if (state.preselectLocked) card.classList.add("preselect-locked");
+    }
   });
 }
 
@@ -1828,6 +1905,33 @@ function renderStageCharacters() {
   }
 }
 
+function ensureClearPreselectionButton() {
+  const confirmButton = $("#confirm-action");
+  if (!confirmButton) return null;
+
+  let button = document.getElementById("clear-preselection");
+  if (!button) {
+    button = document.createElement("button");
+    button.id = "clear-preselection";
+    button.type = "button";
+    button.className = "clear-preselection-button hidden";
+    button.textContent = "×";
+    button.title = "Deseleccionar personaje";
+    button.setAttribute("aria-label", "Deseleccionar personaje");
+    button.addEventListener("click", () => clearPreselection());
+    confirmButton.insertAdjacentElement("afterend", button);
+  }
+  return button;
+}
+
+function clearPreselection() {
+  if (state.locked || state.roulette.active) return;
+  state.selected = null;
+  state.preselectLocked = false;
+  audioPlay(sounds.select, 0.52, "sfx");
+  renderAll();
+}
+
 function renderSelected() {
   const button = $("#confirm-action");
   const turn = currentTurn();
@@ -1835,6 +1939,7 @@ function renderSelected() {
   const statusFaction = $("#status-character-faction");
 
   if (!button || !turn) return;
+  const clearButton = ensureClearPreselectionButton();
 
   const selectedCharacter = state.selected && isCharacterAvailable(state.selected, turn) ? state.selected : null;
 
@@ -1843,10 +1948,12 @@ function renderSelected() {
 
   if (!selectedCharacter) {
     button.classList.add("hidden");
+    if (clearButton) clearButton.classList.add("hidden");
     return;
   }
 
   button.classList.remove("hidden", "ban");
+  if (clearButton) clearButton.classList.toggle("hidden", !state.preselectLocked);
 
   if (turn.type === "ban") {
     button.textContent = t("ban");
@@ -1870,6 +1977,8 @@ function renderTurnInfo() {
   const statusPanel = $("#phase-status-panel");
   const redRibbon = document.querySelector('.red-ribbon');
   const blueRibbon = document.querySelector('.blue-ribbon');
+  const teamColumnA = document.querySelector('.team-column-a');
+  const teamColumnB = document.querySelector('.team-column-b');
 
   scoreA.textContent = String(state.picks.A.length).padStart(2, "0");
   scoreB.textContent = String(state.picks.B.length).padStart(2, "0");
@@ -1877,6 +1986,8 @@ function renderTurnInfo() {
   turnLabel.classList.remove("team-a-active", "team-b-active");
   redRibbon?.classList.remove("active-team");
   blueRibbon?.classList.remove("active-team");
+  teamColumnA?.classList.remove("team-panel-active", "team-panel-inactive", "team-panel-active-a", "team-panel-active-b");
+  teamColumnB?.classList.remove("team-panel-active", "team-panel-inactive", "team-panel-active-a", "team-panel-active-b");
   statusPanel?.classList.remove("status-team-a", "status-team-b");
 
   if (!turn) return;
@@ -1884,9 +1995,13 @@ function renderTurnInfo() {
   turnLabel.classList.add(turn.team === "A" ? "team-a-active" : "team-b-active");
   if (turn.team === "A") {
     redRibbon?.classList.add("active-team");
+    teamColumnA?.classList.add("team-panel-active", "team-panel-active-a");
+    teamColumnB?.classList.add("team-panel-inactive");
     statusPanel?.classList.add("status-team-a");
   } else {
     blueRibbon?.classList.add("active-team");
+    teamColumnB?.classList.add("team-panel-active", "team-panel-active-b");
+    teamColumnA?.classList.add("team-panel-inactive");
     statusPanel?.classList.add("status-team-b");
   }
 
@@ -1922,11 +2037,21 @@ function renderAll() {
   renderSelected();
 }
 
-function preselectCharacter(character) {
+function preselectCharacter(character, options = {}) {
   if (state.locked) return;
   if (!isCharacterAvailable(character)) return;
+
+  const source = options.source || "hover";
+  if (state.preselectLocked) return;
+
+  const previousName = state.selected?.name || null;
+  if (previousName === character.name) return;
+
   state.selected = character;
-  audioPlay(sounds.select, 0.7, "sfx");
+  if (source === "touch" || source === "click") state.preselectLocked = true;
+
+  const hoverVolume = source === "hover" ? 0.45 : 0.7;
+  audioPlay(sounds.select, hoverVolume, "sfx");
   renderAll();
 }
 
@@ -2102,7 +2227,7 @@ function confirmTurn(isAuto = false) {
     }
     audioPlay(sounds.confirm, 0.86, "sfx");
     playCharacterVoice(confirmedCharacter, "pick");
-    wait = isAuto ? 980 : 1100;
+    wait = isAuto ? 1250 : 1400;
   }
 
   wait = Math.round(wait * (state.settings.animationDuration || 1));
@@ -2114,6 +2239,7 @@ function confirmTurn(isAuto = false) {
     state.banAnimation = null;
     state.pickAnimation = null;
     state.selected = null;
+    state.preselectLocked = false;
     state.turnIndex += 1;
     proceedAfterTurn();
   }, wait);
@@ -2159,6 +2285,7 @@ function playTurnNarration(turn) {
 
 function startTurn() {
   state.selected = null;
+  state.preselectLocked = false;
   state.locked = false;
   document.body.classList.remove("overlay-lock");
   renderAll();
@@ -2166,14 +2293,56 @@ function startTurn() {
   resetTimer();
 }
 
-function startDraft() {
-  audioPlay(sounds.startDraft, 0.95, "sfx");
+function ensureDraftStartStyle() {
+  if (document.getElementById("draft-start-style")) return;
+  const style = document.createElement("style");
+  style.id = "draft-start-style";
+  style.textContent = `
+    #start-draft.starting-draft {
+      color: #fff !important;
+      background: linear-gradient(135deg, #ff6878 0%, #d4223d 48%, #650914 100%) !important;
+      border-color: rgba(255, 126, 142, 0.72) !important;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.14) inset,
+        0 0 28px rgba(255, 74, 95, 0.42),
+        0 18px 42px rgba(0,0,0,0.36) !important;
+      text-shadow: 0 0 12px rgba(255,255,255,0.32) !important;
+      animation: startingDraftPulse 0.85s ease-in-out infinite alternate !important;
+      pointer-events: none !important;
+      opacity: 1 !important;
+    }
+    @keyframes startingDraftPulse {
+      from { filter: brightness(1); transform: translateY(0) scale(1); }
+      to { filter: brightness(1.16); transform: translateY(-1px) scale(1.012); }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function setStartDraftLoading(isLoading) {
+  const button = $("#start-draft");
+  if (!button) return;
+  ensureDraftStartStyle();
+  if (isLoading) {
+    if (!button.dataset.originalText) button.dataset.originalText = button.textContent || t("start_draft");
+    button.textContent = "INICIANDO";
+    button.classList.add("starting-draft");
+    button.disabled = true;
+  } else {
+    button.classList.remove("starting-draft");
+    button.disabled = false;
+    button.textContent = button.dataset.originalText || t("start_draft");
+  }
+}
+
+function resetDraftStateBeforeStart() {
   readPlayers();
   state.picks = { A: [], B: [] };
   state.bans = { A: [], B: [] };
   state.pickBatchSelections = {};
   state.turnIndex = 0;
   state.selected = null;
+  state.preselectLocked = false;
   state.locked = false;
   state.flashBan = null;
   state.flashPick = null;
@@ -2182,6 +2351,27 @@ function startDraft() {
   state.roulette = { active: false, highlightedName: null, finalName: null, previewCharacter: null };
   state.selectedMap = null;
   state.mapRoulette = { active: false, highlightedId: null, finalId: null };
+}
+
+async function waitForUiSoundAndContinue(milliseconds = 250) {
+  await delay(milliseconds);
+}
+
+async function startDraft() {
+  if (state.startingDraft) return;
+  state.startingDraft = true;
+
+  setStartDraftLoading(true);
+  await playUiSound(sounds.startDraft, 1);
+
+  // Mantiene el menú visible unos segundos para que el efecto de sonido se escuche
+  // y la transición no se sienta brusca.
+  await delay(5000);
+
+  resetDraftStateBeforeStart();
+  setStartDraftLoading(false);
+  state.startingDraft = false;
+
   switchScreen(draftScreen);
   setupBackgroundVideo();
   startMusic("draft");
@@ -2299,8 +2489,14 @@ function simulateRandomSummary() {
   finishDraft();
 }
 
-function cancelDraft() {
-  audioPlay(sounds.backConfig, 0.92, "sfx");
+async function cancelDraft() {
+  if (state.returningToConfig) return;
+  state.returningToConfig = true;
+  await playUiSound(sounds.backConfig, 1);
+
+  // Pequeña espera para que el sonido de volver no se corte con el cambio de pantalla.
+  await waitForUiSoundAndContinue(420);
+
   clearInterval(state.timerId);
   state.locked = false;
   state.selected = null;
@@ -2321,6 +2517,7 @@ function cancelDraft() {
   activateSetupTab("menu");
   switchScreen(setupScreen);
   renderAll();
+  state.returningToConfig = false;
 }
 
 function mapImagePath(map) {
@@ -2483,8 +2680,12 @@ function finishDraft() {
   summaryScreen?.classList.add("summary-enter");
 }
 
-function restartDraft() {
-  audioPlay(sounds.backConfig, 0.92, "sfx");
+async function restartDraft() {
+  if (state.returningToConfig) return;
+  state.returningToConfig = true;
+  await playUiSound(sounds.backConfig, 1);
+  await waitForUiSoundAndContinue(420);
+
   clearInterval(state.timerId);
   state.locked = false;
   state.banAnimation = null;
@@ -2495,6 +2696,7 @@ function restartDraft() {
   document.body.classList.remove("overlay-lock");
   activateSetupTab("menu");
   switchScreen(setupScreen);
+  state.returningToConfig = false;
 }
 
 function init() {

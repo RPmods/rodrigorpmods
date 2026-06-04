@@ -8738,3 +8738,762 @@ body {
   18% { opacity: 1; }
   100% { opacity: 0; transform: skewX(-24deg) translateX(600%); }
 }
+
+
+/* =========================================================
+   AJUSTE V3.72 - baneo PNG full: blanco/negro + fade out
+   =========================================================
+   Cuando un personaje es baneado:
+   - el PNG full se vuelve blanco y negro,
+   - pierde brillo poco a poco,
+   - desaparece con fade.
+*/
+.fullbody-card.banishing .fullbody-img {
+  animation: banFullGrayscaleFadeV372 1.35s cubic-bezier(.18,.82,.24,1) forwards !important;
+  transform-origin: 50% 80% !important;
+  will-change: opacity, filter, transform !important;
+}
+
+@keyframes banFullGrayscaleFadeV372 {
+  0% {
+    opacity: 1;
+    filter:
+      grayscale(0)
+      brightness(1.18)
+      saturate(1.12)
+      drop-shadow(0 22px 28px rgba(0,0,0,0.40))
+      drop-shadow(0 0 24px rgba(255,95,116,0.42));
+    transform: translate3d(0, 0, 0) scale(1.015);
+  }
+
+  28% {
+    opacity: 1;
+    filter:
+      grayscale(0.55)
+      brightness(1.12)
+      saturate(0.82)
+      contrast(1.04)
+      drop-shadow(0 22px 28px rgba(0,0,0,0.38))
+      drop-shadow(0 0 20px rgba(255,255,255,0.24));
+    transform: translate3d(0, -2px, 0) scale(1.02);
+  }
+
+  58% {
+    opacity: 0.74;
+    filter:
+      grayscale(1)
+      brightness(0.94)
+      saturate(0)
+      contrast(1.08)
+      drop-shadow(0 18px 24px rgba(0,0,0,0.30))
+      drop-shadow(0 0 14px rgba(255,255,255,0.16));
+    transform: translate3d(0, -4px, 0) scale(1.005);
+  }
+
+  100% {
+    opacity: 0;
+    filter:
+      grayscale(1)
+      brightness(0.72)
+      saturate(0)
+      contrast(1.10)
+      blur(1px)
+      drop-shadow(0 12px 18px rgba(0,0,0,0.18));
+    transform: translate3d(0, -10px, 0) scale(0.965);
+  }
+}
+
+/* Evita que efectos antiguos de baneo vuelvan a dibujar un panel/cuadro detrás del PNG. */
+.fullbody-card.banishing,
+.fullbody-card.banishing .fullbody-box,
+.fullbody-card.banishing .fullbody-frame {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+.fullbody-card.banishing::before,
+.fullbody-card.banishing::after,
+.fullbody-card.banishing .fullbody-box::before,
+.fullbody-card.banishing .fullbody-box::after,
+.fullbody-card.banishing .fullbody-frame::before,
+.fullbody-card.banishing .fullbody-frame::after {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* =========================================================
+   AJUSTE V3.73 - baneo PNG full: blanco/negro más visible + fade más largo
+   =========================================================
+   Refuerzo del efecto de baneo:
+   - el PNG full entra a blanco y negro casi de inmediato,
+   - se mantiene visible en blanco y negro antes de desaparecer,
+   - fade out más largo y claro.
+*/
+.fullbody-card.banishing .fullbody-img,
+.fullbody-card.banishing.turn-ban .fullbody-img,
+.stage-characters .fullbody-card.banishing .fullbody-img {
+  animation: banFullStrongGrayscaleFadeV373 1.85s cubic-bezier(.16,.84,.22,1) forwards !important;
+  -webkit-animation: banFullStrongGrayscaleFadeV373 1.85s cubic-bezier(.16,.84,.22,1) forwards !important;
+  transform-origin: 50% 80% !important;
+  will-change: opacity, filter, -webkit-filter, transform !important;
+}
+
+@keyframes banFullStrongGrayscaleFadeV373 {
+  0% {
+    opacity: 1;
+    filter:
+      grayscale(0)
+      brightness(1.22)
+      saturate(1.15)
+      contrast(1.04)
+      drop-shadow(0 22px 28px rgba(0,0,0,0.40));
+    -webkit-filter:
+      grayscale(0)
+      brightness(1.22)
+      saturate(1.15)
+      contrast(1.04)
+      drop-shadow(0 22px 28px rgba(0,0,0,0.40));
+    transform: translate3d(0, 0, 0) scale(1.025);
+  }
+
+  12% {
+    opacity: 1;
+    filter:
+      grayscale(1)
+      brightness(1.18)
+      saturate(0)
+      contrast(1.16)
+      drop-shadow(0 22px 28px rgba(0,0,0,0.40))
+      drop-shadow(0 0 18px rgba(255,255,255,0.28));
+    -webkit-filter:
+      grayscale(1)
+      brightness(1.18)
+      saturate(0)
+      contrast(1.16)
+      drop-shadow(0 22px 28px rgba(0,0,0,0.40))
+      drop-shadow(0 0 18px rgba(255,255,255,0.28));
+    transform: translate3d(0, -2px, 0) scale(1.03);
+  }
+
+  48% {
+    opacity: 0.92;
+    filter:
+      grayscale(1)
+      brightness(1.02)
+      saturate(0)
+      contrast(1.22)
+      drop-shadow(0 20px 26px rgba(0,0,0,0.34))
+      drop-shadow(0 0 14px rgba(255,255,255,0.20));
+    -webkit-filter:
+      grayscale(1)
+      brightness(1.02)
+      saturate(0)
+      contrast(1.22)
+      drop-shadow(0 20px 26px rgba(0,0,0,0.34))
+      drop-shadow(0 0 14px rgba(255,255,255,0.20));
+    transform: translate3d(0, -4px, 0) scale(1.015);
+  }
+
+  72% {
+    opacity: 0.42;
+    filter:
+      grayscale(1)
+      brightness(0.86)
+      saturate(0)
+      contrast(1.18)
+      blur(0.25px)
+      drop-shadow(0 16px 22px rgba(0,0,0,0.24));
+    -webkit-filter:
+      grayscale(1)
+      brightness(0.86)
+      saturate(0)
+      contrast(1.18)
+      blur(0.25px)
+      drop-shadow(0 16px 22px rgba(0,0,0,0.24));
+    transform: translate3d(0, -8px, 0) scale(0.985);
+  }
+
+  100% {
+    opacity: 0;
+    filter:
+      grayscale(1)
+      brightness(0.62)
+      saturate(0)
+      contrast(1.12)
+      blur(1.2px)
+      drop-shadow(0 8px 14px rgba(0,0,0,0.12));
+    -webkit-filter:
+      grayscale(1)
+      brightness(0.62)
+      saturate(0)
+      contrast(1.12)
+      blur(1.2px)
+      drop-shadow(0 8px 14px rgba(0,0,0,0.12));
+    transform: translate3d(0, -16px, 0) scale(0.945);
+  }
+}
+
+/* Si algún efecto anterior intenta recolorear el baneo, este filtro queda como prioridad visual. */
+.fullbody-card.banishing .fullbody-img:not(.no-ban-filter) {
+  mix-blend-mode: normal !important;
+}
+
+
+/* =========================================================
+   AJUSTES V3.74 - grayscale real en BAN + fade suave en BAN/PICK
+   =========================================================
+   Correcciones:
+   - Al banear, el PNG full se convierte claramente a blanco y negro.
+   - El fade de salida del BAN es más suave.
+   - La selección/PICK también tiene fade de salida.
+   - Se fuerza -webkit-filter para Chrome/GitHub Pages.
+*/
+
+/* BAN: fuerza blanco y negro desde el inicio y luego salida suave */
+.fullbody-card.banishing,
+.fullbody-card.banishing .fullbody-box,
+.fullbody-card.banishing .fullbody-frame {
+  opacity: 1 !important;
+  visibility: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+.fullbody-card.banishing .fullbody-img,
+.fullbody-card.banishing img.fullbody-img,
+.fullbody-card.banishing .fullbody-frame img,
+.fullbody-card.banishing .fullbody-box img {
+  opacity: 1 !important;
+  filter: grayscale(1) saturate(0) contrast(1.08) brightness(1.03)
+          drop-shadow(0 20px 28px rgba(0,0,0,0.38)) !important;
+  -webkit-filter: grayscale(1) saturate(0) contrast(1.08) brightness(1.03)
+          drop-shadow(0 20px 28px rgba(0,0,0,0.38)) !important;
+  animation: banFullPngGrayFadeV74 1.48s cubic-bezier(.22,.72,.24,1) both !important;
+  will-change: opacity, transform, filter !important;
+}
+
+/* PICK: salida suave al confirmar selección */
+.fullbody-card.selection-burst .fullbody-img,
+.fullbody-card.selecting .fullbody-img,
+.fullbody-card.selection-burst img.fullbody-img,
+.fullbody-card.selecting img.fullbody-img,
+.fullbody-card.selection-burst .fullbody-frame img,
+.fullbody-card.selecting .fullbody-frame img {
+  animation: pickFullPngConfirmFadeV74 1.06s cubic-bezier(.18,.78,.24,1) both !important;
+  will-change: opacity, transform, filter !important;
+}
+
+/* El badge acompaña mejor el fade, sin quedarse cortado */
+.fullbody-card.banishing .fullbody-action-badge,
+.fullbody-card.selection-burst .fullbody-action-badge {
+  animation: fullbodyBadgeConfirmV74 1.08s cubic-bezier(.18,.82,.22,1) both !important;
+}
+
+@keyframes banFullPngGrayFadeV74 {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1.018);
+    filter: grayscale(0.15) saturate(0.45) contrast(1.04) brightness(1.08)
+            drop-shadow(0 20px 28px rgba(0,0,0,0.38));
+    -webkit-filter: grayscale(0.15) saturate(0.45) contrast(1.04) brightness(1.08)
+            drop-shadow(0 20px 28px rgba(0,0,0,0.38));
+  }
+  12% {
+    opacity: 1;
+    transform: translate3d(0, -1px, 0) scale(1.018);
+    filter: grayscale(1) saturate(0) contrast(1.12) brightness(1.06)
+            drop-shadow(0 20px 28px rgba(0,0,0,0.38));
+    -webkit-filter: grayscale(1) saturate(0) contrast(1.12) brightness(1.06)
+            drop-shadow(0 20px 28px rgba(0,0,0,0.38));
+  }
+  44% {
+    opacity: 0.92;
+    transform: translate3d(0, -2px, 0) scale(1.006);
+    filter: grayscale(1) saturate(0) contrast(1.16) brightness(1.00)
+            drop-shadow(0 18px 24px rgba(0,0,0,0.30));
+    -webkit-filter: grayscale(1) saturate(0) contrast(1.16) brightness(1.00)
+            drop-shadow(0 18px 24px rgba(0,0,0,0.30));
+  }
+  72% {
+    opacity: 0.42;
+    transform: translate3d(0, -5px, 0) scale(0.99);
+    filter: grayscale(1) saturate(0) contrast(1.10) brightness(0.88)
+            drop-shadow(0 10px 16px rgba(0,0,0,0.22));
+    -webkit-filter: grayscale(1) saturate(0) contrast(1.10) brightness(0.88)
+            drop-shadow(0 10px 16px rgba(0,0,0,0.22));
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -10px, 0) scale(0.965);
+    filter: grayscale(1) saturate(0) contrast(1.04) brightness(0.74)
+            drop-shadow(0 0 0 rgba(0,0,0,0));
+    -webkit-filter: grayscale(1) saturate(0) contrast(1.04) brightness(0.74)
+            drop-shadow(0 0 0 rgba(0,0,0,0));
+  }
+}
+
+@keyframes pickFullPngConfirmFadeV74 {
+  0% {
+    opacity: 0.25;
+    transform: translate3d(0, 10px, 0) scale(0.96);
+    filter: brightness(1.20) saturate(1.12)
+            drop-shadow(0 18px 26px rgba(0,0,0,0.28));
+    -webkit-filter: brightness(1.20) saturate(1.12)
+            drop-shadow(0 18px 26px rgba(0,0,0,0.28));
+  }
+  24% {
+    opacity: 1;
+    transform: translate3d(0, -2px, 0) scale(1.032);
+  }
+  62% {
+    opacity: 0.96;
+    transform: translate3d(0, 0, 0) scale(1.012);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0) scale(0.985);
+    filter: brightness(1.02) saturate(1.02)
+            drop-shadow(0 8px 12px rgba(0,0,0,0.12));
+    -webkit-filter: brightness(1.02) saturate(1.02)
+            drop-shadow(0 8px 12px rgba(0,0,0,0.12));
+  }
+}
+
+@keyframes fullbodyBadgeConfirmV74 {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.60) translateY(16px);
+    filter: brightness(1.25) blur(2px);
+  }
+  16% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08) translateY(0);
+    filter: brightness(1.16) blur(0);
+  }
+  68% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: brightness(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.94) translateY(-12px);
+    filter: brightness(1.02);
+  }
+}
+
+
+/* =========================================================
+   AJUSTES V3.75 - fade de salida PICK más suave
+   =========================================================
+   - La selección/PICK permanece un poco más antes de desaparecer.
+   - La salida del PNG full seleccionado es más suave y menos brusca.
+*/
+.fullbody-card.selection-burst .fullbody-img,
+.fullbody-card.selecting .fullbody-img,
+.fullbody-card.selection-burst img.fullbody-img,
+.fullbody-card.selecting img.fullbody-img,
+.fullbody-card.selection-burst .fullbody-frame img,
+.fullbody-card.selecting .fullbody-frame img {
+  animation: pickFullPngConfirmFadeV75 1.36s cubic-bezier(.18,.78,.24,1) both !important;
+  will-change: opacity, transform, filter !important;
+}
+
+.fullbody-card.selection-burst .fullbody-action-badge {
+  animation: fullbodyBadgePickConfirmV75 1.22s cubic-bezier(.18,.82,.22,1) both !important;
+}
+
+@keyframes pickFullPngConfirmFadeV75 {
+  0% {
+    opacity: 0.25;
+    transform: translate3d(0, 10px, 0) scale(0.96);
+    filter: brightness(1.20) saturate(1.12)
+            drop-shadow(0 18px 26px rgba(0,0,0,0.28));
+    -webkit-filter: brightness(1.20) saturate(1.12)
+            drop-shadow(0 18px 26px rgba(0,0,0,0.28));
+  }
+  22% {
+    opacity: 1;
+    transform: translate3d(0, -2px, 0) scale(1.032);
+  }
+  68% {
+    opacity: 0.98;
+    transform: translate3d(0, 0, 0) scale(1.012);
+    filter: brightness(1.14) saturate(1.08)
+            drop-shadow(0 18px 25px rgba(0,0,0,0.24));
+    -webkit-filter: brightness(1.14) saturate(1.08)
+            drop-shadow(0 18px 25px rgba(0,0,0,0.24));
+  }
+  86% {
+    opacity: 0.42;
+    transform: translate3d(0, -4px, 0) scale(1.002);
+    filter: brightness(1.06) saturate(1.04)
+            drop-shadow(0 10px 14px rgba(0,0,0,0.16));
+    -webkit-filter: brightness(1.06) saturate(1.04)
+            drop-shadow(0 10px 14px rgba(0,0,0,0.16));
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -9px, 0) scale(0.99);
+    filter: brightness(1.02) saturate(1.02)
+            drop-shadow(0 4px 7px rgba(0,0,0,0.08));
+    -webkit-filter: brightness(1.02) saturate(1.02)
+            drop-shadow(0 4px 7px rgba(0,0,0,0.08));
+  }
+}
+
+@keyframes fullbodyBadgePickConfirmV75 {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.60) translateY(16px);
+    filter: brightness(1.25) blur(2px);
+  }
+  16% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08) translateY(0);
+    filter: brightness(1.16) blur(0);
+  }
+  72% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: brightness(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.94) translateY(-12px);
+    filter: brightness(1.02);
+  }
+}
+
+
+/* =========================================================
+   AJUSTE V3.77 - preselección por hover + fijar con click
+   ========================================================= */
+.clear-preselection-button {
+  min-width: 46px !important;
+  height: 46px !important;
+  margin-left: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid rgba(255, 130, 145, 0.75) !important;
+  border-radius: 4px !important;
+  background: linear-gradient(135deg, rgba(255, 86, 104, 0.96), rgba(122, 12, 28, 0.98)) !important;
+  color: #fff !important;
+  font-size: 1.35rem !important;
+  font-weight: 1000 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  box-shadow:
+    inset 0 0 18px rgba(255,255,255,0.08),
+    0 0 18px rgba(255, 74, 96, 0.30) !important;
+  text-shadow: 0 0 8px rgba(255,255,255,0.32) !important;
+  vertical-align: middle !important;
+  transition: transform .14s ease, filter .14s ease !important;
+}
+
+.clear-preselection-button:hover {
+  filter: brightness(1.16) !important;
+  transform: translateY(-1px) scale(1.03) !important;
+}
+
+.clear-preselection-button:active {
+  transform: translateY(1px) scale(0.98) !important;
+}
+
+.character-grid .character-card.preselect-locked,
+.character-card.preselect-locked {
+  animation: lockedPreselectPulseV77 0.9s ease-in-out infinite alternate !important;
+}
+
+.character-grid .character-card.preselect-locked::before,
+.character-card.preselect-locked::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: -4px !important;
+  z-index: 4 !important;
+  pointer-events: none !important;
+  border: 2px solid rgba(255,255,255,0.82) !important;
+  box-shadow: 0 0 18px rgba(255,255,255,0.28), inset 0 0 12px rgba(255,255,255,0.08) !important;
+}
+
+@keyframes lockedPreselectPulseV77 {
+  from { filter: brightness(1.08) saturate(1.10); }
+  to { filter: brightness(1.24) saturate(1.22); }
+}
+
+
+/* =========================================================
+   AJUSTE V3.78 - X compacta + bloqueo real de preselección
+   ========================================================= */
+.phase-status-panel {
+  gap: 6px !important;
+}
+
+.phase-status-panel .action-button,
+#confirm-action {
+  min-width: 176px !important;
+  padding-left: 18px !important;
+  padding-right: 18px !important;
+}
+
+.clear-preselection-button {
+  min-width: 34px !important;
+  width: 34px !important;
+  max-width: 34px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  margin-left: 4px !important;
+  padding: 0 !important;
+  flex: 0 0 34px !important;
+  border-radius: 3px !important;
+  font-size: 1.05rem !important;
+  line-height: 1 !important;
+}
+
+.clear-preselection-button:hover {
+  transform: translateY(-1px) scale(1.03) !important;
+}
+
+.clear-preselection-button:active {
+  transform: translateY(1px) scale(0.98) !important;
+}
+
+/* Cuando un personaje está fijado con click, el resto queda visualmente bloqueado
+   hasta presionar la X. */
+.character-card.preselect-locked {
+  cursor: default !important;
+}
+
+.character-grid:has(.character-card.preselect-locked) .character-card:not(.preselect-locked):not(.disabled) {
+  opacity: 0.72;
+}
+
+
+/* =========================================================
+   AJUSTE V3.79 - panel de acción más ancho y X en la misma línea
+   =========================================================
+   Corrige que la X se vaya a una segunda línea/row cuando aparece
+   el botón BANEAR / SELECCIONAR.
+*/
+.phase-status-panel {
+  width: min(880px, calc(100vw - 110px)) !important;
+  grid-template-columns: minmax(0, 1fr) 250px 176px 34px !important;
+  gap: 6px !important;
+  align-items: center !important;
+  overflow: visible !important;
+}
+
+.phase-status-copy {
+  grid-column: 1 !important;
+  min-width: 0 !important;
+}
+
+.status-character-box {
+  grid-column: 2 !important;
+  width: 250px !important;
+  min-width: 250px !important;
+  max-width: 250px !important;
+  overflow: hidden !important;
+}
+
+#status-character-name,
+#status-character-faction {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+#confirm-action,
+.phase-status-panel .action-button {
+  grid-column: 3 !important;
+  width: 176px !important;
+  min-width: 176px !important;
+  max-width: 176px !important;
+  justify-self: stretch !important;
+}
+
+.clear-preselection-button {
+  grid-column: 4 !important;
+  justify-self: start !important;
+  align-self: center !important;
+  min-width: 30px !important;
+  width: 30px !important;
+  max-width: 30px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  margin-left: 0 !important;
+  padding: 0 !important;
+  flex: 0 0 30px !important;
+  font-size: 0.98rem !important;
+}
+
+/* En resoluciones más pequeñas, mantener todo en una sola línea reduciendo un poco */
+@media (max-width: 1100px) {
+  .phase-status-panel {
+    width: min(820px, calc(100vw - 56px)) !important;
+    grid-template-columns: minmax(0, 1fr) 230px 164px 30px !important;
+    gap: 5px !important;
+  }
+
+  .status-character-box {
+    width: 230px !important;
+    min-width: 230px !important;
+    max-width: 230px !important;
+  }
+
+  #confirm-action,
+  .phase-status-panel .action-button {
+    width: 164px !important;
+    min-width: 164px !important;
+    max-width: 164px !important;
+  }
+
+  .clear-preselection-button {
+    width: 28px !important;
+    min-width: 28px !important;
+    max-width: 28px !important;
+  }
+}
+
+
+/* =========================================================
+   AJUSTE V3.80 - Cizallas + brillo por equipo activo
+   =========================================================
+   - Urbinos cambia a Cizallas en el selector.
+   - Equipo activo: barra superior + panel lateral brillan rojo/azul.
+   - Equipo inactivo: barra/panel quedan en gris apagado.
+*/
+
+/* Barras superiores: por defecto apagadas/grises */
+.team-ribbon {
+  transition: filter .22s ease, box-shadow .22s ease, background .22s ease, color .22s ease, opacity .22s ease !important;
+}
+
+.red-ribbon:not(.active-team),
+.blue-ribbon:not(.active-team) {
+  background: linear-gradient(90deg, rgba(65,67,78,0.66), rgba(32,34,44,0.72)) !important;
+  color: rgba(235,238,245,0.64) !important;
+  filter: grayscale(1) brightness(.72) !important;
+  box-shadow: none !important;
+}
+
+.red-ribbon:not(.active-team) b,
+.blue-ribbon:not(.active-team) b {
+  color: rgba(235,238,245,0.60) !important;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.34) !important;
+}
+
+.red-ribbon.active-team {
+  background: linear-gradient(90deg, transparent 0 7%, rgba(142,34,49,.96) 7%, rgba(214,57,76,.94) 58%, rgba(112,26,42,.96) 100%) !important;
+  color: #fff3f5 !important;
+  filter: brightness(1.18) saturate(1.10) !important;
+  box-shadow: 0 0 22px rgba(255,67,86,0.50), 0 0 48px rgba(255,67,86,0.28), inset 0 0 22px rgba(255,255,255,0.06) !important;
+  animation: teamRibbonRedPulseV80 1.85s ease-in-out infinite alternate !important;
+}
+
+.blue-ribbon.active-team {
+  background: linear-gradient(90deg, rgba(30,75,152,.96), rgba(76,143,242,.92) 54%, rgba(36,54,130,.96)) !important;
+  color: #edf7ff !important;
+  filter: brightness(1.18) saturate(1.10) !important;
+  box-shadow: 0 0 22px rgba(85,168,255,0.50), 0 0 48px rgba(85,168,255,0.28), inset 0 0 22px rgba(255,255,255,0.06) !important;
+  animation: teamRibbonBluePulseV80 1.85s ease-in-out infinite alternate !important;
+}
+
+.red-ribbon.active-team b {
+  color: #ffe8ed !important;
+  text-shadow: 0 0 10px rgba(255,67,86,.72), 0 0 22px rgba(255,67,86,.42), 0 2px 5px rgba(0,0,0,.38) !important;
+}
+
+.blue-ribbon.active-team b {
+  color: #e8f6ff !important;
+  text-shadow: 0 0 10px rgba(85,168,255,.72), 0 0 22px rgba(85,168,255,.42), 0 2px 5px rgba(0,0,0,.38) !important;
+}
+
+/* Paneles laterales */
+.team-column {
+  transition: opacity .22s ease, filter .22s ease, text-shadow .22s ease !important;
+}
+
+.team-column.team-panel-inactive {
+  opacity: .58 !important;
+  filter: grayscale(.85) brightness(.72) !important;
+}
+
+.team-column.team-panel-active {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.team-column.team-panel-active-a .team-title span,
+.team-column.team-panel-active-a .team-title strong,
+.team-column.team-panel-active-a .slot-name,
+.team-column.team-panel-active-a .slot-character,
+.team-column.team-panel-active-a .ban-stack > span,
+.team-column.team-panel-active-a .ban-slot-label {
+  color: #ffe7eb !important;
+  text-shadow: 0 0 9px rgba(255,67,86,.76), 0 0 20px rgba(255,67,86,.34), 0 2px 5px rgba(0,0,0,.42) !important;
+}
+
+.team-column.team-panel-active-b .team-title span,
+.team-column.team-panel-active-b .team-title strong,
+.team-column.team-panel-active-b .slot-name,
+.team-column.team-panel-active-b .slot-character,
+.team-column.team-panel-active-b .ban-stack > span,
+.team-column.team-panel-active-b .ban-slot-label {
+  color: #e8f5ff !important;
+  text-shadow: 0 0 9px rgba(85,168,255,.76), 0 0 20px rgba(85,168,255,.34), 0 2px 5px rgba(0,0,0,.42) !important;
+}
+
+.team-column.team-panel-active-a .slot-portrait,
+.team-column.team-panel-active-a .ban-thumb {
+  border-color: rgba(255,89,106,.94) !important;
+  box-shadow: inset 0 0 18px rgba(255,67,86,.10), 0 0 0 1px rgba(255,67,86,.20), 0 0 18px rgba(255,67,86,.45), 0 0 30px rgba(255,67,86,.18) !important;
+  animation: teamPanelRedIconGlowV80 1.7s ease-in-out infinite alternate !important;
+}
+
+.team-column.team-panel-active-b .slot-portrait,
+.team-column.team-panel-active-b .ban-thumb {
+  border-color: rgba(97,178,255,.96) !important;
+  box-shadow: inset 0 0 18px rgba(85,168,255,.10), 0 0 0 1px rgba(85,168,255,.20), 0 0 18px rgba(85,168,255,.45), 0 0 30px rgba(85,168,255,.18) !important;
+  animation: teamPanelBlueIconGlowV80 1.7s ease-in-out infinite alternate !important;
+}
+
+.team-column.team-panel-active-a .slot-placeholder,
+.team-column.team-panel-active-a .ban-thumb-placeholder {
+  color: rgba(255,150,162,.55) !important;
+  text-shadow: 0 0 12px rgba(255,67,86,.46) !important;
+}
+
+.team-column.team-panel-active-b .slot-placeholder,
+.team-column.team-panel-active-b .ban-thumb-placeholder {
+  color: rgba(145,205,255,.55) !important;
+  text-shadow: 0 0 12px rgba(85,168,255,.46) !important;
+}
+
+@keyframes teamRibbonRedPulseV80 {
+  from { box-shadow: 0 0 18px rgba(255,67,86,.38), 0 0 36px rgba(255,67,86,.18), inset 0 0 16px rgba(255,255,255,.04); }
+  to { box-shadow: 0 0 28px rgba(255,67,86,.62), 0 0 56px rgba(255,67,86,.34), inset 0 0 24px rgba(255,255,255,.08); }
+}
+
+@keyframes teamRibbonBluePulseV80 {
+  from { box-shadow: 0 0 18px rgba(85,168,255,.38), 0 0 36px rgba(85,168,255,.18), inset 0 0 16px rgba(255,255,255,.04); }
+  to { box-shadow: 0 0 28px rgba(85,168,255,.62), 0 0 56px rgba(85,168,255,.34), inset 0 0 24px rgba(255,255,255,.08); }
+}
+
+@keyframes teamPanelRedIconGlowV80 {
+  from { filter: brightness(1.02); }
+  to { filter: brightness(1.14) saturate(1.06); }
+}
+
+@keyframes teamPanelBlueIconGlowV80 {
+  from { filter: brightness(1.02); }
+  to { filter: brightness(1.14) saturate(1.06); }
+}
