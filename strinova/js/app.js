@@ -254,6 +254,71 @@ const musicPlaylists = {
   draft: draftMusicPlaylist,
 };
 
+
+const narrationVoiceSystemOptions = {
+  amberly_graves: {
+    label: "Voz ES(LA) Amberly_Graves  - Dialogos Completos (predeterminado)",
+    folder: "Amberly_Graves",
+    disabled: false,
+    publicAvailable: true,
+    complete: true,
+  },
+  wizzsv: {
+    label: "Voz ES(LA) WizzSV          - Dialogos Incompletos (La experencia puede ser afectada)",
+    folder: "wizzsv",
+    disabled: false,
+    publicAvailable: true,
+    complete: false,
+  },
+  rodrigorpmods_es: {
+    label: "Voz ES(LA) RodrigoRPmods   - not available in the public version",
+    folder: "RodrigoRPmods_ESLA",
+    disabled: true,
+    publicAvailable: false,
+    complete: false,
+  },
+  rodrigorpmods_en: {
+    label: "Voz EN(ENG) RodrigoRPmods  - not available in the public version",
+    folder: "RodrigoRPmods_ENG",
+    disabled: true,
+    publicAvailable: false,
+    complete: false,
+  },
+  rodrigorpmods_ja: {
+    label: "Voz JA(JAP) RodrigoRPmods  - not available in the public version",
+    folder: "RodrigoRPmods_JAP",
+    disabled: true,
+    publicAvailable: false,
+    complete: false,
+  },
+};
+
+function currentNarrationVoiceSystemKey() {
+  const key = state?.settings?.narrationVoiceSystem || "amberly_graves";
+  const config = narrationVoiceSystemOptions[key];
+  if (!config || config.disabled) return "amberly_graves";
+  return key;
+}
+
+function currentNarrationVoiceSystem() {
+  return narrationVoiceSystemOptions[currentNarrationVoiceSystemKey()] || narrationVoiceSystemOptions.amberly_graves;
+}
+
+function systemVoiceSrc(fileName) {
+  const voiceSystem = currentNarrationVoiceSystem();
+  return `audio/voicesystem/${voiceSystem.folder}/${fileName}`;
+}
+
+function makeSystemVoiceLine(fileName, text) {
+  return {
+    fileName,
+    text,
+    get src() {
+      return systemVoiceSrc(fileName);
+    },
+  };
+}
+
 const sounds = {
   select: "audio/select.mp3",
   confirm: "audio/confirm.mp3",
@@ -266,57 +331,34 @@ const sounds = {
   banPhase: "audio/voice_ban_phase",
   pickPhase: "audio/voice_pick_phase",
   randomStart: "audio/random_start",
+  mapSelectorVoice: "audio/map_selector_voice",
+  finishDraftVoice: "audio/voice_finish_draft",
 };
 
 const systemDraftVoiceLines = {
-  voice_ban_phase: {
-    src: sounds.banPhase,
-    text: "¡La fase de bloqueos de laminantes ha comenzado!",
-  },
-  voice_pick_phase: {
-    src: sounds.pickPhase,
-    text: "¡La fase de selección de laminantes ha comenzado!",
-  },
-  team_a_ban: {
-    src: "audio/turns/team_a_ban",
-    text: "Los atacantes están bloqueando un laminante.",
-  },
-  team_b_ban: {
-    src: "audio/turns/team_b_ban",
-    text: "Los defensores están bloqueando un laminante.",
-  },
-  team_a_ban_scissors: {
-    src: "audio/turns/team_a_ban_scissors",
-    text: "Los atacantes están bloqueando un laminante de las Cizallas.",
-  },
-  team_b_ban_scissors: {
-    src: "audio/turns/team_b_ban_scissors",
-    text: "Los defensores están bloqueando un laminante de las Cizallas.",
-  },
-  team_a_pick: {
-    src: "audio/turns/team_a_pick",
-    text: "Los atacantes están eligiendo un laminante.",
-  },
-  team_b_pick: {
-    src: "audio/turns/team_b_pick",
-    text: "Los defensores están eligiendo un laminante.",
-  },
-  random_start: {
-    src: sounds.randomStart,
-    text: "Tiempo agotado. Iniciando selección aleatoria.",
-  },
+  voice_ban_phase: makeSystemVoiceLine("voice_ban_phase", "¡La fase de bloqueos de laminantes ha comenzado!"),
+  voice_pick_phase: makeSystemVoiceLine("voice_pick_phase", "¡La fase de selección de laminantes ha comenzado!"),
+  team_a_ban: makeSystemVoiceLine("team_a_ban", "Los atacantes están bloqueando un laminante."),
+  team_b_ban: makeSystemVoiceLine("team_b_ban", "Los defensores están bloqueando un laminante."),
+  team_a_ban_scissors: makeSystemVoiceLine("team_a_ban_scissors", "Los atacantes están bloqueando un laminante de las Cizallas."),
+  team_b_ban_scissors: makeSystemVoiceLine("team_b_ban_scissors", "Los defensores están bloqueando un laminante de las Cizallas."),
+  team_a_pick: makeSystemVoiceLine("team_a_pick", "Los atacantes están eligiendo un laminante."),
+  team_b_pick: makeSystemVoiceLine("team_b_pick", "Los defensores están eligiendo un laminante."),
+  random_start: makeSystemVoiceLine("random_start", "Tiempo agotado. Iniciando selección aleatoria."),
+  map_selector_voice: makeSystemVoiceLine("map_selector_voice", "Iniciando selección aleatoria de mapa."),
+  voice_finish_draft: makeSystemVoiceLine("voice_finish_draft", "El sistema draft ha concluido, mostrando resultados."),
 };
 
 const turnVoices = {
   A: {
-    ban: systemDraftVoiceLines.team_a_ban.src,
-    ban_scissors: systemDraftVoiceLines.team_a_ban_scissors.src,
-    pick: systemDraftVoiceLines.team_a_pick.src,
+    get ban() { return systemDraftVoiceLines.team_a_ban.src; },
+    get ban_scissors() { return systemDraftVoiceLines.team_a_ban_scissors.src; },
+    get pick() { return systemDraftVoiceLines.team_a_pick.src; },
   },
   B: {
-    ban: systemDraftVoiceLines.team_b_ban.src,
-    ban_scissors: systemDraftVoiceLines.team_b_ban_scissors.src,
-    pick: systemDraftVoiceLines.team_b_pick.src,
+    get ban() { return systemDraftVoiceLines.team_b_ban.src; },
+    get ban_scissors() { return systemDraftVoiceLines.team_b_ban_scissors.src; },
+    get pick() { return systemDraftVoiceLines.team_b_pick.src; },
   },
 };
 
@@ -369,12 +411,30 @@ const state = {
     narrationVolume: 0.85,
     characterVoiceVolume: 1,
     language: "es",
+    narrationVoiceSystem: "amberly_graves",
     narrationEnabled: true,
     selectionAnimationEnabled: true,
     autoResolveEnabled: true,
     animationDuration: 1.6,
   },
   devSelectedCharacter: "Ming",
+  intro: {
+    active: true,
+    completed: false,
+    overlay: null,
+    logoVideo: null,
+    menuVideo: null,
+    loadingVideo: null,
+    musicAudio: null,
+    logoAudio: null,
+    logoAudioSource: "",
+    logoAudioPrimed: false,
+    introVoiceAudio: null,
+    introVoiceSource: "",
+    introVoicePrimed: false,
+    clicked: false,
+    voicePlayed: false,
+  },
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -441,6 +501,54 @@ function translateRoleLabel(label) {
   const map = { "Centinela":"role_sentinel", "Duelista":"role_duelist", "Controlador":"role_controller", "Vanguardia":"role_vanguard", "Soporte":"role_support", "Sin rol":"role_none" };
   return t(map[label] || "role_none");
 }
+
+function updateCreditsPanel() {
+  const panel = document.querySelector('[data-panel="creditos"]');
+  if (!panel) return;
+
+  const heading = panel.querySelector('.subconfig-heading');
+  if (heading) {
+    const headingSmall = heading.querySelector('span');
+    const headingStrong = heading.querySelector('strong');
+    if (headingSmall) headingSmall.textContent = 'Créditos';
+    if (headingStrong) headingStrong.textContent = 'Sistema Draft';
+  }
+
+  let creditsPanel = panel.querySelector('.credits-panel');
+  if (!creditsPanel) {
+    creditsPanel = document.createElement('div');
+    creditsPanel.className = 'credits-panel credits-detailed-panel';
+    panel.appendChild(creditsPanel);
+  }
+
+  creditsPanel.classList.add('credits-detailed-panel');
+  creditsPanel.innerHTML = `
+    <section class="credits-section credits-section-main">
+      <span class="credits-section-label">Desarrollo de interfaz y idea conceptual</span>
+      <strong>RodrigoRPmods</strong>
+    </section>
+
+    <section class="credits-section">
+      <span class="credits-section-label">Voces</span>
+      <div class="credits-group-title">(SISTEM VOICE)</div>
+      <div class="credits-name-list">
+        <div><b>@WizzSV</b><small>Español Latinoamérica ESP(LA)</small></div>
+        <div><b>@Amberly_Graves</b><small>Español Latinoamérica ESP(LA)</small></div>
+      </div>
+    </section>
+
+    <section class="credits-section">
+      <span class="credits-section-label">Ayudantes / Testers</span>
+      <div class="credits-tester-list">
+        <span>Jeremy wo Tabetai</span>
+        <span>Nozomidol (twitch)</span>
+        <span>Fersaqui</span>
+        <span>wizzsv</span>
+      </div>
+    </section>
+  `;
+}
+
 function applyLanguage(lang = currentLanguage()) {
   state.settings.language = lang;
   document.documentElement.lang = lang;
@@ -461,7 +569,7 @@ function applyLanguage(lang = currentLanguage()) {
   document.querySelectorAll('.locked-language-select option').forEach(o=>{o.textContent=t('default')}); setText('.language-note-panel strong','audio_locked_title'); setText('.language-note-panel p','audio_locked_body');
   setText('[data-panel="random"] .subconfig-heading span','random_selector'); setText('[data-panel="random"] .subconfig-heading strong','random_summary'); setText('[data-panel="random"] .subconfig-copy span','random_summary_action'); setText('[data-panel="random"] .subconfig-copy small','random_summary_desc'); setText('#simulate-summary','simulate');
   setText('[data-panel="updates"] .subconfig-heading span','updates'); setText('[data-panel="updates"] .subconfig-heading strong','important_improvements'); document.querySelectorAll('.updates-history-panel li').forEach((li,i)=>{ li.textContent=t(`update_${i+1}`); });
-  setText('[data-panel="creditos"] .subconfig-heading span','credits'); setText('[data-panel="creditos"] .subconfig-heading strong','voices'); setText('.credits-line strong','system_voice');
+  setText('[data-panel="creditos"] .subconfig-heading span','credits'); setText('[data-panel="creditos"] .subconfig-heading strong','voices'); setText('.credits-line strong','system_voice'); updateCreditsPanel();
   setText('[data-panel="configuracion"] .subconfig-heading span','config'); setText('[data-panel="configuracion"] .subconfig-heading strong','game_settings');
   [['turn_time','turn_time_desc'],['animation_duration','animation_duration_desc'],['narration_toggle','narration_toggle_desc'],['selection_animation','selection_animation_desc'],['auto_resolve','auto_resolve_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="configuracion"] .subconfig-row, [data-panel="configuracion"] .toggle-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
   setText('#cancel-draft','cancel'); setText('#confirm-action','confirm'); setText('.team-column-a .ban-stack > span','ban_stack_a'); setText('.team-column-b .ban-stack > span','ban_stack_b');
@@ -469,6 +577,7 @@ function applyLanguage(lang = currentLanguage()) {
   setText('.map-header .eyebrow','map_completed'); setText('.map-header h1','map_selection'); setText('.map-header p:last-child','map_desc'); setText('.map-selected-copy span','selected_map'); setText('#randomize-map','randomize_map');
   setText('.summary-header .eyebrow','summary_finished'); setText('.summary-header h1','summary_title'); setText('.summary-map-copy span','selected_map_label'); setAllText('.summary-team h3','bans_done'); setText('#restart-draft','restart');
   updateSelectedMapCopy?.();
+  updateNarrationVoiceSystemUI();
   if (document.querySelector('.draft-screen.active')) renderAll();
   if (document.querySelector('.map-screen.active')) renderMapGrid();
 }
@@ -1242,6 +1351,87 @@ function applyTurnDuration(value) {
   if (setupTurnTimeCopy) setupTurnTimeCopy.textContent = String(duration);
 }
 
+
+function narrationVoiceSystemSelect() {
+  return document.getElementById("narration-voice-system-select");
+}
+
+function updateNarrationVoiceSystemUI() {
+  const idiomaPanel = document.querySelector('[data-panel="idioma"]');
+  if (!idiomaPanel) return;
+
+  const rows = idiomaPanel.querySelectorAll(".language-row");
+  const narrationRow = rows[1];
+  const characterRow = rows[2];
+
+  if (narrationRow) {
+    narrationRow.classList.remove("locked-language-row");
+    narrationRow.classList.add("narration-voice-row");
+    const title = narrationRow.querySelector(".subconfig-copy span");
+    const desc = narrationRow.querySelector(".subconfig-copy small");
+    if (title) title.textContent = "Audio de narración";
+    if (desc) desc.textContent = "Selecciona la voz del sistema draft para fases, turnos, selección aleatoria y resumen.";
+
+    let select = narrationVoiceSystemSelect();
+    const oldSelect = narrationRow.querySelector("select");
+    if (!select) {
+      select = document.createElement("select");
+      select.id = "narration-voice-system-select";
+      select.className = "language-select narration-voice-system-select";
+
+      if (oldSelect) {
+        oldSelect.replaceWith(select);
+      } else {
+        narrationRow.appendChild(select);
+      }
+
+      select.addEventListener("change", () => {
+        const option = narrationVoiceSystemOptions[select.value];
+        if (!option || option.disabled) {
+          select.value = currentNarrationVoiceSystemKey();
+          return;
+        }
+        state.settings.narrationVoiceSystem = select.value;
+        updateNarrationVoiceSystemUI();
+      });
+    }
+
+    select.disabled = false;
+    select.classList.remove("locked-language-select");
+    select.innerHTML = "";
+    Object.entries(narrationVoiceSystemOptions).forEach(([key, option]) => {
+      const item = document.createElement("option");
+      item.value = key;
+      item.textContent = option.label;
+      item.disabled = Boolean(option.disabled);
+      select.appendChild(item);
+    });
+    select.value = currentNarrationVoiceSystemKey();
+  }
+
+  if (characterRow) {
+    characterRow.classList.add("locked-language-row");
+    const title = characterRow.querySelector(".subconfig-copy span");
+    const desc = characterRow.querySelector(".subconfig-copy small");
+    if (title) title.textContent = "Audio de personajes";
+    if (desc) desc.textContent = "Por el momento esta opción no está disponible para cambiarla.";
+  }
+
+  const noteTitle = idiomaPanel.querySelector(".language-note-panel strong");
+  const noteBody = idiomaPanel.querySelector(".language-note-panel p");
+  if (noteTitle) noteTitle.textContent = "Sistema de voces de narración";
+  if (noteBody) {
+    const voice = currentNarrationVoiceSystem();
+    noteBody.textContent = voice.complete
+      ? "La voz seleccionada tiene todos los diálogos actuales del sistema draft."
+      : "Esta voz no contiene todos los diálogos nuevos; la experiencia puede verse afectada.";
+  }
+}
+
+function setupNarrationVoiceSystemSelect() {
+  updateNarrationVoiceSystemUI();
+}
+
 function activateSetupTab(tabName) {
   document.querySelectorAll(".setup-top-tab").forEach(button => {
     button.classList.toggle("is-active", button.dataset.tab === tabName);
@@ -1288,6 +1478,8 @@ function setupConfigControls() {
     languageSelect.addEventListener("change", () => applyLanguage(languageSelect.value));
   }
 
+  setupNarrationVoiceSystemSelect();
+
   const animationApply = () => {
     const raw = Math.max(60, Math.min(180, Number(animationDurationRange?.value) || 100));
     state.settings.animationDuration = raw / 100;
@@ -1322,7 +1514,709 @@ function setupConfigControls() {
     button.addEventListener("click", () => activateSetupTab(button.dataset.tab));
   });
   activateSetupTab("menu");
+  updateCreditsPanel();
 }
+
+
+const INTRO_ASSETS = {
+  logoVideo: "video/introV/logo.mp4",
+  logoAudio: [
+    "audio/intro/logo_audio.mp3",
+    "audio/logo_audio.mp3",
+    "logo_audio.mp3",
+  ],
+  menuVideo: "video/introV/Intro_menu.mp4",
+  loadingVideo: "video/introV/Loading.mp4",
+  introMusic: "audio/music_intro.mp3",
+  finishSound: "audio/finish_menu.mp3",
+  voices: [
+    "audio/intro/Celestia_intro.ogg",
+    "audio/intro/Flavia_intro.ogg",
+    "audio/intro/Kanami_intro.ogg",
+    "audio/intro/Lawine_intro.ogg",
+    "audio/intro/Mara_intro.ogg",
+  ],
+};
+
+function waitMs(ms) {
+  return new Promise(resolve => window.setTimeout(resolve, ms));
+}
+
+function createIntroOverlay() {
+  let overlay = document.getElementById("intro-sequence-overlay");
+  if (overlay) return overlay;
+
+  overlay = document.createElement("section");
+  overlay.id = "intro-sequence-overlay";
+  overlay.className = "intro-sequence-overlay intro-logo-phase";
+  overlay.setAttribute("aria-label", "Introducción");
+
+  const video = document.createElement("video");
+  video.className = "intro-video";
+  video.playsInline = true;
+  video.muted = true;
+  video.preload = "auto";
+  video.setAttribute("playsinline", "");
+  video.setAttribute("webkit-playsinline", "");
+
+  const black = document.createElement("div");
+  black.className = "intro-black-screen";
+
+  const prompt = document.createElement("div");
+  prompt.className = "intro-continue-text";
+  prompt.textContent = "Haz clic en cualquier lugar para continuar";
+
+  const notice = document.createElement("div");
+  notice.className = "intro-notice-card";
+  notice.innerHTML = `
+    <p>
+      Le recordamos que este sistema es una versión conceptual hecha por
+      <strong>RodrigoRPmods</strong> y no una versión TEST oficial por parte de
+      <strong>Strinova</strong>. Se han utilizado recursos del juego y recursos
+      proporcionados por <strong>(RPmods Proyects)</strong> para la realización
+      de este proyecto. Por favor, no tomar nada sin permiso.
+    </p>
+  `;
+
+  const acceptButton = document.createElement("button");
+  acceptButton.type = "button";
+  acceptButton.className = "intro-accept-button";
+  acceptButton.textContent = "ACEPTAR";
+
+  const fullscreenHint = document.createElement("div");
+  fullscreenHint.className = "intro-fullscreen-hint";
+  fullscreenHint.textContent = "Para una mejor experiencia, presiona F11 para ingresar en pantalla completa";
+
+  overlay.appendChild(video);
+  overlay.appendChild(black);
+  overlay.appendChild(prompt);
+  overlay.appendChild(notice);
+  overlay.appendChild(acceptButton);
+  overlay.appendChild(fullscreenHint);
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+function introVideoElement() {
+  const overlay = createIntroOverlay();
+  return overlay.querySelector(".intro-video");
+}
+
+function playIntroVideo(src, { loop = false, muted = true, startAt = 0, requireGestureOnBlock = false } = {}) {
+  return new Promise(resolve => {
+    const overlay = createIntroOverlay();
+    const video = introVideoElement();
+    video.pause();
+    video.removeAttribute("src");
+    video.load?.();
+
+    let resolved = false;
+    let unlockBound = false;
+
+    const cleanup = () => {
+      video.removeEventListener("ended", onEnded);
+      video.removeEventListener("error", onError);
+      video.removeEventListener("loadedmetadata", onLoadedMetadata);
+      overlay.removeEventListener("click", unlockAndPlay);
+      window.removeEventListener("keydown", keyUnlockAndPlay);
+      overlay.classList.remove("intro-audio-unlock");
+    };
+
+    const done = (result) => {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
+      resolve(result);
+    };
+
+    const onEnded = () => {
+      if (loop) return;
+      done("ended");
+    };
+
+    const onError = () => {
+      done("error");
+    };
+
+    const onLoadedMetadata = () => {
+      if (startAt > 0) {
+        try { video.currentTime = startAt; } catch (_) {}
+      }
+    };
+
+    const keyUnlockAndPlay = (event) => {
+      if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") unlockAndPlay();
+    };
+
+    const unlockAndPlay = () => {
+      overlay.classList.remove("intro-audio-unlock");
+      showIntroPrompt(false);
+      video.muted = muted;
+      video.volume = muted ? 0 : 1;
+      video.play().catch(() => {
+        // Último fallback: si el navegador aún bloquea el sonido del logo,
+        // reproduce el video sin audio para no congelar la intro.
+        if (!muted) {
+          video.muted = true;
+          video.volume = 0;
+          video.play().catch(() => {
+            if (!loop) window.setTimeout(() => done("blocked"), 900);
+          });
+        } else if (!loop) {
+          window.setTimeout(() => done("blocked"), 900);
+        }
+      });
+    };
+
+    video.addEventListener("ended", onEnded);
+    video.addEventListener("error", onError);
+    video.addEventListener("loadedmetadata", onLoadedMetadata);
+
+    video.loop = loop;
+    video.muted = muted;
+    video.volume = muted ? 0 : 1;
+    video.src = src;
+    video.load?.();
+
+    const playPromise = video.play();
+    if (playPromise?.catch) playPromise.catch(() => {
+      // IMPORTANTE:
+      // Los navegadores suelen bloquear audio automático al cargar/refrescar.
+      // No mostramos el texto durante el logo, pero dejamos el logo corriendo
+      // y preparamos un desbloqueo invisible: si el usuario hace click/tecla
+      // mientras el logo está en pantalla, el video se reinicia con sonido.
+      if (!muted) {
+        const tryUnlockLogoAudio = () => {
+          if (resolved || video.src.indexOf(src) === -1) return;
+          try {
+            video.muted = false;
+            video.volume = 1;
+            video.currentTime = 0;
+          } catch (_) {}
+          video.play().catch(() => {});
+        };
+
+        window.addEventListener("pointerdown", tryUnlockLogoAudio, { once: true });
+        window.addEventListener("keydown", tryUnlockLogoAudio, { once: true });
+
+        video.muted = true;
+        video.volume = 0;
+        video.play().catch(() => {
+          if (!loop) window.setTimeout(() => done("blocked"), 900);
+        });
+        return;
+      }
+
+      // Si el autoplay del navegador bloquea un video muteado,
+      // continuamos para no dejar la pantalla congelada.
+      if (!loop) window.setTimeout(() => done("blocked"), 900);
+    });
+  });
+}
+
+
+async function resolveFirstExistingSource(sources) {
+  const list = Array.isArray(sources) ? sources : [sources];
+  for (const source of list.filter(Boolean)) {
+    try {
+      const response = await fetch(source, { method: "HEAD", cache: "no-store" });
+      if (response.ok) return source;
+    } catch (_) {
+      // En local o algunos hosts HEAD puede fallar; se usa el primer candidato.
+      break;
+    }
+  }
+  return list.filter(Boolean)[0] || "";
+}
+
+function defaultLogoAudioSource() {
+  return (Array.isArray(INTRO_ASSETS.logoAudio) ? INTRO_ASSETS.logoAudio[0] : INTRO_ASSETS.logoAudio) || "";
+}
+
+function prepareLogoIntroAudioSource() {
+  state.intro.logoAudioSource = state.intro.logoAudioSource || defaultLogoAudioSource();
+  resolveFirstExistingSource(INTRO_ASSETS.logoAudio).then(source => {
+    if (source) state.intro.logoAudioSource = source;
+  }).catch(() => {});
+}
+
+function createLogoIntroAudioElement() {
+  const source = state.intro.logoAudioSource || defaultLogoAudioSource();
+  if (!source) return null;
+
+  const audio = new Audio(source);
+  audio.preload = "auto";
+  audio.loop = false;
+  audio.volume = 1;
+  state.intro.logoAudio = audio;
+  keepTransientAudioReference(audio);
+  return audio;
+}
+
+/*
+  Se llama directamente dentro del click en ACEPTAR.
+  Esto desbloquea el audio en Chrome/Edge porque ocurre durante una interacción real.
+  Luego, al terminar el aviso F11, se reinicia el mismo elemento y se reproduce junto al logo.
+*/
+function primeLogoIntroAudio() {
+  if (state.intro.logoAudioPrimed) return;
+  stopLogoIntroAudio(false);
+
+  const audio = createLogoIntroAudioElement();
+  if (!audio) return;
+
+  state.intro.logoAudioPrimed = true;
+  audio.volume = 0;
+
+  const primePromise = audio.play();
+  if (primePromise?.then) {
+    primePromise.then(() => {
+      window.setTimeout(() => {
+        if (state.intro?.logoAudio !== audio) return;
+        try {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.volume = 1;
+        } catch (_) {}
+      }, 90);
+    }).catch(() => {
+      // Si falla, se mantiene el elemento cargado y se reintenta al reproducir el logo.
+      try { audio.volume = 1; } catch (_) {}
+    });
+  }
+}
+
+async function playLogoIntroAudio() {
+  let audio = state.intro?.logoAudio;
+
+  if (!audio) {
+    audio = createLogoIntroAudioElement();
+  }
+
+  if (!audio) return null;
+
+  try {
+    audio.volume = 1;
+    audio.currentTime = 0;
+  } catch (_) {}
+
+  const playPromise = audio.play();
+  if (playPromise?.catch) {
+    playPromise.catch(() => {
+      // Último reintento silencioso. Si el navegador lo bloquea aquí,
+      // normalmente significa que el prime no ocurrió dentro del click.
+      audio.play().catch(() => {});
+    });
+  }
+
+  return audio;
+}
+
+function stopLogoIntroAudio(clearSource = true) {
+  const audio = state.intro?.logoAudio;
+  if (!audio) return;
+  try {
+    audio.pause();
+    audio.currentTime = 0;
+    if (clearSource) audio.src = "";
+  } catch (_) {}
+  if (clearSource) {
+    state.intro.logoAudio = null;
+    state.intro.logoAudioPrimed = false;
+  }
+}
+
+function playIntroMusic() {
+  stopIntroMusic(false);
+
+  const audio = new Audio(INTRO_ASSETS.introMusic);
+  audio.loop = true;
+  audio.preload = "auto";
+  audio.volume = Math.max(0, Math.min(1, 0.62 * channelVolume("music")));
+  state.intro.musicAudio = audio;
+  keepTransientAudioReference(audio);
+
+  const resumeIntroMusic = () => {
+    if (!state.intro?.musicAudio || state.intro.musicAudio !== audio) return;
+    audio.play().catch(() => {});
+  };
+
+  const cleanupResume = () => {
+    window.removeEventListener("pointerdown", resumeIntroMusic);
+    window.removeEventListener("keydown", resumeIntroMusic);
+  };
+
+  audio.addEventListener("playing", cleanupResume, { once: true });
+  audio.play().catch(() => {
+    // Al refrescar con F5 algunos navegadores bloquean audio sin gesto.
+    // Se reintenta en el primer click/tecla del usuario.
+    window.addEventListener("pointerdown", resumeIntroMusic, { once: true });
+    window.addEventListener("keydown", resumeIntroMusic, { once: true });
+  });
+  return audio;
+}
+
+function stopIntroMusic(immediate = false) {
+  const audio = state.intro?.musicAudio;
+  if (!audio) return;
+
+  if (immediate) {
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.src = "";
+    } catch (_) {}
+    state.intro.musicAudio = null;
+  }
+}
+
+function fadeOutIntroMusic(duration = 1600) {
+  const audio = state.intro?.musicAudio;
+  if (!audio) return Promise.resolve();
+
+  const startVolume = audio.volume || 0;
+  const startTime = performance.now();
+
+  return new Promise(resolve => {
+    const step = (now) => {
+      const progress = Math.min(1, (now - startTime) / duration);
+      audio.volume = Math.max(0, startVolume * (1 - progress));
+      if (progress < 1) {
+        requestAnimationFrame(step);
+        return;
+      }
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch (_) {}
+      state.intro.musicAudio = null;
+      resolve();
+    };
+    requestAnimationFrame(step);
+  });
+}
+
+function randomIntroVoiceSource() {
+  if (state.intro.introVoiceSource) return state.intro.introVoiceSource;
+
+  const voices = INTRO_ASSETS.voices.filter(Boolean);
+  if (!voices.length) return "";
+
+  state.intro.introVoiceSource = voices[Math.floor(Math.random() * voices.length)];
+  return state.intro.introVoiceSource;
+}
+
+function createIntroVoiceAudioElement() {
+  const source = randomIntroVoiceSource();
+  if (!source) return null;
+
+  const audio = new Audio();
+  audio.preload = "auto";
+  audio.loop = false;
+  audio.volume = Math.max(0, Math.min(1, 1 * channelVolume("characterVoice")));
+
+  const sources = audioCandidates(source);
+  const tryNext = () => {
+    const allSources = JSON.parse(audio.dataset.sources || "[]");
+    const nextIndex = Number(audio.dataset.sourceIndex || "0") + 1;
+    if (!allSources[nextIndex]) return;
+    setAudioElementSourceWithFallback(audio, allSources, nextIndex);
+    audio.play().catch(() => tryNext());
+  };
+
+  audio.addEventListener("error", tryNext);
+  setAudioElementSourceWithFallback(audio, sources, 0);
+
+  state.intro.introVoiceAudio = audio;
+  keepTransientAudioReference(audio);
+  return audio;
+}
+
+/*
+  Se ejecuta dentro del click de ACEPTAR para que el navegador permita
+  reproducir esta voz más adelante, cuando empiece Intro_menu.mp4.
+*/
+function primeRandomIntroVoiceAudio() {
+  if (state.intro.introVoicePrimed) return;
+
+  const audio = state.intro.introVoiceAudio || createIntroVoiceAudioElement();
+  if (!audio) return;
+
+  state.intro.introVoicePrimed = true;
+
+  try {
+    audio.volume = 0;
+    audio.currentTime = 0;
+  } catch (_) {}
+
+  const primePromise = audio.play();
+  if (primePromise?.then) {
+    primePromise.then(() => {
+      window.setTimeout(() => {
+        if (state.intro?.introVoiceAudio !== audio) return;
+        try {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.volume = Math.max(0, Math.min(1, channelVolume("characterVoice")));
+        } catch (_) {}
+      }, 90);
+    }).catch(() => {
+      try {
+        audio.volume = Math.max(0, Math.min(1, channelVolume("characterVoice")));
+      } catch (_) {}
+    });
+  }
+}
+
+function playRandomIntroVoice() {
+  if (state.intro.voicePlayed) return;
+  state.intro.voicePlayed = true;
+
+  const source = randomIntroVoiceSource();
+  if (!source) return;
+
+  const audio = state.intro.introVoiceAudio || createIntroVoiceAudioElement();
+  if (!audio) {
+    audioPlay(source, 1, "characterVoice");
+    return;
+  }
+
+  let actuallyStarted = false;
+  const markStarted = () => { actuallyStarted = true; };
+  audio.addEventListener("playing", markStarted, { once: true });
+
+  try {
+    audio.volume = Math.max(0, Math.min(1, channelVolume("characterVoice")));
+    audio.currentTime = 0;
+  } catch (_) {}
+
+  const playPromise = audio.play();
+  if (playPromise?.catch) {
+    playPromise.catch(() => {
+      // Reintento corto. Si el audio primed no pudo dispararse,
+      // se usa el sistema normal como fallback.
+      window.setTimeout(() => {
+        audio.play().catch(() => audioPlay(source, 1, "characterVoice"));
+      }, 90);
+    });
+  }
+
+  // Si por timing el play() no dispara "playing", se fuerza un fallback.
+  window.setTimeout(() => {
+    if (actuallyStarted) return;
+    if (!audio.paused && audio.currentTime > 0) return;
+    audioPlay(source, 1, "characterVoice");
+  }, 220);
+}
+
+function showIntroPrompt(show = true) {
+  const overlay = createIntroOverlay();
+  overlay.classList.toggle("intro-can-continue", Boolean(show));
+}
+
+async function runLoadingIntroVideo() {
+  const overlay = createIntroOverlay();
+  const video = introVideoElement();
+
+  overlay.classList.remove("intro-menu-phase", "intro-logo-phase", "intro-black-phase");
+  overlay.classList.add("intro-loading-phase");
+  showIntroPrompt(false);
+
+  video.pause();
+  video.removeAttribute("src");
+  video.load?.();
+
+  await new Promise(resolve => {
+    let resolved = false;
+    const finish = () => {
+      if (resolved) return;
+      resolved = true;
+      video.removeEventListener("timeupdate", onTimeUpdate);
+      video.removeEventListener("error", finish);
+      video.removeEventListener("ended", finish);
+      resolve();
+    };
+
+    const onTimeUpdate = () => {
+      if (video.currentTime >= 7) finish();
+    };
+
+    video.addEventListener("timeupdate", onTimeUpdate);
+    video.addEventListener("error", finish);
+    video.addEventListener("ended", finish);
+    video.addEventListener("loadedmetadata", () => {
+      try { video.currentTime = 3; } catch (_) {}
+    }, { once: true });
+
+    video.loop = false;
+    video.muted = true;
+    video.src = INTRO_ASSETS.loadingVideo;
+    video.load?.();
+    video.play().catch(() => waitMs(4000).then(finish));
+    window.setTimeout(finish, 4700);
+  });
+}
+
+function finishIntroSequence() {
+  const overlay = createIntroOverlay();
+  const video = introVideoElement();
+
+  try {
+    video.pause();
+    video.removeAttribute("src");
+    video.load?.();
+  } catch (_) {}
+
+  overlay.classList.add("intro-exit");
+  state.intro.completed = true;
+  state.intro.active = false;
+  window.setTimeout(() => {
+    overlay.remove();
+  }, 220);
+
+  switchScreen(setupScreen);
+}
+
+async function continueIntroFromMenu() {
+  if (state.intro.clicked || state.intro.completed) return;
+  state.intro.clicked = true;
+
+  showIntroPrompt(false);
+  audioPlay(INTRO_ASSETS.finishSound, 1, "sfx");
+  const fadePromise = fadeOutIntroMusic(1700);
+
+  await runLoadingIntroVideo();
+  await fadePromise;
+  finishIntroSequence();
+}
+
+
+function resetIntroGateClasses(overlay) {
+  overlay.classList.remove(
+    "intro-notice-phase",
+    "intro-notice-button-ready",
+    "intro-notice-exit",
+    "intro-fullscreen-phase",
+    "intro-fullscreen-exit"
+  );
+}
+
+function waitForIntroAccept() {
+  const overlay = createIntroOverlay();
+  const acceptButton = overlay.querySelector(".intro-accept-button");
+
+  return new Promise(resolve => {
+    const onAccept = () => {
+      acceptButton?.removeEventListener("click", onAccept);
+      window.removeEventListener("keydown", onKey);
+      primeLogoIntroAudio();
+      primeRandomIntroVoiceAudio();
+      resolve();
+    };
+
+    const onKey = (event) => {
+      if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
+        onAccept();
+      }
+    };
+
+    acceptButton?.addEventListener("click", onAccept);
+    window.addEventListener("keydown", onKey);
+  });
+}
+
+async function runIntroConsentGate() {
+  const overlay = createIntroOverlay();
+  const video = introVideoElement();
+
+  try {
+    video.pause();
+    video.removeAttribute("src");
+    video.load?.();
+  } catch (_) {}
+
+  overlay.classList.remove(
+    "intro-logo-phase",
+    "intro-menu-phase",
+    "intro-loading-phase",
+    "intro-can-continue",
+    "intro-audio-unlock",
+    "intro-black-phase"
+  );
+  resetIntroGateClasses(overlay);
+
+  prepareLogoIntroAudioSource();
+
+  overlay.classList.add("intro-notice-phase");
+  showIntroPrompt(false);
+
+  await waitMs(3000);
+  overlay.classList.add("intro-notice-button-ready");
+
+  await waitForIntroAccept();
+
+  overlay.classList.add("intro-notice-exit");
+  await waitMs(720);
+
+  resetIntroGateClasses(overlay);
+  overlay.classList.add("intro-fullscreen-phase");
+  await waitMs(7000);
+
+  overlay.classList.remove("intro-fullscreen-phase");
+  overlay.classList.add("intro-post-hint-black", "intro-black-phase");
+  await waitMs(1000);
+
+  resetIntroGateClasses(overlay);
+  overlay.classList.remove("intro-post-hint-black", "intro-black-phase");
+}
+
+
+async function startIntroSequence() {
+  if (state.intro.completed) {
+    switchScreen(setupScreen);
+    return;
+  }
+
+  const overlay = createIntroOverlay();
+  const video = introVideoElement();
+
+  await runIntroConsentGate();
+
+  overlay.classList.remove("intro-exit", "intro-menu-phase", "intro-loading-phase", "intro-can-continue", "intro-audio-unlock");
+  overlay.classList.add("intro-logo-phase");
+  showIntroPrompt(false);
+  video.classList.remove("hidden");
+
+  playLogoIntroAudio();
+  await playIntroVideo(INTRO_ASSETS.logoVideo, { loop: false, muted: true });
+  stopLogoIntroAudio(true);
+
+  showIntroPrompt(false);
+  overlay.classList.remove("intro-logo-phase");
+  overlay.classList.add("intro-black-phase");
+  playIntroMusic();
+  await waitMs(2000);
+
+  overlay.classList.remove("intro-black-phase");
+  overlay.classList.add("intro-menu-phase");
+  showIntroPrompt(true);
+
+  playIntroVideo(INTRO_ASSETS.menuVideo, { loop: true, muted: true });
+  window.setTimeout(playRandomIntroVoice, 90);
+
+  const clickHandler = () => {
+    overlay.removeEventListener("click", clickHandler);
+    window.removeEventListener("keydown", keyHandler);
+    continueIntroFromMenu();
+  };
+  const keyHandler = (event) => {
+    if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") clickHandler();
+  };
+
+  overlay.addEventListener("click", clickHandler);
+  window.addEventListener("keydown", keyHandler);
+}
+
 
 function switchScreen(screen) {
   [setupScreen, draftScreen, mapScreen, summaryScreen].filter(Boolean).forEach(item => item.classList.remove("active"));
@@ -2630,6 +3524,10 @@ function startMapSelection() {
   mapScreen?.classList.add("map-enter");
   renderMapGrid();
   updateSelectedMapCopy();
+
+  // Nueva línea de narración: inicio de selección aleatoria de mapa.
+  playNarration(systemDraftVoiceLines.map_selector_voice.src, "", 0.92);
+
   window.setTimeout(() => runMapRoulette(), 900);
 }
 
@@ -2655,6 +3553,9 @@ function renderSummaryMap() {
 }
 
 function showSummaryIntro() {
+  // Nueva línea de narración: draft finalizado y resultados.
+  playNarration(systemDraftVoiceLines.voice_finish_draft.src, "", 0.92);
+
   showPhaseOverlay(
     t("summary_final"),
     "",
@@ -2708,8 +3609,8 @@ function init() {
   applyLanguage(state.settings.language);
   setupDevelopmentTools();
   setupBackgroundVideo();
-  startMusic("menu");
   renderAll();
+  startIntroSequence();
   $("#start-draft").addEventListener("click", startDraft);
   $("#confirm-action").addEventListener("click", () => confirmTurn(false));
   $("#music-toggle").addEventListener("click", toggleMusic);
@@ -2718,7 +3619,10 @@ function init() {
   simulateSummaryButton?.addEventListener("click", simulateRandomSummary);
   randomPlayerNamesButton?.addEventListener("click", applyRandomPlayerNames);
   manualPlayerNamesButton?.addEventListener("click", applyManualPlayerNames);
-  randomizeMapButton?.addEventListener("click", runMapRoulette);
+  randomizeMapButton?.addEventListener("click", () => {
+    playNarration(systemDraftVoiceLines.map_selector_voice.src, "", 0.92);
+    window.setTimeout(() => runMapRoulette(), 180);
+  });
 }
 
 init();
