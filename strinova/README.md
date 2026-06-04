@@ -1,15 +1,19 @@
-DraftSimulator_v3_95_replacement_files
+DraftSimulator_v3_97_replacement_files
 
 Reemplazar:
 - js/app.js
-- css/styles.css
 
-Cambios V3.95:
-- Se actualizó el apartado CRÉDITOS con:
-  - Desarrollo de interfaz y idea conceptual: RodrigoRPmods
-  - Voces / SISTEM VOICE:
-    @WizzSV - Español Latinoamérica ESP(LA)
-    @Amberly_Graves - Español Latinoamérica ESP(LA)
-  - Ayudantes/Testers:
-    Jeremy wo Tabetai, Nozomidol (twitch), Fersaqui, wizzsv
-- Se agregó un diseño más ordenado para los bloques de créditos.
+Cambios V3.97:
+- Fix para GitHub Pages cuando logo.mp4 se salta y pasa directo a Intro_menu.mp4.
+- GitHub Pages diferencia mayúsculas/minúsculas en rutas.
+- Ahora el sistema intenta estas rutas:
+  1. video/introV/logo.mp4
+  2. video/introV/Logo.mp4
+  3. video/introV/LOGO.mp4
+- Antes de reproducir el logo, el sistema hace una comprobación HEAD y usa la primera ruta existente.
+- Si en local funcionaba y en GitHub Pages no, lo más probable era diferencia de nombre/ruta.
+
+Recomendación:
+- Lo ideal es dejar el archivo exactamente como:
+  video/introV/logo.mp4
+  todo en minúsculas.
