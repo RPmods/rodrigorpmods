@@ -1542,6 +1542,7 @@ const INTRO_ASSETS = {
     "audio/logo_audio.mp3",
     "logo_audio.mp3",
   ],
+  overlayLogo: "video/overlays/logo_loop.webm",
   menuVideo: "video/introV/Intro_menu.mp4",
   loadingVideo: "video/introV/Loading.mp4",
   introMusic: "audio/music_intro.mp3",
@@ -1570,6 +1571,14 @@ function createIntroOverlay() {
 
   const video = document.createElement("video");
   video.className = "intro-video";
+
+  const logoOverlay = document.createElement("video");
+  logoOverlay.id = "intro-logo-loop-overlay";
+  logoOverlay.className = "intro-logo-loop-overlay";
+  logoOverlay.playsInline = true;
+  logoOverlay.muted = true;
+  logoOverlay.loop = true;
+  logoOverlay.preload = "auto";
   video.playsInline = true;
   video.muted = true;
   video.preload = "auto";
@@ -1605,6 +1614,7 @@ function createIntroOverlay() {
   fullscreenHint.textContent = "Para una mejor experiencia, presiona F11 para ingresar en pantalla completa";
 
   overlay.appendChild(video);
+  overlay.appendChild(logoOverlay);
   overlay.appendChild(black);
   overlay.appendChild(prompt);
   overlay.appendChild(notice);
@@ -2085,6 +2095,7 @@ function finishIntroSequence() {
   } catch (_) {}
 
   overlay.classList.add("intro-exit");
+  document.getElementById("intro-logo-loop-overlay")?.remove();
   state.intro.completed = true;
   state.intro.active = false;
   window.setTimeout(() => {
@@ -2097,6 +2108,12 @@ function finishIntroSequence() {
 async function continueIntroFromMenu() {
   if (state.intro.clicked || state.intro.completed) return;
   state.intro.clicked = true;
+
+  const logoOverlay = document.getElementById("intro-logo-loop-overlay");
+  if (logoOverlay) {
+    try { logoOverlay.pause?.(); } catch (_) {}
+    logoOverlay.remove();
+  }
 
   showIntroPrompt(false);
   audioPlay(INTRO_ASSETS.finishSound, 1, "sfx");
@@ -2213,7 +2230,15 @@ async function startIntroSequence() {
   overlay.classList.remove("intro-logo-phase");
   overlay.classList.add("intro-black-phase");
   playIntroMusic();
-  await waitMs(2000);
+
+  const logoOverlay = document.getElementById("intro-logo-loop-overlay");
+  if (logoOverlay) {
+    logoOverlay.src = INTRO_ASSETS.overlayLogo;
+    logoOverlay.classList.add("visible");
+    logoOverlay.play().catch(() => {});
+  }
+
+  await waitMs(3000);
 
   overlay.classList.remove("intro-black-phase");
   overlay.classList.add("intro-menu-phase");
