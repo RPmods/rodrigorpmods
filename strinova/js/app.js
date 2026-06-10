@@ -257,46 +257,127 @@ const musicPlaylists = {
 
 const narrationVoiceSystemOptions = {
   amberly_graves: {
-    label: "Voz ES(LA) Amberly_Graves  - Dialogos Completos (predeterminado)",
+    label: "Voz ES(LA) Amberly Graves - diálogos completos (predeterminado)",
     folder: "Amberly_Graves",
+    type: "recorded",
+    language: "es",
     disabled: false,
     publicAvailable: true,
     complete: true,
   },
   wizzsv: {
-    label: "Voz ES(LA) WizzSV          - Dialogos Incompletos (La experencia puede ser afectada)",
+    label: "Voz ES(LA) Wizz - diálogos incompletos",
     folder: "wizzsv",
+    type: "recorded",
+    language: "es",
     disabled: false,
     publicAvailable: true,
     complete: false,
   },
+  bot_es: {
+    label: "Voz ES(ES) Lectura de bot (Español)",
+    type: "tts",
+    speechLang: "es-ES",
+    language: "es",
+    disabled: false,
+    publicAvailable: true,
+    complete: true,
+  },
+  bot_en: {
+    label: "Voz EN(US) Bot reading (English)",
+    type: "tts",
+    speechLang: "en-US",
+    language: "en",
+    disabled: false,
+    publicAvailable: true,
+    complete: true,
+  },
+  bot_pt: {
+    label: "Voz PT(PT) Lectura de bot (Portugués)",
+    type: "tts",
+    speechLang: "pt-PT",
+    language: "pt",
+    disabled: false,
+    publicAvailable: true,
+    complete: true,
+  },
+  bot_ja: {
+    label: "Voz JA(JP) ボット読み上げ (日本語)",
+    type: "tts",
+    speechLang: "ja-JP",
+    language: "ja",
+    disabled: false,
+    publicAvailable: true,
+    complete: true,
+  },
+  bot_ru: {
+    label: "Voz RU(RU) Чтение ботом (Русский)",
+    type: "tts",
+    speechLang: "ru-RU",
+    language: "ru",
+    disabled: false,
+    publicAvailable: true,
+    complete: true,
+  },
+  bot_zh: {
+    label: "Voz ZH(CN) 机器人朗读 (中文)",
+    type: "tts",
+    speechLang: "zh-CN",
+    language: "zh",
+    disabled: false,
+    publicAvailable: true,
+    complete: true,
+  },
   rodrigorpmods_es: {
-    label: "Voz ES(LA) RodrigoRPmods   - not available in the public version",
+    label: "Voz ES(LA) RodrigoRPmods - no disponible en la versión pública",
     folder: "RodrigoRPmods_ESLA",
+    type: "recorded",
+    language: "es",
     disabled: true,
     publicAvailable: false,
     complete: false,
   },
   rodrigorpmods_en: {
-    label: "Voz EN(ENG) RodrigoRPmods  - not available in the public version",
+    label: "Voz EN(ENG) RodrigoRPmods - no disponible en la versión pública",
     folder: "RodrigoRPmods_ENG",
+    type: "recorded",
+    language: "en",
     disabled: true,
     publicAvailable: false,
     complete: false,
   },
   rodrigorpmods_ja: {
-    label: "Voz JA(JAP) RodrigoRPmods  - not available in the public version",
+    label: "Voz JA(JAP) RodrigoRPmods - no disponible en la versión pública",
     folder: "RodrigoRPmods_JAP",
+    type: "recorded",
+    language: "ja",
     disabled: true,
     publicAvailable: false,
     complete: false,
   },
 };
 
+const narrationDefaultVoiceByLanguage = {
+  es: "amberly_graves",
+  en: "bot_en",
+  pt: "bot_pt",
+  ja: "bot_ja",
+  ru: "bot_ru",
+  zh: "bot_zh",
+};
+
+function recommendedNarrationVoiceForLanguage(lang = "es") {
+  return narrationDefaultVoiceByLanguage[lang] || "bot_en";
+}
+
+function isNarrationVoiceAvailable(key) {
+  const option = narrationVoiceSystemOptions[key];
+  return Boolean(option && !option.disabled);
+}
+
 function currentNarrationVoiceSystemKey() {
-  const key = state?.settings?.narrationVoiceSystem || "amberly_graves";
-  const config = narrationVoiceSystemOptions[key];
-  if (!config || config.disabled) return "amberly_graves";
+  const key = state?.settings?.narrationVoiceSystem || recommendedNarrationVoiceForLanguage(state?.settings?.language || "es");
+  if (!isNarrationVoiceAvailable(key)) return recommendedNarrationVoiceForLanguage(state?.settings?.language || "es");
   return key;
 }
 
@@ -304,15 +385,29 @@ function currentNarrationVoiceSystem() {
   return narrationVoiceSystemOptions[currentNarrationVoiceSystemKey()] || narrationVoiceSystemOptions.amberly_graves;
 }
 
+function isBotNarrationVoice(key = currentNarrationVoiceSystemKey()) {
+  return narrationVoiceSystemOptions[key]?.type === "tts";
+}
+
+function applyRecommendedNarrationVoiceForLanguage(lang = currentLanguage?.() || state?.settings?.language || "es") {
+  const key = recommendedNarrationVoiceForLanguage(lang);
+  if (isNarrationVoiceAvailable(key)) state.settings.narrationVoiceSystem = key;
+}
+
 function systemVoiceSrc(fileName) {
   const voiceSystem = currentNarrationVoiceSystem();
+  if (!voiceSystem || voiceSystem.type === "tts" || !voiceSystem.folder) return "";
   return `audio/voicesystem/${voiceSystem.folder}/${fileName}`;
 }
 
-function makeSystemVoiceLine(fileName, text) {
+function makeSystemVoiceLine(fileName, textKey, fallbackText = "") {
   return {
     fileName,
-    text,
+    textKey,
+    fallbackText,
+    get text() {
+      return typeof t === "function" ? t(textKey) : (fallbackText || textKey);
+    },
     get src() {
       return systemVoiceSrc(fileName);
     },
@@ -336,17 +431,17 @@ const sounds = {
 };
 
 const systemDraftVoiceLines = {
-  voice_ban_phase: makeSystemVoiceLine("voice_ban_phase", "¡La fase de bloqueos de laminantes ha comenzado!"),
-  voice_pick_phase: makeSystemVoiceLine("voice_pick_phase", "¡La fase de selección de laminantes ha comenzado!"),
-  team_a_ban: makeSystemVoiceLine("team_a_ban", "Los atacantes están bloqueando un laminante."),
-  team_b_ban: makeSystemVoiceLine("team_b_ban", "Los defensores están bloqueando un laminante."),
-  team_a_ban_scissors: makeSystemVoiceLine("team_a_ban_scissors", "Los atacantes están bloqueando un laminante de las Cizallas."),
-  team_b_ban_scissors: makeSystemVoiceLine("team_b_ban_scissors", "Los defensores están bloqueando un laminante de las Cizallas."),
-  team_a_pick: makeSystemVoiceLine("team_a_pick", "Los atacantes están eligiendo un laminante."),
-  team_b_pick: makeSystemVoiceLine("team_b_pick", "Los defensores están eligiendo un laminante."),
-  random_start: makeSystemVoiceLine("random_start", "Tiempo agotado. Iniciando selección aleatoria."),
-  map_selector_voice: makeSystemVoiceLine("map_selector_voice", "Iniciando selección aleatoria de mapa."),
-  voice_finish_draft: makeSystemVoiceLine("voice_finish_draft", "El sistema draft ha concluido, mostrando resultados."),
+  voice_ban_phase: makeSystemVoiceLine("voice_ban_phase", "voice_ban_phase_text", "¡La fase de bloqueos de laminantes ha comenzado!"),
+  voice_pick_phase: makeSystemVoiceLine("voice_pick_phase", "voice_pick_phase_text", "¡La fase de selección de laminantes ha comenzado!"),
+  team_a_ban: makeSystemVoiceLine("team_a_ban", "voice_team_a_ban", "Los atacantes están bloqueando un laminante."),
+  team_b_ban: makeSystemVoiceLine("team_b_ban", "voice_team_b_ban", "Los defensores están bloqueando un laminante."),
+  team_a_ban_scissors: makeSystemVoiceLine("team_a_ban_scissors", "voice_team_a_ban_scissors", "Los atacantes están bloqueando un laminante de las Cizallas."),
+  team_b_ban_scissors: makeSystemVoiceLine("team_b_ban_scissors", "voice_team_b_ban_scissors", "Los defensores están bloqueando un laminante de las Cizallas."),
+  team_a_pick: makeSystemVoiceLine("team_a_pick", "voice_team_a_pick", "Los atacantes están eligiendo un laminante."),
+  team_b_pick: makeSystemVoiceLine("team_b_pick", "voice_team_b_pick", "Los defensores están eligiendo un laminante."),
+  random_start: makeSystemVoiceLine("random_start", "voice_random_start", "Tiempo agotado. Iniciando selección aleatoria."),
+  map_selector_voice: makeSystemVoiceLine("map_selector_voice", "voice_map_selector", "Iniciando selección aleatoria de mapa."),
+  voice_finish_draft: makeSystemVoiceLine("voice_finish_draft", "voice_finish_draft_text", "El sistema draft ha concluido, mostrando resultados."),
 };
 
 const turnVoices = {
@@ -361,6 +456,68 @@ const turnVoices = {
     get pick() { return systemDraftVoiceLines.team_b_pick.src; },
   },
 };
+
+let currentRoomCode = null;
+let currentRole = null;
+let playerTeam = null;
+let onlineRoomListenerCode = null;
+let onlineRoomDeletionListenerCode = null;
+let onlineStartedForRoom = null;
+let onlineRoomStartedState = false;
+let onlineLastActionEventId = null;
+let onlineLastPhaseEventId = null;
+let onlineLastMapEventId = null;
+let onlineLastRouletteEventId = null;
+let onlineLastAudioEventId = null;
+let onlineTurnAutoResolveKey = null;
+let onlineMapAutoResolveKey = null;
+let mediaUnlockDone = false;
+let onlineServerTimeOffset = 0;
+let onlineClockSyncStarted = false;
+let suppressOnlinePush = false;
+let roomPlayerNameSaveTimer = null;
+let currentOnlinePlayerName = null;
+let pendingJoinRoomCode = null;
+
+const ONLINE_CLIENT_STORAGE_KEY = "rpmods_online_client_id_v2";
+const ONLINE_SESSION_STORAGE_KEY = "rpmods_online_session_v2";
+const ONLINE_PLAYER_NAME_STORAGE_KEY = "rpmods_online_player_name_v1";
+
+function onlineNow() {
+  return Date.now() + (Number(onlineServerTimeOffset) || 0);
+}
+
+function startOnlineClockSync() {
+  if (onlineClockSyncStarted) return;
+  const database = getRealtimeDatabase();
+  if (!database) return;
+  onlineClockSyncStarted = true;
+  try {
+    database.ref(".info/serverTimeOffset").on("value", (snapshot) => {
+      const value = Number(snapshot.val());
+      onlineServerTimeOffset = Number.isFinite(value) ? value : 0;
+    });
+  } catch (error) {
+    onlineClockSyncStarted = false;
+    console.warn("No se pudo sincronizar el reloj online.", error);
+  }
+}
+
+function onlineClientId() {
+  try {
+    let id = localStorage.getItem(ONLINE_CLIENT_STORAGE_KEY);
+    if (!id) {
+      id = `client_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+      localStorage.setItem(ONLINE_CLIENT_STORAGE_KEY, id);
+    }
+    return id;
+  } catch (_) {
+    if (!window.__rpmodsOnlineClientId) {
+      window.__rpmodsOnlineClientId = `client_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+    }
+    return window.__rpmodsOnlineClientId;
+  }
+}
 
 const state = {
   players: {
@@ -379,6 +536,9 @@ const state = {
   turnDuration: 20,
   timer: 20,
   timerId: null,
+  turnStartedAt: null,
+  turnDeadlineAt: null,
+  onlinePhase: "lobby",
   lastWarningSecond: null,
   musicIndex: 0,
   musicMode: "menu",
@@ -438,7 +598,79 @@ const state = {
     clicked: false,
     voicePlayed: false,
   },
+  resourcePreload: {
+    started: false,
+    completed: false,
+    promise: null,
+    secondaryStarted: false,
+    progress: 0,
+  },
 };
+
+const SETTINGS_STORAGE_KEY = "rpmods_draft_settings_v1";
+const SETTINGS_SAVE_DELAY = 140;
+let settingsSaveTimer = null;
+let settingsRestoring = false;
+
+function clampNumber(value, min, max, fallback) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.max(min, Math.min(max, parsed));
+}
+
+function sanitizeStoredSettings(rawSettings = {}) {
+  const defaults = state.settings || {};
+  const sanitized = { ...defaults };
+  sanitized.masterVolume = clampNumber(rawSettings.masterVolume, 0, 1, defaults.masterVolume);
+  sanitized.musicVolume = clampNumber(rawSettings.musicVolume, 0, 1, defaults.musicVolume);
+  sanitized.sfxVolume = clampNumber(rawSettings.sfxVolume, 0, 1, defaults.sfxVolume);
+  sanitized.narrationVolume = clampNumber(rawSettings.narrationVolume, 0, 1, defaults.narrationVolume);
+  sanitized.characterVoiceVolume = clampNumber(rawSettings.characterVoiceVolume, 0, 1, defaults.characterVoiceVolume);
+  sanitized.language = String(rawSettings.language || defaults.language || "es");
+  sanitized.narrationVoiceSystem = String(rawSettings.narrationVoiceSystem || recommendedNarrationVoiceForLanguage(sanitized.language));
+  if (!isNarrationVoiceAvailable(sanitized.narrationVoiceSystem)) sanitized.narrationVoiceSystem = recommendedNarrationVoiceForLanguage(sanitized.language);
+  sanitized.narrationEnabled = typeof rawSettings.narrationEnabled === "boolean" ? rawSettings.narrationEnabled : defaults.narrationEnabled;
+  sanitized.selectionAnimationEnabled = typeof rawSettings.selectionAnimationEnabled === "boolean" ? rawSettings.selectionAnimationEnabled : defaults.selectionAnimationEnabled;
+  sanitized.autoResolveEnabled = typeof rawSettings.autoResolveEnabled === "boolean" ? rawSettings.autoResolveEnabled : defaults.autoResolveEnabled;
+  sanitized.animationDuration = clampNumber(rawSettings.animationDuration, 0.6, 1.8, defaults.animationDuration);
+  return sanitized;
+}
+
+function loadStoredSettings() {
+  try {
+    const payload = window.localStorage?.getItem(SETTINGS_STORAGE_KEY);
+    if (!payload) return;
+    const parsed = JSON.parse(payload);
+    state.settings = sanitizeStoredSettings(parsed.settings || parsed);
+    if (parsed.turnDuration != null) state.turnDuration = clampTurnDuration?.(parsed.turnDuration) || clampNumber(parsed.turnDuration, 10, 50, state.turnDuration);
+    state.timer = state.turnDuration;
+    if (typeof parsed.musicEnabled === "boolean") state.musicEnabled = parsed.musicEnabled;
+  } catch (error) {
+    console.warn("No se pudo cargar la configuración guardada.", error);
+  }
+}
+
+function persistSettingsNow() {
+  try {
+    const payload = {
+      version: 1,
+      settings: sanitizeStoredSettings(state.settings),
+      turnDuration: state.turnDuration,
+      musicEnabled: state.musicEnabled,
+    };
+    window.localStorage?.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload));
+  } catch (error) {
+    console.warn("No se pudo guardar la configuración.", error);
+  }
+}
+
+function scheduleSettingsSave() {
+  if (settingsRestoring) return;
+  window.clearTimeout(settingsSaveTimer);
+  settingsSaveTimer = window.setTimeout(persistSettingsNow, SETTINGS_SAVE_DELAY);
+}
+
+loadStoredSettings();
 
 const $ = (selector) => document.querySelector(selector);
 const setupA = $("#setup-team-a");
@@ -446,6 +678,7 @@ const setupB = $("#setup-team-b");
 const setupScreen = $("#setup-screen");
 const draftScreen = $("#draft-screen");
 const summaryScreen = $("#summary-screen");
+const roomScreen = document.getElementById("room-screen");
 const mapScreen = $("#map-screen");
 const characterGrid = $("#character-grid");
 const mapGrid = $("#map-grid");
@@ -480,6 +713,10 @@ const sfxVolumeValue = $("#sfx-volume-value");
 const narrationVolumeValue = $("#narration-volume-value");
 const characterVoiceVolumeValue = $("#character-voice-volume-value");
 const languageSelect = $("#language-select");
+const roomPlayerConfig = $("#room-player-config");
+const roomTeamAInputs = $("#room-team-a-inputs");
+const roomTeamBInputs = $("#room-team-b-inputs");
+const captainTurnBanner = $("#captain-turn-banner");
 
 
 const i18nConfig = window.I18N_CONFIG || { defaultLanguage: "es", text: { es: {} } };
@@ -503,6 +740,46 @@ function updateSetupRulesText() {
 function translateRoleLabel(label) {
   const map = { "Centinela":"role_sentinel", "Duelista":"role_duelist", "Controlador":"role_controller", "Vanguardia":"role_vanguard", "Soporte":"role_support", "Sin rol":"role_none" };
   return t(map[label] || "role_none");
+}
+
+
+function updateOnlineStaticTexts() {
+  setText('#create-room', 'online_create_room');
+  setText('#join-room', 'online_join_room');
+  const roomInput = document.getElementById('room-input');
+  if (roomInput) roomInput.placeholder = t('room_code_placeholder');
+  setText('.room-top .eyebrow', 'online_mode');
+  setText('.room-top h1', 'online_room_title');
+  setText('.room-top p:last-child', 'online_room_desc');
+  setText('.room-card-label', 'online_room_code');
+  setText('#copy-room-code', 'copy_code');
+  const codeDisplay = document.getElementById('room-code-display');
+  const toggle = document.getElementById('toggle-room-code');
+  if (toggle) toggle.textContent = codeDisplay?.dataset.hidden === '0' ? t('hide_code') : t('show_code');
+  setText('.room-config-heading span', 'room_config_small');
+  setText('.room-config-heading strong', 'room_config_title');
+  setText('.room-config-copy', 'room_config_copy');
+  setText('#room-random-player-names', 'random_names');
+  const captainLabels = document.querySelectorAll('.room-captain-select-row span');
+  if (captainLabels[0]) captainLabels[0].textContent = t('captain_team_a_select');
+  if (captainLabels[1]) captainLabels[1].textContent = t('captain_team_b_select');
+  setText('.room-participant-panel > span', 'users_in_room');
+  setText('#start-online-draft', 'start_draft');
+  setText('#disconnect-room-btn', 'disconnect_room');
+  setText('#close-room-btn', 'close_room');
+  const roomTeamLabels = document.querySelectorAll('.room-player-team > span');
+  if (roomTeamLabels[0]) roomTeamLabels[0].textContent = `${t('team_a')} · ${t('attackers')}`;
+  if (roomTeamLabels[1]) roomTeamLabels[1].textContent = `${t('team_b')} · ${t('defenders')}`;
+  setText('.join-name-kicker', 'join_modal_kicker');
+  setText('#join-name-title', 'join_modal_title');
+  const joinCopy = document.querySelector('.join-name-copy');
+  const code = document.getElementById('join-room-code-preview')?.textContent || '------';
+  if (joinCopy) joinCopy.innerHTML = t('join_modal_copy', { code: `<strong id="join-room-code-preview">${code}</strong>` });
+  setText('.join-name-field span', 'join_name_label');
+  const joinNameInput = document.getElementById('join-player-name');
+  if (joinNameInput) joinNameInput.placeholder = t('join_name_placeholder');
+  setText('#join-name-confirm', 'enter_room');
+  setText('#join-name-cancel', 'cancel');
 }
 
 function updateCreditsPanel() {
@@ -552,10 +829,23 @@ function updateCreditsPanel() {
   `;
 }
 
-function applyLanguage(lang = currentLanguage()) {
+function applyLanguage(lang = currentLanguage(), options = {}) {
   state.settings.language = lang;
+  if (options.syncNarrationVoice) applyRecommendedNarrationVoiceForLanguage(lang);
   document.documentElement.lang = lang;
-  if (languageSelect) languageSelect.value = lang;
+  if (languageSelect) {
+    if (!languageSelect.dataset.dynamicOptionsBuilt) {
+      languageSelect.innerHTML = "";
+      Object.entries(i18nConfig.languages || {}).forEach(([code, label]) => {
+        const option = document.createElement("option");
+        option.value = code;
+        option.textContent = label;
+        languageSelect.appendChild(option);
+      });
+      languageSelect.dataset.dynamicOptionsBuilt = "1";
+    }
+    languageSelect.value = lang;
+  }
   setText('.setup-top .eyebrow','setup_eyebrow'); setText('.setup-top h1','setup_title'); setText('.setup-top p:last-child','setup_subtitle');
   setAllText('.setup-team-a .setup-team-heading span, .team-column-a .team-title span, .summary-team-a .summary-team-title span','team_a');
   setAllText('.setup-team-b .setup-team-heading span, .team-column-b .team-title span, .summary-team-b .summary-team-title span','team_b');
@@ -568,13 +858,14 @@ function applyLanguage(lang = currentLanguage()) {
   setText('[data-panel="volumen"] .subconfig-heading span','sound'); setText('[data-panel="volumen"] .subconfig-heading strong','volume');
   [['master_volume','master_volume_desc'],['music_volume','music_volume_desc'],['sfx_volume','sfx_volume_desc'],['narration_volume','narration_volume_desc'],['character_voice_volume','character_voice_volume_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="volumen"] .volume-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
   setText('[data-panel="idioma"] .subconfig-heading span','language'); setText('[data-panel="idioma"] .subconfig-heading strong','interface_text');
-  [['text_language','text_language_desc'],['narration_audio','audio_locked_desc'],['character_audio','audio_locked_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="idioma"] .language-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
-  document.querySelectorAll('.locked-language-select option').forEach(o=>{o.textContent=t('default')}); setText('.language-note-panel strong','audio_locked_title'); setText('.language-note-panel p','audio_locked_body');
+  [['text_language','text_language_desc'],['narration_audio','narration_audio_desc'],['character_audio','character_audio_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="idioma"] .language-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
+  document.querySelectorAll('.locked-language-select option').forEach(o=>{o.textContent=t('default')}); setText('.language-note-panel strong','voice_system_title'); setText('.language-note-panel p','voice_system_complete_body');
   setText('[data-panel="random"] .subconfig-heading span','random_selector'); setText('[data-panel="random"] .subconfig-heading strong','random_summary'); setText('[data-panel="random"] .subconfig-copy span','random_summary_action'); setText('[data-panel="random"] .subconfig-copy small','random_summary_desc'); setText('#simulate-summary','simulate');
   setText('[data-panel="updates"] .subconfig-heading span','updates'); setText('[data-panel="updates"] .subconfig-heading strong','important_improvements'); document.querySelectorAll('.updates-history-panel li').forEach((li,i)=>{ li.textContent=t(`update_${i+1}`); });
   setText('[data-panel="creditos"] .subconfig-heading span','credits'); setText('[data-panel="creditos"] .subconfig-heading strong','voices'); setText('.credits-line strong','system_voice'); updateCreditsPanel();
   setText('[data-panel="configuracion"] .subconfig-heading span','config'); setText('[data-panel="configuracion"] .subconfig-heading strong','game_settings');
   [['turn_time','turn_time_desc'],['animation_duration','animation_duration_desc'],['narration_toggle','narration_toggle_desc'],['selection_animation','selection_animation_desc'],['auto_resolve','auto_resolve_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="configuracion"] .subconfig-row, [data-panel="configuracion"] .toggle-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
+  updateOnlineStaticTexts();
   setText('#cancel-draft','cancel'); setText('#confirm-action','confirm'); setText('.team-column-a .ban-stack > span','ban_stack_a'); setText('.team-column-b .ban-stack > span','ban_stack_b');
   const ribbons=document.querySelectorAll('.team-ribbon span'); if(ribbons[0])ribbons[0].textContent=`${t('team_a')} (${t('attackers')})`; if(ribbons[1])ribbons[1].textContent=`${t('team_b')} (${t('defenders')})`;
   setText('.map-header .eyebrow','map_completed'); setText('.map-header h1','map_selection'); setText('.map-header p:last-child','map_desc'); setText('.map-selected-copy span','selected_map'); setText('#randomize-map','randomize_map');
@@ -1004,6 +1295,48 @@ function channelVolume(channel = "sfx") {
   return clamp01(master * clamp01(channelValue));
 }
 
+const MEDIA_UNLOCK_SILENCE = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQQAAAAAAA==";
+
+function unlockMediaPlayback(force = false) {
+  if (mediaUnlockDone && !force) return;
+  mediaUnlockDone = true;
+
+  try {
+    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextCtor) {
+      if (!state.mediaAudioContext) state.mediaAudioContext = new AudioContextCtor();
+      state.mediaAudioContext.resume?.().catch?.(() => {});
+    }
+  } catch (_) {}
+
+  try {
+    const audio = new Audio(MEDIA_UNLOCK_SILENCE);
+    // No se marca como muted: algunos navegadores solo desbloquean Audio()
+    // si el primer play viene de una interacción real y no está muteado.
+    audio.muted = false;
+    audio.volume = 0;
+    audio.preload = "auto";
+    audio.play().then(() => {
+      try { audio.pause(); audio.src = ""; } catch (_) {}
+    }).catch(() => {});
+  } catch (_) {}
+
+  try { resumeMusicIfNeeded?.(); } catch (_) {}
+}
+
+function setupMediaUnlockHandlers() {
+  if (document.body?.dataset.mediaUnlockHandlers === "true") return;
+  if (document.body) document.body.dataset.mediaUnlockHandlers = "true";
+  const unlock = () => unlockMediaPlayback(false);
+  document.addEventListener("pointerdown", unlock, { passive: true });
+  document.addEventListener("click", unlock, { passive: true });
+  document.addEventListener("keydown", unlock);
+  document.addEventListener("touchstart", unlock, { passive: true });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) unlockMediaPlayback(true);
+  });
+}
+
 function updateMusicVolume() {
   if (!state.musicAudio) return;
   state.musicAudio.volume = Math.max(0, Math.min(1, 0.42 * channelVolume("music")));
@@ -1034,6 +1367,250 @@ function makeImage(srcList, className, altText) {
   return img;
 }
 
+const RESOURCE_PRELOAD_MIN_VISIBLE_MS = 720;
+const RESOURCE_PRELOAD_ITEM_TIMEOUT_MS = 5200;
+const RESOURCE_PRELOAD_CONCURRENCY = 6;
+
+function uniqueResourceGroups(groups) {
+  const seen = new Set();
+  return (groups || [])
+    .map(group => ({ ...group, sources: (group.sources || []).filter(Boolean) }))
+    .filter(group => {
+      if (!group.sources.length) return false;
+      const key = group.sources.join("|");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
+function resourcePreloadGroups({ secondary = false } = {}) {
+  const groups = [];
+  const add = (sources, label = "Recurso", type = "generic") => groups.push({ sources: Array.isArray(sources) ? sources : [sources], label, type });
+  const addAudio = (src, label = "Audio") => add(audioCandidates(src), label, "audio");
+  const addImage = (sources, label = "Imagen") => add(sources, label, "image");
+
+  if (!secondary) {
+    add("video/background.mp4", "Video de fondo", "video");
+    add(INTRO_ASSETS?.loadingVideo, "Pantalla de carga", "video");
+    add(INTRO_ASSETS?.menuVideo, "Video del menú", "video");
+    add(INTRO_ASSETS?.overlayLogo, "Overlay del menú", "video");
+
+    [
+      sounds.select,
+      sounds.confirm,
+      sounds.ban,
+      sounds.warning,
+      sounds.roulette,
+      sounds.mapRoulette,
+      sounds.startDraft,
+      sounds.backConfig,
+    ].forEach(src => addAudio(src, "Sonido del draft"));
+
+    Object.values(systemDraftVoiceLines || {}).forEach(line => addAudio(line.src, "Voz del sistema"));
+    characters.forEach(character => addImage([thumbPath(character.name), legacyPath(character.name)], `Icono ${character.name}`, "image"));
+    maps.forEach(map => addImage(mapImagePath(map), `Mapa ${map.name}`, "image"));
+    return uniqueResourceGroups(groups);
+  }
+
+  characters.forEach(character => {
+    addImage([fullPath(character.name), thumbPath(character.name), legacyPath(character.name)], `Fullbody ${character.name}`, "image");
+    addAudio(voicePath(character.name, "pick"), `Voz pick ${character.name}`);
+    addAudio(voicePath(character.name, "ban"), `Voz ban ${character.name}`);
+  });
+  maps.forEach(map => addImage(mapImagePath(map), `Mapa ${map.name}`, "image"));
+  return uniqueResourceGroups(groups);
+}
+
+function createResourcePreloadOverlay() {
+  let overlay = document.getElementById("resource-preload-overlay");
+  if (overlay) return overlay;
+
+  overlay = document.createElement("div");
+  overlay.id = "resource-preload-overlay";
+  overlay.className = "resource-preload-overlay hidden";
+  overlay.innerHTML = `
+    <div class="resource-preload-card">
+      <span class="resource-preload-kicker">RPmods</span>
+      <strong>${t("preload_loading_resources")}</strong>
+      <p id="resource-preload-label">${t("preload_preparing_resources")}</p>
+      <div class="resource-preload-bar" aria-hidden="true"><span id="resource-preload-fill"></span></div>
+      <small id="resource-preload-percent">0%</small>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+function updateResourcePreloadOverlay(progress, label = t("preload_loading_generic")) {
+  const overlay = createResourcePreloadOverlay();
+  const percent = Math.max(0, Math.min(100, Math.round(progress)));
+  const fill = overlay.querySelector("#resource-preload-fill");
+  const percentText = overlay.querySelector("#resource-preload-percent");
+  const labelText = overlay.querySelector("#resource-preload-label");
+  if (fill) fill.style.width = `${percent}%`;
+  if (percentText) percentText.textContent = `${percent}%`;
+  if (labelText) labelText.textContent = label;
+}
+
+function fetchWithTimeout(url, timeoutMs = RESOURCE_PRELOAD_ITEM_TIMEOUT_MS) {
+  if (!url || typeof fetch !== "function") return Promise.reject(new Error("fetch unavailable"));
+  const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+  const timer = controller ? window.setTimeout(() => controller.abort(), timeoutMs) : null;
+  return fetch(url, { cache: "force-cache", signal: controller?.signal })
+    .finally(() => { if (timer) window.clearTimeout(timer); });
+}
+
+function preloadImageCandidate(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const timer = window.setTimeout(() => { cleanup(); reject(new Error("image timeout")); }, RESOURCE_PRELOAD_ITEM_TIMEOUT_MS);
+    const cleanup = () => {
+      window.clearTimeout(timer);
+      img.onload = null;
+      img.onerror = null;
+    };
+    img.onload = () => { cleanup(); resolve(url); };
+    img.onerror = () => { cleanup(); reject(new Error("image error")); };
+    img.decoding = "async";
+    img.src = url;
+  });
+}
+
+function preloadAudioCandidate(url) {
+  return new Promise((resolve, reject) => {
+    const audio = new Audio();
+    const timer = window.setTimeout(() => { cleanup(); reject(new Error("audio timeout")); }, RESOURCE_PRELOAD_ITEM_TIMEOUT_MS);
+    const cleanup = () => {
+      window.clearTimeout(timer);
+      audio.oncanplaythrough = null;
+      audio.onloadeddata = null;
+      audio.onerror = null;
+      try { audio.pause(); audio.removeAttribute("src"); audio.load?.(); } catch (_) {}
+    };
+    audio.preload = "auto";
+    audio.oncanplaythrough = () => { cleanup(); resolve(url); };
+    audio.onloadeddata = () => { cleanup(); resolve(url); };
+    audio.onerror = () => { cleanup(); reject(new Error("audio error")); };
+    audio.src = url;
+    try { audio.load?.(); } catch (_) {}
+  });
+}
+
+function preloadVideoCandidate(url) {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement("video");
+    const timer = window.setTimeout(() => { cleanup(); reject(new Error("video timeout")); }, RESOURCE_PRELOAD_ITEM_TIMEOUT_MS);
+    const cleanup = () => {
+      window.clearTimeout(timer);
+      video.onloadeddata = null;
+      video.oncanplay = null;
+      video.onerror = null;
+      try { video.pause(); video.removeAttribute("src"); video.load?.(); } catch (_) {}
+    };
+    video.preload = "auto";
+    video.muted = true;
+    video.playsInline = true;
+    video.onloadeddata = () => { cleanup(); resolve(url); };
+    video.oncanplay = () => { cleanup(); resolve(url); };
+    video.onerror = () => { cleanup(); reject(new Error("video error")); };
+    video.src = url;
+    try { video.load?.(); } catch (_) {}
+  });
+}
+
+function fetchResourceCandidate(url) {
+  return fetchWithTimeout(url).then(async response => {
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    // Consumir el body ayuda a que GitHub Pages / el navegador dejen el recurso en caché.
+    try { await response.blob(); } catch (_) {}
+    return url;
+  });
+}
+
+function preloadOneCandidate(url, type = "generic") {
+  if (!url) return Promise.reject(new Error("empty resource"));
+  if (type === "image") return preloadImageCandidate(url).catch(() => fetchResourceCandidate(url));
+  if (type === "audio") return preloadAudioCandidate(url).catch(() => fetchResourceCandidate(url));
+  if (type === "video") return preloadVideoCandidate(url).catch(() => fetchResourceCandidate(url));
+  return fetchResourceCandidate(url);
+}
+
+async function preloadFirstAvailable(group) {
+  const sources = group?.sources || [];
+  for (const source of sources) {
+    try {
+      await preloadOneCandidate(source, group.type);
+      return { ok: true, source };
+    } catch (_) {
+      // Prueba el siguiente candidato, por ejemplo .ogg -> .mp3 -> .mp4.
+    }
+  }
+  return { ok: false, source: sources[0] || "" };
+}
+
+async function runResourcePreloadQueue(groups, onProgress) {
+  const list = uniqueResourceGroups(groups);
+  if (!list.length) return;
+  let done = 0;
+  let index = 0;
+
+  const worker = async () => {
+    while (index < list.length) {
+      const group = list[index++];
+      await preloadFirstAvailable(group);
+      done += 1;
+      onProgress?.(done, list.length, group);
+    }
+  };
+
+  await Promise.all(Array.from({ length: Math.min(RESOURCE_PRELOAD_CONCURRENCY, list.length) }, worker));
+}
+
+function scheduleSecondaryResourcePreload() {
+  if (state.resourcePreload.secondaryStarted) return;
+  state.resourcePreload.secondaryStarted = true;
+  window.setTimeout(() => {
+    runResourcePreloadQueue(resourcePreloadGroups({ secondary: true })).catch(() => {});
+  }, 900);
+}
+
+function preloadCriticalResources({ showOverlay = true } = {}) {
+  if (state.resourcePreload.completed) {
+    scheduleSecondaryResourcePreload();
+    return Promise.resolve();
+  }
+  if (state.resourcePreload.promise) return state.resourcePreload.promise;
+
+  state.resourcePreload.started = true;
+  const startedAt = performance.now();
+  const overlay = showOverlay ? createResourcePreloadOverlay() : null;
+  if (overlay) {
+    overlay.classList.remove("hidden", "is-done");
+    updateResourcePreloadOverlay(2, t("preload_preparing_resources"));
+  }
+
+  state.resourcePreload.promise = runResourcePreloadQueue(resourcePreloadGroups(), (done, total, group) => {
+    const progress = total ? (done / total) * 100 : 100;
+    state.resourcePreload.progress = progress;
+    if (overlay) updateResourcePreloadOverlay(progress, t("preload_resource_ready", { resource: group?.label || t("resource") }));
+  }).catch(error => {
+    console.warn("Precarga de recursos incompleta; se continuará igualmente.", error);
+  }).then(async () => {
+    const elapsed = performance.now() - startedAt;
+    if (elapsed < RESOURCE_PRELOAD_MIN_VISIBLE_MS) await waitMs(RESOURCE_PRELOAD_MIN_VISIBLE_MS - elapsed);
+    state.resourcePreload.completed = true;
+    if (overlay) {
+      updateResourcePreloadOverlay(100, "Recursos principales listos");
+      overlay.classList.add("is-done");
+      window.setTimeout(() => overlay.classList.add("hidden"), 280);
+    }
+    scheduleSecondaryResourcePreload();
+  });
+
+  return state.resourcePreload.promise;
+}
+
 function keepTransientAudioReference(audio) {
   if (!audio) return audio;
   if (!Array.isArray(state.activeSounds)) state.activeSounds = [];
@@ -1048,9 +1625,8 @@ function keepTransientAudioReference(audio) {
   return audio;
 }
 
-function audioPlay(src, volume = 0.78, channel = "sfx") {
-  const sources = audioCandidates(src);
-  if (!sources.length) return null;
+function audioPlayFromSourceList(sources, volume = 0.78, channel = "sfx") {
+  if (!sources?.length) return null;
 
   const audio = new Audio();
   audio.preload = "auto";
@@ -1071,8 +1647,18 @@ function audioPlay(src, volume = 0.78, channel = "sfx") {
   setAudioElementSourceWithFallback(audio, sources, 0);
   audio.load?.();
   keepTransientAudioReference(audio);
-  audio.play().catch(() => tryNext());
+  audio.play().catch((error) => {
+    if (String(error?.name || "").includes("NotAllowed")) {
+      unlockMediaPlayback(true);
+      return;
+    }
+    tryNext();
+  });
   return audio;
+}
+
+function audioPlay(src, volume = 0.78, channel = "sfx") {
+  return audioPlayFromSourceList(audioCandidates(src), volume, channel);
 }
 
 function uiAudioCandidates(src) {
@@ -1097,8 +1683,10 @@ async function resolveExistingAudioSource(src, mode = "normal") {
 }
 
 async function playUiSound(src, volume = 1) {
-  const resolved = await resolveExistingAudioSource(src, "ui");
-  return audioPlay(resolved || src, volume, "sfx");
+  // Importante: no hacemos fetch/HEAD antes de reproducir.
+  // Ese await puede consumir el gesto del usuario y Chrome/Opera bloquean el audio.
+  unlockMediaPlayback(true);
+  return audioPlayFromSourceList(uiAudioCandidates(src), volume, "sfx");
 }
 
 function audioLoopPlay(src, volume = 0.78, channel = "sfx") {
@@ -1136,15 +1724,36 @@ function audioLoopStop(audio) {
   }
 }
 
-function speakFallback(text) {
+function currentSpeechLang() {
+  const selectedVoice = currentNarrationVoiceSystem?.();
+  if (selectedVoice?.type === "tts" && selectedVoice.speechLang) return selectedVoice.speechLang;
+  return { es: "es-ES", en: "en-US", pt: "pt-PT", ja: "ja-JP", ru: "ru-RU", zh: "zh-CN" }[currentLanguage()] || "en-US";
+}
+
+function findSpeechSynthesisVoice(langCode = currentSpeechLang()) {
+  if (!("speechSynthesis" in window)) return null;
+  const voices = window.speechSynthesis.getVoices?.() || [];
+  if (!voices.length) return null;
+  const normalized = String(langCode || "").toLowerCase();
+  const base = normalized.split("-")[0];
+  return voices.find(voice => String(voice.lang || "").toLowerCase() === normalized)
+    || voices.find(voice => String(voice.lang || "").toLowerCase().startsWith(`${base}-`))
+    || voices.find(voice => String(voice.lang || "").toLowerCase().startsWith(base))
+    || null;
+}
+
+function speakFallback(text, volume = 0.92) {
   if (!text || !("speechSynthesis" in window)) return;
   try {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = { es: "es-ES", en: "en-US", ja: "ja-JP", ru: "ru-RU", zh: "zh-CN" }[currentLanguage()] || "es-ES";
+    const lang = currentSpeechLang();
+    utterance.lang = lang;
+    const browserVoice = findSpeechSynthesisVoice(lang);
+    if (browserVoice) utterance.voice = browserVoice;
     utterance.rate = 0.95;
     utterance.pitch = 0.92;
-    utterance.volume = 0.95;
+    utterance.volume = Math.max(0, Math.min(1, volume * channelVolume("narration")));
     window.speechSynthesis.speak(utterance);
   } catch (_) {
     // La narración por voz no es crítica para el flujo.
@@ -1153,9 +1762,15 @@ function speakFallback(text) {
 
 function playNarration(src, fallbackText, volume = 0.92) {
   if (!state.settings.narrationEnabled) return null;
+  const text = String(fallbackText || "").trim();
+  if (isBotNarrationVoice()) {
+    if (text) speakFallback(text, volume);
+    return null;
+  }
+
   const sources = audioCandidates(src);
   if (!sources.length) {
-    if (fallbackText) speakFallback(fallbackText);
+    if (text) speakFallback(text, volume);
     return null;
   }
 
@@ -1167,7 +1782,7 @@ function playNarration(src, fallbackText, volume = 0.92) {
     const allSources = JSON.parse(audio.dataset.sources || "[]");
     const nextIndex = Number(audio.dataset.sourceIndex || "0") + 1;
     if (!allSources[nextIndex]) {
-      if (!playedByAudio && fallbackText) speakFallback(fallbackText);
+      if (!playedByAudio && text) speakFallback(text, volume);
       return;
     }
     setAudioElementSourceWithFallback(audio, allSources, nextIndex);
@@ -1179,7 +1794,15 @@ function playNarration(src, fallbackText, volume = 0.92) {
   }, { once: true });
   audio.addEventListener("error", tryNext);
   setAudioElementSourceWithFallback(audio, sources, 0);
-  audio.play().catch(() => tryNext());
+  keepTransientAudioReference(audio);
+  audio.play().catch((error) => {
+    if (String(error?.name || "").includes("NotAllowed")) {
+      unlockMediaPlayback(true);
+      if (text && isBotNarrationVoice()) speakFallback(text, volume);
+      return;
+    }
+    tryNext();
+  });
   return audio;
 }
 
@@ -1206,6 +1829,7 @@ function setupBackgroundVideo() {
     video.setAttribute("loop", "");
     video.setAttribute("autoplay", "");
     video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
   };
 
   const playVideo = () => {
@@ -1217,6 +1841,23 @@ function setupBackgroundVideo() {
     if (promise) promise.catch(() => {});
   };
 
+  const recoverFrozenVideo = (hard = false) => {
+    applyVideoSettings();
+    try {
+      if (Number.isFinite(video.duration) && video.duration > 1) {
+        const nextTime = Math.min(Math.max(0.05, (Number(video.currentTime) || 0) + 0.08), video.duration - 0.08);
+        video.currentTime = nextTime;
+      }
+    } catch (_) {}
+
+    if (hard) {
+      try { video.pause(); } catch (_) {}
+      try { video.load(); } catch (_) {}
+    }
+
+    playVideo();
+  };
+
   if (video.dataset.initialized === "true") {
     playVideo();
     return;
@@ -1225,20 +1866,59 @@ function setupBackgroundVideo() {
 
   video.addEventListener("loadeddata", () => {
     document.body.classList.add("video-ready");
+    document.body.classList.remove("video-error");
     playVideo();
   });
+  video.addEventListener("playing", () => {
+    video.dataset.stallTicks = "0";
+    video.dataset.hardRecoveries = "0";
+    document.body.classList.add("video-ready");
+    document.body.classList.remove("video-error");
+  });
+  video.addEventListener("timeupdate", () => {
+    video.dataset.lastTimeUpdateAt = String(Date.now());
+  });
   video.addEventListener("canplay", playVideo);
-  video.addEventListener("stalled", () => setTimeout(playVideo, 400));
-  video.addEventListener("suspend", () => setTimeout(playVideo, 400));
+  video.addEventListener("waiting", () => setTimeout(() => recoverFrozenVideo(false), 350));
+  video.addEventListener("stalled", () => setTimeout(() => recoverFrozenVideo(false), 350));
+  video.addEventListener("suspend", () => setTimeout(() => recoverFrozenVideo(false), 500));
   video.addEventListener("error", () => {
     document.body.classList.add("video-error");
+    setTimeout(() => recoverFrozenVideo(true), 900);
   });
 
   document.addEventListener("pointerdown", playVideo, { passive: true });
   document.addEventListener("keydown", playVideo);
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) playVideo();
+    if (!document.hidden) recoverFrozenVideo(false);
   });
+  window.addEventListener("focus", () => recoverFrozenVideo(false));
+  window.addEventListener("pageshow", () => recoverFrozenVideo(false));
+
+  if (video.dataset.watchdog !== "true") {
+    video.dataset.watchdog = "true";
+    window.setInterval(() => {
+      if (document.hidden) return;
+      applyVideoSettings();
+      const current = Number(video.currentTime || 0);
+      const previous = Number(video.dataset.lastTime || -1);
+      const stallTicks = Number(video.dataset.stallTicks || 0);
+      const lastUpdateAt = Number(video.dataset.lastTimeUpdateAt || 0);
+      const timeUpdateIsOld = lastUpdateAt && Date.now() - lastUpdateAt > 2800;
+      const seemsFrozen = !video.paused && video.readyState >= 2 && Math.abs(current - previous) < 0.025;
+      video.dataset.lastTime = String(current);
+      const nextStallTicks = (seemsFrozen || timeUpdateIsOld || video.paused || video.readyState < 2) ? stallTicks + 1 : 0;
+      video.dataset.stallTicks = String(nextStallTicks);
+      if (nextStallTicks >= 2) {
+        video.dataset.stallTicks = "0";
+        const hardRecoveries = Number(video.dataset.hardRecoveries || 0) + 1;
+        video.dataset.hardRecoveries = String(hardRecoveries);
+        recoverFrozenVideo(hardRecoveries % 3 === 0);
+      } else if (video.paused) {
+        playVideo();
+      }
+    }, 1200);
+  }
 
   applyVideoSettings();
   video.load();
@@ -1288,7 +1968,10 @@ function createPlayerInput(team, index) {
 function setPlayerInputValue(team, index, value) {
   const input = document.querySelector(`.player-input[data-team="${team}"][data-index="${index}"]`);
   if (input) input.value = value;
+  const roomInput = document.querySelector(`.room-player-input[data-team="${team}"][data-index="${index}"]`);
+  if (roomInput) roomInput.value = value;
   state.players[team][index] = value;
+  if (currentRoomCode && currentRole === "host" && !state.draftActive) scheduleRoomPlayerConfigSave();
 }
 
 function shuffleList(list) {
@@ -1346,12 +2029,15 @@ function clampTurnDuration(value) {
   return Math.max(10, Math.min(50, Number(value) || 20));
 }
 
-function applyTurnDuration(value) {
+function applyTurnDuration(value, persist = true) {
   const duration = clampTurnDuration(value);
   state.turnDuration = duration;
+  if (!state.draftActive) state.timer = duration;
   if (turnTimeRange) turnTimeRange.value = String(duration);
   if (turnTimeInput) turnTimeInput.value = String(duration);
   if (setupTurnTimeCopy) setupTurnTimeCopy.textContent = String(duration);
+  if (persist) scheduleSettingsSave();
+  if (persist && currentRoomCode && currentRole === "host" && !state.draftActive) scheduleRoomPlayerConfigSave();
 }
 
 
@@ -1372,8 +2058,8 @@ function updateNarrationVoiceSystemUI() {
     narrationRow.classList.add("narration-voice-row");
     const title = narrationRow.querySelector(".subconfig-copy span");
     const desc = narrationRow.querySelector(".subconfig-copy small");
-    if (title) title.textContent = "Audio de narración";
-    if (desc) desc.textContent = "Selecciona la voz del sistema draft para fases, turnos, selección aleatoria y resumen.";
+    if (title) title.textContent = t("narration_audio");
+    if (desc) desc.textContent = t("narration_audio_desc");
 
     let select = narrationVoiceSystemSelect();
     const oldSelect = narrationRow.querySelector("select");
@@ -1395,6 +2081,7 @@ function updateNarrationVoiceSystemUI() {
           return;
         }
         state.settings.narrationVoiceSystem = select.value;
+        scheduleSettingsSave();
         updateNarrationVoiceSystemUI();
       });
     }
@@ -1416,18 +2103,20 @@ function updateNarrationVoiceSystemUI() {
     characterRow.classList.add("locked-language-row");
     const title = characterRow.querySelector(".subconfig-copy span");
     const desc = characterRow.querySelector(".subconfig-copy small");
-    if (title) title.textContent = "Audio de personajes";
-    if (desc) desc.textContent = "Por el momento esta opción no está disponible para cambiarla.";
+    if (title) title.textContent = t("character_audio");
+    if (desc) desc.textContent = t("character_audio_desc");
   }
 
   const noteTitle = idiomaPanel.querySelector(".language-note-panel strong");
   const noteBody = idiomaPanel.querySelector(".language-note-panel p");
-  if (noteTitle) noteTitle.textContent = "Sistema de voces de narración";
+  if (noteTitle) noteTitle.textContent = t("voice_system_title");
   if (noteBody) {
     const voice = currentNarrationVoiceSystem();
-    noteBody.textContent = voice.complete
-      ? "La voz seleccionada tiene todos los diálogos actuales del sistema draft."
-      : "Esta voz no contiene todos los diálogos nuevos; la experiencia puede verse afectada.";
+    if (voice.type === "tts") {
+      noteBody.textContent = t("voice_system_bot_body", { voice: voice.label });
+    } else {
+      noteBody.textContent = voice.complete ? t("voice_system_complete_body") : t("voice_system_incomplete_body");
+    }
   }
 }
 
@@ -1449,7 +2138,8 @@ function activateSetupTab(tabName) {
 }
 
 function setupConfigControls() {
-  applyTurnDuration(state.turnDuration);
+  settingsRestoring = true;
+  applyTurnDuration(state.turnDuration, false);
 
   if (turnTimeRange) turnTimeRange.addEventListener("input", (event) => applyTurnDuration(event.target.value));
   if (turnTimeInput) {
@@ -1459,13 +2149,13 @@ function setupConfigControls() {
   if (turnTimeMinus) turnTimeMinus.addEventListener("click", () => applyTurnDuration(state.turnDuration - 1));
   if (turnTimePlus) turnTimePlus.addEventListener("click", () => applyTurnDuration(state.turnDuration + 1));
 
-  // Valores por defecto solicitados:
-  // Maestro 100 · Música 40 · Efectos 60 · Narración 100 · Voces de personajes 85.
-  if (masterVolumeRange) masterVolumeRange.value = "100";
-  if (musicVolumeRange) musicVolumeRange.value = "40";
-  if (sfxVolumeRange) sfxVolumeRange.value = "60";
-  if (narrationVolumeRange) narrationVolumeRange.value = "100";
-  if (characterVoiceVolumeRange) characterVoiceVolumeRange.value = "85";
+  // Valores iniciales: se restauran desde localStorage si existen; si no, usa defaults.
+  const percentValue = (key, fallback) => String(Math.round(clamp01(state.settings[key] ?? fallback) * 100));
+  if (masterVolumeRange) masterVolumeRange.value = percentValue("masterVolume", 1);
+  if (musicVolumeRange) musicVolumeRange.value = percentValue("musicVolume", 0.4);
+  if (sfxVolumeRange) sfxVolumeRange.value = percentValue("sfxVolume", 0.6);
+  if (narrationVolumeRange) narrationVolumeRange.value = percentValue("narrationVolume", 1);
+  if (characterVoiceVolumeRange) characterVoiceVolumeRange.value = percentValue("characterVoiceVolume", 0.85);
 
   const bindVolumeRange = (range, valueEl, key) => {
     if (!range) return;
@@ -1473,6 +2163,7 @@ function setupConfigControls() {
       state.settings[key] = normalizedPercent(range.value);
       updateVolumeReadout(valueEl, range);
       updateMusicVolume();
+      scheduleSettingsSave();
     };
     range.addEventListener("input", applyValue);
     applyValue();
@@ -1486,7 +2177,10 @@ function setupConfigControls() {
 
   if (languageSelect) {
     languageSelect.value = state.settings.language;
-    languageSelect.addEventListener("change", () => applyLanguage(languageSelect.value));
+    languageSelect.addEventListener("change", () => {
+      applyLanguage(languageSelect.value, { syncNarrationVoice: true });
+      scheduleSettingsSave();
+    });
   }
 
   setupNarrationVoiceSystemSelect();
@@ -1495,8 +2189,10 @@ function setupConfigControls() {
     const raw = Math.max(60, Math.min(180, Number(animationDurationRange?.value) || 100));
     state.settings.animationDuration = raw / 100;
     if (animationDurationValue) animationDurationValue.textContent = `${state.settings.animationDuration.toFixed(2)}x`;
+    scheduleSettingsSave();
   };
   if (animationDurationRange) {
+    animationDurationRange.value = String(Math.round(clampNumber(state.settings.animationDuration, 0.6, 1.8, 1.6) * 100));
     animationDurationRange.addEventListener("input", animationApply);
     animationApply();
   }
@@ -1505,18 +2201,21 @@ function setupConfigControls() {
     narrationToggle.checked = state.settings.narrationEnabled;
     narrationToggle.addEventListener("change", () => {
       state.settings.narrationEnabled = narrationToggle.checked;
+      scheduleSettingsSave();
     });
   }
   if (selectionAnimationToggle) {
     selectionAnimationToggle.checked = state.settings.selectionAnimationEnabled;
     selectionAnimationToggle.addEventListener("change", () => {
       state.settings.selectionAnimationEnabled = selectionAnimationToggle.checked;
+      scheduleSettingsSave();
     });
   }
   if (autoResolveToggle) {
     autoResolveToggle.checked = state.settings.autoResolveEnabled;
     autoResolveToggle.addEventListener("change", () => {
       state.settings.autoResolveEnabled = autoResolveToggle.checked;
+      scheduleSettingsSave();
     });
   }
 
@@ -1526,6 +2225,7 @@ function setupConfigControls() {
   });
   activateSetupTab("menu");
   updateCreditsPanel();
+  settingsRestoring = false;
 }
 
 
@@ -1567,7 +2267,7 @@ function createIntroOverlay() {
   overlay = document.createElement("section");
   overlay.id = "intro-sequence-overlay";
   overlay.className = "intro-sequence-overlay intro-logo-phase";
-  overlay.setAttribute("aria-label", "Introducción");
+  overlay.setAttribute("aria-label", t("intro_aria"));
 
   const video = document.createElement("video");
   video.className = "intro-video";
@@ -1590,28 +2290,20 @@ function createIntroOverlay() {
 
   const prompt = document.createElement("div");
   prompt.className = "intro-continue-text";
-  prompt.textContent = "Haz clic en cualquier lugar para continuar";
+  prompt.textContent = t("intro_continue");
 
   const notice = document.createElement("div");
   notice.className = "intro-notice-card";
-  notice.innerHTML = `
-    <p>
-      Le recordamos que este sistema es una versión conceptual hecha por
-      <strong>RodrigoRPmods</strong> y no una versión TEST oficial por parte de
-      <strong>Strinova</strong>. Se han utilizado recursos del juego y recursos
-      proporcionados por <strong>(RPmods Proyects)</strong> para la realización
-      de este proyecto. Por favor, no tomar nada sin permiso.
-    </p>
-  `;
+  notice.innerHTML = `<p>${t("intro_notice_html")}</p>`;
 
   const acceptButton = document.createElement("button");
   acceptButton.type = "button";
   acceptButton.className = "intro-accept-button";
-  acceptButton.textContent = "ACEPTAR";
+  acceptButton.textContent = t("intro_accept");
 
   const fullscreenHint = document.createElement("div");
   fullscreenHint.className = "intro-fullscreen-hint";
-  fullscreenHint.textContent = "Para una mejor experiencia, presiona F11 para ingresar en pantalla completa";
+  fullscreenHint.textContent = t("intro_fullscreen_hint");
 
   overlay.appendChild(video);
   overlay.appendChild(logoOverlay);
@@ -2103,6 +2795,7 @@ function finishIntroSequence() {
   }, 220);
 
   switchScreen(setupScreen);
+  scheduleSecondaryResourcePreload();
 }
 
 async function continueIntroFromMenu() {
@@ -2119,8 +2812,9 @@ async function continueIntroFromMenu() {
   audioPlay(INTRO_ASSETS.finishSound, 1, "sfx");
   const fadePromise = fadeOutIntroMusic(1700);
 
+  const preloadPromise = preloadCriticalResources({ showOverlay: true });
   await runLoadingIntroVideo();
-  await fadePromise;
+  await Promise.all([fadePromise, preloadPromise]);
   finishIntroSequence();
 }
 
@@ -2260,9 +2954,20 @@ async function startIntroSequence() {
   window.addEventListener("keydown", keyHandler);
 }
 
+function generateRoomCode() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+  let code = "";
+
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+
+  return code;
+}
 
 function switchScreen(screen) {
-  [setupScreen, draftScreen, mapScreen, summaryScreen].filter(Boolean).forEach(item => item.classList.remove("active"));
+  [setupScreen, draftScreen, mapScreen, summaryScreen, roomScreen].filter(Boolean).forEach(item => item.classList.remove("active"));
   screen?.classList.add("active");
 
   if (screen === setupScreen) {
@@ -2404,17 +3109,23 @@ function playNextTrack() {
   resumeMusicIfNeeded();
 }
 
+function updateMusicToggleButton() {
+  const button = document.getElementById("music-toggle");
+  if (button) button.textContent = state.musicEnabled ? t("music_on") : t("music_off");
+}
+
 function toggleMusic() {
   state.musicEnabled = !state.musicEnabled;
   const button = $("#music-toggle");
   if (state.musicEnabled) {
-    button.textContent = "♫ ON";
+    if (button) button.textContent = t("music_on");
     state.musicErrorCount = 0;
     startMusic(state.musicMode || "menu");
   } else {
-    button.textContent = "♫ OFF";
+    if (button) button.textContent = t("music_off");
     state.musicAudio?.pause();
   }
+  scheduleSettingsSave();
 }
 
 function showPhaseOverlay(text, voiceSrc, subtitle, callback) {
@@ -2424,7 +3135,7 @@ function showPhaseOverlay(text, voiceSrc, subtitle, callback) {
   const kicker = $("#phase-kicker");
 
   state.locked = true;
-  document.body.classList.add("overlay-lock");
+  document.body.classList.add("overlay-lock", "phase-announcing");
 
   title.textContent = text;
   subtitleElement.textContent = subtitle || t("phase_preparing");
@@ -2439,6 +3150,7 @@ function showPhaseOverlay(text, voiceSrc, subtitle, callback) {
   scheduleDraftTimeout(() => {
     overlay.classList.add("hidden");
     overlay.classList.remove("animate");
+    document.body.classList.remove("phase-announcing");
     callback?.();
   }, overlayDuration);
 }
@@ -2459,6 +3171,37 @@ function pickedTeamForCharacter(name) {
 
 function currentTeamClass(turn = currentTurn()) {
   return turn?.team === "B" ? "team-b" : "team-a";
+}
+
+function currentOnlineTeamLetter() {
+  if (playerTeam === "teamA") return "A";
+  if (playerTeam === "teamB") return "B";
+  return null;
+}
+
+function isOnlineMode() {
+  return Boolean(currentRoomCode);
+}
+
+function canManageOnlineRoom() {
+  return Boolean(currentRoomCode && currentRole === "host");
+}
+
+function canControlCurrentTurn() {
+  if (!currentRoomCode) return true;
+  if (currentRole !== "player") return false;
+  const turn = currentTurn();
+  if (!turn || currentOnlineTeamLetter() !== turn.team) return false;
+  if (state.turnStartedAt && onlineNow() < Number(state.turnStartedAt)) return false;
+  return true;
+}
+
+function canControlMapSelection() {
+  return !currentRoomCode || currentRole === "host";
+}
+
+function canShowHostDraftActions() {
+  return !currentRoomCode || currentRole === "host";
 }
 
 function bannedNames() {
@@ -2636,7 +3379,7 @@ function createCharacterMenuCard(character, turn) {
   card.addEventListener("mouseenter", () => triggerPreselect("hover"));
   card.addEventListener("focus", () => triggerPreselect("focus"));
   card.addEventListener("click", () => {
-    if (state.roulette.active || state.locked) return;
+    if (state.roulette.active || state.locked || !canControlCurrentTurn()) return;
     if (!isCharacterAvailable(character)) return;
 
     // Si ya hay un personaje fijado, el click en otros iconos queda bloqueado.
@@ -2652,6 +3395,7 @@ function createCharacterMenuCard(character, turn) {
 
     state.preselectLocked = true;
     audioPlay(sounds.select, 0.72, "sfx");
+    pushOnlineDraftState({ reason: "lock-preselection" });
     renderAll();
   });
   return card;
@@ -2862,10 +3606,11 @@ function ensureClearPreselectionButton() {
 }
 
 function clearPreselection() {
-  if (state.locked || state.roulette.active) return;
+  if (state.locked || state.roulette.active || !canControlCurrentTurn()) return;
   state.selected = null;
   state.preselectLocked = false;
   audioPlay(sounds.select, 0.52, "sfx");
+  pushOnlineDraftState({ reason: "clear-preselection" });
   renderAll();
 }
 
@@ -2877,6 +3622,15 @@ function renderSelected() {
 
   if (!button || !turn) return;
   const clearButton = ensureClearPreselectionButton();
+
+  if (!canControlCurrentTurn()) {
+    const viewerSelected = state.selected && isCharacterAvailable(state.selected, turn) ? state.selected : null;
+    button.classList.add("hidden");
+    if (clearButton) clearButton.classList.add("hidden");
+    if (statusName) statusName.textContent = viewerSelected ? viewerSelected.name.toUpperCase() : t("none");
+    if (statusFaction) statusFaction.textContent = viewerSelected ? `${factions[viewerSelected.faction].label} · ${roleOf(viewerSelected.name)}` : "Esperando al capitán del turno...";
+    return;
+  }
 
   const selectedCharacter = state.selected && isCharacterAvailable(state.selected, turn) ? state.selected : null;
 
@@ -2965,17 +3719,85 @@ function renderTurnInfo() {
   }
 }
 
-function renderAll() {
+function onlineTeamLabel(team) {
+  return team === "A" ? t("online_team_a_label") : t("online_team_b_label");
+}
+
+function onlineActionLabel(turn) {
+  if (!turn) return t("online_action_pick");
+  return turn.type === "ban" ? t("online_action_ban") : t("online_action_pick");
+}
+
+function updateOnlineBodyClasses() {
+  document.body.classList.toggle("online-role-host", Boolean(currentRoomCode && currentRole === "host"));
+  document.body.classList.toggle("online-role-player", Boolean(currentRoomCode && currentRole === "player"));
+  document.body.classList.toggle("online-role-spectator", Boolean(currentRoomCode && currentRole === "host"));
+  const turn = currentTurn();
+  const ownTeam = currentOnlineTeamLetter();
+  document.body.classList.toggle("own-team-turn", Boolean(currentRoomCode && currentRole === "player" && turn && ownTeam === turn.team));
+  document.body.classList.toggle("other-team-turn", Boolean(currentRoomCode && currentRole === "player" && turn && ownTeam && ownTeam !== turn.team));
+  if (cancelDraftButton) {
+    cancelDraftButton.style.display = (!currentRoomCode || currentRole === "host") ? "inline-flex" : "none";
+    cancelDraftButton.textContent = currentRoomCode ? t("close_room") : t("cancel");
+    cancelDraftButton.title = currentRoomCode ? t("close_room_title") : t("cancel_draft_title");
+  }
+  const restartButton = document.getElementById("restart-draft");
+  if (restartButton) {
+    restartButton.style.display = (!currentRoomCode || currentRole === "host") ? "inline-flex" : "none";
+    restartButton.textContent = currentRoomCode ? t("close_room") : t("restart");
+    restartButton.dataset.defaultText = t("restart");
+  }
+}
+
+function renderCaptainTurnBanner() {
+  updateOnlineBodyClasses();
+  if (!captainTurnBanner) return;
+  const turn = currentTurn();
+  if (!currentRoomCode || !turn || (currentRole !== "player" && currentRole !== "host")) {
+    captainTurnBanner.classList.add("hidden");
+    captainTurnBanner.textContent = "";
+    return;
+  }
+
+  const ownTeam = currentOnlineTeamLetter();
+  const isHost = currentRole === "host";
+  const isOwnTurn = currentRole === "player" && ownTeam === turn.team;
+  const isOpponentTurn = currentRole === "player" && ownTeam && ownTeam !== turn.team;
+  const action = onlineActionLabel(turn);
+  const actionUpper = turn.type === "ban" ? t("online_action_ban_upper") : t("online_action_pick_upper");
+
+  captainTurnBanner.classList.remove("hidden", "turn-a", "turn-b", "is-own-turn", "is-opponent-turn", "is-spectator-turn");
+  captainTurnBanner.classList.add(turn.team === "A" ? "turn-a" : "turn-b");
+  if (isHost) captainTurnBanner.classList.add("is-spectator-turn");
+  else if (isOpponentTurn) captainTurnBanner.classList.add("is-opponent-turn");
+  else if (isOwnTurn) captainTurnBanner.classList.add("is-own-turn");
+
+  const kicker = isHost ? t("online_kicker_spectator") : isOwnTurn ? t("online_kicker_own_turn") : isOpponentTurn ? t("online_kicker_rival_turn") : t("online_kicker_waiting_assignment");
+  captainTurnBanner.innerHTML = `
+    <span class="banner-kicker">${kicker}</span>
+    <strong>${onlineTeamLabel(turn.team)}</strong>
+    <span>${t("online_is_doing_action", { action })}</span>
+    <em>${actionUpper}</em>
+  `;
+}
+
+function renderAll(options = {}) {
   renderTurnInfo();
   renderSlots();
   renderBans();
+  renderCaptainTurnBanner();
   renderStageCharacters();
-  renderCharacterGrid();
+  if (!options.skipGrid) renderCharacterGrid();
+  else updateCharacterRouletteClasses();
   renderSelected();
 }
 
+function renderDraftStateLight() {
+  renderAll({ skipGrid: true });
+}
+
 function preselectCharacter(character, options = {}) {
-  if (state.locked) return;
+  if (state.locked || !canControlCurrentTurn()) return;
   if (!isCharacterAvailable(character)) return;
 
   const source = options.source || "hover";
@@ -2989,31 +3811,103 @@ function preselectCharacter(character, options = {}) {
 
   const hoverVolume = source === "hover" ? 0.45 : 0.7;
   audioPlay(sounds.select, hoverVolume, "sfx");
+  const actionEvent = currentRoomCode
+    ? createOnlineActionEvent("preselect", currentTurn()?.team || null, character, { source })
+    : null;
+  pushOnlineDraftState({ reason: "preselection", actionEvent });
   renderAll();
+}
+
+function updateTimerDisplay(seconds) {
+  const safeSeconds = Math.max(0, Math.min(state.turnDuration, Number(seconds) || 0));
+  state.timer = safeSeconds;
+  const timerElement = $("#timer");
+  if (timerElement) timerElement.textContent = formatTimer(safeSeconds);
+  if (!timerCore) return;
+  if (safeSeconds <= 5 && safeSeconds > 0) timerCore.classList.add("timer-warning");
+  else timerCore.classList.remove("timer-warning");
+}
+
+function onlineRemainingSeconds() {
+  if (!state.turnDeadlineAt) return state.turnDuration;
+  const remaining = Math.ceil((Number(state.turnDeadlineAt) - onlineNow()) / 1000);
+  return Math.max(0, Math.min(state.turnDuration, remaining));
+}
+
+function onlineTurnKey() {
+  return `${currentRoomCode || "local"}:${state.draftSessionId}:${state.turnIndex}:${state.turnDeadlineAt || 0}`;
+}
+
+async function tryClaimOnlineAutoResolve(turnKey = onlineTurnKey()) {
+  if (!currentRoomCode || !state.settings.autoResolveEnabled || !isDraftSessionActive()) return false;
+  const turn = currentTurn();
+  if (!turn || state.locked || state.roulette.active || state.turnIndex >= turns.length) return false;
+
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return false;
+
+  try {
+    const claimRef = roomRef.child("draftState/autoResolveClaim");
+    const result = await claimRef.transaction((claim) => {
+      const claimAt = Number(claim?.at || 0);
+      const claimIsFresh = claimAt && Math.abs(onlineNow() - claimAt) < 8000;
+      if (claim && claim.turnKey === turnKey && claimIsFresh) return;
+      return {
+        turnKey,
+        clientId: onlineClientId(),
+        role: currentRole || "unknown",
+        team: playerTeam || null,
+        at: onlineNow(),
+      };
+    });
+
+    if (!result?.committed) return false;
+    await autoResolveTurn({ onlineSystem: true, claimKey: turnKey });
+    return true;
+  } catch (error) {
+    console.warn("No se pudo reclamar la selección aleatoria online.", error);
+    return false;
+  }
 }
 
 function resetTimer() {
   clearInterval(state.timerId);
-  state.timer = state.turnDuration;
   state.lastWarningSecond = null;
-  $("#timer").textContent = formatTimer(state.timer);
-  timerCore.classList.remove("timer-warning");
+  onlineTurnAutoResolveKey = null;
+
+  const useOnlineClock = Boolean(currentRoomCode && state.turnDeadlineAt);
+  updateTimerDisplay(useOnlineClock ? onlineRemainingSeconds() : state.turnDuration);
 
   state.timerId = setInterval(() => {
-    state.timer -= 1;
-    $("#timer").textContent = formatTimer(state.timer);
+    const nextValue = useOnlineClock ? onlineRemainingSeconds() : Math.max(0, state.timer - 1);
+    updateTimerDisplay(nextValue);
 
-    if (state.timer <= 5 && state.timer > 0) {
-      timerCore.classList.add("timer-warning");
-      if (state.lastWarningSecond !== state.timer) {
-        state.lastWarningSecond = state.timer;
-        audioPlay(sounds.warning, 0.72, "sfx");
-      }
+    if (state.timer <= 5 && state.timer > 0 && state.lastWarningSecond !== state.timer) {
+      state.lastWarningSecond = state.timer;
+      audioPlay(sounds.warning, 0.72, "sfx");
     }
 
     if (state.timer <= 0) {
       clearInterval(state.timerId);
-      timerCore.classList.remove("timer-warning");
+      timerCore?.classList.remove("timer-warning");
+
+      if (currentRoomCode) {
+        const turnKey = onlineTurnKey();
+        if (onlineTurnAutoResolveKey === turnKey) return;
+        onlineTurnAutoResolveKey = turnKey;
+        if (state.settings.autoResolveEnabled && !state.locked && !state.roulette.active) {
+          void tryClaimOnlineAutoResolve(turnKey).then((claimed) => {
+            if (claimed) return;
+            scheduleDraftTimeout(() => {
+              if (onlineTurnKey() !== turnKey || state.locked || state.roulette.active || state.timer > 0) return;
+              onlineTurnAutoResolveKey = null;
+              void tryClaimOnlineAutoResolve(turnKey);
+            }, 2200);
+          });
+        }
+        return;
+      }
+
       if (state.settings.autoResolveEnabled) {
         autoResolveTurn();
       } else {
@@ -3026,7 +3920,7 @@ function resetTimer() {
         renderAll();
       }
     }
-  }, 1000);
+  }, currentRoomCode ? 250 : 1000);
 }
 
 function getValidCharacters() {
@@ -3079,7 +3973,7 @@ function hideDraftOverlays() {
     phaseOverlay.classList.add("hidden");
     phaseOverlay.classList.remove("animate");
   }
-  document.body.classList.remove("overlay-lock");
+  document.body.classList.remove("overlay-lock", "phase-announcing");
 }
 
 function abortDraftRuntime() {
@@ -3129,6 +4023,956 @@ function updateCharacterRoulettePreview(character) {
   renderSelected();
 }
 
+function getRealtimeDatabase() {
+  try {
+    return window.db || (typeof db !== "undefined" ? db : null);
+  } catch (_) {
+    return null;
+  }
+}
+
+function onlineUnavailableMessage() {
+  return "Firebase no está disponible. Revisa tu conexión o abre la app con internet para usar el modo online.";
+}
+
+function roomRefFor(roomCode) {
+  const database = getRealtimeDatabase();
+  if (!database || !roomCode) return null;
+  return database.ref("rooms/" + roomCode);
+}
+
+function characterFromOnlineValue(value) {
+  if (!value) return null;
+  const name = typeof value === "string" ? value : value.name;
+  return characters.find(character => character.name === name) || null;
+}
+
+function characterListFromOnlineValue(value) {
+  if (!value) return [];
+  const source = Array.isArray(value) ? value : Object.values(value);
+  return source.map(characterFromOnlineValue).filter(Boolean);
+}
+
+function mapFromOnlineValue(value) {
+  if (!value) return null;
+  const id = typeof value === "string" ? value : value.id;
+  const name = typeof value === "string" ? value : value.name;
+  return maps.find(map => map.id === id || map.name === name) || null;
+}
+
+function serializeCharacterListForOnline(list = []) {
+  return list.filter(Boolean).map(character => character.name);
+}
+
+function serializeCharacterForOnline(character) {
+  return character ? character.name : null;
+}
+
+function serializePickBatchSelectionsForOnline(batchSelections = {}) {
+  return Object.fromEntries(Object.entries(batchSelections || {}).map(([key, list]) => [key, serializeCharacterListForOnline(list)]));
+}
+
+function pickBatchSelectionsFromOnlineValue(value = {}) {
+  const output = {};
+  Object.entries(value || {}).forEach(([key, list]) => {
+    output[key] = characterListFromOnlineValue(list);
+  });
+  return output;
+}
+
+function onlineCharacterAnimationFromValue(value) {
+  if (!value) return null;
+  const character = characterFromOnlineValue(value.character || value.characterName || value.name);
+  if (!character) return null;
+  return { character, team: value.team || currentTurn()?.team || "A" };
+}
+
+function serializeAnimationForOnline(animation) {
+  if (!animation?.character) return null;
+  return {
+    character: animation.character.name,
+    team: animation.team || currentTurn()?.team || null,
+  };
+}
+
+function serializeRouletteForOnline(roulette = {}) {
+  return {
+    active: Boolean(roulette.active),
+    highlightedName: roulette.highlightedName || null,
+    finalName: roulette.finalName || null,
+    previewCharacter: serializeCharacterForOnline(roulette.previewCharacter),
+  };
+}
+
+function rouletteFromOnlineValue(value = {}) {
+  return {
+    active: Boolean(value.active),
+    highlightedName: value.highlightedName || null,
+    finalName: value.finalName || null,
+    previewCharacter: characterFromOnlineValue(value.previewCharacter) || null,
+  };
+}
+
+function serializeMapRouletteForOnline(value = {}) {
+  return {
+    active: Boolean(value.active),
+    highlightedId: value.highlightedId || null,
+    finalId: value.finalId || null,
+  };
+}
+
+function inferOnlinePhase() {
+  if (document.querySelector(".summary-screen.active")) return "summary";
+  if (document.querySelector(".map-screen.active")) return "map";
+  if (state.draftActive) return "draft";
+  return state.onlinePhase || "lobby";
+}
+
+function createOnlineActionEvent(type, team, character, extra = {}) {
+  return {
+    id: `${onlineNow()}_${Math.random().toString(36).slice(2, 8)}`,
+    type,
+    team,
+    character: character?.name || null,
+    at: onlineNow(),
+    byClientId: onlineClientId(),
+    ...extra,
+  };
+}
+
+function createOnlinePhaseEvent(type, extra = {}) {
+  return {
+    id: `${type}_${onlineNow()}_${Math.random().toString(36).slice(2, 8)}`,
+    type,
+    at: onlineNow(),
+    byClientId: onlineClientId(),
+    ...extra,
+  };
+}
+
+function createOnlineAudioEvent(type, extra = {}) {
+  return {
+    id: `${type}_${onlineNow()}_${Math.random().toString(36).slice(2, 8)}`,
+    type,
+    at: onlineNow(),
+    byClientId: onlineClientId(),
+    ...extra,
+  };
+}
+
+function playOnlineAudioEvent(event) {
+  if (!event?.type) return;
+  unlockMediaPlayback(true);
+
+  if (event.type === "randomStart") {
+    playNarration(systemDraftVoiceLines.random_start.src, systemDraftVoiceLines.random_start.text, 0.9);
+  } else if (event.type === "mapSelector") {
+    playNarration(systemDraftVoiceLines.map_selector_voice.src, systemDraftVoiceLines.map_selector_voice.text, 0.92);
+  } else if (event.type === "finishDraft") {
+    playNarration(systemDraftVoiceLines.voice_finish_draft.src, systemDraftVoiceLines.voice_finish_draft.text, 0.92);
+  } else if (event.type === "turnNarration") {
+    const turn = turns[Number(event.turnIndex)] || currentTurn();
+    playTurnNarration(turn);
+  } else if (event.type === "phaseBan") {
+    playNarration(systemDraftVoiceLines.voice_ban_phase.src, systemDraftVoiceLines.voice_ban_phase.text, 0.92);
+  } else if (event.type === "phasePick") {
+    playNarration(systemDraftVoiceLines.voice_pick_phase.src, systemDraftVoiceLines.voice_pick_phase.text, 0.92);
+  }
+}
+
+function handleOnlineAudioEvent(event) {
+  if (!event?.id || event.id === onlineLastAudioEventId) return;
+  onlineLastAudioEventId = event.id;
+  if (event.byClientId === onlineClientId() && !event.playForOrigin) return;
+  playOnlineAudioEvent(event);
+}
+
+function handleOnlineRouletteEvent(event) {
+  if (!event?.id || event.id === onlineLastRouletteEventId) return;
+  onlineLastRouletteEventId = event.id;
+  if (event.byClientId === onlineClientId()) return;
+  if (event.type === "rouletteTick") audioPlay(sounds.roulette, 0.82, "sfx");
+  else if (event.type === "rouletteSelected") audioPlay(sounds.select, 0.7, "sfx");
+}
+
+function handleOnlineMapEvent(event) {
+  if (!event?.id || event.id === onlineLastMapEventId) return;
+  onlineLastMapEventId = event.id;
+  if (event.byClientId === onlineClientId()) return;
+  if (event.type === "mapTick") audioPlay(sounds.mapRoulette || sounds.roulette, 0.82, "sfx");
+  else if (event.type === "mapSelected") audioPlay(sounds.confirm, 0.86, "sfx");
+}
+
+function roomPlayersPayload() {
+  readPlayers();
+  return {
+    A: [...state.players.A],
+    B: [...state.players.B],
+  };
+}
+
+function currentOnlineDraftPayload(extra = {}) {
+  return {
+    phase: state.onlinePhase || inferOnlinePhase(),
+    draftSessionId: state.draftSessionId,
+    turnIndex: state.turnIndex,
+    turnDuration: state.turnDuration,
+    turnStartedAt: state.turnStartedAt || null,
+    turnDeadlineAt: state.turnDeadlineAt || null,
+    timer: state.timer,
+    players: {
+      A: [...state.players.A],
+      B: [...state.players.B],
+    },
+    picks: {
+      A: serializeCharacterListForOnline(state.picks.A),
+      B: serializeCharacterListForOnline(state.picks.B),
+    },
+    bans: {
+      A: serializeCharacterListForOnline(state.bans.A),
+      B: serializeCharacterListForOnline(state.bans.B),
+    },
+    pickBatchSelections: serializePickBatchSelectionsForOnline(state.pickBatchSelections),
+    selected: serializeCharacterForOnline(state.selected),
+    preselectLocked: Boolean(state.preselectLocked),
+    locked: Boolean(state.locked),
+    flashBan: state.flashBan || null,
+    flashPick: state.flashPick || null,
+    banAnimation: serializeAnimationForOnline(state.banAnimation),
+    pickAnimation: serializeAnimationForOnline(state.pickAnimation),
+    roulette: serializeRouletteForOnline(state.roulette),
+    selectedMap: state.selectedMap ? { id: state.selectedMap.id, name: state.selectedMap.name } : null,
+    mapRoulette: serializeMapRouletteForOnline(state.mapRoulette),
+    updatedAt: onlineNow(),
+    ...extra,
+  };
+}
+
+function pushOnlineDraftState(extra = {}) {
+  if (suppressOnlinePush || !currentRoomCode) return;
+  if (!state.draftActive && !extra.phase && !extra.force) return;
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return;
+  roomRef.child("draftState").update(currentOnlineDraftPayload(extra)).catch(error => {
+    console.warn("No se pudo sincronizar el estado online.", error);
+  });
+}
+
+function updateLocalPlayerInputsFromState() {
+  ["A", "B"].forEach(team => {
+    state.players[team].forEach((value, index) => {
+      const selectors = [
+        `.player-input[data-team="${team}"][data-index="${index}"]`,
+        `.room-player-input[data-team="${team}"][data-index="${index}"]`,
+      ];
+      selectors.forEach(selector => {
+        const input = document.querySelector(selector);
+        if (input && input.value !== value) input.value = value;
+      });
+    });
+  });
+}
+
+function applyOnlinePlayers(players = {}) {
+  let changed = false;
+  ["A", "B"].forEach(team => {
+    const list = Array.isArray(players?.[team]) ? players[team] : null;
+    if (!list) return;
+    state.players[team] = Array.from({ length: 5 }, (_, index) => String(list[index] || `Jugador ${team}${index + 1}`));
+    changed = true;
+  });
+  if (changed) updateLocalPlayerInputsFromState();
+}
+
+function applyOnlineSettingsFromRoom(data = {}) {
+  const draftState = data.draftState || {};
+  const duration = data.turnDuration ?? draftState.turnDuration;
+  if (duration != null) applyTurnDuration(duration, false);
+  if (data.players) applyOnlinePlayers(data.players);
+  if (draftState.players) applyOnlinePlayers(draftState.players);
+}
+
+function onlineParticipantsFromRoom(data = {}) {
+  const raw = data.participants || {};
+  return Object.entries(raw).map(([clientId, value]) => ({
+    clientId,
+    name: String(value?.name || value?.displayName || `Usuario ${clientId.slice(-4)}`),
+    connected: Boolean(value?.connected),
+    joinedAt: Number(value?.joinedAt || 0),
+    lastSeen: Number(value?.lastSeen || 0),
+  })).sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0) || a.name.localeCompare(b.name));
+}
+
+function captainAssignmentsFromRoom(data = {}) {
+  const assignments = data.captainAssignments || {};
+  return {
+    A: assignments.A || data.teamA?.clientId || null,
+    B: assignments.B || data.teamB?.clientId || null,
+  };
+}
+
+function participantByClientId(data = {}, clientId) {
+  if (!clientId) return null;
+  const participant = data.participants?.[clientId];
+  if (participant) return {
+    clientId,
+    name: String(participant.name || participant.displayName || `Usuario ${clientId.slice(-4)}`),
+    connected: Boolean(participant.connected),
+    joinedAt: Number(participant.joinedAt || 0),
+    lastSeen: Number(participant.lastSeen || 0),
+  };
+  if (data.teamA?.clientId === clientId) return { clientId, name: data.teamA.name || "Capitán Atacantes", connected: Boolean(data.teamA.connected) };
+  if (data.teamB?.clientId === clientId) return { clientId, name: data.teamB.name || "Capitán Defensores", connected: Boolean(data.teamB.connected) };
+  return null;
+}
+
+function setCurrentOnlineAssignmentFromRoom(data = {}) {
+  if (currentRole !== "player") return;
+  const assignments = captainAssignmentsFromRoom(data);
+  const clientId = onlineClientId();
+  if (assignments.A === clientId) playerTeam = "teamA";
+  else if (assignments.B === clientId) playerTeam = "teamB";
+  else playerTeam = null;
+
+  const participant = participantByClientId(data, clientId);
+  if (participant?.name) currentOnlinePlayerName = participant.name;
+
+  if (playerTeam === "teamA") setRoomRoleDisplay(`${t("role_captain_attackers")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
+  else if (playerTeam === "teamB") setRoomRoleDisplay(`${t("role_captain_defenders")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
+  else setRoomRoleDisplay(`${t("role_in_room_waiting")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
+  saveOnlineSession();
+}
+
+function captainStatusText(data = {}, team) {
+  const assignments = captainAssignmentsFromRoom(data);
+  const participant = participantByClientId(data, assignments[team]);
+  if (!participant) return t("captain_vacant");
+  return `${participant.name} · ${participant.connected ? t("connected") : t("disconnected")}`;
+}
+
+function renderParticipantList(data = {}) {
+  const list = document.getElementById("room-participant-list");
+  if (!list) return;
+  const participants = onlineParticipantsFromRoom(data);
+  const assignments = captainAssignmentsFromRoom(data);
+  if (!participants.length) {
+    list.innerHTML = `<p class="room-empty-list">${t("waiting_users")}</p>`;
+    return;
+  }
+  list.innerHTML = participants.map(participant => {
+    const assigned = assignments.A === participant.clientId
+      ? t("captain_attackers")
+      : assignments.B === participant.clientId
+        ? t("captain_defenders")
+        : t("no_assignment");
+    return `<p><strong>${escapeHtml(participant.name)}</strong><span>${assigned} · ${participant.connected ? t("connected") : t("disconnected")}</span></p>`;
+  }).join("");
+}
+
+function populateCaptainSelect(select, team, data = {}) {
+  if (!select) return;
+  const assignments = captainAssignmentsFromRoom(data);
+  const participants = onlineParticipantsFromRoom(data);
+  const previousValue = select.value;
+  select.innerHTML = `<option value="">${t("no_assignment")}</option>`;
+  participants.forEach(participant => {
+    const option = document.createElement("option");
+    option.value = participant.clientId;
+    option.textContent = `${participant.name}${participant.connected ? "" : ` (${t("disconnected")})`}`;
+    select.appendChild(option);
+  });
+  select.value = assignments[team] || previousValue || "";
+  if (select.value && ![...select.options].some(option => option.value === select.value)) select.value = "";
+  select.disabled = currentRole !== "host" || Boolean(data.started);
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function updateRoomLobby(data = {}) {
+  setCurrentOnlineAssignmentFromRoom(data);
+  renderParticipantList(data);
+
+  const status = document.getElementById("room-status");
+  const assignments = captainAssignmentsFromRoom(data);
+  const bothCaptainsAssigned = Boolean(assignments.A && assignments.B && assignments.A !== assignments.B);
+
+  if (status) {
+    const hostText = data.host?.connected ? t("connected") : t("reconnecting");
+    status.innerHTML = `
+      <p>${t("host_leader_spectator")}: ${hostText}</p>
+      <p>${t("captain_attackers")}: ${escapeHtml(captainStatusText(data, "A"))}</p>
+      <p>${t("captain_defenders")}: ${escapeHtml(captainStatusText(data, "B"))}</p>
+    `;
+  }
+
+  populateCaptainSelect(document.getElementById("captain-a-select"), "A", data);
+  populateCaptainSelect(document.getElementById("captain-b-select"), "B", data);
+
+  const startButton = document.getElementById("start-online-draft");
+  if (startButton) {
+    const isHost = currentRole === "host";
+    startButton.style.display = isHost ? "inline-flex" : "none";
+    startButton.disabled = Boolean(data.started) || !bothCaptainsAssigned;
+    if (data.started) startButton.textContent = t("draft_started");
+    else startButton.textContent = bothCaptainsAssigned ? t("start_draft") : t("assign_captains");
+  }
+
+  const closeButton = document.getElementById("close-room-btn");
+  if (closeButton) closeButton.style.display = currentRole === "host" ? "inline-flex" : "none";
+
+  const disconnectButton = document.getElementById("disconnect-room-btn");
+  if (disconnectButton) disconnectButton.style.display = currentRole === "player" ? "inline-flex" : "none";
+
+  const randomRoomNamesButton = document.getElementById("room-random-player-names");
+  if (randomRoomNamesButton) randomRoomNamesButton.disabled = currentRole !== "host" || Boolean(data.started);
+
+  if (roomPlayerConfig) roomPlayerConfig.classList.toggle("hidden", currentRole !== "host" || Boolean(data.started));
+}
+
+function showOnlinePhaseEvent(event, fallbackKey = "") {
+  const key = event?.id || fallbackKey;
+  if (!key || onlineLastPhaseEventId === key) return false;
+  onlineLastPhaseEventId = key;
+
+  if (event?.byClientId && event.byClientId === onlineClientId()) return false;
+  if (!state.draftActive || !hasScreenActive(draftScreen)) return false;
+
+  if (event?.type === "banPhase" || fallbackKey.startsWith("banPhase")) {
+    showPhaseOverlay(
+      t("phase_ban"),
+      systemDraftVoiceLines.voice_ban_phase.src,
+      systemDraftVoiceLines.voice_ban_phase.text,
+      startTurn,
+    );
+    return true;
+  }
+
+  if (event?.type === "pickPhase" || fallbackKey.startsWith("pickPhase")) {
+    showPhaseOverlay(
+      t("phase_pick"),
+      systemDraftVoiceLines.voice_pick_phase.src,
+      systemDraftVoiceLines.voice_pick_phase.text,
+      startTurn,
+    );
+    return true;
+  }
+
+  return false;
+}
+
+function handleOnlineActionEvent(event) {
+  if (!event?.id || event.id === onlineLastActionEventId) return;
+  onlineLastActionEventId = event.id;
+  if (event.byClientId === onlineClientId()) return;
+  unlockMediaPlayback(true);
+  const character = characterFromOnlineValue(event.character);
+  if (!character) return;
+  if (event.type === "ban") {
+    audioPlay(sounds.ban, 0.86, "sfx");
+    playCharacterVoice(character, "ban");
+  } else if (event.type === "pick") {
+    audioPlay(sounds.confirm, 0.86, "sfx");
+    playCharacterVoice(character, "pick");
+  } else if (event.type === "preselect") {
+    audioPlay(sounds.select, 0.38, "sfx");
+  }
+}
+
+function hasScreenActive(screen) {
+  return Boolean(screen && screen.classList.contains("active"));
+}
+
+function applyOnlineScreenForPhase(phase) {
+  if (!currentRoomCode || !state.draftActive) return;
+  if (phase === "summary") {
+    if (!hasScreenActive(summaryScreen)) finishDraft({ force: true, silentOnline: true });
+    return;
+  }
+  if (phase === "map") {
+    if (!hasScreenActive(mapScreen)) {
+      startMapSelection({ fromOnline: true });
+    } else {
+      renderMapGrid();
+      updateSelectedMapCopy();
+      scheduleOnlineMapAutoStart(700);
+    }
+    return;
+  }
+  if (phase === "draft") {
+    if (!hasScreenActive(draftScreen)) switchScreen(draftScreen);
+  }
+}
+
+function onlinePicksBansKey() {
+  const names = list => (list || []).map(item => item?.name || String(item || "")).join("|");
+  return [
+    names(state.picks.A),
+    names(state.picks.B),
+    names(state.bans.A),
+    names(state.bans.B),
+  ].join("::");
+}
+
+function syncDraftStateFromRoom(data = {}) {
+  applyOnlineSettingsFromRoom(data);
+  const draftState = data.draftState || {};
+  const previousTurnIndex = state.turnIndex;
+  const previousDraftSessionId = state.draftSessionId;
+  const previousDeadlineAt = state.turnDeadlineAt;
+  const previousPhase = state.onlinePhase;
+  const previousPicksBansKey = onlinePicksBansKey();
+  let hasRemoteDraftState = false;
+
+  suppressOnlinePush = true;
+  try {
+    if (draftState.phase) {
+      state.onlinePhase = draftState.phase;
+      hasRemoteDraftState = true;
+    }
+    if (Number.isFinite(Number(draftState.draftSessionId))) state.draftSessionId = Number(draftState.draftSessionId);
+    if (Number.isFinite(Number(draftState.turnIndex))) {
+      hasRemoteDraftState = true;
+      state.turnIndex = Math.max(0, Math.min(turns.length, Number(draftState.turnIndex)));
+    }
+    if (Number.isFinite(Number(draftState.turnStartedAt))) state.turnStartedAt = Number(draftState.turnStartedAt);
+    if (Number.isFinite(Number(draftState.turnDeadlineAt))) state.turnDeadlineAt = Number(draftState.turnDeadlineAt);
+    if (!state.turnDeadlineAt && Number.isFinite(Number(draftState.timer))) state.timer = Math.max(0, Number(draftState.timer));
+
+    if (draftState.picks) {
+      hasRemoteDraftState = true;
+      state.picks = {
+        A: characterListFromOnlineValue(draftState.picks.A),
+        B: characterListFromOnlineValue(draftState.picks.B),
+      };
+    }
+
+    if (draftState.bans) {
+      hasRemoteDraftState = true;
+      state.bans = {
+        A: characterListFromOnlineValue(draftState.bans.A),
+        B: characterListFromOnlineValue(draftState.bans.B),
+      };
+    }
+
+    if (draftState.pickBatchSelections) {
+      state.pickBatchSelections = pickBatchSelectionsFromOnlineValue(draftState.pickBatchSelections);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(draftState, "selected")) {
+      state.selected = characterFromOnlineValue(draftState.selected);
+    }
+    if (Object.prototype.hasOwnProperty.call(draftState, "preselectLocked")) state.preselectLocked = Boolean(draftState.preselectLocked);
+    if (Object.prototype.hasOwnProperty.call(draftState, "locked")) state.locked = Boolean(draftState.locked);
+    state.flashBan = draftState.flashBan || null;
+    state.flashPick = draftState.flashPick || null;
+    state.banAnimation = onlineCharacterAnimationFromValue(draftState.banAnimation);
+    state.pickAnimation = onlineCharacterAnimationFromValue(draftState.pickAnimation);
+    if (draftState.roulette) state.roulette = rouletteFromOnlineValue(draftState.roulette);
+
+    if (Object.prototype.hasOwnProperty.call(draftState, "selectedMap")) {
+      state.selectedMap = mapFromOnlineValue(draftState.selectedMap);
+      hasRemoteDraftState = true;
+    }
+    if (draftState.mapRoulette) {
+      state.mapRoulette = {
+        active: Boolean(draftState.mapRoulette.active),
+        highlightedId: draftState.mapRoulette.highlightedId || null,
+        finalId: draftState.mapRoulette.finalId || null,
+      };
+    }
+  } finally {
+    suppressOnlinePush = false;
+  }
+
+  handleOnlineActionEvent(draftState.actionEvent);
+  handleOnlineAudioEvent(draftState.audioEvent);
+  handleOnlineRouletteEvent(draftState.rouletteEvent);
+  handleOnlineMapEvent(draftState.mapEvent);
+  applyOnlineScreenForPhase(state.onlinePhase);
+
+  const draftScreenActive = document.querySelector(".draft-screen.active");
+  const remoteAudioTurnNarration = draftState.audioEvent?.type === "turnNarration" && draftState.audioEvent?.byClientId !== onlineClientId();
+  const localPhaseEventPending = draftState.phaseEvent?.byClientId === onlineClientId();
+  const enteredPickPhase = previousTurnIndex < banTurns.length && state.turnIndex >= banTurns.length && currentTurn()?.type === "pick";
+  const handledPhaseEvent = showOnlinePhaseEvent(draftState.phaseEvent, enteredPickPhase ? `pickPhase:${state.draftSessionId}:${state.turnIndex}` : "");
+  const remoteTurnChanged = hasRemoteDraftState && data.started && state.draftActive && previousTurnIndex !== state.turnIndex;
+  const remoteSessionChanged = previousDraftSessionId !== state.draftSessionId;
+  const remoteClockChanged = previousDeadlineAt !== state.turnDeadlineAt || remoteSessionChanged || remoteTurnChanged;
+  const picksBansChanged = previousPicksBansKey !== onlinePicksBansKey();
+
+  if (remoteTurnChanged) {
+    onlineTurnAutoResolveKey = null;
+    state.lastWarningSecond = null;
+    if (draftScreenActive && currentTurn() && !handledPhaseEvent && !localPhaseEventPending) {
+      if (!remoteAudioTurnNarration) playTurnNarration(currentTurn());
+      if (!state.locked && !state.roulette.active) resetTimer();
+    }
+    if (state.turnIndex >= turns.length && state.onlinePhase !== "map" && state.onlinePhase !== "summary") {
+      startMapSelection();
+      return;
+    }
+  } else if (data.started && state.draftActive && draftScreenActive && currentTurn()) {
+    if (remoteClockChanged && !state.locked && !state.roulette.active) {
+      resetTimer();
+    } else if (currentRoomCode && state.turnDeadlineAt) {
+      updateTimerDisplay(onlineRemainingSeconds());
+    }
+  }
+
+  if (previousPhase !== state.onlinePhase) {
+    if (state.onlinePhase === "map") {
+      renderMapGrid();
+      updateSelectedMapCopy();
+    }
+    if (state.onlinePhase === "summary") renderSummaryMap();
+  }
+
+  if (draftScreenActive) {
+    if (remoteTurnChanged || remoteSessionChanged || picksBansChanged || !characterGrid?.children?.length) renderAll();
+    else renderDraftStateLight();
+  }
+  if (document.querySelector(".map-screen.active")) {
+    renderMapGrid();
+    updateSelectedMapCopy();
+  }
+  if (document.querySelector(".summary-screen.active")) {
+    renderSummaryLineup("A", $("#summary-lineup-a"));
+    renderSummaryLineup("B", $("#summary-lineup-b"));
+    renderSummaryTeam("A", $("#summary-team-a"));
+    renderSummaryTeam("B", $("#summary-team-b"));
+    renderSummaryBans("A", $("#summary-bans-a"));
+    renderSummaryBans("B", $("#summary-bans-b"));
+    renderSummaryMap();
+  }
+}
+
+function startOnlineDraftFromRoom(data = {}) {
+  if (!currentRoomCode) return;
+  if (onlineStartedForRoom === currentRoomCode) {
+    syncDraftStateFromRoom(data);
+    return;
+  }
+  onlineStartedForRoom = currentRoomCode;
+  onlineRoomStartedState = true;
+  resetDraftStateBeforeStart();
+  syncDraftStateFromRoom(data);
+  clearDraftTimeouts();
+  state.draftActive = true;
+  state.locked = false;
+  setupBackgroundVideo();
+  startMusic("draft");
+
+  const phase = data.draftState?.phase || "draft";
+  if (phase === "map") {
+    switchScreen(mapScreen);
+    renderMapGrid();
+    updateSelectedMapCopy();
+    resetTimer();
+    return;
+  }
+  if (phase === "summary") {
+    finishDraft({ force: true, silentOnline: true });
+    return;
+  }
+
+  switchScreen(draftScreen);
+  const startedRecently = onlineNow() - Number(data.startedAt || 0) < 4500 && Number(data.draftState?.turnIndex || 0) === 0;
+  if (startedRecently) {
+    showPhaseOverlay(
+      t("phase_ban"),
+      systemDraftVoiceLines.voice_ban_phase.src,
+      systemDraftVoiceLines.voice_ban_phase.text,
+      startTurn,
+    );
+  } else {
+    startTurn({ skipNarration: true });
+  }
+}
+
+function updateDraftUI(data = {}) {
+  updateRoomLobby(data);
+  if (data.closed) {
+    handleRoomClosed(currentRoomCode);
+    return;
+  }
+  if (data.started) startOnlineDraftFromRoom(data);
+  else syncDraftStateFromRoom(data);
+}
+
+function listenRoomChanges(roomCode) {
+  const roomRef = roomRefFor(roomCode);
+  if (!roomRef) {
+    alert(onlineUnavailableMessage());
+    return;
+  }
+
+  if (onlineRoomListenerCode === roomCode) return;
+  if (onlineRoomListenerCode) {
+    roomRefFor(onlineRoomListenerCode)?.off("value");
+  }
+  onlineRoomListenerCode = roomCode;
+
+  roomRef.on("value", (snapshot) => {
+    const data = snapshot.val();
+    if (!data) {
+      handleRoomClosed(roomCode);
+      return;
+    }
+    updateDraftUI(data);
+  }, (error) => {
+    console.error("No se pudo escuchar la sala online.", error);
+  });
+}
+
+function saveOnlineSession() {
+  try {
+    if (!currentRoomCode || !currentRole) return;
+    localStorage.setItem(ONLINE_SESSION_STORAGE_KEY, JSON.stringify({
+      roomCode: currentRoomCode,
+      role: currentRole,
+      playerTeam,
+      playerName: currentOnlinePlayerName,
+      clientId: onlineClientId(),
+      savedAt: onlineNow(),
+    }));
+  } catch (_) {}
+}
+
+function clearOnlineSession() {
+  try { localStorage.removeItem(ONLINE_SESSION_STORAGE_KEY); } catch (_) {}
+}
+
+function setRoomCodeDisplay(roomCode, hide = true) {
+  const codeDisplay = document.getElementById("room-code-display");
+  const toggle = document.getElementById("toggle-room-code");
+  if (!codeDisplay) return;
+  codeDisplay.dataset.hidden = hide ? "1" : "0";
+  codeDisplay.textContent = hide ? "••••••" : (roomCode || "----");
+  if (toggle) toggle.textContent = hide ? t("show_code") : t("hide_code");
+}
+
+function setRoomRoleDisplay(text) {
+  const roleDisplay = document.getElementById("room-role-display");
+  if (roleDisplay) roleDisplay.textContent = text;
+}
+
+function rolePathForCurrentClient() {
+  if (currentRole === "host") return "host";
+  if (currentRole === "player") return `participants/${onlineClientId()}`;
+  return null;
+}
+
+function setupPresenceForCurrentRoom() {
+  const roomRef = roomRefFor(currentRoomCode);
+  const path = rolePathForCurrentClient();
+  if (!roomRef || !path) return;
+  const seatRef = roomRef.child(path);
+  const payload = { connected: true, clientId: onlineClientId(), lastSeen: onlineNow() };
+  if (currentRole === "player" && currentOnlinePlayerName) payload.name = currentOnlinePlayerName;
+  seatRef.update(payload).catch(() => {});
+  try {
+    seatRef.child("connected").onDisconnect().set(false);
+    seatRef.child("lastSeen").onDisconnect().set(onlineNow());
+  } catch (_) {}
+}
+
+function attachCurrentRoom(roomCode, role, team = null) {
+  startOnlineClockSync();
+  currentRoomCode = roomCode;
+  currentRole = role;
+  playerTeam = team;
+  onlineStartedForRoom = null;
+  setRoomCodeDisplay(roomCode, true);
+  if (role === "host") setRoomRoleDisplay(t("leader_spectator"));
+  else if (team === "teamA") setRoomRoleDisplay(`${t("role_captain_attackers")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
+  else if (team === "teamB") setRoomRoleDisplay(`${t("role_captain_defenders")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
+  else setRoomRoleDisplay(`${t("role_in_room_waiting")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
+  saveOnlineSession();
+  setupPresenceForCurrentRoom();
+  switchScreen(roomScreen);
+  showHostControls(role === "host");
+  updateOnlineBodyClasses();
+  listenRoomChanges(roomCode);
+  watchRoomDeletion(roomCode);
+}
+
+function canClaimSeat(seat) {
+  if (!seat) return true;
+  if (seat.clientId && seat.clientId === onlineClientId()) return true;
+  return seat.connected === false;
+}
+
+function blankOnlineDraftState(startPayload = {}) {
+  return {
+    phase: "lobby",
+    draftSessionId: state.draftSessionId,
+    turnIndex: 0,
+    turnDuration: state.turnDuration,
+    turnStartedAt: null,
+    turnDeadlineAt: null,
+    players: roomPlayersPayload(),
+    picks: { A: [], B: [] },
+    bans: { A: [], B: [] },
+    pickBatchSelections: {},
+    selected: null,
+    preselectLocked: false,
+    locked: false,
+    flashBan: null,
+    flashPick: null,
+    banAnimation: null,
+    pickAnimation: null,
+    roulette: { active: false, highlightedName: null, finalName: null, previewCharacter: null },
+    phaseEvent: null,
+    captainAssignments: { A: null, B: null },
+    selectedMap: null,
+    mapRoulette: { active: false, highlightedId: null, finalId: null },
+    updatedAt: onlineNow(),
+    ...startPayload,
+  };
+}
+
+async function createOnlineRoom() {
+  const database = getRealtimeDatabase();
+  if (!database) {
+    alert(onlineUnavailableMessage());
+    return;
+  }
+  startOnlineClockSync();
+
+  readPlayers();
+  const roomCode = generateRoomCode();
+  const roomRef = database.ref("rooms/" + roomCode);
+  state.onlinePhase = "lobby";
+
+  await roomRef.set({
+    createdAt: onlineNow(),
+    updatedAt: onlineNow(),
+    started: false,
+    closed: false,
+    turnDuration: state.turnDuration,
+    players: roomPlayersPayload(),
+    host: { connected: true, clientId: onlineClientId(), role: "LÍDER_ESPECTADOR", lastSeen: onlineNow() },
+    participants: {},
+    captainAssignments: { A: null, B: null },
+    teamA: null,
+    teamB: null,
+    draftState: blankOnlineDraftState(),
+  });
+
+  attachCurrentRoom(roomCode, "host", null);
+}
+
+function normalizeRoomCode(value) {
+  return String(value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+}
+
+function showJoinNameModal(roomCode) {
+  pendingJoinRoomCode = normalizeRoomCode(roomCode);
+  const modal = document.getElementById("join-name-modal");
+  const preview = document.getElementById("join-room-code-preview");
+  const input = document.getElementById("join-player-name");
+  if (!pendingJoinRoomCode) {
+    alert(t("enter_room_code_alert"));
+    return;
+  }
+  if (preview) preview.textContent = pendingJoinRoomCode;
+  if (input && !input.value) {
+    try { input.value = localStorage.getItem(ONLINE_PLAYER_NAME_STORAGE_KEY) || ""; } catch (_) {}
+  }
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+  }
+  window.setTimeout(() => input?.focus(), 40);
+}
+
+function hideJoinNameModal() {
+  const modal = document.getElementById("join-name-modal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.setAttribute("aria-hidden", "true");
+  }
+}
+
+async function joinOnlineRoom(options = {}) {
+  const input = document.getElementById("room-input");
+  const nameInput = document.getElementById("join-player-name");
+  const roomCode = normalizeRoomCode(options.roomCode || pendingJoinRoomCode || input?.value);
+  const hasProvidedName = Object.prototype.hasOwnProperty.call(options, "nameOverride");
+  const playerName = String(hasProvidedName ? options.nameOverride : "").trim();
+  if (!roomCode) return alert("Ingresa un código de sala");
+
+  // Primer click en UNIRSE: solo abre la interfaz de nombre.
+  // La conexión real a Firebase empieza recién al confirmar el nombre.
+  if (!hasProvidedName) {
+    showJoinNameModal(roomCode);
+    return;
+  }
+
+  if (!playerName) {
+    showJoinNameModal(roomCode);
+    alert("Ingresa tu nombre para que el líder pueda asignarte como capitán.");
+    nameInput?.focus();
+    return;
+  }
+
+  const database = getRealtimeDatabase();
+  if (!database) {
+    alert(onlineUnavailableMessage());
+    return;
+  }
+  startOnlineClockSync();
+
+  try { localStorage.setItem(ONLINE_PLAYER_NAME_STORAGE_KEY, playerName); } catch (_) {}
+  currentOnlinePlayerName = playerName;
+
+  const roomRef = database.ref("rooms/" + roomCode);
+  const snapshot = await roomRef.get();
+
+  if (!snapshot.exists()) {
+    alert("La sala no existe");
+    return;
+  }
+
+  const roomData = snapshot.val() || {};
+  if (roomData.closed) {
+    alert("La sala ya fue cerrada");
+    return;
+  }
+
+  const clientId = onlineClientId();
+  const alreadyInRoom = Boolean(roomData.participants?.[clientId]);
+  if (roomData.started && !alreadyInRoom) {
+    alert("El draft ya fue iniciado. Solo pueden reconectar los usuarios que ya estaban en la sala.");
+    return;
+  }
+
+  await roomRef.child(`participants/${clientId}`).update({
+    name: playerName,
+    connected: true,
+    clientId,
+    role: "PARTICIPANTE",
+    joinedAt: roomData.participants?.[clientId]?.joinedAt || onlineNow(),
+    lastSeen: onlineNow(),
+  });
+
+  const assignments = captainAssignmentsFromRoom(roomData);
+  let assignedTeam = null;
+  if (assignments.A === clientId) assignedTeam = "teamA";
+  else if (assignments.B === clientId) assignedTeam = "teamB";
+
+  hideJoinNameModal();
+  pendingJoinRoomCode = null;
+  attachCurrentRoom(roomCode, "player", assignedTeam);
+}
+
 async function runCharacterRoulette(validCharacters) {
   const sessionId = state.draftSessionId;
   if (!isDraftSessionActive(sessionId)) return null;
@@ -3153,6 +4997,10 @@ async function runCharacterRoulette(validCharacters) {
     state.roulette.highlightedName = selected.name;
     audioPlay(sounds.roulette, 0.82, "sfx");
     updateCharacterRoulettePreview(selected);
+    if (currentRoomCode) pushOnlineDraftState({
+      phase: "draft",
+      rouletteEvent: { id: `rouletteTick_${onlineNow()}_${step}_${selected.name}`, type: "rouletteTick", character: selected.name, byClientId: onlineClientId() },
+    });
     await delay(weightedRandomDelay(step, totalSteps));
     if (!isDraftSessionActive(sessionId)) return null;
   }
@@ -3164,6 +5012,10 @@ async function runCharacterRoulette(validCharacters) {
   state.roulette.finalName = selected.name;
   state.selected = selected;
   updateCharacterRoulettePreview(selected);
+  if (currentRoomCode) pushOnlineDraftState({
+    phase: "draft",
+    rouletteEvent: { id: `rouletteSelected_${onlineNow()}_${selected.name}`, type: "rouletteSelected", character: selected.name, byClientId: onlineClientId() },
+  });
   await delay(520);
   if (!isDraftSessionActive(sessionId)) return null;
 
@@ -3176,15 +5028,17 @@ async function runCharacterRoulette(validCharacters) {
   return selected;
 }
 
-async function autoResolveTurn() {
+async function autoResolveTurn(options = {}) {
   const sessionId = state.draftSessionId;
-  if (!isDraftSessionActive(sessionId) || state.locked || state.roulette.active) return;
+  const allowOnlineSystem = Boolean(options.onlineSystem);
+  if (!isDraftSessionActive(sessionId) || state.locked || state.roulette.active || (!allowOnlineSystem && !canControlCurrentTurn())) return;
   const valid = getValidCharacters();
 
   // Primero se reproduce la línea "Tiempo agotado".
   // Después de 2 segundos empieza la ruleta visual + audio roulette.
   state.locked = true;
-  playNarration(systemDraftVoiceLines.random_start.src, "", 0.9);
+  pushOnlineDraftState({ phase: "draft", audioEvent: createOnlineAudioEvent("randomStart") });
+  playNarration(systemDraftVoiceLines.random_start.src, systemDraftVoiceLines.random_start.text, 0.9);
   await delay(2000);
   if (!isDraftSessionActive(sessionId)) return;
 
@@ -3199,7 +5053,7 @@ async function autoResolveTurn() {
 
   state.locked = false;
   state.selected = selected;
-  confirmTurn(true);
+  confirmTurn(true, { onlineSystem: allowOnlineSystem });
 }
 
 function proceedAfterTurn() {
@@ -3223,8 +5077,19 @@ function proceedAfterTurn() {
   }
 }
 
-function confirmTurn(isAuto = false) {
-  if (!isDraftSessionActive()) return;
+function phaseOverlayDurationMs() {
+  return Math.round(2200 + (state.settings.animationDuration * 1000));
+}
+
+function prepareClockForTurnIndex(turnIndex, delayMs = 0) {
+  const startAt = (currentRoomCode ? onlineNow() : Date.now()) + Math.max(0, delayMs);
+  state.turnStartedAt = startAt;
+  state.turnDeadlineAt = startAt + (state.turnDuration * 1000);
+}
+
+function confirmTurn(isAuto = false, options = {}) {
+  const allowOnlineSystem = Boolean(options.onlineSystem);
+  if (!isDraftSessionActive() || (!allowOnlineSystem && !canControlCurrentTurn())) return;
   const turn = currentTurn();
   if (!turn || state.locked) return;
   if (!state.selected || !isCharacterAvailable(state.selected, turn)) return;
@@ -3235,11 +5100,13 @@ function confirmTurn(isAuto = false) {
 
   const confirmedCharacter = state.selected;
   let wait = isAuto ? 650 : 520;
+  let actionEvent = null;
 
   if (turn.type === "ban") {
     state.bans[turn.team].push(confirmedCharacter);
     state.flashBan = confirmedCharacter.name;
     state.banAnimation = { character: confirmedCharacter, team: turn.team };
+    actionEvent = createOnlineActionEvent("ban", turn.team, confirmedCharacter, { isAuto });
     audioPlay(sounds.ban, 0.86, "sfx");
     playCharacterVoice(confirmedCharacter, "ban");
     wait = isAuto ? 1350 : 1500;
@@ -3251,6 +5118,7 @@ function confirmTurn(isAuto = false) {
     if (state.settings.selectionAnimationEnabled) {
       state.pickAnimation = { character: confirmedCharacter, team: turn.team };
     }
+    actionEvent = createOnlineActionEvent("pick", turn.team, confirmedCharacter, { isAuto });
     audioPlay(sounds.confirm, 0.86, "sfx");
     playCharacterVoice(confirmedCharacter, "pick");
     wait = isAuto ? 1250 : 1400;
@@ -3258,6 +5126,7 @@ function confirmTurn(isAuto = false) {
 
   wait = Math.round(wait * (state.settings.animationDuration || 1));
   renderAll();
+  pushOnlineDraftState({ actionEvent, phase: "draft" });
 
   scheduleDraftTimeout(() => {
     state.flashBan = null;
@@ -3266,7 +5135,31 @@ function confirmTurn(isAuto = false) {
     state.pickAnimation = null;
     state.selected = null;
     state.preselectLocked = false;
+    state.locked = false;
+    state.roulette = { active: false, highlightedName: null, finalName: null, previewCharacter: null };
     state.turnIndex += 1;
+    onlineTurnAutoResolveKey = null;
+
+    if (currentRoomCode) {
+      if (state.turnIndex >= turns.length) {
+        state.onlinePhase = "map";
+        state.turnStartedAt = null;
+        state.turnDeadlineAt = null;
+        pushOnlineDraftState({ phase: "map", actionEvent: null, audioEvent: createOnlineAudioEvent("mapSelector", { playForOrigin: true }) });
+      } else {
+        const nextTurn = currentTurn();
+        const justEnteredPickPhase = state.turnIndex === banTurns.length && nextTurn?.type === "pick";
+        prepareClockForTurnIndex(state.turnIndex, justEnteredPickPhase ? phaseOverlayDurationMs() : 0);
+        state.onlinePhase = "draft";
+        const phaseEvent = justEnteredPickPhase ? createOnlinePhaseEvent("pickPhase") : null;
+        if (phaseEvent) onlineLastPhaseEventId = phaseEvent.id;
+        const audioEvent = justEnteredPickPhase ? null : createOnlineAudioEvent("turnNarration", { turnIndex: state.turnIndex });
+        pushOnlineDraftState({ phase: "draft", actionEvent: null, phaseEvent, audioEvent });
+      }
+    } else {
+      pushOnlineDraftState();
+    }
+
     proceedAfterTurn();
   }, wait);
 }
@@ -3304,19 +5197,19 @@ function playTurnNarration(turn) {
   if (!turn) return;
   const key = turnVoiceKey(turn);
   const src = turnVoices[turn.team]?.[key];
-  // Las voces de turno deben reproducir archivos reales en audio/turns/.
-  // No usamos speechSynthesis aquí para evitar que suene la voz default si falta el audio.
-  playNarration(src, "", 0.88);
+  // Si hay voz grabada se reproduce desde archivos locales; si la voz elegida es lectura de bot,
+  // el navegador lee el texto traducido del turno.
+  playNarration(src, turnNarrationText(turn), 0.88);
 }
 
-function startTurn() {
+function startTurn(options = {}) {
   if (!isDraftSessionActive()) return;
   state.selected = null;
   state.preselectLocked = false;
   state.locked = false;
-  document.body.classList.remove("overlay-lock");
+  document.body.classList.remove("overlay-lock", "phase-announcing");
   renderAll();
-  playTurnNarration(currentTurn());
+  if (!options.skipNarration) playTurnNarration(currentTurn());
   resetTimer();
 }
 
@@ -3352,7 +5245,7 @@ function setStartDraftLoading(isLoading) {
   ensureDraftStartStyle();
   if (isLoading) {
     if (!button.dataset.originalText) button.dataset.originalText = button.textContent || t("start_draft");
-    button.textContent = "INICIANDO";
+    button.textContent = t("starting");
     button.classList.add("starting-draft");
     button.disabled = true;
   } else {
@@ -3378,6 +5271,9 @@ function resetDraftStateBeforeStart() {
   state.roulette = { active: false, highlightedName: null, finalName: null, previewCharacter: null };
   state.selectedMap = null;
   state.mapRoulette = { active: false, highlightedId: null, finalId: null };
+  state.turnStartedAt = null;
+  state.turnDeadlineAt = null;
+  state.onlinePhase = currentRoomCode ? "draft" : "local";
 }
 
 async function waitForUiSoundAndContinue(milliseconds = 250) {
@@ -3485,6 +5381,11 @@ function shuffle(list) {
 }
 
 function simulateRandomSummary() {
+  abortDraftRuntime();
+  readPlayers();
+  state.draftSessionId += 1;
+  state.draftActive = true;
+  state.locked = false;
   const available = [...characters];
   const takeOne = (predicate) => {
     const choices = available.filter(predicate);
@@ -3516,10 +5417,17 @@ function simulateRandomSummary() {
   state.picks.A = picksA;
   state.picks.B = picksB;
   state.selectedMap = randomFrom(maps);
-  finishDraft();
+  startMusic("draft");
+  finishDraft({ force: true });
 }
 
 async function cancelDraft() {
+  if (currentRoomCode) {
+    if (currentRole !== "host") return;
+    await closeCurrentRoom();
+    return;
+  }
+
   if (state.returningToConfig) return;
   state.returningToConfig = true;
 
@@ -3560,6 +5468,9 @@ function clearMapRouletteVisuals() {
 function renderMapGrid() {
   if (!mapGrid) return;
   mapGrid.innerHTML = "";
+  mapGrid.dataset.mapCount = String(maps.length);
+  mapGrid.classList.toggle("map-grid-many", maps.length > 6);
+  mapGrid.classList.toggle("map-grid-xl", maps.length > 9);
 
   maps.forEach(map => {
     const card = document.createElement("button");
@@ -3583,9 +5494,10 @@ function renderMapGrid() {
     card.appendChild(image);
     card.appendChild(name);
     card.addEventListener("click", () => {
-      if (state.mapRoulette.active) return;
+      if (state.mapRoulette.active || !canControlMapSelection()) return;
       state.selectedMap = map;
       state.mapRoulette.finalId = map.id;
+      pushOnlineDraftState();
       audioPlay(sounds.confirm, 0.86, "sfx");
       renderMapGrid();
       updateSelectedMapCopy();
@@ -3599,7 +5511,52 @@ function updateSelectedMapCopy() {
   if (selectedMapName) selectedMapName.textContent = state.selectedMap?.name || t("waiting_selection");
 }
 
-async function runMapRoulette() {
+function onlineMapAutoKey() {
+  return `${currentRoomCode || "local"}:${state.draftSessionId}:map:${state.onlinePhase}`;
+}
+
+function canAutoRunOnlineMapRoulette() {
+  // La ruleta de mapa es del sistema, no una acción manual del capitán.
+  // Cualquier cliente de la sala puede reclamarla con transacción para evitar
+  // que se quede esperando si el host/navegador queda en pausa.
+  return Boolean(currentRoomCode && (currentRole === "host" || currentRole === "player") && state.onlinePhase === "map" && !state.selectedMap && !state.mapRoulette.active);
+}
+
+function scheduleOnlineMapAutoStart(delayMs = 900) {
+  if (!canAutoRunOnlineMapRoulette()) return;
+  const key = onlineMapAutoKey();
+  if (onlineMapAutoResolveKey === key) return;
+  onlineMapAutoResolveKey = key;
+  scheduleDraftTimeout(() => {
+    if (onlineMapAutoKey() !== key || !canAutoRunOnlineMapRoulette()) return;
+    void tryClaimOnlineMapRoulette(key);
+  }, delayMs);
+}
+
+async function tryClaimOnlineMapRoulette(key = onlineMapAutoKey()) {
+  if (!canAutoRunOnlineMapRoulette()) return false;
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return false;
+  try {
+    const claimRef = roomRef.child("draftState/mapResolveClaim");
+    const result = await claimRef.transaction((claim) => {
+      const claimAt = Number(claim?.at || 0);
+      const claimIsFresh = claimAt && Math.abs(onlineNow() - claimAt) < 12000;
+      if (claim && claim.key === key && claimIsFresh) return;
+      return { key, clientId: onlineClientId(), at: onlineNow() };
+    });
+    if (!result?.committed) return false;
+    if (!canAutoRunOnlineMapRoulette()) return false;
+    await runMapRoulette({ onlineSystem: true });
+    return true;
+  } catch (error) {
+    console.warn("No se pudo reclamar la ruleta automática de mapa.", error);
+    onlineMapAutoResolveKey = null;
+    return false;
+  }
+}
+
+async function runMapRoulette(options = {}) {
   const sessionId = state.draftSessionId;
   if (!isDraftSessionActive(sessionId) || state.mapRoulette.active || !maps.length) return;
   state.mapRoulette.active = true;
@@ -3617,6 +5574,10 @@ async function runMapRoulette() {
     state.mapRoulette.highlightedId = selected.id;
     audioPlay(sounds.mapRoulette || sounds.roulette, 0.82, "sfx");
     updateMapRouletteClasses();
+    if (currentRoomCode) pushOnlineDraftState({
+      phase: "map",
+      mapEvent: { id: `mapTick_${onlineNow()}_${step}_${selected.id}`, type: "mapTick", mapId: selected.id, byClientId: onlineClientId() },
+    });
     await delay(weightedRandomDelay(step, totalSteps));
     if (!isDraftSessionActive(sessionId)) return;
   }
@@ -3627,6 +5588,10 @@ async function runMapRoulette() {
   state.selectedMap = selected;
   state.mapRoulette.highlightedId = selected.id;
   state.mapRoulette.finalId = selected.id;
+  pushOnlineDraftState({
+    phase: "map",
+    mapEvent: { id: `mapSelected_${onlineNow()}_${selected.id}`, type: "mapSelected", mapId: selected.id, byClientId: onlineClientId() },
+  });
   updateMapRouletteClasses();
   updateSelectedMapCopy();
   await delay(980);
@@ -3634,12 +5599,14 @@ async function runMapRoulette() {
 
   state.mapRoulette.active = false;
   clearMapRouletteVisuals();
+  if (currentRoomCode) pushOnlineDraftState({ phase: "summary" });
   showSummaryIntro();
 }
 
-function startMapSelection() {
+function startMapSelection(options = {}) {
   if (!isDraftSessionActive()) return;
   clearInterval(state.timerId);
+  state.onlinePhase = currentRoomCode ? "map" : state.onlinePhase;
   state.locked = true;
   state.selected = null;
   state.flashBan = null;
@@ -3647,7 +5614,7 @@ function startMapSelection() {
   state.banAnimation = null;
   state.pickAnimation = null;
   state.roulette = { active: false, highlightedName: null, finalName: null, previewCharacter: null };
-  state.mapRoulette = { active: false, highlightedId: null, finalId: null };
+  state.mapRoulette = state.mapRoulette || { active: false, highlightedId: null, finalId: null };
   switchScreen(mapScreen);
   mapScreen?.classList.remove("map-enter");
   void mapScreen?.offsetWidth;
@@ -3655,9 +5622,24 @@ function startMapSelection() {
   renderMapGrid();
   updateSelectedMapCopy();
 
-  // Nueva línea de narración: inicio de selección aleatoria de mapa.
-  playNarration(systemDraftVoiceLines.map_selector_voice.src, "", 0.92);
+  const onlineMode = Boolean(currentRoomCode);
+  if (randomizeMapButton) randomizeMapButton.style.display = onlineMode ? "none" : "inline-flex";
 
+  if (onlineMode) {
+    if (canControlMapSelection()) {
+      pushOnlineDraftState({ phase: "map" });
+      if (!options.fromOnline) {
+        pushOnlineDraftState({ phase: "map", audioEvent: createOnlineAudioEvent("mapSelector") });
+        playNarration(systemDraftVoiceLines.map_selector_voice.src, systemDraftVoiceLines.map_selector_voice.text, 0.92);
+      }
+    } else if (selectedMapName) {
+      selectedMapName.textContent = t("map_waiting_auto");
+    }
+    scheduleOnlineMapAutoStart(canControlMapSelection() ? 850 : 1200);
+    return;
+  }
+
+  playNarration(systemDraftVoiceLines.map_selector_voice.src, systemDraftVoiceLines.map_selector_voice.text, 0.92);
   scheduleDraftTimeout(() => runMapRoulette(), 900);
 }
 
@@ -3685,7 +5667,8 @@ function renderSummaryMap() {
 function showSummaryIntro() {
   if (!isDraftSessionActive()) return;
   // Nueva línea de narración: draft finalizado y resultados.
-  playNarration(systemDraftVoiceLines.voice_finish_draft.src, "", 0.92);
+  if (currentRoomCode) pushOnlineDraftState({ phase: "summary", audioEvent: createOnlineAudioEvent("finishDraft") });
+  playNarration(systemDraftVoiceLines.voice_finish_draft.src, systemDraftVoiceLines.voice_finish_draft.text, 0.92);
 
   showPhaseOverlay(
     t("summary_final"),
@@ -3695,13 +5678,16 @@ function showSummaryIntro() {
   );
 }
 
-function finishDraft() {
-  if (!isDraftSessionActive()) return;
+function finishDraft(options = {}) {
+  const force = Boolean(options.force);
+  if (!force && !isDraftSessionActive()) return;
   state.draftActive = false;
+  state.onlinePhase = currentRoomCode ? "summary" : state.onlinePhase;
   clearDraftTimeouts();
   clearInterval(state.timerId);
   state.locked = false;
-  document.body.classList.remove("overlay-lock");
+  document.body.classList.remove("overlay-lock", "phase-announcing");
+  if (currentRoomCode && !options.silentOnline) pushOnlineDraftState({ phase: "summary" });
   renderSummaryLineup("A", $("#summary-lineup-a"));
   renderSummaryLineup("B", $("#summary-lineup-b"));
   renderSummaryTeam("A", $("#summary-team-a"));
@@ -3716,6 +5702,10 @@ function finishDraft() {
 }
 
 async function restartDraft() {
+  if (currentRoomCode) {
+    if (currentRole === "host") await closeCurrentRoom();
+    return;
+  }
   if (state.returningToConfig) return;
   state.returningToConfig = true;
   await playUiSound(sounds.backConfig, 1);
@@ -3728,7 +5718,7 @@ async function restartDraft() {
   state.roulette = { active: false, highlightedName: null, finalName: null, previewCharacter: null };
   state.mapRoulette = { active: false, highlightedId: null, finalId: null };
   state.selectedMap = null;
-  document.body.classList.remove("overlay-lock");
+  document.body.classList.remove("overlay-lock", "phase-announcing");
   activateSetupTab("menu");
   switchScreen(setupScreen);
   startMusic("menu");
@@ -3740,13 +5730,18 @@ function init() {
   resizeGameRoot();
   window.addEventListener("resize", resizeGameRoot);
   setupInputs();
+  setupRoomPlayerInputs();
   setupConfigControls();
   applyLanguage(state.settings.language);
   setupDevelopmentTools();
   setupBackgroundVideo();
+  setupMediaUnlockHandlers();
+  updateMusicToggleButton();
   renderAll();
   startIntroSequence();
   $("#start-draft").addEventListener("click", startDraft);
+  $("#create-room").addEventListener("click",createOnlineRoom);
+  $("#join-room").addEventListener("click", joinOnlineRoom);
   $("#confirm-action").addEventListener("click", () => confirmTurn(false));
   $("#music-toggle").addEventListener("click", toggleMusic);
   cancelDraftButton?.addEventListener("click", cancelDraft);
@@ -3754,11 +5749,409 @@ function init() {
   simulateSummaryButton?.addEventListener("click", simulateRandomSummary);
   randomPlayerNamesButton?.addEventListener("click", applyRandomPlayerNames);
   manualPlayerNamesButton?.addEventListener("click", applyManualPlayerNames);
+  setupJoinNameModal();
+  setupOnlineControls();
+  setTimeout(() => { void tryRestoreOnlineSession(); }, 850);
   randomizeMapButton?.addEventListener("click", () => {
-    if (!isDraftSessionActive()) return;
-    playNarration(systemDraftVoiceLines.map_selector_voice.src, "", 0.92);
+    if (!isDraftSessionActive() || !canControlMapSelection()) return;
+    playNarration(systemDraftVoiceLines.map_selector_voice.src, systemDraftVoiceLines.map_selector_voice.text, 0.92);
     scheduleDraftTimeout(() => runMapRoulette(), 180);
   });
 }
 
 init();
+
+
+function setupRoomPlayerInputs() {
+  const build = (team, container) => {
+    if (!container) return;
+    container.innerHTML = "";
+    for (let i = 0; i < 5; i += 1) {
+      const input = document.createElement("input");
+      input.className = "room-player-input";
+      input.type = "text";
+      input.dataset.team = team;
+      input.dataset.index = String(i);
+      input.value = state.players[team][i] || defaultPlayerName(team, i);
+      input.placeholder = defaultPlayerName(team, i);
+      input.addEventListener("input", () => {
+        state.players[team][i] = input.value.trim() || input.placeholder;
+        const setupInput = document.querySelector(`.player-input[data-team="${team}"][data-index="${i}"]`);
+        if (setupInput && setupInput.value !== input.value) setupInput.value = input.value;
+        scheduleRoomPlayerConfigSave();
+      });
+      container.appendChild(input);
+    }
+  };
+
+  build("A", roomTeamAInputs);
+  build("B", roomTeamBInputs);
+}
+
+function scheduleRoomPlayerConfigSave() {
+  if (!currentRoomCode || currentRole !== "host") return;
+  clearTimeout(roomPlayerNameSaveTimer);
+  roomPlayerNameSaveTimer = setTimeout(pushRoomLobbyConfig, 180);
+}
+
+function pushRoomLobbyConfig() {
+  if (!currentRoomCode || currentRole !== "host") return;
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return;
+  readPlayers();
+  const players = { A: [...state.players.A], B: [...state.players.B] };
+  roomRef.update({
+    players,
+    turnDuration: state.turnDuration,
+    updatedAt: onlineNow(),
+    "draftState/players": players,
+    "draftState/turnDuration": state.turnDuration,
+  }).catch(error => console.warn("No se pudo sincronizar la configuración de sala.", error));
+}
+
+async function assignOnlineCaptain(team, clientId) {
+  if (!currentRoomCode || currentRole !== "host") return;
+  const normalizedTeam = team === "B" ? "B" : "A";
+  const otherTeam = normalizedTeam === "A" ? "B" : "A";
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return;
+
+  try {
+    const snapshot = await roomRef.get();
+    const data = snapshot.val() || {};
+    if (data.started) return;
+    const participant = clientId ? participantByClientId(data, clientId) : null;
+    const teamPath = normalizedTeam === "A" ? "teamA" : "teamB";
+    const otherPath = otherTeam === "A" ? "teamA" : "teamB";
+    const updates = {
+      [`captainAssignments/${normalizedTeam}`]: clientId || null,
+      [teamPath]: participant ? {
+        clientId,
+        name: participant.name,
+        connected: participant.connected,
+        role: normalizedTeam === "A" ? "CAPITÁN_ATACANTES" : "CAPITÁN_DEFENSORES",
+        lastSeen: participant.lastSeen || onlineNow(),
+      } : null,
+      updatedAt: onlineNow(),
+    };
+
+    const assignments = captainAssignmentsFromRoom(data);
+    if (clientId && assignments[otherTeam] === clientId) {
+      updates[`captainAssignments/${otherTeam}`] = null;
+      updates[otherPath] = null;
+    }
+
+    await roomRef.update(updates);
+  } catch (error) {
+    console.warn("No se pudo asignar el capitán online.", error);
+    alert("No se pudo asignar el capitán. Intenta de nuevo.");
+  }
+}
+
+function setupJoinNameModal() {
+  const modal = document.getElementById("join-name-modal");
+  const confirm = document.getElementById("join-name-confirm");
+  const cancel = document.getElementById("join-name-cancel");
+  const input = document.getElementById("join-player-name");
+  const closeTargets = modal?.querySelectorAll("[data-close-join-name]") || [];
+
+  const close = () => {
+    hideJoinNameModal();
+    pendingJoinRoomCode = null;
+  };
+
+  confirm?.addEventListener("click", () => {
+    const playerName = String(input?.value || "").trim();
+    void joinOnlineRoom({ roomCode: pendingJoinRoomCode, nameOverride: playerName });
+  });
+  cancel?.addEventListener("click", close);
+  closeTargets.forEach(target => target.addEventListener("click", close));
+  input?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const playerName = String(input.value || "").trim();
+      void joinOnlineRoom({ roomCode: pendingJoinRoomCode, nameOverride: playerName });
+    }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      close();
+    }
+  });
+}
+
+function setupOnlineControls() {
+  const toggle = document.getElementById("toggle-room-code");
+  const copy = document.getElementById("copy-room-code");
+  const close = document.getElementById("close-room-btn");
+  const disconnect = document.getElementById("disconnect-room-btn");
+  const randomRoomNames = document.getElementById("room-random-player-names");
+  const onlineStartBtn = document.getElementById("start-online-draft");
+  const captainASelect = document.getElementById("captain-a-select");
+  const captainBSelect = document.getElementById("captain-b-select");
+  const roomCodeInput = document.getElementById("room-input");
+
+  roomCodeInput?.addEventListener("input", () => {
+    const normalized = normalizeRoomCode(roomCodeInput.value);
+    if (roomCodeInput.value !== normalized) roomCodeInput.value = normalized;
+  });
+  roomCodeInput?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      void joinOnlineRoom();
+    }
+  });
+
+  if (captainASelect) captainASelect.addEventListener("change", () => assignOnlineCaptain("A", captainASelect.value || null));
+  if (captainBSelect) captainBSelect.addEventListener("change", () => assignOnlineCaptain("B", captainBSelect.value || null));
+
+  if (toggle) toggle.addEventListener("click", () => {
+    const el = document.getElementById("room-code-display");
+    if (!el) return;
+    const shouldShow = el.dataset.hidden === "1";
+    setRoomCodeDisplay(currentRoomCode || "----", !shouldShow);
+  });
+
+  if (copy) copy.addEventListener("click", async () => {
+    if (!currentRoomCode) return;
+    try {
+      await navigator.clipboard?.writeText(currentRoomCode);
+      copy.textContent = t("copied");
+      setTimeout(() => { copy.textContent = t("copy_code"); }, 1200);
+    } catch (_) {
+      alert(`Código de sala: ${currentRoomCode}`);
+    }
+  });
+
+  if (close) close.addEventListener("click", async () => {
+    if (currentRole !== "host" || !currentRoomCode) return;
+    await closeCurrentRoom();
+  });
+
+  if (disconnect) disconnect.addEventListener("click", async () => {
+    if (currentRole !== "player" || !currentRoomCode) return;
+    await disconnectCurrentRoom();
+  });
+
+  if (randomRoomNames) randomRoomNames.addEventListener("click", () => {
+    if (currentRole !== "host" || !currentRoomCode || state.draftActive) return;
+    applyRandomPlayerNames();
+    pushRoomLobbyConfig();
+  });
+
+  if (onlineStartBtn) {
+    onlineStartBtn.addEventListener("click", async () => {
+      if (!currentRoomCode || currentRole !== "host") return;
+      const roomRef = roomRefFor(currentRoomCode);
+      if (!roomRef) {
+        alert(onlineUnavailableMessage());
+        return;
+      }
+      try {
+        onlineStartBtn.disabled = true;
+        const snapshot = await roomRef.get();
+        const roomData = snapshot.val() || {};
+        const assignments = captainAssignmentsFromRoom(roomData);
+        if (!assignments.A || !assignments.B || assignments.A === assignments.B) {
+          alert(t("lobby_alert_assign_captains"));
+          onlineStartBtn.disabled = false;
+          return;
+        }
+        const captainA = participantByClientId(roomData, assignments.A);
+        const captainB = participantByClientId(roomData, assignments.B);
+        if (!captainA || !captainB) {
+          alert(t("lobby_alert_missing_captains"));
+          onlineStartBtn.disabled = false;
+          return;
+        }
+        readPlayers();
+        resetDraftStateBeforeStart();
+        state.draftSessionId += 1;
+        state.onlinePhase = "draft";
+        prepareClockForTurnIndex(0, phaseOverlayDurationMs());
+        const players = { A: [...state.players.A], B: [...state.players.B] };
+        const draftPayload = blankOnlineDraftState({
+          phase: "draft",
+          draftSessionId: state.draftSessionId,
+          turnIndex: 0,
+          turnDuration: state.turnDuration,
+          turnStartedAt: state.turnStartedAt,
+          turnDeadlineAt: state.turnDeadlineAt,
+          players,
+          captainAssignments: assignments,
+          phaseEvent: createOnlinePhaseEvent("banPhase"),
+        });
+        await roomRef.update({
+          started: true,
+          startedAt: onlineNow(),
+          updatedAt: onlineNow(),
+          players,
+          turnDuration: state.turnDuration,
+          captainAssignments: assignments,
+          teamA: { clientId: assignments.A, name: captainA.name, connected: captainA.connected, role: "CAPITÁN_ATACANTES", lastSeen: captainA.lastSeen || onlineNow() },
+          teamB: { clientId: assignments.B, name: captainB.name, connected: captainB.connected, role: "CAPITÁN_DEFENSORES", lastSeen: captainB.lastSeen || onlineNow() },
+          draftState: draftPayload,
+        });
+      } catch (error) {
+        onlineStartBtn.disabled = false;
+        console.error(error);
+        alert("No se pudo iniciar el draft online.");
+      }
+    });
+  }
+}
+
+async function closeCurrentRoom() {
+  if (!currentRoomCode) return;
+  const roomCode = currentRoomCode;
+  try {
+    const roomRef = roomRefFor(roomCode);
+    const path = rolePathForCurrentClient();
+    if (roomRef && path) {
+      try { await roomRef.child(path).onDisconnect().cancel(); } catch (_) {}
+    }
+    await roomRef?.update({ closed: true, closedAt: onlineNow() }).catch(() => {});
+    await roomRef?.remove();
+  } catch (error) {
+    console.error(error);
+  } finally {
+    handleRoomClosed(roomCode, { silent: true });
+  }
+}
+
+async function disconnectCurrentRoom() {
+  if (!currentRoomCode) return;
+  const roomCode = currentRoomCode;
+  const role = currentRole;
+  const clientId = onlineClientId();
+  try {
+    const roomRef = roomRefFor(roomCode);
+    if (roomRef && role === "player") {
+      try { await roomRef.child(`participants/${clientId}`).onDisconnect().cancel(); } catch (_) {}
+      const snapshot = await roomRef.get();
+      const data = snapshot.val() || {};
+      const assignments = captainAssignmentsFromRoom(data);
+      const updates = { updatedAt: onlineNow() };
+
+      if (data.started) {
+        updates[`participants/${clientId}/connected`] = false;
+        updates[`participants/${clientId}/lastSeen`] = onlineNow();
+      } else {
+        updates[`participants/${clientId}`] = null;
+        if (assignments.A === clientId) {
+          updates["captainAssignments/A"] = null;
+          updates.teamA = null;
+        }
+        if (assignments.B === clientId) {
+          updates["captainAssignments/B"] = null;
+          updates.teamB = null;
+        }
+      }
+
+      await roomRef.update(updates).catch(() => {});
+    }
+  } catch (error) {
+    console.warn("No se pudo desconectar limpiamente de la sala.", error);
+  } finally {
+    handleRoomClosed(roomCode, { silent: true });
+  }
+}
+
+function handleRoomClosed(roomCode, options = {}) {
+  if (roomCode && currentRoomCode && roomCode !== currentRoomCode) return;
+  try {
+    if (onlineRoomListenerCode) roomRefFor(onlineRoomListenerCode)?.off("value");
+    if (onlineRoomDeletionListenerCode) roomRefFor(onlineRoomDeletionListenerCode)?.off("value");
+  } catch (_) {}
+  onlineRoomListenerCode = null;
+  onlineRoomDeletionListenerCode = null;
+  abortDraftRuntime();
+  currentRoomCode = null;
+  currentRole = null;
+  playerTeam = null;
+  onlineStartedForRoom = null;
+  onlineRoomStartedState = false;
+  clearOnlineSession();
+  updateOnlineBodyClasses();
+  activateSetupTab("menu");
+  switchScreen(setupScreen);
+  startMusic("menu");
+  if (!options.silent) alert("El líder de la sala ha cerrado la sala.");
+}
+
+function watchRoomDeletion(roomCode) {
+  const roomRef = roomRefFor(roomCode);
+  if (!roomRef || onlineRoomDeletionListenerCode === roomCode) return;
+  if (onlineRoomDeletionListenerCode) roomRefFor(onlineRoomDeletionListenerCode)?.off("value");
+  onlineRoomDeletionListenerCode = roomCode;
+  roomRef.on("value", (snap) => {
+    if (!snap.exists() && currentRoomCode === roomCode) handleRoomClosed(roomCode);
+  });
+}
+
+function showHostControls(isHost) {
+  const closeRoomBtn = document.getElementById("close-room-btn");
+  if (closeRoomBtn) closeRoomBtn.style.display = isHost ? "inline-flex" : "none";
+  const disconnectRoomBtn = document.getElementById("disconnect-room-btn");
+  if (disconnectRoomBtn) disconnectRoomBtn.style.display = !isHost && currentRole === "player" ? "inline-flex" : "none";
+  if (roomPlayerConfig) roomPlayerConfig.classList.toggle("hidden", !isHost);
+  const startButton = document.getElementById("start-online-draft");
+  if (startButton) startButton.style.display = isHost ? "inline-flex" : "none";
+}
+
+async function tryRestoreOnlineSession() {
+  let saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem(ONLINE_SESSION_STORAGE_KEY) || "null");
+  } catch (_) {}
+  const savedName = saved?.playerName || (() => { try { return localStorage.getItem(ONLINE_PLAYER_NAME_STORAGE_KEY); } catch (_) { return null; } })();
+  if (savedName) currentOnlinePlayerName = savedName;
+  const nameInput = document.getElementById("join-player-name");
+  if (nameInput && savedName && !nameInput.value) nameInput.value = savedName;
+
+  if (!saved?.roomCode || saved.clientId !== onlineClientId()) return;
+  const roomRef = roomRefFor(saved.roomCode);
+  if (!roomRef) return;
+  try {
+    const snapshot = await roomRef.get();
+    if (!snapshot.exists()) {
+      clearOnlineSession();
+      return;
+    }
+    const data = snapshot.val() || {};
+    if (data.closed) {
+      clearOnlineSession();
+      return;
+    }
+
+    if (saved.role === "host" && data.host?.clientId === onlineClientId()) {
+      attachCurrentRoom(saved.roomCode, "host", null);
+      return;
+    }
+
+    if (saved.role === "player" && data.participants?.[onlineClientId()]) {
+      const assignments = captainAssignmentsFromRoom(data);
+      let restoredTeam = null;
+      if (assignments.A === onlineClientId()) restoredTeam = "teamA";
+      else if (assignments.B === onlineClientId()) restoredTeam = "teamB";
+      currentOnlinePlayerName = data.participants?.[onlineClientId()]?.name || currentOnlinePlayerName;
+      attachCurrentRoom(saved.roomCode, "player", restoredTeam);
+      return;
+    }
+
+    if (saved.role === "player" && saved.playerTeam === "teamA" && data.teamA?.clientId === onlineClientId()) {
+      currentOnlinePlayerName = data.teamA?.name || currentOnlinePlayerName;
+      attachCurrentRoom(saved.roomCode, "player", "teamA");
+      return;
+    }
+
+    if (saved.role === "player" && saved.playerTeam === "teamB" && data.teamB?.clientId === onlineClientId()) {
+      currentOnlinePlayerName = data.teamB?.name || currentOnlinePlayerName;
+      attachCurrentRoom(saved.roomCode, "player", "teamB");
+      return;
+    }
+
+    clearOnlineSession();
+  } catch (error) {
+    console.warn("No se pudo restaurar la sesión online.", error);
+  }
+}

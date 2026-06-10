@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STRINOVA Draft Competitive Rework v2.3 by RPmods</title>
+  <title>STRINOVA Draft System v3.0 by RPmods</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -29,7 +29,7 @@
   <main id="setup-screen" class="screen setup-screen active">
     <section class="setup-shell settings-surface">
       <header class="settings-topbar">
-        <div class="settings-brand">STRINOVA Draft Competitive Rework v2.3 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.0 by RPmods</div>
         <nav class="settings-tabs">
           <button type="button" class="settings-tab setup-top-tab is-active" data-tab="menu">MENÚ</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="volumen">VOLUMEN</button>
@@ -53,7 +53,7 @@
 
       <header class="setup-top">
         <p class="eyebrow">Sistema competitivo</p>
-        <h1>STRINOVA Draft Competitive Rework v2.3 by RPmods</h1>
+        <h1>STRINOVA Draft System v3.0 by RPmods</h1>
         <p>Configura los nombres y entra directamente a la fase de bloqueos.</p>
       </header>
 
@@ -95,7 +95,12 @@
                 <span>Resumen final automático</span>
                 <span>Audio, voces y música configurables</span>
               </div>
-              <button id="start-draft" class="primary-button">INICIAR DRAFT</button>
+              <button id="start-draft" class="primary-button">INICIAR DRAFT LOCAL</button>
+			  <button id="create-room" class="primary-button online-menu-button">CREAR SALA ONLINE</button>
+              <div class="room-join-box">
+                <input id="room-input" class="room-input" type="text" placeholder="Código de sala (ej: K4N8XQ)" />
+                <button id="join-room" class="primary-button online-menu-button">UNIRSE A SALA</button>
+              </div>
             </section>
 
             <section class="setup-panel" data-panel="volumen">
@@ -266,10 +271,10 @@
 
               <label class="toggle-row random-selector-row">
                 <div class="subconfig-copy">
-                  <span>Ejecutar resumen final con personajes aleatorios (deshabilitado en esta version)</span>
+                  <span>Ejecutar resumen final con personajes aleatorios</span>
                   <small>Genera de inmediato un resumen final respetando facciones válidas para TEAM A y TEAM B.</small>
                 </div>
-                <button id="simulate-summary" type="button" class="primary-button small-primary">NO DISPONIBLE</button>
+                <button id="simulate-summary" type="button" class="primary-button small-primary">EJECUTAR</button>
               </label>
             </section>
 
@@ -289,6 +294,7 @@
                   <select id="language-select" class="language-select">
                     <option value="es">Español</option>
                     <option value="en">English</option>
+                    <option value="pt">Português</option>
                     <option value="ja">日本語</option>
                     <option value="ru">Русский</option>
                     <option value="zh">中文</option>
@@ -331,15 +337,14 @@
 
               <div class="updates-history-panel">
                 <ul>
-                  <li>Interfaz principal adaptada a estilo competitivo de videojuego.</li>
-                  <li>Sistema completo de bloqueos y selección por equipos.</li>
-                  <li>Soporte de música, efectos, líneas de narración y voces de personajes.</li>
-                  <li>Ruleta arcade para selección aleatoria de personajes por tiempo agotado.</li>
-                  <li>Selección aleatoria de mapas antes del resumen final.</li>
-                  <li>Resumen final con mapa seleccionado, picks y bloqueos por equipo.</li>
-                  <li>Configuración de nombres manuales o aleatorios desde archivo externo.</li>
-                  <li>Compatibilidad con MP3, OGG y MP4 para los audios principales.</li>
-                  <li>Ajustes separados de volumen para música, efectos, narración y voces.</li>
+                  <li>v2.3 — Base estable: se consolidó la interfaz competitiva, el draft local, bloqueos, selecciones, audios y resumen final.</li>
+                  <li>v2.4 — Se añadió el modo online con salas por código, líder espectador, sincronización de picks, bans, turnos, mapa y estado completo.</li>
+                  <li>v2.5 — Se corrigieron errores de sincronización de turnos, temporizador, reconexión, selección aleatoria y bloqueo de acciones por rol.</li>
+                  <li>v2.6 — Se añadieron eventos sincronizados de fase, avisos grandes por equipo, selección de capitanes desde el lobby y cierre de sala por el líder.</li>
+                  <li>v2.7 — Se mejoró la sincronización de sonidos, voces, preselección, animaciones, ruleta automática y selección automática de mapa.</li>
+                  <li>v2.8 — Se corrigió el lobby online, el flujo de nombre al unirse, el botón de desconectar, nombres aleatorios y ajustes visuales del HUD.</li>
+                  <li>v2.9 — Se añadió precarga inicial de recursos, indicador de carga, precarga secundaria y ocultamiento suave de HUD durante anuncios de fase.</li>
+                  <li>v3.0 — Se añadió portugués, sistema de narración por idioma, lectura de bot para idiomas sin voces grabadas, historial completo y soporte visual para más mapas.</li>
                 </ul>
               </div>
             </section>
@@ -432,6 +437,104 @@
     </section>
   </main>
 
+  <main id="room-screen" class="screen room-screen">
+    <section class="setup-shell settings-surface room-shell">
+
+      <header class="setup-top room-top">
+        <p class="eyebrow">Modo Online</p>
+        <h1>Sala sincronizada</h1>
+        <p>El líder espectador administra la sala; los capitanes solo eligen cuando sea su turno.</p>
+      </header>
+
+      <div class="room-panel">
+        <div class="room-code-card">
+          <span class="room-card-label">CÓDIGO DE SALA</span>
+          <h2 id="room-code-display" data-hidden="1">••••••</h2>
+          <div class="room-code-actions">
+            <button id="toggle-room-code" class="secondary-button room-code-button" type="button">MOSTRAR CÓDIGO</button>
+            <button id="copy-room-code" class="secondary-button room-code-button" type="button">COPIAR CÓDIGO</button>
+          </div>
+        </div>
+
+        <p id="room-role-display" class="room-role-display">ESPECTADOR</p>
+
+        <div id="room-status" class="room-status-grid">
+          <p>Host: Esperando...</p>
+          <p>Capitán Atacantes: Vacante</p>
+          <p>Capitán Defensores: Vacante</p>
+        </div>
+
+        <section id="room-player-config" class="room-player-config hidden">
+          <div class="room-config-heading">
+            <span>CONFIGURACIÓN DEL LÍDER</span>
+            <strong>Capitanes y nombres de jugadores</strong>
+          </div>
+          <div class="room-config-copy">Esta interfaz solo la ve el espectador líder. Primero asigna quién será capitán de Atacantes y Defensa; luego ajusta los nombres del draft.</div>
+          <div class="room-name-tools">
+            <button id="room-random-player-names" class="primary-button small-primary online-menu-button" type="button">NOMBRES ALEATORIOS</button>
+          </div>
+
+          <div class="room-captain-assignment">
+            <label class="room-captain-select-row">
+              <span>Capitán TEAM A · ATACANTES</span>
+              <select id="captain-a-select" class="room-captain-select">
+                <option value="">Sin asignar</option>
+              </select>
+            </label>
+            <label class="room-captain-select-row">
+              <span>Capitán TEAM B · DEFENSORES</span>
+              <select id="captain-b-select" class="room-captain-select">
+                <option value="">Sin asignar</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="room-participant-panel">
+            <span>USUARIOS EN SALA</span>
+            <div id="room-participant-list" class="room-participant-list">
+              <p class="room-empty-list">Esperando usuarios...</p>
+            </div>
+          </div>
+
+          <div class="room-player-config-grid">
+            <div class="room-player-team room-player-team-a">
+              <span>TEAM A · ATACANTES</span>
+              <div id="room-team-a-inputs" class="room-player-inputs"></div>
+            </div>
+            <div class="room-player-team room-player-team-b">
+              <span>TEAM B · DEFENSORES</span>
+              <div id="room-team-b-inputs" class="room-player-inputs"></div>
+            </div>
+          </div>
+        </section>
+
+        <div class="room-primary-actions">
+          <button id="start-online-draft" class="primary-button" type="button">INICIAR DRAFT</button>
+          <button id="disconnect-room-btn" class="secondary-button room-code-button" type="button">DESCONECTAR SALA</button>
+          <button id="close-room-btn" class="secondary-button danger-button" type="button">CERRAR SALA</button>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <div id="join-name-modal" class="join-name-modal hidden" aria-hidden="true">
+    <div class="join-name-backdrop" data-close-join-name="1"></div>
+    <section class="join-name-card" role="dialog" aria-modal="true" aria-labelledby="join-name-title">
+      <p class="join-name-kicker">Unirse a sala online</p>
+      <h2 id="join-name-title">Identifícate para entrar</h2>
+      <p class="join-name-copy">Código preparado: <strong id="join-room-code-preview">------</strong>. Tu nombre solo se usará para que el líder pueda asignarte como capitán.</p>
+      <label class="join-name-field">
+        <span>Tu nombre en sala</span>
+        <input id="join-player-name" class="room-input" type="text" placeholder="Ej: Rodrigo" maxlength="24" autocomplete="nickname" />
+      </label>
+      <div class="join-name-actions">
+        <button id="join-name-confirm" class="primary-button online-menu-button" type="button">ENTRAR A SALA</button>
+        <button id="join-name-cancel" class="secondary-button room-code-button" type="button">CANCELAR</button>
+      </div>
+    </section>
+  </div>
+
   <main id="draft-screen" class="screen draft-screen">
     <header class="game-hud">
       <div class="hud-spacer" aria-hidden="true"></div>
@@ -472,6 +575,7 @@
       <section class="hero-stage">
         <div class="turn-chip" id="turn-label">Equipo A bloquea</div>
         <p id="current-restriction" class="restriction-text">Selecciona un personaje válido.</p>
+        <div id="captain-turn-banner" class="captain-turn-banner hidden" aria-live="polite"></div>
         <div id="stage-characters" class="stage-characters"></div>
 
         <div id="phase-status-panel" class="phase-status-panel status-team-a">
@@ -521,7 +625,7 @@
   <main id="map-screen" class="screen map-screen">
     <section class="map-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft Competitive Rework v2.3 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.0 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab is-active">SELECCIÓN DE MAPA</span>
         </nav>
@@ -552,7 +656,7 @@
   <main id="summary-screen" class="screen summary-screen">
     <section class="summary-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft Competitive Rework v2.3 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.0 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab">BÁSICO</span>
           <span class="settings-tab">EQUIPOS</span>
@@ -612,6 +716,10 @@
 
   </div>
   </div>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="js/firebase.js"></script>
+  
   <script src="js/character_layout_config.js"></script>
   <script src="js/map_config.js"></script>
   <script src="js/player_names_config.js"></script>

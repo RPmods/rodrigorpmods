@@ -10692,3 +10692,1055 @@ body {
 .intro-logo-loop-overlay.visible{animation:introLogoFade 3s ease forwards,introLogoFloat 5s ease-in-out infinite;}
 @keyframes introLogoFade{from{opacity:0;transform:translate(-50%,-50%);}to{opacity:1;transform:translate(-50%,-50%);}}
 @keyframes introLogoFloat{0%{transform:translate(-50%,-50%);}50%{transform:translate(-50%,calc(-50% - 8px));}100%{transform:translate(-50%,-50%);}}
+
+/* === RPmods Online Sync Definitivo === */
+.secondary-button,
+.online-menu-button {
+  min-height: 54px;
+  padding: 16px 22px;
+  border: 1px solid rgba(255,255,255,0.22);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 1000;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%);
+  background: linear-gradient(90deg, rgba(255,49,74,0.94), rgba(255,170,84,0.92) 52%, rgba(76,168,255,0.94));
+  box-shadow: 0 18px 42px rgba(0,0,0,0.36), 0 0 34px rgba(255,255,255,0.08) inset;
+  transition: transform 0.16s ease, filter 0.16s ease, opacity 0.16s ease;
+}
+.secondary-button:hover,
+.online-menu-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+.secondary-button:active,
+.online-menu-button:active { transform: translateY(1px); }
+.secondary-button:disabled,
+.primary-button:disabled,
+.action-button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  filter: grayscale(0.25);
+}
+.room-join-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  margin-top: 14px;
+}
+.room-input {
+  min-height: 54px;
+  padding: 0 18px;
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 14px;
+  color: #fff;
+  background: rgba(6, 10, 20, 0.68);
+  box-shadow: inset 0 0 22px rgba(0,0,0,0.34), 0 0 24px rgba(76,168,255,0.08);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  outline: none;
+}
+.room-input::placeholder { color: rgba(255,255,255,0.42); }
+.room-shell { overflow: hidden; }
+.room-top { max-width: 760px; margin-left: auto; margin-right: auto; text-align: center; }
+.room-panel {
+  width: min(920px, 100%);
+  margin: 22px auto 0;
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(12,20,38,0.84), rgba(6,8,18,0.72));
+  box-shadow: 0 28px 80px rgba(0,0,0,0.44), inset 0 0 50px rgba(255,255,255,0.04);
+  backdrop-filter: blur(12px);
+}
+.room-code-card {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 24px;
+  background: radial-gradient(circle at top, rgba(255,49,74,0.22), rgba(76,168,255,0.1) 56%, rgba(0,0,0,0.22));
+}
+.room-card-label,
+.room-config-heading span,
+.room-player-team > span {
+  color: rgba(255,255,255,0.72);
+  font-size: 0.72rem;
+  font-weight: 1000;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+#room-code-display {
+  margin: 0;
+  min-width: 240px;
+  text-align: center;
+  font-size: clamp(2.4rem, 5vw, 4.8rem);
+  line-height: 1;
+  letter-spacing: 0.18em;
+  color: #fff;
+  text-shadow: 0 0 24px rgba(76,168,255,0.46), 0 0 34px rgba(255,49,74,0.28);
+}
+.room-code-actions,
+.room-primary-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.room-code-button { min-height: 42px; padding: 11px 16px; font-size: 0.72rem; }
+.room-role-display {
+  margin: 0;
+  text-align: center;
+  color: #fff;
+  font-weight: 1000;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.room-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.room-status-grid p {
+  margin: 0;
+  padding: 14px 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 16px;
+  color: rgba(255,255,255,0.86);
+  background: rgba(0,0,0,0.26);
+  font-weight: 800;
+  text-align: center;
+}
+.room-player-config {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 22px;
+  background: rgba(255,255,255,0.045);
+}
+.room-config-heading { display: grid; gap: 4px; text-align: center; }
+.room-config-heading strong { color: #fff; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.room-config-copy { color: rgba(255,255,255,0.72); text-align: center; font-size: 0.88rem; }
+.room-player-config-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.room-player-team {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.room-player-team-a { box-shadow: inset 4px 0 0 rgba(255,67,86,0.7); }
+.room-player-team-b { box-shadow: inset -4px 0 0 rgba(85,168,255,0.7); }
+.room-player-inputs { display: grid; gap: 8px; }
+.room-player-input {
+  min-height: 42px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 12px;
+  padding: 0 12px;
+  background: rgba(4,8,18,0.72);
+  color: #fff;
+  font-weight: 900;
+  outline: none;
+}
+.danger-button {
+  background: linear-gradient(90deg, #3b0610, #d31934 58%, #ff6b7b) !important;
+  border-color: rgba(255, 96, 118, 0.42) !important;
+}
+.captain-turn-banner {
+  width: min(760px, 96%);
+  margin: 12px auto 8px;
+  padding: 18px 22px;
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 24px;
+  color: #fff;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-weight: 1000;
+  font-size: clamp(1.05rem, 2.2vw, 2rem);
+  line-height: 1.18;
+  background: linear-gradient(135deg, rgba(12,20,38,0.88), rgba(0,0,0,0.48));
+  box-shadow: 0 18px 52px rgba(0,0,0,0.38), 0 0 34px rgba(255,255,255,0.08) inset;
+  backdrop-filter: blur(10px);
+}
+.captain-turn-banner.turn-a { border-color: rgba(255,67,86,0.5); box-shadow: 0 18px 52px rgba(0,0,0,0.38), 0 0 30px rgba(255,67,86,0.18); }
+.captain-turn-banner.turn-b { border-color: rgba(85,168,255,0.5); box-shadow: 0 18px 52px rgba(0,0,0,0.38), 0 0 30px rgba(85,168,255,0.18); }
+.captain-turn-banner .banner-kicker { display: block; margin-bottom: 6px; color: rgba(255,255,255,0.68); font-size: 0.62em; letter-spacing: 0.18em; }
+body.online-role-host .character-card,
+body.online-role-host .map-card,
+body.online-role-spectator .character-card,
+body.online-role-spectator .map-card { cursor: default; }
+body.online-role-host #confirm-action,
+body.online-role-player.other-team-turn #confirm-action { display: none !important; }
+@media (max-width: 860px) {
+  .room-join-box,
+  .room-player-config-grid,
+  .room-status-grid { grid-template-columns: 1fr; }
+  .room-primary-actions,
+  .room-code-actions { flex-direction: column; }
+  .room-primary-actions > *,
+  .room-code-actions > * { width: 100%; }
+}
+
+/* === RPmods Online Sync Fix v2: banner y botones con estilo de INICIAR DRAFT === */
+.captain-turn-banner,
+.captain-turn-banner.turn-a,
+.captain-turn-banner.turn-b {
+  border-color: rgba(255,255,255,0.16) !important;
+  background: linear-gradient(180deg, #2e333c, #252a33) !important;
+  box-shadow:
+    inset 0 -3px 0 #f33d49,
+    0 18px 42px rgba(0,0,0,0.36),
+    0 0 34px rgba(255,255,255,0.06) inset !important;
+}
+.captain-turn-banner .banner-kicker {
+  color: #f33d49 !important;
+  text-shadow: 0 0 14px rgba(243,61,73,0.26);
+}
+.online-menu-button,
+.secondary-button,
+.room-code-button,
+#start-online-draft {
+  background: linear-gradient(180deg, #2e333c, #252a33) !important;
+  border-color: rgba(255,255,255,0.16) !important;
+  box-shadow:
+    inset 0 -3px 0 #f33d49,
+    0 18px 42px rgba(0,0,0,0.34),
+    0 0 28px rgba(255,255,255,0.05) inset !important;
+}
+.online-menu-button:hover,
+.secondary-button:hover,
+.room-code-button:hover,
+#start-online-draft:hover {
+  filter: brightness(1.08) !important;
+}
+.room-status-grid p,
+.room-player-team {
+  background: linear-gradient(180deg, rgba(46,51,60,0.86), rgba(37,42,51,0.82)) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+.room-player-team-a,
+.room-player-team-b {
+  box-shadow: inset 0 -3px 0 #f33d49 !important;
+}
+
+/* === RPmods Online Sync Fix v3: capitanes, fases y sala === */
+.room-join-box {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) auto !important;
+}
+
+.room-captain-assignment {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.room-captain-select-row {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 18px;
+  background: rgba(0,0,0,0.20);
+}
+
+.room-captain-select-row span,
+.room-participant-panel > span {
+  color: rgba(255,255,255,0.74);
+  font-size: 0.72rem;
+  font-weight: 1000;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.room-captain-select {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #2e333c, #252a33);
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  outline: none;
+}
+
+.room-participant-panel {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  background: rgba(0,0,0,0.16);
+}
+
+.room-participant-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.room-participant-list p,
+.room-empty-list {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 12px;
+  background: rgba(4,8,18,0.52);
+  color: rgba(255,255,255,0.78);
+  font-weight: 800;
+}
+
+.room-participant-list p strong,
+.room-participant-list p span {
+  display: block;
+}
+
+.room-participant-list p strong {
+  color: #fff;
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.room-participant-list p span {
+  margin-top: 3px;
+  color: rgba(255,255,255,0.62);
+  font-size: 0.74rem;
+}
+
+.captain-turn-banner.hidden {
+  display: none !important;
+}
+
+.captain-turn-banner {
+  position: relative;
+  z-index: 62;
+  display: grid;
+  gap: 4px;
+  place-items: center;
+  border-width: 2px !important;
+  color: #fff !important;
+  overflow: hidden;
+}
+
+.captain-turn-banner::before {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.18) 48%, transparent 70%);
+  transform: translateX(-65%) rotate(8deg);
+  animation: captainBannerSweepV3 2.6s linear infinite;
+  pointer-events: none;
+}
+
+.captain-turn-banner > * {
+  position: relative;
+  z-index: 1;
+}
+
+.captain-turn-banner strong,
+.captain-turn-banner span,
+.captain-turn-banner em {
+  display: block;
+  font-style: normal;
+}
+
+.captain-turn-banner strong {
+  font-size: 1.18em;
+  letter-spacing: 0.10em;
+}
+
+.captain-turn-banner em {
+  margin-top: 2px;
+  padding: 5px 14px;
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 999px;
+  font-size: 0.58em;
+  letter-spacing: 0.22em;
+  background: rgba(0,0,0,0.24);
+}
+
+.captain-turn-banner.turn-a {
+  border-color: rgba(255,92,110,0.78) !important;
+  background: linear-gradient(135deg, rgba(74,10,20,0.96), rgba(215,42,62,0.90)) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.42), 0 0 34px rgba(255,72,91,0.34), inset 0 -3px 0 rgba(255,255,255,0.24) !important;
+}
+
+.captain-turn-banner.turn-b {
+  border-color: rgba(92,182,255,0.82) !important;
+  background: linear-gradient(135deg, rgba(9,28,70,0.96), rgba(39,122,220,0.90)) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.42), 0 0 34px rgba(86,177,255,0.34), inset 0 -3px 0 rgba(255,255,255,0.24) !important;
+}
+
+.captain-turn-banner .banner-kicker {
+  color: rgba(255,255,255,0.78) !important;
+  text-shadow: none !important;
+}
+
+.captain-turn-banner.is-spectator-turn {
+  width: min(820px, 96%);
+  font-size: clamp(1rem, 1.65vw, 1.6rem);
+}
+
+.captain-turn-banner.is-own-turn {
+  width: min(860px, 96%);
+  font-size: clamp(1.15rem, 2.1vw, 2.15rem);
+}
+
+.captain-turn-banner.is-opponent-turn {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(1180px, 88vw) !important;
+  min-height: min(420px, 44vh) !important;
+  padding: clamp(34px, 5vw, 72px) !important;
+  font-size: clamp(2.2rem, 5.8vw, 5.6rem) !important;
+  line-height: 1.05 !important;
+  z-index: 118 !important;
+  pointer-events: none !important;
+  animation: opponentTurnBannerPulseV3 1.1s ease-in-out infinite alternate !important;
+}
+
+.captain-turn-banner.is-opponent-turn .banner-kicker {
+  font-size: 0.24em !important;
+  letter-spacing: 0.32em !important;
+}
+
+.captain-turn-banner.is-opponent-turn strong {
+  font-size: 0.82em !important;
+}
+
+.captain-turn-banner.is-opponent-turn span:not(.banner-kicker) {
+  font-size: 0.44em !important;
+  letter-spacing: 0.10em !important;
+}
+
+.captain-turn-banner.is-opponent-turn em {
+  font-size: 0.24em !important;
+  padding: 10px 22px !important;
+}
+
+body.online-role-player.other-team-turn .character-dock,
+body.online-role-player.other-team-turn .phase-status-panel {
+  filter: saturate(0.72) brightness(0.72);
+}
+
+@keyframes captainBannerSweepV3 {
+  from { transform: translateX(-70%) rotate(8deg); }
+  to { transform: translateX(70%) rotate(8deg); }
+}
+
+@keyframes opponentTurnBannerPulseV3 {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.16); }
+}
+
+@media (max-width: 860px) {
+  .room-join-box,
+  .room-captain-assignment,
+  .room-participant-list {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* === RPmods Online Sync Fix v5: lobby responsive, modal de nombre y audio === */
+/* El menú y el lobby pueden desplazarse si una pantalla pequeña/zoom alto corta botones. */
+.setup-screen.active,
+.room-screen.active {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  scrollbar-width: thin;
+}
+
+/* El draft competitivo se mantiene como HUD fijo, sin scroll. */
+.draft-screen.active,
+.map-screen.active,
+.summary-screen.active {
+  overflow: hidden !important;
+}
+
+.room-screen {
+  width: 1920px !important;
+  height: 1080px !important;
+  min-height: 1080px !important;
+  padding: 0 !important;
+  align-items: flex-start !important;
+  justify-content: stretch !important;
+}
+
+.room-screen .room-shell,
+.room-screen .settings-surface {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 1080px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 72px 92px 56px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  background:
+    linear-gradient(180deg, rgba(244,246,249,0.96), rgba(224,229,236,0.94)),
+    radial-gradient(circle at 12% 16%, rgba(255,255,255,0.72), transparent 28%),
+    radial-gradient(circle at 86% 28%, rgba(255,255,255,0.48), transparent 26%) !important;
+}
+
+.room-screen .room-shell::before,
+.room-screen .settings-surface::before {
+  inset: 0 !important;
+  opacity: 0.46 !important;
+  background:
+    linear-gradient(rgba(80, 96, 124, 0.105) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 96, 124, 0.105) 1px, transparent 1px) !important;
+  background-size: 160px 160px, 160px 160px !important;
+}
+
+.room-screen .room-top {
+  position: relative !important;
+  z-index: 3 !important;
+  max-width: 820px !important;
+  min-height: 94px !important;
+  margin: 0 auto 14px !important;
+  text-align: center !important;
+}
+
+.room-screen .room-top h1 {
+  color: #232a34 !important;
+  font-size: clamp(2.5rem, 3.6vw, 4.25rem) !important;
+  line-height: 0.94 !important;
+  letter-spacing: -0.045em !important;
+}
+
+.room-screen .room-top .eyebrow,
+.room-screen .room-top p:last-child {
+  color: #596370 !important;
+}
+
+.room-panel {
+  position: relative !important;
+  z-index: 4 !important;
+  width: min(920px, 100%) !important;
+  margin: 0 auto 34px !important;
+  gap: 12px !important;
+  padding: 22px !important;
+  max-height: none !important;
+}
+
+.room-code-card {
+  padding: 16px 20px !important;
+  gap: 10px !important;
+}
+
+#room-code-display {
+  font-size: clamp(2.0rem, 3.8vw, 3.8rem) !important;
+}
+
+.room-player-config {
+  gap: 10px !important;
+  padding: 14px !important;
+}
+
+.room-config-heading strong {
+  font-size: 1.05rem !important;
+}
+
+.room-config-copy {
+  font-size: 0.78rem !important;
+  line-height: 1.42 !important;
+}
+
+.room-captain-assignment,
+.room-player-config-grid {
+  gap: 10px !important;
+}
+
+.room-captain-select-row,
+.room-participant-panel,
+.room-player-team {
+  padding: 12px !important;
+}
+
+.room-player-inputs {
+  gap: 7px !important;
+}
+
+.room-player-input,
+.room-captain-select {
+  min-height: 39px !important;
+}
+
+.room-primary-actions {
+  margin-top: 2px !important;
+}
+
+.room-join-box {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+}
+
+.room-join-box #room-input {
+  min-width: 0 !important;
+  text-align: center !important;
+}
+
+.join-name-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 220;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+}
+
+.join-name-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 8, 16, 0.66);
+  backdrop-filter: blur(10px);
+}
+
+.join-name-card {
+  position: relative;
+  z-index: 1;
+  width: min(620px, 92vw);
+  display: grid;
+  gap: 16px;
+  padding: 30px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 28px;
+  color: #fff;
+  background: linear-gradient(135deg, rgba(46,51,60,0.98), rgba(25,29,38,0.96));
+  box-shadow: 0 32px 90px rgba(0,0,0,0.55), inset 0 -3px 0 #f33d49;
+}
+
+.join-name-kicker,
+.join-name-field span {
+  margin: 0;
+  color: rgba(255,255,255,0.68);
+  font-size: 0.72rem;
+  font-weight: 1000;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.join-name-card h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3.2vw, 2.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+}
+
+.join-name-copy {
+  margin: 0;
+  color: rgba(255,255,255,0.78);
+  line-height: 1.45;
+}
+
+.join-name-copy strong {
+  color: #fff;
+  letter-spacing: 0.16em;
+}
+
+.join-name-field {
+  display: grid;
+  gap: 8px;
+}
+
+.join-name-field .room-input {
+  width: 100%;
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
+.join-name-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.join-name-actions > * {
+  min-width: 180px;
+}
+
+@media (max-height: 820px) {
+  .room-screen .room-shell,
+  .room-screen .settings-surface {
+    padding-top: 52px !important;
+    padding-bottom: 40px !important;
+  }
+  .room-screen .room-top {
+    min-height: 72px !important;
+    margin-bottom: 10px !important;
+  }
+  .room-screen .room-top h1 {
+    font-size: clamp(2.1rem, 3.0vw, 3.35rem) !important;
+  }
+  .room-panel {
+    padding: 18px !important;
+    gap: 10px !important;
+  }
+  .room-code-card {
+    padding: 14px !important;
+  }
+}
+
+
+/* === RPmods Online Sync Fix v6: HUD online más compacto + lobby controlado === */
+.room-name-tools {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 2px auto 12px;
+}
+
+#room-random-player-names {
+  min-height: 42px;
+  padding-inline: 22px;
+}
+
+#disconnect-room-btn {
+  display: none;
+}
+
+/* Espectador: indicador pequeño, arriba y con color de equipo. */
+.captain-turn-banner.is-spectator-turn {
+  position: fixed !important;
+  left: 50% !important;
+  top: clamp(78px, 9vh, 118px) !important;
+  transform: translateX(-50%) !important;
+  width: min(560px, 42vw) !important;
+  min-height: 0 !important;
+  padding: 10px 18px !important;
+  border-radius: 14px !important;
+  font-size: clamp(0.72rem, 1.05vw, 1.08rem) !important;
+  line-height: 1.12 !important;
+  z-index: 84 !important;
+  pointer-events: none !important;
+  backdrop-filter: blur(7px) !important;
+}
+
+.captain-turn-banner.is-spectator-turn .banner-kicker {
+  font-size: 0.54em !important;
+  margin-bottom: 3px !important;
+}
+
+.captain-turn-banner.is-spectator-turn strong {
+  font-size: 0.96em !important;
+}
+
+.captain-turn-banner.is-spectator-turn span:not(.banner-kicker) {
+  font-size: 0.70em !important;
+}
+
+.captain-turn-banner.is-spectator-turn em {
+  margin-top: 4px !important;
+  padding: 3px 10px !important;
+  font-size: 0.48em !important;
+}
+
+.captain-turn-banner.turn-a.is-spectator-turn {
+  background: linear-gradient(135deg, rgba(77, 12, 24, 0.82), rgba(214, 42, 62, 0.68)) !important;
+  border-color: rgba(255, 92, 110, 0.76) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.30), 0 0 22px rgba(255,72,91,0.22), inset 0 -2px 0 rgba(255,255,255,0.18) !important;
+}
+
+.captain-turn-banner.turn-b.is-spectator-turn {
+  background: linear-gradient(135deg, rgba(10, 30, 72, 0.82), rgba(39, 122, 220, 0.68)) !important;
+  border-color: rgba(92, 182, 255, 0.78) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.30), 0 0 22px rgba(86,177,255,0.22), inset 0 -2px 0 rgba(255,255,255,0.18) !important;
+}
+
+/* Capitanes: aviso de turno rival más pequeño, más arriba y más transparente. */
+.captain-turn-banner.is-opponent-turn {
+  top: 42% !important;
+  width: min(790px, 72vw) !important;
+  min-height: min(250px, 30vh) !important;
+  padding: clamp(20px, 3.2vw, 38px) !important;
+  border-radius: 22px !important;
+  font-size: clamp(1.4rem, 3.55vw, 3.55rem) !important;
+  line-height: 1.08 !important;
+  backdrop-filter: blur(6px) !important;
+  animation: opponentTurnBannerPulseV3 1.35s ease-in-out infinite alternate !important;
+}
+
+.captain-turn-banner.turn-a.is-opponent-turn {
+  background: linear-gradient(135deg, rgba(76, 10, 22, 0.68), rgba(218, 45, 65, 0.48)) !important;
+  border-color: rgba(255, 92, 110, 0.72) !important;
+  box-shadow: 0 18px 48px rgba(0,0,0,0.32), 0 0 28px rgba(255,72,91,0.24), inset 0 -2px 0 rgba(255,255,255,0.18) !important;
+}
+
+.captain-turn-banner.turn-b.is-opponent-turn {
+  background: linear-gradient(135deg, rgba(9, 28, 70, 0.68), rgba(39, 122, 220, 0.48)) !important;
+  border-color: rgba(92, 182, 255, 0.74) !important;
+  box-shadow: 0 18px 48px rgba(0,0,0,0.32), 0 0 28px rgba(86,177,255,0.24), inset 0 -2px 0 rgba(255,255,255,0.18) !important;
+}
+
+.captain-turn-banner.is-opponent-turn .banner-kicker {
+  font-size: 0.28em !important;
+  letter-spacing: 0.28em !important;
+  margin-bottom: 4px !important;
+}
+
+.captain-turn-banner.is-opponent-turn strong {
+  font-size: 0.74em !important;
+}
+
+.captain-turn-banner.is-opponent-turn span:not(.banner-kicker) {
+  font-size: 0.38em !important;
+  letter-spacing: 0.10em !important;
+}
+
+.captain-turn-banner.is-opponent-turn em {
+  font-size: 0.23em !important;
+  padding: 7px 18px !important;
+}
+
+@media (max-width: 900px) {
+  .captain-turn-banner.is-spectator-turn {
+    width: min(520px, 86vw) !important;
+    top: 74px !important;
+  }
+  .captain-turn-banner.is-opponent-turn {
+    width: min(660px, 86vw) !important;
+    min-height: min(220px, 28vh) !important;
+    font-size: clamp(1.15rem, 6vw, 2.5rem) !important;
+  }
+}
+
+/* === RPmods Online Sync Fix v7: precarga JS + HUD de turno propio compacto === */
+.resource-preload-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120000;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255,255,255,0.12), transparent 32%),
+    linear-gradient(135deg, rgba(8,12,22,0.92), rgba(20,26,38,0.94));
+  color: #fff;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 260ms ease, visibility 260ms ease;
+  pointer-events: all;
+}
+
+.resource-preload-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.resource-preload-card {
+  width: min(520px, 86vw);
+  padding: 28px 30px 26px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(46,51,60,0.88), rgba(23,28,38,0.90));
+  box-shadow:
+    inset 0 -3px 0 #f33d49,
+    0 28px 80px rgba(0,0,0,0.46),
+    0 0 48px rgba(255,255,255,0.06) inset;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.resource-preload-kicker {
+  display: block;
+  color: rgba(255,255,255,0.62);
+  font-size: 0.68rem;
+  font-weight: 1000;
+  letter-spacing: 0.22em;
+  margin-bottom: 8px;
+}
+
+.resource-preload-card strong {
+  display: block;
+  font-size: clamp(1.2rem, 3vw, 1.95rem);
+  font-weight: 1000;
+  text-shadow: 0 0 18px rgba(255,255,255,0.16);
+}
+
+.resource-preload-card p {
+  min-height: 1.2em;
+  margin: 12px 0 18px;
+  color: rgba(255,255,255,0.72);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.resource-preload-bar {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(5,8,16,0.74);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: inset 0 1px 8px rgba(0,0,0,0.45);
+}
+
+.resource-preload-bar span {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #f33d49, #ff7b89);
+  box-shadow: 0 0 18px rgba(243,61,73,0.44);
+  transition: width 180ms ease;
+}
+
+.resource-preload-card small {
+  display: block;
+  margin-top: 12px;
+  color: rgba(255,255,255,0.68);
+  font-weight: 1000;
+  letter-spacing: 0.16em;
+}
+
+/* Capitanes: cuando es TU TURNO se usa el mismo formato compacto que el espectador. */
+.captain-turn-banner.is-own-turn {
+  position: fixed !important;
+  left: 50% !important;
+  top: clamp(78px, 9vh, 118px) !important;
+  transform: translateX(-50%) !important;
+  width: min(560px, 42vw) !important;
+  min-height: 0 !important;
+  padding: 10px 18px !important;
+  border-radius: 14px !important;
+  font-size: clamp(0.72rem, 1.05vw, 1.08rem) !important;
+  line-height: 1.12 !important;
+  z-index: 84 !important;
+  pointer-events: none !important;
+  backdrop-filter: blur(7px) !important;
+}
+
+.captain-turn-banner.is-own-turn .banner-kicker {
+  font-size: 0.54em !important;
+  margin-bottom: 3px !important;
+}
+
+.captain-turn-banner.is-own-turn strong {
+  font-size: 0.96em !important;
+}
+
+.captain-turn-banner.is-own-turn span:not(.banner-kicker) {
+  font-size: 0.70em !important;
+}
+
+.captain-turn-banner.is-own-turn em {
+  margin-top: 4px !important;
+  padding: 3px 10px !important;
+  font-size: 0.48em !important;
+}
+
+.captain-turn-banner.turn-a.is-own-turn {
+  background: linear-gradient(135deg, rgba(77, 12, 24, 0.82), rgba(214, 42, 62, 0.68)) !important;
+  border-color: rgba(255, 92, 110, 0.76) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.30), 0 0 22px rgba(255,72,91,0.22), inset 0 -2px 0 rgba(255,255,255,0.18) !important;
+}
+
+.captain-turn-banner.turn-b.is-own-turn {
+  background: linear-gradient(135deg, rgba(10, 30, 72, 0.82), rgba(39, 122, 220, 0.68)) !important;
+  border-color: rgba(92, 182, 255, 0.78) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.30), 0 0 22px rgba(86,177,255,0.22), inset 0 -2px 0 rgba(255,255,255,0.18) !important;
+}
+
+/* Durante anuncios de fase, los indicadores de turno no compiten con la anunciante. */
+.captain-turn-banner {
+  transition: opacity 220ms ease, visibility 220ms ease, filter 220ms ease !important;
+}
+
+body.phase-announcing .captain-turn-banner:not(.hidden) {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  filter: blur(3px) !important;
+}
+
+@media (max-width: 900px) {
+  .captain-turn-banner.is-own-turn {
+    width: min(520px, 86vw) !important;
+    top: 74px !important;
+  }
+}
+
+
+/* =========================================================
+   AJUSTE V3.0 - historial final + soporte visual para más mapas
+   ========================================================= */
+.map-grid.map-grid-many {
+  margin-top: clamp(14px, 2vh, 24px);
+  gap: clamp(10px, 1.05vw, 16px);
+}
+
+.map-grid.map-grid-many .map-card {
+  min-height: clamp(138px, 17vh, 172px);
+}
+
+.map-grid.map-grid-many .map-card-image {
+  height: clamp(92px, 12vh, 122px);
+}
+
+.map-grid.map-grid-many .map-card strong {
+  padding: 9px 12px;
+  font-size: clamp(0.78rem, 0.9vw, 0.95rem);
+}
+
+.map-grid.map-grid-xl {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.map-screen.map-enter .map-card:nth-child(7) { animation-delay: 0.29s; }
+.map-screen.map-enter .map-card:nth-child(8) { animation-delay: 0.33s; }
+.map-screen.map-enter .map-card:nth-child(9) { animation-delay: 0.37s; }
+.map-screen.map-enter .map-card:nth-child(10) { animation-delay: 0.41s; }
+.map-screen.map-enter .map-card:nth-child(11) { animation-delay: 0.45s; }
+.map-screen.map-enter .map-card:nth-child(12) { animation-delay: 0.49s; }
+
+@media (max-height: 820px) {
+  .map-shell {
+    padding-top: clamp(42px, 6vh, 64px);
+    padding-bottom: 20px;
+  }
+
+  .map-header h1 {
+    font-size: clamp(2.5rem, 4.4vw, 4rem);
+  }
+
+  .map-grid.map-grid-many {
+    margin-top: 12px;
+  }
+}
+
+/* Historial v3.0: entries by version are longer, so the panel is wider and scroll-safe. */
+.updates-history-panel {
+  width: min(980px, 100%) !important;
+  max-height: min(58vh, 560px);
+  overflow-y: auto;
+}
+
+.updates-history-panel ul {
+  text-align: left !important;
+}
+
+.updates-history-panel li {
+  text-align: left !important;
+}
