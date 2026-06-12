@@ -11744,3 +11744,163 @@ body.phase-announcing .captain-turn-banner:not(.hidden) {
 .updates-history-panel li {
   text-align: left !important;
 }
+
+/* v3.1 · Configuración de draft local/online */
+.draft-config-card {
+  max-width: min(720px, calc(100vw - 40px));
+}
+
+.draft-config-block {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 12px;
+}
+
+.draft-config-block.compact {
+  margin: 14px 0;
+}
+
+.draft-config-label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.62);
+  font-weight: 800;
+}
+
+.draft-size-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.draft-size-button,
+.room-mode-card {
+  border: 1px solid rgba(255,255,255,0.16);
+  background: linear-gradient(135deg, rgba(16, 18, 30, 0.88), rgba(43, 14, 22, 0.68));
+  color: rgba(255,255,255,0.88);
+  border-radius: 14px;
+  padding: 12px 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  box-shadow: 0 12px 26px rgba(0,0,0,0.24), inset 0 0 0 1px rgba(255,255,255,0.04);
+  transition: transform .18s ease, border-color .18s ease, background .18s ease, opacity .18s ease;
+}
+
+.draft-size-button:hover,
+.room-mode-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255,100,120,0.52);
+}
+
+.draft-size-button.is-active,
+.room-mode-card.is-active {
+  color: #fff;
+  background: linear-gradient(135deg, #ff6878 0%, #d4223d 48%, #650914 100%);
+  border-color: rgba(255, 126, 142, 0.72);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.12) inset, 0 0 26px rgba(255, 74, 95, 0.32), 0 16px 34px rgba(0,0,0,0.3);
+}
+
+.room-mode-card:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.draft-config-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 14px 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 16px;
+  background: rgba(7,9,16,0.52);
+}
+
+.draft-config-toggle.compact {
+  padding: 12px 14px;
+}
+
+.draft-config-toggle strong {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.82rem;
+}
+
+.draft-config-toggle small {
+  display: block;
+  margin-top: 4px;
+  color: rgba(255,255,255,0.62);
+  line-height: 1.35;
+}
+
+.draft-config-summary {
+  margin: 8px 0 4px;
+  color: rgba(255,255,255,0.72);
+  font-size: 0.86rem;
+  text-align: center;
+}
+
+.room-draft-config-panel {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(6,8,18,0.42);
+}
+
+.room-mode-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.room-mode-card {
+  text-align: left;
+  letter-spacing: normal;
+  padding: 14px;
+}
+
+.room-mode-card strong {
+  display: block;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.8rem;
+}
+
+.room-mode-card span {
+  display: block;
+  color: rgba(255,255,255,0.68);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.draft-slot-disabled {
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.ban-slot-disabled {
+  min-height: 48px;
+  display: grid;
+  place-items: center;
+}
+
+body.bans-disabled .ban-stack {
+  opacity: 0.62;
+}
+
+@media (max-width: 720px) {
+  .draft-size-options,
+  .room-mode-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

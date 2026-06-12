@@ -14,33 +14,85 @@ const characters = [
   ...["Celestia", "Audrey", "Maddelena", "Fuchsia", "Bai Mo", "Galatea", "Cielle"].map(name => ({ name, faction: "urbino" })),
 ];
 
-const banTurns = [
-  { type: "ban", team: "A", faction: "pus", text: "TEAM A bloquea un personaje de P.U.S" },
-  { type: "ban", team: "B", faction: "scissors", text: "TEAM B bloquea un personaje de The Scissors" },
-  { type: "ban", team: "A", faction: "urbino", text: "TEAM A bloquea un personaje de Cizallas" },
-  { type: "ban", team: "B", faction: "urbino", text: "TEAM B bloquea un personaje de Cizallas" },
+const TEAM_SIZE_OPTIONS = [2, 3, 4, 5];
+const DEFAULT_DRAFT_CONFIG = {
+  mode: "classic",
+  teamSize: 5,
+  bansEnabled: true,
+};
+
+const baseBanTurns = [
+  { type: "ban", team: "A", faction: "pus", text: "TEAM A bloquea un personaje de P.U.S", banIndex: 0, slotIndex: 0 },
+  { type: "ban", team: "B", faction: "scissors", text: "TEAM B bloquea un personaje de The Scissors", banIndex: 1, slotIndex: 0 },
+  { type: "ban", team: "A", faction: "urbino", text: "TEAM A bloquea un personaje de Cizallas", banIndex: 2, slotIndex: 1 },
+  { type: "ban", team: "B", faction: "urbino", text: "TEAM B bloquea un personaje de Cizallas", banIndex: 3, slotIndex: 1 },
 ];
 
-const pickGroups = [
-  { team: "A", count: 1 },
-  { team: "B", count: 2 },
-  { team: "A", count: 2 },
-  { team: "B", count: 2 },
-  { team: "A", count: 2 },
-  { team: "B", count: 1 },
-];
+function sanitizeDraftConfig(config = {}) {
+  const requestedSize = Number(config.teamSize);
+  const teamSize = TEAM_SIZE_OPTIONS.includes(requestedSize) ? requestedSize : DEFAULT_DRAFT_CONFIG.teamSize;
+  const mode = String(config.mode || DEFAULT_DRAFT_CONFIG.mode).toLowerCase() === "advanced" ? "advanced" : "classic";
+  return {
+    mode,
+    teamSize,
+    bansEnabled: typeof config.bansEnabled === "boolean" ? config.bansEnabled : DEFAULT_DRAFT_CONFIG.bansEnabled,
+  };
+}
 
-const pickTurns = pickGroups.flatMap((group, groupId) => {
-  return Array.from({ length: group.count }, (_, slot) => ({
-    type: "pick",
-    team: group.team,
-    groupId,
-    groupCount: group.count,
-    groupSlot: slot,
-  }));
-});
+function pickGroupsForTeamSize(teamSize = DEFAULT_DRAFT_CONFIG.teamSize) {
+  const size = TEAM_SIZE_OPTIONS.includes(Number(teamSize)) ? Number(teamSize) : DEFAULT_DRAFT_CONFIG.teamSize;
+  if (size === 2) return [
+    { team: "A", count: 1 },
+    { team: "B", count: 2 },
+    { team: "A", count: 1 },
+  ];
+  if (size === 3) return [
+    { team: "A", count: 1 },
+    { team: "B", count: 2 },
+    { team: "A", count: 2 },
+    { team: "B", count: 1 },
+  ];
+  if (size === 4) return [
+    { team: "A", count: 1 },
+    { team: "B", count: 2 },
+    { team: "A", count: 2 },
+    { team: "B", count: 2 },
+    { team: "A", count: 1 },
+  ];
+  return [
+    { team: "A", count: 1 },
+    { team: "B", count: 2 },
+    { team: "A", count: 2 },
+    { team: "B", count: 2 },
+    { team: "A", count: 2 },
+    { team: "B", count: 1 },
+  ];
+}
 
-const turns = [...banTurns, ...pickTurns];
+function buildBanTurns(config = DEFAULT_DRAFT_CONFIG) {
+  const normalized = sanitizeDraftConfig(config);
+  if (!normalized.bansEnabled) return [];
+  return baseBanTurns.map(turn => ({ ...turn }));
+}
+
+function buildPickTurns(config = DEFAULT_DRAFT_CONFIG) {
+  const normalized = sanitizeDraftConfig(config);
+  const counters = { A: 0, B: 0 };
+  return pickGroupsForTeamSize(normalized.teamSize).flatMap((group, groupId) => {
+    return Array.from({ length: group.count }, (_, slot) => {
+      const slotIndex = counters[group.team];
+      counters[group.team] += 1;
+      return {
+        type: "pick",
+        team: group.team,
+        groupId,
+        groupCount: group.count,
+        groupSlot: slot,
+        slotIndex,
+      };
+    });
+  });
+}
 
 const maps = (window.MAP_CONFIG?.maps?.length ? window.MAP_CONFIG.maps : [
   { name: "Mapa 1", image: "img/maps/map_1.png" },
@@ -520,6 +572,7 @@ function onlineClientId() {
 }
 
 const state = {
+  draftConfig: { ...DEFAULT_DRAFT_CONFIG },
   players: {
     A: ["Jugador A1", "Jugador A2", "Jugador A3", "Jugador A4", "Jugador A5"],
     B: ["Jugador B1", "Jugador B2", "Jugador B3", "Jugador B4", "Jugador B5"],
@@ -642,6 +695,7 @@ function loadStoredSettings() {
     if (!payload) return;
     const parsed = JSON.parse(payload);
     state.settings = sanitizeStoredSettings(parsed.settings || parsed);
+    if (parsed.draftConfig) state.draftConfig = sanitizeDraftConfig(parsed.draftConfig);
     if (parsed.turnDuration != null) state.turnDuration = clampTurnDuration?.(parsed.turnDuration) || clampNumber(parsed.turnDuration, 10, 50, state.turnDuration);
     state.timer = state.turnDuration;
     if (typeof parsed.musicEnabled === "boolean") state.musicEnabled = parsed.musicEnabled;
@@ -655,6 +709,7 @@ function persistSettingsNow() {
     const payload = {
       version: 1,
       settings: sanitizeStoredSettings(state.settings),
+      draftConfig: currentDraftConfig(),
       turnDuration: state.turnDuration,
       musicEnabled: state.musicEnabled,
     };
@@ -732,10 +787,11 @@ function t(key, vars = {}) {
 function setText(selector, key, vars = {}) { const el = document.querySelector(selector); if (el) el.textContent = t(key, vars); }
 function setAllText(selector, key, vars = {}) { document.querySelectorAll(selector).forEach(el => { el.textContent = t(key, vars); }); }
 function updateSetupRulesText() {
+  const config = currentDraftConfig();
   const rules = document.querySelectorAll(".setup-rules span");
   if (rules[0]) rules[0].innerHTML = t("setup_rules_1", { time: `<b id="setup-turn-time-copy">${state.turnDuration}</b>` });
-  if (rules[1]) rules[1].textContent = t("setup_rules_2");
-  if (rules[2]) rules[2].textContent = t("setup_rules_3");
+  if (rules[1]) rules[1].textContent = config.bansEnabled ? t("setup_rules_bans_enabled") : t("setup_rules_bans_disabled");
+  if (rules[2]) rules[2].textContent = t("setup_rules_picks", { count: config.teamSize });
 }
 function translateRoleLabel(label) {
   const map = { "Centinela":"role_sentinel", "Duelista":"role_duelist", "Controlador":"role_controller", "Vanguardia":"role_vanguard", "Soporte":"role_support", "Sin rol":"role_none" };
@@ -852,7 +908,7 @@ function applyLanguage(lang = currentLanguage(), options = {}) {
   setAllText('.setup-team-a .setup-team-heading strong, .team-column-a .team-title strong, .summary-team-a .summary-team-title strong','attackers');
   setAllText('.setup-team-b .setup-team-heading strong, .team-column-b .team-title strong, .summary-team-b .summary-team-title strong','defenders');
   setText('.versus-core','vs'); setText('.menu-panel-copy p','setup_copy'); updateSetupRulesText();
-  setText('.player-name-mode-panel .subconfig-heading span','names_heading_small'); setText('.player-name-mode-panel .subconfig-heading strong','names_heading'); setText('#manual-player-names','manual_mode'); setText('#random-player-names','random_names'); setText('#start-draft','start_draft');
+  setText('.player-name-mode-panel .subconfig-heading span','names_heading_small'); setText('.player-name-mode-panel .subconfig-heading strong','names_heading'); setText('#manual-player-names','manual_mode'); setText('#random-player-names','random_names'); setText('#start-draft','setup_start_local');
   const highlights=document.querySelectorAll('.menu-panel-highlights span'); if(highlights[0])highlights[0].textContent=t('highlight_1'); if(highlights[1])highlights[1].textContent=t('highlight_2'); if(highlights[2])highlights[2].textContent=t('highlight_3');
   document.querySelectorAll('.setup-top-tab').forEach(button=>{ const key={menu:'tab_menu',volumen:'tab_volume',configuracion:'tab_config',random:'tab_random',idioma:'tab_language',updates:'tab_updates',creditos:'tab_credits'}[button.dataset.tab]; if(key) button.textContent=t(key); });
   setText('[data-panel="volumen"] .subconfig-heading span','sound'); setText('[data-panel="volumen"] .subconfig-heading strong','volume');
@@ -866,6 +922,25 @@ function applyLanguage(lang = currentLanguage(), options = {}) {
   setText('[data-panel="configuracion"] .subconfig-heading span','config'); setText('[data-panel="configuracion"] .subconfig-heading strong','game_settings');
   [['turn_time','turn_time_desc'],['animation_duration','animation_duration_desc'],['narration_toggle','narration_toggle_desc'],['selection_animation','selection_animation_desc'],['auto_resolve','auto_resolve_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="configuracion"] .subconfig-row, [data-panel="configuracion"] .toggle-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
   updateOnlineStaticTexts();
+  setText('#local-config-title','local_config_title');
+  setText('#local-config-modal .join-name-copy','local_config_copy');
+  setText('#local-config-modal .draft-config-block .draft-config-label','match_size');
+  const localToggle = document.querySelector('#local-config-modal .draft-config-toggle');
+  if (localToggle) { const strong = localToggle.querySelector('strong'); const small = localToggle.querySelector('small'); if (strong) strong.textContent = t('ban_phase'); if (small) small.textContent = t('ban_phase_desc'); }
+  setText('#local-config-start','start_local_draft');
+  setText('#local-config-cancel','back');
+  const roomDraftPanel = document.querySelector('.room-draft-config-panel');
+  if (roomDraftPanel) {
+    const labels = roomDraftPanel.querySelectorAll('.draft-config-label');
+    if (labels[0]) labels[0].textContent = t('draft_mode');
+    if (labels[1]) labels[1].textContent = t('match_size');
+    const cards = roomDraftPanel.querySelectorAll('.room-mode-card');
+    if (cards[0]) { const st = cards[0].querySelector('strong'); const sp = cards[0].querySelector('span'); if (st) st.textContent = t('mode_classic'); if (sp) sp.textContent = t('mode_classic_desc'); }
+    if (cards[1]) { const st = cards[1].querySelector('strong'); const sp = cards[1].querySelector('span'); if (st) st.textContent = t('mode_advanced'); if (sp) sp.textContent = t('mode_advanced_desc'); }
+    const toggle = roomDraftPanel.querySelector('.draft-config-toggle');
+    if (toggle) { const st = toggle.querySelector('strong'); const sp = toggle.querySelector('small'); if (st) st.textContent = t('ban_phase'); if (sp) sp.textContent = t('ban_phase_desc'); }
+  }
+  updateDraftConfigVisibility();
   setText('#cancel-draft','cancel'); setText('#confirm-action','confirm'); setText('.team-column-a .ban-stack > span','ban_stack_a'); setText('.team-column-b .ban-stack > span','ban_stack_b');
   const ribbons=document.querySelectorAll('.team-ribbon span'); if(ribbons[0])ribbons[0].textContent=`${t('team_a')} (${t('attackers')})`; if(ribbons[1])ribbons[1].textContent=`${t('team_b')} (${t('defenders')})`;
   setText('.map-header .eyebrow','map_completed'); setText('.map-header h1','map_selection'); setText('.map-header p:last-child','map_desc'); setText('.map-selected-copy span','selected_map'); setText('#randomize-map','randomize_map');
@@ -1934,6 +2009,94 @@ function setupInputs() {
     setupA.appendChild(createPlayerInput("A", i));
     setupB.appendChild(createPlayerInput("B", i));
   }
+  updateDraftConfigVisibility();
+}
+
+function localConfigModal() {
+  return document.getElementById("local-config-modal");
+}
+
+function updateDraftConfigVisibility() {
+  const size = activeTeamSize();
+  document.querySelectorAll(".player-input, .room-player-input").forEach(input => {
+    const index = Number(input.dataset.index);
+    const row = input.closest(".setup-player-row") || input;
+    row.classList.toggle("draft-slot-disabled", index >= size);
+    row.style.display = index < size ? "" : "none";
+  });
+  document.body.classList.toggle("bans-disabled", !currentDraftConfig().bansEnabled);
+  updateSetupRulesText();
+  updateLocalConfigUI();
+  updateRoomDraftConfigUI();
+}
+
+function applyDraftConfigPatch(patch = {}, options = {}) {
+  state.draftConfig = sanitizeDraftConfig({ ...currentDraftConfig(), ...patch });
+  state.players.A = Array.from({ length: 5 }, (_, index) => state.players.A[index] || defaultPlayerName("A", index));
+  state.players.B = Array.from({ length: 5 }, (_, index) => state.players.B[index] || defaultPlayerName("B", index));
+  updateDraftConfigVisibility();
+  if (options.persist !== false) scheduleSettingsSave();
+  if (options.syncOnline && currentRoomCode && currentRole === "host" && !state.draftActive) scheduleRoomPlayerConfigSave();
+}
+
+function updateLocalConfigUI() {
+  const config = currentDraftConfig();
+  document.querySelectorAll("[data-local-team-size]").forEach(button => {
+    button.classList.toggle("is-active", Number(button.dataset.localTeamSize) === config.teamSize);
+  });
+  const localBans = document.getElementById("local-bans-enabled");
+  if (localBans) localBans.checked = Boolean(config.bansEnabled);
+  const localSummary = document.getElementById("local-config-summary");
+  if (localSummary) {
+    localSummary.textContent = t("local_config_summary", {
+      size: `${config.teamSize}v${config.teamSize}`,
+      bans: config.bansEnabled ? t("bans_enabled") : t("bans_disabled"),
+    });
+  }
+}
+
+function updateRoomDraftConfigUI() {
+  const config = currentDraftConfig();
+  document.querySelectorAll("[data-room-team-size]").forEach(button => {
+    button.classList.toggle("is-active", Number(button.dataset.roomTeamSize) === config.teamSize);
+    button.disabled = currentRole !== "host" || Boolean(state.draftActive);
+  });
+  document.querySelectorAll("[data-room-draft-mode]").forEach(button => {
+    button.classList.toggle("is-active", button.dataset.roomDraftMode === config.mode);
+    button.disabled = currentRole !== "host" || Boolean(state.draftActive) || button.dataset.roomDraftMode === "advanced";
+  });
+  const roomBans = document.getElementById("room-bans-enabled");
+  if (roomBans) {
+    roomBans.checked = Boolean(config.bansEnabled);
+    roomBans.disabled = currentRole !== "host" || Boolean(state.draftActive);
+  }
+  const onlineSummary = document.getElementById("room-draft-config-summary");
+  if (onlineSummary) {
+    onlineSummary.textContent = t("room_draft_config_summary", {
+      mode: config.mode === "advanced" ? t("mode_advanced") : t("mode_classic"),
+      size: `${config.teamSize}v${config.teamSize}`,
+      bans: config.bansEnabled ? t("bans_enabled") : t("bans_disabled"),
+    });
+  }
+}
+
+function openLocalDraftConfig() {
+  readPlayers();
+  updateLocalConfigUI();
+  const modal = localConfigModal();
+  if (!modal) {
+    void startDraft();
+    return;
+  }
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function closeLocalDraftConfig() {
+  const modal = localConfigModal();
+  if (!modal) return;
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
 }
 
 function createPlayerInput(team, index) {
@@ -3155,8 +3318,36 @@ function showPhaseOverlay(text, voiceSrc, subtitle, callback) {
   }, overlayDuration);
 }
 
+function currentDraftConfig() {
+  return sanitizeDraftConfig(state.draftConfig || DEFAULT_DRAFT_CONFIG);
+}
+
+function activeBanTurns(config = currentDraftConfig()) {
+  return buildBanTurns(config);
+}
+
+function activePickTurns(config = currentDraftConfig()) {
+  return buildPickTurns(config);
+}
+
+function activeTurns(config = currentDraftConfig()) {
+  return [...activeBanTurns(config), ...activePickTurns(config)];
+}
+
+function activeBanTurnCount(config = currentDraftConfig()) {
+  return activeBanTurns(config).length;
+}
+
+function activeTurnCount(config = currentDraftConfig()) {
+  return activeTurns(config).length;
+}
+
+function activeTeamSize(config = currentDraftConfig()) {
+  return sanitizeDraftConfig(config).teamSize;
+}
+
 function currentTurn() {
-  return turns[state.turnIndex];
+  return activeTurns()[state.turnIndex];
 }
 
 function pickedNames() {
@@ -3233,7 +3424,8 @@ function renderTeamSlots(team, container) {
   const turn = currentTurn();
   container.innerHTML = "";
 
-  for (let i = 0; i < 5; i += 1) {
+  const teamSize = activeTeamSize();
+  for (let i = 0; i < teamSize; i += 1) {
     const pick = state.picks[team][i];
     const slot = document.createElement("article");
     slot.className = "player-slot";
@@ -3292,7 +3484,18 @@ function renderBans() {
 function renderBanList(team, container) {
   container.innerHTML = "";
   const turn = currentTurn();
-  for (let i = 0; i < 2; i += 1) {
+  const maxBans = activeBanTurns().filter(item => item.team === team).length;
+  if (!maxBans) {
+    const empty = document.createElement("div");
+    empty.className = "ban-slot empty ban-slot-disabled";
+    const label = document.createElement("div");
+    label.className = "ban-slot-label";
+    label.textContent = t("bans_skipped_short");
+    empty.appendChild(label);
+    container.appendChild(empty);
+    return;
+  }
+  for (let i = 0; i < maxBans; i += 1) {
     const character = state.bans[team][i] || null;
     const isActiveBanSlot = turn?.type === "ban" && turn.team === team && i === state.bans[team].length;
     const previewBan = isActiveBanSlot ? currentRoulettePreviewCharacter(turn) : null;
@@ -3697,7 +3900,7 @@ function renderTurnInfo() {
   }
 
   if (turn.type === "ban") {
-    const roundText = t("ban_round", { current: state.turnIndex + 1, total: banTurns.length });
+    const roundText = t("ban_round", { current: state.turnIndex + 1, total: activeBanTurnCount() });
     phaseLabel.textContent = t("block_character");
     turnLabel.textContent = t("team_blocks", { team: turn.team });
     restriction.textContent = `${t("team_blocks", { team: turn.team })}: ${factions[turn.faction].label}.`;
@@ -3841,7 +4044,7 @@ function onlineTurnKey() {
 async function tryClaimOnlineAutoResolve(turnKey = onlineTurnKey()) {
   if (!currentRoomCode || !state.settings.autoResolveEnabled || !isDraftSessionActive()) return false;
   const turn = currentTurn();
-  if (!turn || state.locked || state.roulette.active || state.turnIndex >= turns.length) return false;
+  if (!turn || state.locked || state.roulette.active || state.turnIndex >= activeTurnCount()) return false;
 
   const roomRef = roomRefFor(currentRoomCode);
   if (!roomRef) return false;
@@ -4171,7 +4374,7 @@ function playOnlineAudioEvent(event) {
   } else if (event.type === "finishDraft") {
     playNarration(systemDraftVoiceLines.voice_finish_draft.src, systemDraftVoiceLines.voice_finish_draft.text, 0.92);
   } else if (event.type === "turnNarration") {
-    const turn = turns[Number(event.turnIndex)] || currentTurn();
+    const turn = activeTurns()[Number(event.turnIndex)] || currentTurn();
     playTurnNarration(turn);
   } else if (event.type === "phaseBan") {
     playNarration(systemDraftVoiceLines.voice_ban_phase.src, systemDraftVoiceLines.voice_ban_phase.text, 0.92);
@@ -4220,6 +4423,7 @@ function currentOnlineDraftPayload(extra = {}) {
     turnStartedAt: state.turnStartedAt || null,
     turnDeadlineAt: state.turnDeadlineAt || null,
     timer: state.timer,
+    draftConfig: currentDraftConfig(),
     players: {
       A: [...state.players.A],
       B: [...state.players.B],
@@ -4287,6 +4491,8 @@ function applyOnlinePlayers(players = {}) {
 function applyOnlineSettingsFromRoom(data = {}) {
   const draftState = data.draftState || {};
   const duration = data.turnDuration ?? draftState.turnDuration;
+  const draftConfig = draftState.draftConfig || data.draftConfig;
+  if (draftConfig) applyDraftConfigPatch(draftConfig, { persist: false, syncOnline: false });
   if (duration != null) applyTurnDuration(duration, false);
   if (data.players) applyOnlinePlayers(data.players);
   if (draftState.players) applyOnlinePlayers(draftState.players);
@@ -4396,6 +4602,7 @@ function escapeHtml(value) {
 }
 
 function updateRoomLobby(data = {}) {
+  applyOnlineSettingsFromRoom(data);
   setCurrentOnlineAssignmentFromRoom(data);
   renderParticipantList(data);
 
@@ -4434,6 +4641,7 @@ function updateRoomLobby(data = {}) {
   if (randomRoomNamesButton) randomRoomNamesButton.disabled = currentRole !== "host" || Boolean(data.started);
 
   if (roomPlayerConfig) roomPlayerConfig.classList.toggle("hidden", currentRole !== "host" || Boolean(data.started));
+  updateRoomDraftConfigUI();
 }
 
 function showOnlinePhaseEvent(event, fallbackKey = "") {
@@ -4539,7 +4747,7 @@ function syncDraftStateFromRoom(data = {}) {
     if (Number.isFinite(Number(draftState.draftSessionId))) state.draftSessionId = Number(draftState.draftSessionId);
     if (Number.isFinite(Number(draftState.turnIndex))) {
       hasRemoteDraftState = true;
-      state.turnIndex = Math.max(0, Math.min(turns.length, Number(draftState.turnIndex)));
+      state.turnIndex = Math.max(0, Math.min(activeTurnCount(), Number(draftState.turnIndex)));
     }
     if (Number.isFinite(Number(draftState.turnStartedAt))) state.turnStartedAt = Number(draftState.turnStartedAt);
     if (Number.isFinite(Number(draftState.turnDeadlineAt))) state.turnDeadlineAt = Number(draftState.turnDeadlineAt);
@@ -4600,7 +4808,7 @@ function syncDraftStateFromRoom(data = {}) {
   const draftScreenActive = document.querySelector(".draft-screen.active");
   const remoteAudioTurnNarration = draftState.audioEvent?.type === "turnNarration" && draftState.audioEvent?.byClientId !== onlineClientId();
   const localPhaseEventPending = draftState.phaseEvent?.byClientId === onlineClientId();
-  const enteredPickPhase = previousTurnIndex < banTurns.length && state.turnIndex >= banTurns.length && currentTurn()?.type === "pick";
+  const enteredPickPhase = previousTurnIndex < activeBanTurnCount() && state.turnIndex >= activeBanTurnCount() && currentTurn()?.type === "pick";
   const handledPhaseEvent = showOnlinePhaseEvent(draftState.phaseEvent, enteredPickPhase ? `pickPhase:${state.draftSessionId}:${state.turnIndex}` : "");
   const remoteTurnChanged = hasRemoteDraftState && data.started && state.draftActive && previousTurnIndex !== state.turnIndex;
   const remoteSessionChanged = previousDraftSessionId !== state.draftSessionId;
@@ -4614,7 +4822,7 @@ function syncDraftStateFromRoom(data = {}) {
       if (!remoteAudioTurnNarration) playTurnNarration(currentTurn());
       if (!state.locked && !state.roulette.active) resetTimer();
     }
-    if (state.turnIndex >= turns.length && state.onlinePhase !== "map" && state.onlinePhase !== "summary") {
+    if (state.turnIndex >= activeTurnCount() && state.onlinePhase !== "map" && state.onlinePhase !== "summary") {
       startMapSelection();
       return;
     }
@@ -4685,10 +4893,12 @@ function startOnlineDraftFromRoom(data = {}) {
   switchScreen(draftScreen);
   const startedRecently = onlineNow() - Number(data.startedAt || 0) < 4500 && Number(data.draftState?.turnIndex || 0) === 0;
   if (startedRecently) {
+    const initialTurn = currentTurn();
+    const isBanPhase = initialTurn?.type === "ban";
     showPhaseOverlay(
-      t("phase_ban"),
-      systemDraftVoiceLines.voice_ban_phase.src,
-      systemDraftVoiceLines.voice_ban_phase.text,
+      isBanPhase ? t("phase_ban") : t("phase_pick"),
+      isBanPhase ? systemDraftVoiceLines.voice_ban_phase.src : systemDraftVoiceLines.voice_pick_phase.src,
+      isBanPhase ? systemDraftVoiceLines.voice_ban_phase.text : systemDraftVoiceLines.voice_pick_phase.text,
       startTurn,
     );
   } else {
@@ -4817,6 +5027,7 @@ function blankOnlineDraftState(startPayload = {}) {
     turnDuration: state.turnDuration,
     turnStartedAt: null,
     turnDeadlineAt: null,
+    draftConfig: currentDraftConfig(),
     players: roomPlayersPayload(),
     picks: { A: [], B: [] },
     bans: { A: [], B: [] },
@@ -4857,6 +5068,7 @@ async function createOnlineRoom() {
     started: false,
     closed: false,
     turnDuration: state.turnDuration,
+    draftConfig: currentDraftConfig(),
     players: roomPlayersPayload(),
     host: { connected: true, clientId: onlineClientId(), role: "LÍDER_ESPECTADOR", lastSeen: onlineNow() },
     participants: {},
@@ -5058,13 +5270,13 @@ async function autoResolveTurn(options = {}) {
 
 function proceedAfterTurn() {
   if (!isDraftSessionActive()) return;
-  if (state.turnIndex >= turns.length) {
+  if (state.turnIndex >= activeTurnCount()) {
     startMapSelection();
     return;
   }
 
   const nextTurn = currentTurn();
-  const justEnteredPickPhase = state.turnIndex === banTurns.length;
+  const justEnteredPickPhase = activeBanTurnCount() > 0 && state.turnIndex === activeBanTurnCount();
   if (justEnteredPickPhase && nextTurn.type === "pick") {
     showPhaseOverlay(
       t("phase_pick"),
@@ -5141,14 +5353,14 @@ function confirmTurn(isAuto = false, options = {}) {
     onlineTurnAutoResolveKey = null;
 
     if (currentRoomCode) {
-      if (state.turnIndex >= turns.length) {
+      if (state.turnIndex >= activeTurnCount()) {
         state.onlinePhase = "map";
         state.turnStartedAt = null;
         state.turnDeadlineAt = null;
         pushOnlineDraftState({ phase: "map", actionEvent: null, audioEvent: createOnlineAudioEvent("mapSelector", { playForOrigin: true }) });
       } else {
         const nextTurn = currentTurn();
-        const justEnteredPickPhase = state.turnIndex === banTurns.length && nextTurn?.type === "pick";
+        const justEnteredPickPhase = activeBanTurnCount() > 0 && state.turnIndex === activeBanTurnCount() && nextTurn?.type === "pick";
         prepareClockForTurnIndex(state.turnIndex, justEnteredPickPhase ? phaseOverlayDurationMs() : 0);
         state.onlinePhase = "draft";
         const phaseEvent = justEnteredPickPhase ? createOnlinePhaseEvent("pickPhase") : null;
@@ -5169,7 +5381,7 @@ function turnVoiceKey(turn) {
   if (turn.type === "pick") return "pick";
 
   if (turn.type === "ban") {
-    const banIndex = banTurns.indexOf(turn);
+    const banIndex = (Number.isFinite(Number(turn.banIndex)) ? Number(turn.banIndex) : 0);
     // Orden solicitado:
     // Bloqueo 1: TEAM A => team_a_ban
     // Bloqueo 2: TEAM B => team_b_ban
@@ -5301,10 +5513,12 @@ async function startDraft() {
   switchScreen(draftScreen);
   setupBackgroundVideo();
   startMusic("draft");
+  const initialTurn = currentTurn();
+  const isBanPhase = initialTurn?.type === "ban";
   showPhaseOverlay(
-    t("phase_ban"),
-    systemDraftVoiceLines.voice_ban_phase.src,
-    systemDraftVoiceLines.voice_ban_phase.text,
+    isBanPhase ? t("phase_ban") : t("phase_pick"),
+    isBanPhase ? systemDraftVoiceLines.voice_ban_phase.src : systemDraftVoiceLines.voice_pick_phase.src,
+    isBanPhase ? systemDraftVoiceLines.voice_ban_phase.text : systemDraftVoiceLines.voice_pick_phase.text,
     startTurn,
   );
 }
@@ -5401,16 +5615,19 @@ function simulateRandomSummary() {
   const picksA = [];
   const picksB = [];
 
-  const aBan1 = takeOne(c => c.faction === "pus"); if (aBan1) bansA.push(aBan1);
-  const bBan1 = takeOne(c => c.faction === "scissors"); if (bBan1) bansB.push(bBan1);
-  const aBan2 = takeOne(c => c.faction === "urbino"); if (aBan2) bansA.push(aBan2);
-  const bBan2 = takeOne(c => c.faction === "urbino"); if (bBan2) bansB.push(bBan2);
+  if (currentDraftConfig().bansEnabled) {
+    const aBan1 = takeOne(c => c.faction === "pus"); if (aBan1) bansA.push(aBan1);
+    const bBan1 = takeOne(c => c.faction === "scissors"); if (bBan1) bansB.push(bBan1);
+    const aBan2 = takeOne(c => c.faction === "urbino"); if (aBan2) bansA.push(aBan2);
+    const bBan2 = takeOne(c => c.faction === "urbino"); if (bBan2) bansB.push(bBan2);
+  }
 
   const pickForA = () => takeOne(c => c.faction === "scissors" || c.faction === "urbino");
   const pickForB = () => takeOne(c => c.faction === "pus" || c.faction === "urbino");
 
-  while (picksA.length < 5) { const c = pickForA(); if (!c) break; picksA.push(c); }
-  while (picksB.length < 5) { const c = pickForB(); if (!c) break; picksB.push(c); }
+  const teamSize = activeTeamSize();
+  while (picksA.length < teamSize) { const c = pickForA(); if (!c) break; picksA.push(c); }
+  while (picksB.length < teamSize) { const c = pickForB(); if (!c) break; picksB.push(c); }
 
   state.bans.A = bansA;
   state.bans.B = bansB;
@@ -5739,7 +5956,7 @@ function init() {
   updateMusicToggleButton();
   renderAll();
   startIntroSequence();
-  $("#start-draft").addEventListener("click", startDraft);
+  $("#start-draft").addEventListener("click", openLocalDraftConfig);
   $("#create-room").addEventListener("click",createOnlineRoom);
   $("#join-room").addEventListener("click", joinOnlineRoom);
   $("#confirm-action").addEventListener("click", () => confirmTurn(false));
@@ -5751,6 +5968,7 @@ function init() {
   manualPlayerNamesButton?.addEventListener("click", applyManualPlayerNames);
   setupJoinNameModal();
   setupOnlineControls();
+  setupLocalConfigControls();
   setTimeout(() => { void tryRestoreOnlineSession(); }, 850);
   randomizeMapButton?.addEventListener("click", () => {
     if (!isDraftSessionActive() || !canControlMapSelection()) return;
@@ -5786,6 +6004,7 @@ function setupRoomPlayerInputs() {
 
   build("A", roomTeamAInputs);
   build("B", roomTeamBInputs);
+  updateDraftConfigVisibility();
 }
 
 function scheduleRoomPlayerConfigSave() {
@@ -5800,12 +6019,15 @@ function pushRoomLobbyConfig() {
   if (!roomRef) return;
   readPlayers();
   const players = { A: [...state.players.A], B: [...state.players.B] };
+  const draftConfig = currentDraftConfig();
   roomRef.update({
     players,
     turnDuration: state.turnDuration,
+    draftConfig,
     updatedAt: onlineNow(),
     "draftState/players": players,
     "draftState/turnDuration": state.turnDuration,
+    "draftState/draftConfig": draftConfig,
   }).catch(error => console.warn("No se pudo sincronizar la configuración de sala.", error));
 }
 
@@ -5846,6 +6068,25 @@ async function assignOnlineCaptain(team, clientId) {
     console.warn("No se pudo asignar el capitán online.", error);
     alert("No se pudo asignar el capitán. Intenta de nuevo.");
   }
+}
+
+function setupLocalConfigControls() {
+  document.querySelectorAll("[data-local-team-size]").forEach(button => {
+    button.addEventListener("click", () => {
+      applyDraftConfigPatch({ teamSize: Number(button.dataset.localTeamSize) });
+    });
+  });
+  document.getElementById("local-bans-enabled")?.addEventListener("change", (event) => {
+    applyDraftConfigPatch({ bansEnabled: Boolean(event.currentTarget.checked) });
+  });
+  document.getElementById("local-config-start")?.addEventListener("click", () => {
+    closeLocalDraftConfig();
+    void startDraft();
+  });
+  document.getElementById("local-config-cancel")?.addEventListener("click", closeLocalDraftConfig);
+  document.querySelectorAll("[data-close-local-config]").forEach(target => {
+    target.addEventListener("click", closeLocalDraftConfig);
+  });
 }
 
 function setupJoinNameModal() {
@@ -5889,6 +6130,34 @@ function setupOnlineControls() {
   const captainASelect = document.getElementById("captain-a-select");
   const captainBSelect = document.getElementById("captain-b-select");
   const roomCodeInput = document.getElementById("room-input");
+  const roomBansEnabled = document.getElementById("room-bans-enabled");
+
+  document.querySelectorAll("[data-room-team-size]").forEach(button => {
+    button.addEventListener("click", () => {
+      if (currentRole !== "host" || state.draftActive) return;
+      applyDraftConfigPatch({ teamSize: Number(button.dataset.roomTeamSize) }, { syncOnline: true });
+      pushRoomLobbyConfig();
+    });
+  });
+
+  document.querySelectorAll("[data-room-draft-mode]").forEach(button => {
+    button.addEventListener("click", () => {
+      if (currentRole !== "host" || state.draftActive) return;
+      const mode = button.dataset.roomDraftMode === "advanced" ? "advanced" : "classic";
+      if (mode === "advanced") {
+        alert(t("advanced_mode_planned_alert"));
+        return;
+      }
+      applyDraftConfigPatch({ mode }, { syncOnline: true });
+      pushRoomLobbyConfig();
+    });
+  });
+
+  roomBansEnabled?.addEventListener("change", (event) => {
+    if (currentRole !== "host" || state.draftActive) return;
+    applyDraftConfigPatch({ bansEnabled: Boolean(event.currentTarget.checked) }, { syncOnline: true });
+    pushRoomLobbyConfig();
+  });
 
   roomCodeInput?.addEventListener("input", () => {
     const normalized = normalizeRoomCode(roomCodeInput.value);
@@ -5969,6 +6238,8 @@ function setupOnlineControls() {
         state.onlinePhase = "draft";
         prepareClockForTurnIndex(0, phaseOverlayDurationMs());
         const players = { A: [...state.players.A], B: [...state.players.B] };
+        const initialTurn = currentTurn();
+        const initialPhaseEventType = initialTurn?.type === "ban" ? "banPhase" : "pickPhase";
         const draftPayload = blankOnlineDraftState({
           phase: "draft",
           draftSessionId: state.draftSessionId,
@@ -5976,9 +6247,10 @@ function setupOnlineControls() {
           turnDuration: state.turnDuration,
           turnStartedAt: state.turnStartedAt,
           turnDeadlineAt: state.turnDeadlineAt,
+          draftConfig: currentDraftConfig(),
           players,
           captainAssignments: assignments,
-          phaseEvent: createOnlinePhaseEvent("banPhase"),
+          phaseEvent: createOnlinePhaseEvent(initialPhaseEventType),
         });
         await roomRef.update({
           started: true,
@@ -5986,6 +6258,7 @@ function setupOnlineControls() {
           updatedAt: onlineNow(),
           players,
           turnDuration: state.turnDuration,
+          draftConfig: currentDraftConfig(),
           captainAssignments: assignments,
           teamA: { clientId: assignments.A, name: captainA.name, connected: captainA.connected, role: "CAPITÁN_ATACANTES", lastSeen: captainA.lastSeen || onlineNow() },
           teamB: { clientId: assignments.B, name: captainB.name, connected: captainB.connected, role: "CAPITÁN_DEFENSORES", lastSeen: captainB.lastSeen || onlineNow() },

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STRINOVA Draft System v3.0 by RPmods</title>
+  <title>STRINOVA Draft System v3.1 by RPmods</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -29,7 +29,7 @@
   <main id="setup-screen" class="screen setup-screen active">
     <section class="setup-shell settings-surface">
       <header class="settings-topbar">
-        <div class="settings-brand">STRINOVA Draft System v3.0 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.1 by RPmods</div>
         <nav class="settings-tabs">
           <button type="button" class="settings-tab setup-top-tab is-active" data-tab="menu">MENÚ</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="volumen">VOLUMEN</button>
@@ -53,8 +53,8 @@
 
       <header class="setup-top">
         <p class="eyebrow">Sistema competitivo</p>
-        <h1>STRINOVA Draft System v3.0 by RPmods</h1>
-        <p>Configura los nombres y entra directamente a la fase de bloqueos.</p>
+        <h1>STRINOVA Draft System v3.1 by RPmods</h1>
+        <p>Configura nombres, tamaño de partida y fase de bloqueos antes de iniciar.</p>
       </header>
 
       <div class="setup-teams">
@@ -345,6 +345,7 @@
                   <li>v2.8 — Se corrigió el lobby online, el flujo de nombre al unirse, el botón de desconectar, nombres aleatorios y ajustes visuales del HUD.</li>
                   <li>v2.9 — Se añadió precarga inicial de recursos, indicador de carga, precarga secundaria y ocultamiento suave de HUD durante anuncios de fase.</li>
                   <li>v3.0 — Se añadió portugués, sistema de narración por idioma, lectura de bot para idiomas sin voces grabadas, historial completo y soporte visual para más mapas.</li>
+                  <li>v3.1 — Se añadió mini lobby de configuración local, tamaños 2v2/3v3/4v4/5v5, opción para saltar la fase de bloqueos y sincronización de esta configuración en salas online clásicas.</li>
                 </ul>
               </div>
             </section>
@@ -437,6 +438,40 @@
     </section>
   </main>
 
+  <div id="local-config-modal" class="join-name-modal hidden" aria-hidden="true">
+    <div class="join-name-backdrop" data-close-local-config="1"></div>
+    <section class="join-name-card draft-config-card" role="dialog" aria-modal="true" aria-labelledby="local-config-title">
+      <p class="join-name-kicker">Draft local</p>
+      <h2 id="local-config-title">Configurar partida</h2>
+      <p class="join-name-copy">Elige el tamaño del enfrentamiento y decide si quieres jugar con fase de bloqueos antes de iniciar.</p>
+
+      <div class="draft-config-block">
+        <span class="draft-config-label">Tamaño de partida</span>
+        <div class="draft-size-options">
+          <button type="button" class="draft-size-button" data-local-team-size="2">2v2</button>
+          <button type="button" class="draft-size-button" data-local-team-size="3">3v3</button>
+          <button type="button" class="draft-size-button" data-local-team-size="4">4v4</button>
+          <button type="button" class="draft-size-button is-active" data-local-team-size="5">5v5</button>
+        </div>
+      </div>
+
+      <label class="draft-config-toggle">
+        <div>
+          <strong>Fase de bloqueos</strong>
+          <small>Si la desactivas, el draft inicia directamente en selección de personajes.</small>
+        </div>
+        <input id="local-bans-enabled" class="toggle-input" type="checkbox" checked />
+      </label>
+
+      <p id="local-config-summary" class="draft-config-summary">Configuración: 5v5 · Baneos activados</p>
+
+      <div class="join-name-actions">
+        <button id="local-config-start" class="primary-button online-menu-button" type="button">INICIAR DRAFT</button>
+        <button id="local-config-cancel" class="secondary-button room-code-button" type="button">VOLVER</button>
+      </div>
+    </section>
+  </div>
+
   <main id="room-screen" class="screen room-screen">
     <section class="setup-shell settings-surface room-shell">
 
@@ -473,6 +508,39 @@
           <div class="room-name-tools">
             <button id="room-random-player-names" class="primary-button small-primary online-menu-button" type="button">NOMBRES ALEATORIOS</button>
           </div>
+
+          <section class="room-draft-config-panel">
+            <div class="draft-config-label">Modo de draft</div>
+            <div class="room-mode-options">
+              <button type="button" class="room-mode-card is-active" data-room-draft-mode="classic">
+                <strong>Modo clásico</strong>
+                <span>El host configura nombres y asigna dos capitanes. Cada capitán realiza todos los bans y picks de su equipo.</span>
+              </button>
+              <button type="button" class="room-mode-card" data-room-draft-mode="advanced" title="Preparado para una futura actualización avanzada 5v5.">
+                <strong>Modo avanzado</strong>
+                <span>Base preparada para 10 jugadores, capitanes, subcapitanes, ready check y elecciones individuales.</span>
+              </button>
+            </div>
+
+            <div class="draft-config-block compact">
+              <span class="draft-config-label">Tamaño de partida</span>
+              <div class="draft-size-options">
+                <button type="button" class="draft-size-button" data-room-team-size="2">2v2</button>
+                <button type="button" class="draft-size-button" data-room-team-size="3">3v3</button>
+                <button type="button" class="draft-size-button" data-room-team-size="4">4v4</button>
+                <button type="button" class="draft-size-button is-active" data-room-team-size="5">5v5</button>
+              </div>
+            </div>
+
+            <label class="draft-config-toggle compact">
+              <div>
+                <strong>Fase de bloqueos</strong>
+                <small>Desactívala para iniciar directamente en selección.</small>
+              </div>
+              <input id="room-bans-enabled" class="toggle-input" type="checkbox" checked />
+            </label>
+            <p id="room-draft-config-summary" class="draft-config-summary">Configuración online: Modo clásico · 5v5 · Baneos activados</p>
+          </section>
 
           <div class="room-captain-assignment">
             <label class="room-captain-select-row">
@@ -625,7 +693,7 @@
   <main id="map-screen" class="screen map-screen">
     <section class="map-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.0 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.1 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab is-active">SELECCIÓN DE MAPA</span>
         </nav>
@@ -656,7 +724,7 @@
   <main id="summary-screen" class="screen summary-screen">
     <section class="summary-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.0 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.1 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab">BÁSICO</span>
           <span class="settings-tab">EQUIPOS</span>
