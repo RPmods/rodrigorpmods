@@ -4979,6 +4979,20 @@ function clearOnlineSession() {
   try { localStorage.removeItem(ONLINE_SESSION_STORAGE_KEY); } catch (_) {}
 }
 
+function clearPassiveOnlineSessionOnBoot() {
+  // Limpieza local solamente. No consulta ni escribe Firebase.
+  // Evita que sesiones antiguas de host/lobby queden listas para reactivarse accidentalmente.
+  try {
+    const saved = JSON.parse(localStorage.getItem(ONLINE_SESSION_STORAGE_KEY) || "null");
+    if (!saved?.roomCode) return;
+    const age = onlineNow() - Number(saved.savedAt || 0);
+    const maxPassiveAge = 1000 * 60 * 60 * 12;
+    if (saved.role === "host" || age > maxPassiveAge) {
+      localStorage.removeItem(ONLINE_SESSION_STORAGE_KEY);
+    }
+  } catch (_) {}
+}
+
 function setRoomCodeDisplay(roomCode, hide = true) {
   const codeDisplay = document.getElementById("room-code-display");
   const toggle = document.getElementById("toggle-room-code");
@@ -5989,7 +6003,11 @@ function init() {
   setupJoinNameModal();
   setupOnlineControls();
   setupLocalConfigControls();
-  setTimeout(() => { void tryRestoreOnlineSession(); }, 850);
+  clearPassiveOnlineSessionOnBoot();
+  // v3.1.4: No restaurar sesiones online automáticamente al cargar la página.
+  // Evita que solo abrir la web escriba presencia o reactive salas antiguas en Firebase.
+  // La reconexión debe hacerse de forma explícita usando el código de sala.
+  // setTimeout(() => { void tryRestoreOnlineSession(); }, 850);
   randomizeMapButton?.addEventListener("click", () => {
     if (!isDraftSessionActive() || !canControlMapSelection()) return;
     playNarration(systemDraftVoiceLines.map_selector_voice.src, systemDraftVoiceLines.map_selector_voice.text, 0.92);

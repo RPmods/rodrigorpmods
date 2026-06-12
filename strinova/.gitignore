@@ -1,0 +1,4 @@
+js/firebase-env.js
+.env
+.env.*
+!js/firebase-env.example.js

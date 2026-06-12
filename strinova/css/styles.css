@@ -11904,3 +11904,92 @@ body.bans-disabled .ban-stack {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+
+/* =========================================================
+   AJUSTE V3.1.3 - corrección visual de selectores / dropdowns
+   - Corrige listas blancas con texto blanco en idioma, narración y lobby online.
+   - Homogeneiza el aspecto de los select del mini-lobby de crear sala.
+   ========================================================= */
+.language-select,
+.narration-voice-system-select,
+.room-captain-select,
+.dev-select,
+.dev-number,
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='10' viewBox='0 0 14 10'%3E%3Cpath fill='%23f3f6fb' d='M7 10 0 0h14z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat, no-repeat;
+  background-size: auto, 12px 8px;
+  background-position: 0 0, calc(100% - 14px) 50%;
+  padding-right: 40px !important;
+}
+
+.language-select:hover,
+.narration-voice-system-select:hover,
+.room-captain-select:hover,
+.dev-select:hover,
+select:hover {
+  filter: brightness(1.03);
+}
+
+.language-select:focus,
+.narration-voice-system-select:focus,
+.room-captain-select:focus,
+.dev-select:focus,
+.room-player-input:focus,
+.room-input:focus,
+select:focus {
+  border-color: rgba(76,168,255,0.42) !important;
+  box-shadow: 0 0 0 2px rgba(76,168,255,0.14), inset 0 -2px 0 #f33d49 !important;
+}
+
+.language-select option,
+.language-select optgroup,
+.narration-voice-system-select option,
+.narration-voice-system-select optgroup,
+.room-captain-select option,
+.room-captain-select optgroup,
+.dev-select option,
+.dev-select optgroup,
+.dev-number option,
+.dev-number optgroup,
+select option,
+select optgroup {
+  background: #4d5561 !important;
+  color: #f3f6fb !important;
+}
+
+.language-select option:disabled,
+.narration-voice-system-select option:disabled,
+.room-captain-select option:disabled,
+.dev-select option:disabled,
+.dev-number option:disabled,
+select option:disabled {
+  background: #363c45 !important;
+  color: rgba(255,255,255,0.42) !important;
+}
+
+.room-captain-select-row,
+.room-participant-panel,
+.room-player-team,
+.room-player-config,
+.room-code-card,
+.room-panel {
+  backdrop-filter: blur(10px);
+}
+
+.room-captain-select-row,
+.room-participant-panel {
+  background: linear-gradient(180deg, rgba(46,51,60,0.92), rgba(37,42,51,0.88)) !important;
+}
+
+.room-captain-select,
+.room-player-input,
+.room-input {
+  background-color: #2f3640 !important;
+}

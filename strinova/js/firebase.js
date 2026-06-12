@@ -1,19 +1,38 @@
 var db = null;
 
 (function initFirebase() {
-  const firebaseConfig = {
-    apiKey: "AIzaSyBbGRaA5lKaSJLb5fZap0i-067cjvVR1dE",
-    authDomain: "draftsimulator-cc68d.firebaseapp.com",
-    databaseURL: "https://draftsimulator-cc68d-default-rtdb.firebaseio.com",
-    projectId: "draftsimulator-cc68d",
-    storageBucket: "draftsimulator-cc68d.appspot.com",
-    messagingSenderId: "861506841358",
-    appId: "1:861506841358:web:94b8d344f50938fd1b055f"
-  };
+  const injectedConfig = window.RPMODS_FIREBASE_CONFIG || null;
+  const firebaseConfig = injectedConfig && typeof injectedConfig === "object" ? injectedConfig : null;
+
+  function hasValidFirebaseConfig(config) {
+    return Boolean(
+      config &&
+      typeof config.apiKey === "string" &&
+      config.apiKey.trim() &&
+      !config.apiKey.includes("__") &&
+      typeof config.authDomain === "string" &&
+      config.authDomain.trim() &&
+      typeof config.databaseURL === "string" &&
+      config.databaseURL.trim() &&
+      typeof config.projectId === "string" &&
+      config.projectId.trim() &&
+      typeof config.appId === "string" &&
+      config.appId.trim()
+    );
+  }
 
   try {
     if (!window.firebase) {
       console.warn("Firebase SDK no está disponible. El modo online quedará desactivado.");
+      window.db = null;
+      return;
+    }
+
+    if (!hasValidFirebaseConfig(firebaseConfig)) {
+      console.warn(
+        "Firebase no fue inicializado: falta js/firebase-env.js o contiene variables sin configurar. " +
+        "En GitHub Pages usa el workflow con Repository Secrets. En local crea js/firebase-env.js a partir de js/firebase-env.example.js."
+      );
       window.db = null;
       return;
     }
