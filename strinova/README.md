@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.1.5 by RPmods
+# STRINOVA Draft System v3.1.6 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -60,3 +60,11 @@ Secrets necesarios en GitHub Actions:
 - `RPMODS_FIREBASE_APP_ID`
 
 Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions como fuente de despliegue.
+
+
+## Hotfix v3.1.6 GitHub Pages Env Path
+
+- Paquete preparado para repositorios donde la app vive dentro de `strinova/`.
+- El workflow debe estar en `.github/workflows/deploy-pages.yml` en la raíz del repositorio.
+- GitHub Actions genera `strinova/js/firebase-env.js` usando Repository Secrets.
+- No subir manualmente `strinova/js/firebase-env.js` con valores reales.
