@@ -1939,6 +1939,19 @@ function setupBackgroundVideo() {
   }
   video.dataset.initialized = "true";
 
+  video.addEventListener("loadedmetadata", () => {
+    // El video de fondo es local e independiente por cliente; no se sincroniza con Firebase.
+    // Un pequeño offset evita que todos los navegadores intenten reproducir exactamente el mismo frame.
+    if (video.dataset.localOffsetApplied === "true") return;
+    video.dataset.localOffsetApplied = "true";
+    try {
+      if (Number.isFinite(video.duration) && video.duration > 8) {
+        const seed = (Date.now() + Math.floor(Math.random() * 100000)) % Math.floor(video.duration * 1000);
+        video.currentTime = Math.max(0.2, Math.min(video.duration - 0.3, seed / 1000));
+      }
+    } catch (_) {}
+  });
+
   video.addEventListener("loadeddata", () => {
     document.body.classList.add("video-ready");
     document.body.classList.remove("video-error");
@@ -2063,13 +2076,16 @@ function updateRoomDraftConfigUI() {
   });
   document.querySelectorAll("[data-room-draft-mode]").forEach(button => {
     button.classList.toggle("is-active", button.dataset.roomDraftMode === config.mode);
-    button.disabled = currentRole !== "host" || Boolean(state.draftActive) || button.dataset.roomDraftMode === "advanced";
+    button.disabled = currentRole !== "host" || Boolean(state.draftActive);
   });
   const roomBans = document.getElementById("room-bans-enabled");
   if (roomBans) {
     roomBans.checked = Boolean(config.bansEnabled);
     roomBans.disabled = currentRole !== "host" || Boolean(state.draftActive);
   }
+  document.body.classList.toggle("room-mode-classic-selected", config.mode === "classic");
+  document.body.classList.toggle("room-mode-advanced-selected", config.mode === "advanced");
+
   const onlineSummary = document.getElementById("room-draft-config-summary");
   if (onlineSummary) {
     onlineSummary.textContent = t("room_draft_config_summary", {
@@ -3072,6 +3088,10 @@ async function startIntroSequence() {
   const video = introVideoElement();
 
   await runIntroConsentGate();
+
+  // V3.1 hotfix: la precarga crítica aparece una sola vez justo después del aviso F11,
+  // antes de mostrar el menú/intro principal. Así sonidos, videos e imágenes llegan listos antes del lobby.
+  await preloadCriticalResources({ showOverlay: true });
 
   overlay.classList.remove("intro-exit", "intro-menu-phase", "intro-loading-phase", "intro-can-continue", "intro-audio-unlock");
   overlay.classList.add("intro-logo-phase");
@@ -6144,10 +6164,6 @@ function setupOnlineControls() {
     button.addEventListener("click", () => {
       if (currentRole !== "host" || state.draftActive) return;
       const mode = button.dataset.roomDraftMode === "advanced" ? "advanced" : "classic";
-      if (mode === "advanced") {
-        alert(t("advanced_mode_planned_alert"));
-        return;
-      }
       applyDraftConfigPatch({ mode }, { syncOnline: true });
       pushRoomLobbyConfig();
     });
