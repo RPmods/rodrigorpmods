@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.6 by RPmods
+# STRINOVA Draft System v3.2.8 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -135,7 +135,7 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
 - Aplica tanto para modo clásico como para modo avanzado.
 
 
-## v3.2.6 Ready Check + Visual Turn UI
+## v3.2.7 Ready Check + Visual Turn UI
 
 - Se redujo y se movió más arriba el cuadro de anuncio online de turno.
 - Se ocultó visualmente el panel antiguo que quedaba detrás del aviso de turno en online.
@@ -147,3 +147,17 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
 - Cuando todos están listos, se muestra la transición con `video/introV/Loading.mp4` antes de entrar al draft.
 - Los bots participan en el ready check automáticamente.
 - Los bots ya no usan nombres tipo BOT; toman nombres aleatorios desde `player_names_config.js`.
+
+
+## v3.2.8 Hotfix Random Button + Ready Polish
+
+- Se reposicionó el botón de selección aleatoria dentro del panel inferior del draft.
+- El botón ya no queda flotando ni encima del área de personajes.
+- El layout del panel inferior ahora reserva columnas para: estado, personaje, selección aleatoria, confirmar y limpiar.
+- Se pulió la animación de entrada del ready check online:
+  - overlay con fade inicial;
+  - tarjeta central con entrada cinematográfica;
+  - cajas de jugadores con animación de caída/enganche;
+  - cajas listas con brillo/pulso;
+  - estado loading con pulso visual.
+- Se actualizó Updates / Historial con v3.2.8.

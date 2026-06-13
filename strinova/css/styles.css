@@ -12556,3 +12556,516 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
     grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
   }
 }
+
+
+/* =========================================================
+   v3.2.7 - Hotfix visual + random selection + ready polish
+   ========================================================= */
+
+/* En online se oculta solo el mini panel superior redundante; el panel inferior se mantiene. */
+body.online-role-player .hero-stage > .turn-chip,
+body.online-role-player .hero-stage > .restriction-text,
+body.online-role-host .hero-stage > .turn-chip,
+body.online-role-host .hero-stage > .restriction-text {
+  display: none !important;
+}
+
+/* Restaurar panel inferior del draft en online. */
+body.online-role-player .phase-status-panel,
+body.online-role-host.own-team-turn .phase-status-panel {
+  background: linear-gradient(90deg, rgba(96,38,48,0.88), rgba(22,18,26,0.92)) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  box-shadow: 0 14px 30px rgba(0,0,0,0.24) !important;
+  backdrop-filter: none !important;
+  min-height: 58px !important;
+  padding: 9px 14px !important;
+  pointer-events: auto !important;
+}
+body.online-role-player .phase-status-panel.status-team-b,
+body.online-role-host.own-team-turn .phase-status-panel.status-team-b {
+  background: linear-gradient(90deg, rgba(44,57,120,0.88), rgba(22,18,26,0.92)) !important;
+}
+body.online-role-player .phase-status-panel .phase-status-copy,
+body.online-role-player .phase-status-panel .status-character-box,
+body.online-role-host.own-team-turn .phase-status-panel .phase-status-copy,
+body.online-role-host.own-team-turn .phase-status-panel .status-character-box {
+  display: block !important;
+}
+body.online-role-player #confirm-action:not(.hidden),
+body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  z-index: auto !important;
+  pointer-events: auto !important;
+  min-width: 176px !important;
+}
+
+/* Banner superior más compacto y más arriba. */
+.captain-turn-banner.is-own-turn,
+.captain-turn-banner.is-teammate-turn,
+.captain-turn-banner.is-spectator-turn,
+.captain-turn-banner.is-opponent-turn {
+  top: clamp(58px, 6.4vh, 78px) !important;
+  width: min(540px, 52vw) !important;
+  padding: 8px 14px !important;
+  border-radius: 12px !important;
+}
+.captain-turn-banner.is-teammate-turn,
+.captain-turn-banner.is-opponent-turn,
+.captain-turn-banner.is-spectator-turn {
+  width: min(500px, 48vw) !important;
+}
+.captain-turn-banner .banner-kicker {
+  margin-bottom: 4px !important;
+}
+.captain-turn-banner strong {
+  font-size: 1.02em !important;
+}
+.captain-turn-banner em {
+  margin-top: 2px !important;
+  transform: scale(0.86) !important;
+}
+
+/* Botón de selección aleatoria junto al panel inferior. */
+.random-selection-button {
+  position: absolute;
+  right: 208px;
+  bottom: 10px;
+  min-width: 160px;
+  height: 34px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(57,64,78,0.96), rgba(24,28,37,0.98));
+  color: rgba(255,255,255,0.96);
+  font-size: 0.68rem;
+  font-weight: 1000;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.22);
+  transition: transform .14s ease, filter .14s ease, opacity .14s ease;
+}
+.random-selection-button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.random-selection-button:active { transform: translateY(1px); }
+.random-selection-button.hidden { display: none !important; }
+
+/* Ready Check más cercano al vídeo de referencia: oscuro, suspendido y con cajas colgantes. */
+.online-ready-overlay {
+  background:
+    radial-gradient(circle at 50% 10%, rgba(168, 214, 226, 0.18), transparent 32%),
+    linear-gradient(180deg, rgba(16,22,28,0.9), rgba(5,7,11,0.96));
+}
+.online-ready-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 15% 30%, rgba(255,255,255,0.08) 0 2px, transparent 3px),
+    radial-gradient(circle at 72% 20%, rgba(255,255,255,0.08) 0 2px, transparent 3px),
+    radial-gradient(circle at 84% 62%, rgba(255,255,255,0.06) 0 3px, transparent 4px),
+    radial-gradient(circle at 30% 72%, rgba(255,255,255,0.05) 0 2px, transparent 3px);
+  background-size: 220px 220px, 180px 180px, 260px 260px, 190px 190px;
+  animation: readyBubbles 12s linear infinite;
+}
+@keyframes readyBubbles {
+  from { transform: translateY(0); }
+  to { transform: translateY(-18px); }
+}
+.online-ready-card {
+  width: min(1120px, 94vw);
+  background: linear-gradient(180deg, rgba(22,27,33,0.72), rgba(6,8,12,0.88));
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 28px 80px rgba(0,0,0,0.5);
+}
+.online-ready-card::before,
+.online-ready-card::after {
+  display: none;
+}
+.online-ready-kicker {
+  color: rgba(255,255,255,0.92);
+  letter-spacing: 0.12em;
+  font-size: 0.92rem;
+}
+.online-ready-card h2 {
+  font-size: clamp(1.7rem, 3vw, 3rem);
+  letter-spacing: 0.06em;
+}
+.online-ready-grid {
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+.online-ready-player {
+  position: relative;
+  min-height: 178px;
+  align-content: end;
+  padding: 18px 10px 16px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(165,175,180,0.86), rgba(124,132,138,0.88));
+  color: #0a0d12;
+  opacity: 0.58;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22);
+}
+.online-ready-player::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -34px;
+  width: 2px;
+  height: 34px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0.08));
+}
+.online-ready-player strong {
+  color: #0f141a;
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.online-ready-player span,
+.online-ready-player em {
+  color: rgba(10,13,18,0.78);
+  font-weight: 900;
+}
+.online-ready-player.is-ready {
+  opacity: 1;
+  transform: translateY(-4px);
+  background: linear-gradient(180deg, rgba(240,245,248,0.98), rgba(182,190,196,0.96));
+  box-shadow: 0 16px 36px rgba(255,255,255,0.12), inset 0 0 0 1px rgba(255,255,255,0.46);
+}
+.online-ready-player.team-a.is-ready {
+  box-shadow: 0 16px 36px rgba(255,96,112,0.18), inset 0 -4px 0 rgba(255,96,112,0.74);
+}
+.online-ready-player.team-b.is-ready {
+  box-shadow: 0 16px 36px rgba(80,150,255,0.18), inset 0 -4px 0 rgba(80,150,255,0.74);
+}
+.online-ready-button {
+  width: min(320px, 100%);
+  margin: 4px auto 0;
+  min-height: 58px;
+  border-radius: 6px;
+}
+.online-ready-button.is-ready {
+  background: linear-gradient(180deg, rgba(126,132,140,0.94), rgba(72,78,87,0.98)) !important;
+  color: rgba(23,26,31,0.76) !important;
+  border-color: rgba(255,255,255,0.14) !important;
+  box-shadow: none !important;
+}
+.online-ready-status {
+  min-height: 24px;
+}
+
+@media (max-width: 1100px) {
+  .random-selection-button {
+    right: 188px;
+    min-width: 148px;
+    font-size: 0.62rem;
+  }
+}
+
+@media (max-width: 860px) {
+  .random-selection-button {
+    position: static;
+    grid-column: 3;
+    width: 100%;
+    min-width: 0;
+    margin-top: 6px;
+  }
+  .phase-status-panel {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* =========================================================
+   v3.2.8 - Posición exacta del botón aleatorio + ready polish
+   ========================================================= */
+
+/* El botón de selección aleatoria ya no flota: se integra dentro del panel inferior. */
+.phase-status-panel {
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 220px) 150px 164px 30px !important;
+  gap: 7px !important;
+}
+
+#random-selection-action.random-selection-button {
+  position: static !important;
+  right: auto !important;
+  bottom: auto !important;
+  grid-column: 3 !important;
+  justify-self: stretch !important;
+  align-self: center !important;
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  padding: 0 8px !important;
+  margin: 0 !important;
+  font-size: 0.58rem !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0.10em !important;
+  text-align: center !important;
+  border-color: rgba(255,255,255,0.22) !important;
+  background:
+    linear-gradient(135deg, rgba(63,70,86,0.98), rgba(23,27,37,0.98)) !important;
+  box-shadow:
+    inset 0 0 12px rgba(255,255,255,0.05),
+    0 8px 18px rgba(0,0,0,0.20) !important;
+  white-space: normal !important;
+}
+
+#confirm-action,
+.phase-status-panel .action-button {
+  grid-column: 4 !important;
+  width: 164px !important;
+  min-width: 164px !important;
+  max-width: 164px !important;
+}
+
+#clear-preselection.clear-preselection-button {
+  grid-column: 5 !important;
+  justify-self: start !important;
+}
+
+/* Cuando el botón aleatorio está oculto, el layout no salta visualmente. */
+#random-selection-action.random-selection-button.hidden {
+  display: inline-flex !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Ready check: entrada con panel cinematográfico y tarjetas colgantes. */
+.online-ready-overlay:not(.hidden) {
+  animation: readyOverlayFadeInV328 0.38s ease both;
+}
+
+.online-ready-overlay:not(.hidden) .online-ready-card {
+  animation: readyCardIntroV328 0.62s cubic-bezier(.16,.84,.22,1) both;
+}
+
+.online-ready-overlay:not(.hidden) .online-ready-kicker {
+  animation: readyKickerSlideV328 0.54s ease 0.10s both;
+}
+
+.online-ready-overlay:not(.hidden) .online-ready-card h2 {
+  animation: readyTitleLockV328 0.62s cubic-bezier(.16,.84,.22,1) 0.16s both;
+}
+
+.online-ready-overlay:not(.hidden) .online-ready-copy,
+.online-ready-overlay:not(.hidden) .online-ready-status {
+  animation: readyTextFadeV328 0.46s ease 0.30s both;
+}
+
+.online-ready-overlay:not(.hidden) .online-ready-button {
+  animation: readyButtonRiseV328 0.50s cubic-bezier(.16,.84,.22,1) 0.38s both;
+}
+
+.online-ready-overlay:not(.hidden) .online-ready-player {
+  transform-origin: top center;
+  animation: readyPlayerDropV328 0.70s cubic-bezier(.16,.84,.22,1) both;
+}
+
+.online-ready-overlay:not(.hidden) .online-ready-player:nth-child(1) { animation-delay: 0.14s; }
+.online-ready-overlay:not(.hidden) .online-ready-player:nth-child(2) { animation-delay: 0.19s; }
+.online-ready-overlay:not(.hidden) .online-ready-player:nth-child(3) { animation-delay: 0.24s; }
+.online-ready-overlay:not(.hidden) .online-ready-player:nth-child(4) { animation-delay: 0.29s; }
+.online-ready-overlay:not(.hidden) .online-ready-player:nth-child(5) { animation-delay: 0.34s; }
+.online-ready-overlay:not(.hidden) .online-ready-player:nth-child(6) { animation-delay: 0.39s; }
+.online-ready-overlay:not(.hidden) .online-ready-player:nth-child(7) { animation-delay: 0.44s; }
+.online-ready-overlay:not(.hidden) .online-ready-player:nth-child(8) { animation-delay: 0.49s; }
+.online-ready-overlay:not(.hidden) .online-ready-player:nth-child(9) { animation-delay: 0.54s; }
+.online-ready-overlay:not(.hidden) .online-ready-player:nth-child(10) { animation-delay: 0.59s; }
+
+.online-ready-player.is-ready {
+  animation-name: readyPlayerReadyPulseV328, readyPlayerDropV328 !important;
+  animation-duration: 1.35s, 0.70s !important;
+  animation-timing-function: ease-in-out, cubic-bezier(.16,.84,.22,1) !important;
+  animation-iteration-count: infinite, 1 !important;
+  animation-direction: alternate, normal !important;
+}
+
+.online-ready-player.is-ready::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.24);
+  pointer-events: none;
+  animation: readyCardScanV328 1.6s linear infinite;
+}
+
+.online-ready-overlay.is-loading .online-ready-card {
+  animation: readyCardLoadingPulseV328 1.2s ease-in-out infinite alternate !important;
+}
+
+.online-ready-overlay.is-loading .online-ready-player {
+  opacity: 0.92;
+  filter: saturate(0.9) brightness(0.95);
+}
+
+@keyframes readyOverlayFadeInV328 {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes readyCardIntroV328 {
+  0% {
+    opacity: 0;
+    transform: translateY(34px) scale(0.965);
+    filter: blur(4px) brightness(0.82);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.008);
+    filter: blur(0) brightness(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0) brightness(1);
+  }
+}
+
+@keyframes readyKickerSlideV328 {
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
+    letter-spacing: 0.34em;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 0.12em;
+  }
+}
+
+@keyframes readyTitleLockV328 {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+    filter: blur(2px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.025);
+    filter: blur(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes readyTextFadeV328 {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes readyButtonRiseV328 {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes readyPlayerDropV328 {
+  0% {
+    opacity: 0;
+    transform: translateY(-58px) rotateX(38deg) scaleY(0.88);
+    filter: blur(3px) brightness(0.75);
+  }
+  58% {
+    opacity: 1;
+    transform: translateY(6px) rotateX(-5deg) scaleY(1.03);
+    filter: blur(0) brightness(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0) scaleY(1);
+    filter: blur(0) brightness(1);
+  }
+}
+
+@keyframes readyPlayerReadyPulseV328 {
+  from {
+    filter: brightness(1.02);
+    box-shadow:
+      0 16px 36px rgba(255,255,255,0.08),
+      inset 0 0 0 1px rgba(255,255,255,0.36);
+  }
+  to {
+    filter: brightness(1.16);
+    box-shadow:
+      0 20px 46px rgba(255,255,255,0.18),
+      inset 0 0 0 1px rgba(255,255,255,0.58);
+  }
+}
+
+@keyframes readyCardScanV328 {
+  0% { box-shadow: inset 0 36px 0 rgba(255,255,255,0.00); }
+  48% { box-shadow: inset 0 36px 0 rgba(255,255,255,0.08); }
+  100% { box-shadow: inset 0 160px 0 rgba(255,255,255,0.00); }
+}
+
+@keyframes readyCardLoadingPulseV328 {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.08); }
+}
+
+@media (max-width: 1180px) {
+  .phase-status-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(176px, 206px) 132px 150px 28px !important;
+    gap: 5px !important;
+  }
+
+  #random-selection-action.random-selection-button {
+    width: 132px !important;
+    min-width: 132px !important;
+    max-width: 132px !important;
+    font-size: 0.52rem !important;
+    letter-spacing: 0.08em !important;
+  }
+
+  #confirm-action,
+  .phase-status-panel .action-button {
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
+  }
+
+  #clear-preselection.clear-preselection-button {
+    width: 28px !important;
+    min-width: 28px !important;
+    max-width: 28px !important;
+  }
+}
+
+@media (max-width: 860px) {
+  #random-selection-action.random-selection-button {
+    grid-column: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 40px !important;
+    margin-top: 4px !important;
+  }
+
+  #confirm-action,
+  .phase-status-panel .action-button {
+    grid-column: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  #clear-preselection.clear-preselection-button {
+    grid-column: auto !important;
+    justify-self: center !important;
+  }
+}

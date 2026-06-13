@@ -550,6 +550,7 @@ const systemDraftVoiceLines = {
   advanced_please_ban_laminant: makeSystemVoiceLine("advanced_please_ban_laminant", "voice_advanced_please_ban_laminant", "Por favor bloquea un laminante."),
   advanced_please_ban_scissors_laminant: makeSystemVoiceLine("advanced_please_ban_scissors_laminant", "voice_advanced_please_ban_scissors_laminant", "Por favor bloquea un laminante de las Cizallas."),
   random_start: makeSystemVoiceLine("random_start", "voice_random_start", "Tiempo agotado. Iniciando selección aleatoria."),
+  manual_random_start: makeSystemVoiceLine("manual_random_start", "voice_manual_random_start", "El jugador inició la selección aleatoria."),
   map_selector_voice: makeSystemVoiceLine("map_selector_voice", "voice_map_selector", "Iniciando selección aleatoria de mapa."),
   voice_finish_draft: makeSystemVoiceLine("voice_finish_draft", "voice_finish_draft_text", "El sistema draft ha concluido, mostrando resultados."),
 };
@@ -3925,6 +3926,59 @@ function ensureClearPreselectionButton() {
   return button;
 }
 
+
+function ensureRandomSelectionButton() {
+  const confirmButton = $("#confirm-action");
+  if (!confirmButton) return null;
+
+  let button = document.getElementById("random-selection-action");
+  if (!button) {
+    button = document.createElement("button");
+    button.id = "random-selection-action";
+    button.type = "button";
+    button.className = "random-selection-button hidden";
+    button.addEventListener("click", () => startManualRandomSelection());
+    confirmButton.insertAdjacentElement("afterend", button);
+  }
+  button.textContent = t("random_selection_button");
+  button.title = t("random_selection_button");
+  button.setAttribute("aria-label", t("random_selection_button"));
+  return button;
+}
+
+async function startManualRandomSelection() {
+  const turn = currentTurn();
+  const turnIndexSnapshot = state.turnIndex;
+  const sessionId = state.draftSessionId;
+  if (!turn || !isDraftSessionActive(sessionId) || state.locked || state.roulette.active || !canControlCurrentTurn()) return;
+  const valid = getValidCharacters();
+  if (!valid.length) return;
+
+  state.locked = true;
+  renderAll();
+  const audioEvent = currentRoomCode ? createOnlineAudioEvent("manualRandomStart") : null;
+  if (currentRoomCode) pushOnlineDraftState({ phase: "draft", audioEvent });
+  playNarration(systemDraftVoiceLines.manual_random_start.src, systemDraftVoiceLines.manual_random_start.text, 0.9);
+  await delay(320);
+  if (!isDraftSessionActive(sessionId) || state.turnIndex !== turnIndexSnapshot) {
+    state.locked = false;
+    renderAll();
+    return;
+  }
+
+  const selected = await runCharacterRoulette(valid);
+  if (!isDraftSessionActive(sessionId) || state.turnIndex !== turnIndexSnapshot) return;
+  if (!selected) {
+    state.locked = false;
+    renderAll();
+    return;
+  }
+
+  state.locked = false;
+  state.selected = selected;
+  confirmTurn(true);
+}
+
 function clearPreselection() {
   if (state.locked || state.roulette.active || !canControlCurrentTurn()) return;
   state.selected = null;
@@ -3941,12 +3995,18 @@ function renderSelected() {
   const statusFaction = $("#status-character-faction");
 
   if (!button || !turn) return;
+  if (state.selected && !isCharacterAvailable(state.selected, turn)) {
+    state.selected = null;
+    state.preselectLocked = false;
+  }
   const clearButton = ensureClearPreselectionButton();
+  const randomButton = ensureRandomSelectionButton();
 
   if (!canControlCurrentTurn()) {
     const viewerSelected = state.selected && isCharacterAvailable(state.selected, turn) ? state.selected : null;
     button.classList.add("hidden");
     if (clearButton) clearButton.classList.add("hidden");
+    if (randomButton) randomButton.classList.add("hidden");
     if (statusName) statusName.textContent = viewerSelected ? viewerSelected.name.toUpperCase() : t("none");
     const waitingText = isAdvancedDraftConfig()
       ? (currentOnlineTeamLetter() === turn.team ? "Esperando a tu compañero del turno..." : "Esperando al jugador rival del turno...")
@@ -3963,11 +4023,13 @@ function renderSelected() {
   if (!selectedCharacter) {
     button.classList.add("hidden");
     if (clearButton) clearButton.classList.add("hidden");
+    if (randomButton) randomButton.classList.toggle("hidden", state.locked || state.roulette.active || !getValidCharacters().length);
     return;
   }
 
   button.classList.remove("hidden", "ban");
   if (clearButton) clearButton.classList.toggle("hidden", !state.preselectLocked);
+  if (randomButton) randomButton.classList.toggle("hidden", state.locked || state.roulette.active || !getValidCharacters().length);
 
   if (turn.type === "ban") {
     button.textContent = t("ban");
@@ -4563,6 +4625,8 @@ function playOnlineAudioEvent(event) {
 
   if (event.type === "randomStart") {
     playNarration(systemDraftVoiceLines.random_start.src, systemDraftVoiceLines.random_start.text, 0.9);
+  } else if (event.type === "manualRandomStart") {
+    playNarration(systemDraftVoiceLines.manual_random_start.src, systemDraftVoiceLines.manual_random_start.text, 0.9);
   } else if (event.type === "mapSelector") {
     playNarration(systemDraftVoiceLines.map_selector_voice.src, systemDraftVoiceLines.map_selector_voice.text, 0.92);
   } else if (event.type === "finishDraft") {
@@ -5165,11 +5229,17 @@ function botClientIdForCurrentTurn(data = onlineLatestRoomData || {}, turn = cur
 }
 
 function testingBotPickCharacter(turn = currentTurn()) {
-  const available = characters.filter(character => isCharacterAvailable(character, turn));
+  if (!turn) return null;
+  const allowedFactions = turn.type === "pick"
+    ? getAllowedFactionKeysForPick(turn.team)
+    : [turn.faction];
+  const available = characters.filter(character => {
+    if (!allowedFactions.includes(character.faction)) return false;
+    return isCharacterAvailable(character, turn);
+  });
   if (!available.length) return null;
 
-  // Pequeña lógica de testing: en picks evita repetir roles si puede, pero siempre prioriza válidos.
-  if (turn?.type === "pick") {
+  if (turn.type === "pick") {
     const teamRoles = state.picks[turn.team].map(character => roleOf(character.name));
     const balanced = available.filter(character => !teamRoles.includes(roleOf(character.name)));
     if (balanced.length) return balanced[Math.floor(Math.random() * balanced.length)];
@@ -5845,6 +5915,9 @@ function syncDraftStateFromRoom(data = {}) {
 
     if (Object.prototype.hasOwnProperty.call(draftState, "selected")) {
       state.selected = characterFromOnlineValue(draftState.selected);
+      if (state.selected && !isCharacterAvailable(state.selected, currentTurn())) {
+        state.selected = null;
+      }
     }
     if (Object.prototype.hasOwnProperty.call(draftState, "preselectLocked")) state.preselectLocked = Boolean(draftState.preselectLocked);
     if (Object.prototype.hasOwnProperty.call(draftState, "locked")) state.locked = Boolean(draftState.locked);
@@ -5852,7 +5925,14 @@ function syncDraftStateFromRoom(data = {}) {
     state.flashPick = draftState.flashPick || null;
     state.banAnimation = onlineCharacterAnimationFromValue(draftState.banAnimation);
     state.pickAnimation = onlineCharacterAnimationFromValue(draftState.pickAnimation);
-    if (draftState.roulette) state.roulette = rouletteFromOnlineValue(draftState.roulette);
+    if (draftState.roulette) {
+      state.roulette = rouletteFromOnlineValue(draftState.roulette);
+      if (state.roulette.previewCharacter && !isCharacterAvailable(state.roulette.previewCharacter, currentTurn())) {
+        state.roulette.previewCharacter = null;
+        state.roulette.highlightedName = null;
+        state.roulette.finalName = null;
+      }
+    }
 
     if (Object.prototype.hasOwnProperty.call(draftState, "selectedMap")) {
       state.selectedMap = mapFromOnlineValue(draftState.selectedMap);
@@ -7034,9 +7114,9 @@ function showSummaryIntro(options = {}) {
   }
 
   showPhaseOverlay(
-    t("voice_finish_draft_text"),
+    t("draft_finished_title"),
     "",
-    state.selectedMap ? t("summary_map_selected", { map: state.selectedMap.name }) : t("summary_prepare"),
+    t("draft_finished_subtitle"),
     finishDraft,
   );
 }
@@ -7498,6 +7578,7 @@ async function markCurrentPlayerReady() {
       },
       updatedAt: onlineNow(),
     });
+    audioPlay(sounds.startDraft, 0.94, "sfx");
   } catch (error) {
     console.warn("No se pudo marcar listo.", error);
     alert(t("ready_check_error"));
