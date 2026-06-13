@@ -13404,3 +13404,213 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
     grid-row: 2 / 4 !important;
   }
 }
+
+
+/* =========================================================
+   v3.2.10 - Turn banner correcto + botones inferiores iguales
+   ========================================================= */
+
+/* TU TURNO / TURNO DE TU EQUIPO: más pequeño, un poco más arriba, pero sin pegarse al timer. */
+.captain-turn-banner.is-own-turn,
+.captain-turn-banner.is-teammate-turn {
+  top: clamp(64px, 7.5vh, 86px) !important;
+  width: min(470px, 42vw) !important;
+  min-height: 0 !important;
+  padding: 8px 14px !important;
+  font-size: clamp(0.72rem, 1.02vw, 1rem) !important;
+  line-height: 1.04 !important;
+  border-radius: 13px !important;
+}
+
+.captain-turn-banner.is-own-turn strong,
+.captain-turn-banner.is-teammate-turn strong {
+  font-size: clamp(0.92rem, 1.38vw, 1.32rem) !important;
+  line-height: 1.03 !important;
+  letter-spacing: 0.11em !important;
+}
+
+.captain-turn-banner.is-own-turn span:not(.banner-kicker),
+.captain-turn-banner.is-teammate-turn span:not(.banner-kicker) {
+  font-size: 0.68em !important;
+  line-height: 1.02 !important;
+}
+
+.captain-turn-banner.is-own-turn em,
+.captain-turn-banner.is-teammate-turn em {
+  margin-top: 4px !important;
+  padding: 3px 11px !important;
+}
+
+/* TURNO DEL ENEMIGO: volver a aviso central grande, como antes, opacando la acción. */
+.captain-turn-banner.is-opponent-turn {
+  left: 50% !important;
+  top: 48% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(940px, 76vw) !important;
+  min-height: min(245px, 32vh) !important;
+  padding: clamp(22px, 3.2vw, 42px) !important;
+  border-radius: 24px !important;
+  font-size: clamp(1.45rem, 3.2vw, 3.45rem) !important;
+  line-height: 1.04 !important;
+  opacity: 0.96 !important;
+  animation: opponentTurnBannerPulseV3210 1.2s ease-in-out infinite alternate !important;
+}
+
+.captain-turn-banner.is-opponent-turn .banner-kicker {
+  font-size: 0.23em !important;
+  letter-spacing: 0.26em !important;
+  margin-bottom: 10px !important;
+}
+
+.captain-turn-banner.is-opponent-turn strong {
+  font-size: 0.62em !important;
+  line-height: 1.06 !important;
+  letter-spacing: 0.10em !important;
+  max-width: 100% !important;
+}
+
+.captain-turn-banner.is-opponent-turn span:not(.banner-kicker) {
+  font-size: 0.27em !important;
+  line-height: 1.06 !important;
+  letter-spacing: 0.08em !important;
+  margin-top: 8px !important;
+}
+
+.captain-turn-banner.is-opponent-turn em {
+  font-size: 0.20em !important;
+  padding: 8px 20px !important;
+  margin-top: 12px !important;
+}
+
+@keyframes opponentTurnBannerPulseV3210 {
+  from { filter: brightness(0.98); }
+  to { filter: brightness(1.14); }
+}
+
+/* Panel inferior: reducir caja de personaje y hacer BANEAR/SELECCIONAR + SELECCIÓN ALEATORIA del mismo ancho. */
+.phase-status-panel {
+  width: min(820px, calc(100vw - 560px)) !important;
+  min-width: 650px !important;
+  grid-template-columns: minmax(215px, 1fr) 170px 158px 30px !important;
+  grid-template-rows: 34px 34px !important;
+  gap: 6px 8px !important;
+  padding: 10px 12px !important;
+}
+
+.phase-status-panel .status-character-box {
+  grid-column: 2 !important;
+  grid-row: 1 / 3 !important;
+  min-width: 0 !important;
+  width: 170px !important;
+  padding: 8px 10px !important;
+}
+
+.phase-status-panel .status-character-box strong,
+#status-character-name {
+  max-width: 150px !important;
+  display: block !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+#confirm-action,
+.phase-status-panel .action-button,
+#random-selection-action.random-selection-button {
+  grid-column: 3 !important;
+  width: 158px !important;
+  min-width: 158px !important;
+  max-width: 158px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  justify-self: stretch !important;
+  align-self: stretch !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  box-sizing: border-box !important;
+}
+
+#confirm-action,
+.phase-status-panel .action-button {
+  grid-row: 1 !important;
+  font-size: 0.82rem !important;
+}
+
+#random-selection-action.random-selection-button {
+  grid-row: 2 !important;
+  font-size: 0.54rem !important;
+  letter-spacing: 0.075em !important;
+  line-height: 1.04 !important;
+  white-space: normal !important;
+}
+
+#clear-preselection.clear-preselection-button {
+  grid-column: 4 !important;
+  grid-row: 1 / 3 !important;
+  align-self: center !important;
+}
+
+@media (max-width: 1320px) {
+  .phase-status-panel {
+    width: min(780px, calc(100vw - 430px)) !important;
+    min-width: 600px !important;
+    grid-template-columns: minmax(190px, 1fr) 158px 146px 28px !important;
+  }
+
+  .phase-status-panel .status-character-box {
+    width: 158px !important;
+  }
+
+  #confirm-action,
+  .phase-status-panel .action-button,
+  #random-selection-action.random-selection-button {
+    width: 146px !important;
+    min-width: 146px !important;
+    max-width: 146px !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .captain-turn-banner.is-opponent-turn {
+    width: min(92vw, 760px) !important;
+    min-height: min(210px, 30vh) !important;
+  }
+
+  .phase-status-panel {
+    width: min(720px, calc(100vw - 40px)) !important;
+    min-width: 0 !important;
+    grid-template-columns: minmax(0, 1fr) 150px 28px !important;
+    grid-template-rows: auto 34px 34px !important;
+  }
+
+  .phase-status-panel .status-character-box {
+    grid-column: 1 !important;
+    grid-row: 2 / 4 !important;
+    width: auto !important;
+  }
+
+  #confirm-action,
+  .phase-status-panel .action-button,
+  #random-selection-action.random-selection-button {
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
+  }
+
+  #confirm-action,
+  .phase-status-panel .action-button {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+  }
+
+  #random-selection-action.random-selection-button {
+    grid-column: 2 !important;
+    grid-row: 3 !important;
+  }
+
+  #clear-preselection.clear-preselection-button {
+    grid-column: 3 !important;
+    grid-row: 2 / 4 !important;
+  }
+}

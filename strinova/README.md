@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.9 by RPmods
+# STRINOVA Draft System v3.2.10 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -177,3 +177,12 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
 - Si el ready check vence o un jugador requerido se desconecta antes de estar listo, se cancela y vuelve al lobby.
 - La ruleta de mapas ahora usa borde dorado/brillo sin reconstruir tarjetas ni provocar parpadeos visuales fuertes.
 - Los jugadores pueden retirarse al terminar el draft usando un botón de salida en el resumen.
+
+
+## v3.2.10 Hotfix Turn Banner + Ready Countdown
+
+- Se redujo y recolocó el banner de turno propio/equipo para que tape menos al personaje.
+- El turno enemigo vuelve a mostrarse como aviso grande centrado y opacante.
+- Se redujo la caja de información del personaje en el panel inferior.
+- BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA ahora tienen el mismo ancho y están mejor apilados.
+- El contador del ready check ahora se actualiza localmente cada 0.5 segundos, sin depender de cambios de Firebase, para evitar que se quede congelado en 28/27.

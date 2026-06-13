@@ -578,6 +578,8 @@ let onlineSummaryIntroShownKey = null;
 let hostNameSaveTimer = null;
 let onlineReadyTimeoutTimerId = null;
 let onlineReadyTimeoutKey = null;
+let onlineReadyCountdownIntervalId = null;
+let onlineReadyCountdownData = null;
 const ONLINE_READY_TIMEOUT_MS = 30000;
 let onlineReadyStartKey = null;
 const testingBotReadyTimers = new Map();
@@ -7520,6 +7522,63 @@ function updateOnlineReadyOverlayLanguage() {
   if (kicker) kicker.textContent = t("ready_check_kicker");
 }
 
+
+function readyCheckSecondsLeft(readyCheck = {}) {
+  return Math.max(0, Math.ceil((Number(readyCheck.deadlineAt || 0) - onlineNow()) / 1000));
+}
+
+function renderOnlineReadyStatusText(data = {}) {
+  const readyCheck = onlineReadyCheckFromRoom(data);
+  const status = document.getElementById("online-ready-status");
+  if (!status || !readyCheck?.active || readyCheck.status !== "waiting") return;
+  const required = currentClientReadyRequirement(data);
+  const myReady = required ? isReadyUserMarked(data, required.clientId) : false;
+  const secondsLeft = readyCheckSecondsLeft(readyCheck);
+  status.innerHTML = required
+    ? (myReady ? escapeHtml(t("ready_check_waiting_others")) : `${escapeHtml(t("ready_check_player_prompt"))} · ${t("ready_check_timeout", { seconds: `<strong>${secondsLeft}</strong>` })}`)
+    : `${escapeHtml(t("ready_check_spectator_status"))} · ${t("ready_check_timeout", { seconds: `<strong>${secondsLeft}</strong>` })}`;
+}
+
+function stopOnlineReadyCountdownInterval() {
+  if (onlineReadyCountdownIntervalId) {
+    clearInterval(onlineReadyCountdownIntervalId);
+    onlineReadyCountdownIntervalId = null;
+  }
+  onlineReadyCountdownData = null;
+}
+
+function startOnlineReadyCountdownInterval(data = {}) {
+  const readyCheck = onlineReadyCheckFromRoom(data);
+  if (!readyCheck?.active || readyCheck.status !== "waiting") {
+    stopOnlineReadyCountdownInterval();
+    return;
+  }
+
+  const key = `${currentRoomCode || "local"}:${readyCheck.requestedAt || 0}:${readyCheck.deadlineAt || 0}`;
+  onlineReadyCountdownData = data;
+  if (onlineReadyCountdownIntervalId && document.getElementById("online-ready-overlay")?.dataset.countdownKey === key) {
+    renderOnlineReadyStatusText(data);
+    return;
+  }
+
+  stopOnlineReadyCountdownInterval();
+  const overlay = document.getElementById("online-ready-overlay");
+  if (overlay) overlay.dataset.countdownKey = key;
+  renderOnlineReadyStatusText(data);
+  onlineReadyCountdownIntervalId = setInterval(() => {
+    if (!onlineReadyCountdownData) {
+      stopOnlineReadyCountdownInterval();
+      return;
+    }
+    const latestReady = onlineReadyCheckFromRoom(onlineReadyCountdownData);
+    if (!latestReady?.active || latestReady.status !== "waiting") {
+      stopOnlineReadyCountdownInterval();
+      return;
+    }
+    renderOnlineReadyStatusText(onlineReadyCountdownData);
+  }, 500);
+}
+
 function renderOnlineReadyCheck(data = {}) {
   const readyCheck = onlineReadyCheckFromRoom(data);
   const overlay = ensureOnlineReadyOverlay();
@@ -7531,6 +7590,7 @@ function renderOnlineReadyCheck(data = {}) {
   const status = document.getElementById("online-ready-status");
 
   if (!readyCheck?.active || data.started) {
+    stopOnlineReadyCountdownInterval();
     overlay.classList.add("hidden");
     overlay.classList.remove("is-loading");
     try { video?.pause(); } catch (_) {}
@@ -7541,12 +7601,13 @@ function renderOnlineReadyCheck(data = {}) {
   const required = currentClientReadyRequirement(data);
   const myReady = required ? isReadyUserMarked(data, required.clientId) : false;
   const isLoading = readyCheck.status === "loading";
-  const secondsLeft = Math.max(0, Math.ceil((Number(readyCheck.deadlineAt || 0) - onlineNow()) / 1000));
+  const secondsLeft = readyCheckSecondsLeft(readyCheck);
 
   overlay.classList.remove("hidden");
   overlay.classList.toggle("is-loading", isLoading);
 
   if (isLoading) {
+    stopOnlineReadyCountdownInterval();
     if (title) title.textContent = t("ready_check_loading_title");
     if (copy) copy.textContent = t("ready_check_loading_copy");
     if (button) button.classList.add("hidden");
@@ -7565,9 +7626,8 @@ function renderOnlineReadyCheck(data = {}) {
       button.textContent = myReady ? t("ready_check_button_waiting") : t("ready_check_button");
       button.onclick = () => markCurrentPlayerReady();
     }
-    if (status) status.innerHTML = required
-      ? (myReady ? escapeHtml(t("ready_check_waiting_others")) : `${escapeHtml(t("ready_check_player_prompt"))} · ${t("ready_check_timeout", { seconds: `<strong>${secondsLeft}</strong>` })}`)
-      : `${escapeHtml(t("ready_check_spectator_status"))} · ${t("ready_check_timeout", { seconds: `<strong>${secondsLeft}</strong>` })}`;
+    renderOnlineReadyStatusText(data);
+    startOnlineReadyCountdownInterval(data);
     try { video?.pause(); } catch (_) {}
   }
 
@@ -7777,6 +7837,7 @@ function cancelOnlineReadyCheck(roomRef, reason = "timeout") {
     clearTimeout(onlineReadyTimeoutTimerId);
     onlineReadyTimeoutTimerId = null;
   }
+  stopOnlineReadyCountdownInterval();
   onlineReadyTimeoutKey = null;
   onlineReadyStartKey = null;
   return roomRef.update({
