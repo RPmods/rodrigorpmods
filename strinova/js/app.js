@@ -5378,7 +5378,6 @@ async function fillAdvancedTestingBots() {
         slots[team][slotKey] = slotValue;
         updates[`participants/${botId}`] = botPayload;
         updates[`slots/${team}/${slotKey}`] = slotValue;
-        updates[`draftState/slots/${team}/${slotKey}`] = slotValue;
       });
     });
 
@@ -5436,7 +5435,6 @@ async function removeTestingBots() {
         if (slot?.clientId && botIds.includes(slot.clientId)) {
           slots[team][slotKey] = null;
           updates[`slots/${team}/${slotKey}`] = null;
-          updates[`draftState/slots/${team}/${slotKey}`] = null;
         }
       });
     });
@@ -7299,8 +7297,7 @@ async function disconnectCurrentRoom() {
           ADVANCED_SLOT_KEYS.forEach(slotKey => {
             if (slots?.[team]?.[slotKey]?.clientId === clientId) {
               updates[`slots/${team}/${slotKey}`] = null;
-              updates[`draftState/slots/${team}/${slotKey}`] = null;
-            }
+                }
           });
         });
       }

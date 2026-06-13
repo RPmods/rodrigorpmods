@@ -18,7 +18,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORIAL",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.2.2 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.3 by RPmods",
       "setup_subtitle": "Configura nombres, tamaño de partida y fase de bloqueos antes de iniciar.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -292,7 +292,8 @@ window.I18N_CONFIG = {
       "testing_bots_note": "Los bots son solo para pruebas.",
       "testing_bots_summary": "Bots activos en sala: {count}",
       "testing_bots_error": "No se pudo actualizar el sistema de bots.",
-      "update_17": "v3.2.2 Testing Bots — Se añadió un apartado de Testing Bots para que el host pueda rellenar capitanes o slots vacantes con bots; los bots pueden bloquear y seleccionar automáticamente en modo clásico y avanzado para facilitar pruebas online."
+      "update_17": "v3.2.2 Testing Bots — Se añadió un apartado de Testing Bots para que el host pueda rellenar capitanes o slots vacantes con bots; los bots pueden bloquear y seleccionar automáticamente en modo clásico y avanzado para facilitar pruebas online.",
+      "update_18": "v3.2.3 Hotfix (Testing Bots) — Se corrigió el fallo al rellenar slots vacantes con bots en modo avanzado; ahora el guardado de slots evita conflictos de rutas en Firebase Realtime Database."
     },
     "en": {
       "tab_menu": "MENU",
@@ -303,7 +304,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORY",
       "tab_credits": "CREDITS",
       "setup_eyebrow": "Competitive system",
-      "setup_title": "STRINOVA Draft System v3.2.2 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.3 by RPmods",
       "setup_subtitle": "Set player names and enter the ban phase directly.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -544,7 +545,8 @@ window.I18N_CONFIG = {
       "testing_bots_note": "Bots are intended for testing only.",
       "testing_bots_summary": "Active bots in room: {count}",
       "testing_bots_error": "Could not update the bot system.",
-      "update_17": "v3.2.2 Testing Bots — Added a Testing Bots section so the host can fill captains or empty slots with bots; bots can automatically ban and pick in classic and advanced mode to simplify online testing."
+      "update_17": "v3.2.2 Testing Bots — Added a Testing Bots section so the host can fill captains or empty slots with bots; bots can automatically ban and pick in classic and advanced mode to simplify online testing.",
+      "update_18": "v3.2.3 Hotfix (Testing Bots) — Fixed the error when filling empty slots with bots in advanced mode; slot saving now avoids conflicting paths in Firebase Realtime Database."
     },
     "ja": {
       "tab_menu": "メニュー",
@@ -555,7 +557,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新履歴",
       "tab_credits": "クレジット",
       "setup_eyebrow": "競技システム",
-      "setup_title": "STRINOVA Draft System v3.2.2 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.3 by RPmods",
       "setup_subtitle": "プレイヤー名を設定してブロックフェーズへ進みます。",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -796,7 +798,8 @@ window.I18N_CONFIG = {
       "testing_bots_note": "ボットはテスト専用です。",
       "testing_bots_summary": "ルーム内の有効ボット: {count}",
       "testing_bots_error": "ボットシステムを更新できませんでした。",
-      "update_17": "v3.2.2 Testing Bots — ホストがキャプテンまたは空きスロットをボットで埋められるTesting Botsセクションを追加。ボットはクラシック/アドバンスモードで自動BANと選択ができ、オンラインテストを簡単にします。"
+      "update_17": "v3.2.2 Testing Bots — ホストがキャプテンまたは空きスロットをボットで埋められるTesting Botsセクションを追加。ボットはクラシック/アドバンスモードで自動BANと選択ができ、オンラインテストを簡単にします。",
+      "update_18": "v3.2.3 Hotfix (Testing Bots) — アドバンスモードで空きスロットをボットで埋める際のエラーを修正。Firebase Realtime Database のパス競合を避けるように保存処理を調整しました。"
     },
     "ru": {
       "tab_menu": "МЕНЮ",
@@ -807,7 +810,7 @@ window.I18N_CONFIG = {
       "tab_updates": "ОБНОВЛЕНИЯ",
       "tab_credits": "АВТОРЫ",
       "setup_eyebrow": "Соревновательная система",
-      "setup_title": "STRINOVA Draft System v3.2.2 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.3 by RPmods",
       "setup_subtitle": "Настройте имена игроков и перейдите к фазе блокировок.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -1048,7 +1051,8 @@ window.I18N_CONFIG = {
       "testing_bots_note": "Боты предназначены только для тестов.",
       "testing_bots_summary": "Активных ботов в комнате: {count}",
       "testing_bots_error": "Не удалось обновить систему ботов.",
-      "update_17": "v3.2.2 Testing Bots — Добавлен раздел Testing Bots, чтобы хост мог заполнять капитанов или пустые слоты ботами; боты могут автоматически банить и выбирать в классическом и продвинутом режимах для упрощения онлайн-тестов."
+      "update_17": "v3.2.2 Testing Bots — Добавлен раздел Testing Bots, чтобы хост мог заполнять капитанов или пустые слоты ботами; боты могут автоматически банить и выбирать в классическом и продвинутом режимах для упрощения онлайн-тестов.",
+      "update_18": "v3.2.3 Hotfix (Testing Bots) — Исправлена ошибка при заполнении пустых слотов ботами в продвинутом режиме; сохранение слотов теперь избегает конфликтующих путей в Firebase Realtime Database."
     },
     "zh": {
       "tab_menu": "菜单",
@@ -1059,7 +1063,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新记录",
       "tab_credits": "制作名单",
       "setup_eyebrow": "竞技系统",
-      "setup_title": "STRINOVA Draft System v3.2.2 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.3 by RPmods",
       "setup_subtitle": "设置玩家名称并进入禁用阶段。",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -1300,7 +1304,8 @@ window.I18N_CONFIG = {
       "testing_bots_note": "机器人仅用于测试。",
       "testing_bots_summary": "房间内活动机器人：{count}",
       "testing_bots_error": "无法更新机器人系统。",
-      "update_17": "v3.2.2 Testing Bots — 新增 Testing Bots 区域，房主可以用机器人填充队长或空位；机器人可在经典和高级模式中自动禁用和选择，方便在线测试。"
+      "update_17": "v3.2.2 Testing Bots — 新增 Testing Bots 区域，房主可以用机器人填充队长或空位；机器人可在经典和高级模式中自动禁用和选择，方便在线测试。",
+      "update_18": "v3.2.3 Hotfix (Testing Bots) — 修复高级模式中用机器人填充空位时的错误；现在保存 slots 时会避免 Firebase Realtime Database 的路径冲突。"
     },
     "pt": {
       "tab_menu": "MENU",
@@ -1311,7 +1316,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTÓRICO",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.2.2 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.3 by RPmods",
       "setup_subtitle": "Configure os nomes e entre diretamente na fase de bloqueios.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -1552,7 +1557,8 @@ window.I18N_CONFIG = {
       "testing_bots_note": "Os bots são apenas para testes.",
       "testing_bots_summary": "Bots ativos na sala: {count}",
       "testing_bots_error": "Não foi possível atualizar o sistema de bots.",
-      "update_17": "v3.2.2 Testing Bots — Foi adicionada uma seção de Testing Bots para o host preencher capitães ou slots vazios com bots; os bots podem banir e selecionar automaticamente no modo clássico e avançado para facilitar testes online."
+      "update_17": "v3.2.2 Testing Bots — Foi adicionada uma seção de Testing Bots para o host preencher capitães ou slots vazios com bots; os bots podem banir e selecionar automaticamente no modo clássico e avançado para facilitar testes online.",
+      "update_18": "v3.2.3 Hotfix (Testing Bots) — Corrigido o erro ao preencher slots vazios com bots no modo avançado; o salvamento de slots agora evita conflitos de rotas no Firebase Realtime Database."
     }
   }
 };

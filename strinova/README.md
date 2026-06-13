@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.2 by RPmods
+# STRINOVA Draft System v3.2.3 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -106,3 +106,11 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
   - sincroniza el resultado en Firebase.
 - Los bots respetan personajes disponibles, facción de ban, picks válidos y no duplican seleccionados/baneados.
 - Se añadió soporte i18n para el apartado de Testing Bots en los idiomas disponibles.
+
+
+## v3.2.3 Hotfix Testing Bots
+
+- Se corrigió el error al pulsar "Rellenar slots vacantes con bots" en modo avanzado.
+- La causa era una actualización multi-ruta conflictiva en Firebase Realtime Database.
+- Ahora el sistema guarda los slots avanzados de bots sin mezclar rutas padre e hijas dentro del mismo update.
+- Se mantiene el soporte para bots en modo clásico y avanzado.
