@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.5 by RPmods
+# STRINOVA Draft System v3.2.6 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -133,3 +133,17 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
 - Durante ese tiempo hace varias preselecciones aleatorias de laminantes válidos.
 - Al final confirma el ban o pick con una pequeña pausa final.
 - Aplica tanto para modo clásico como para modo avanzado.
+
+
+## v3.2.6 Ready Check + Visual Turn UI
+
+- Se redujo y se movió más arriba el cuadro de anuncio online de turno.
+- Se ocultó visualmente el panel antiguo que quedaba detrás del aviso de turno en online.
+- El botón de confirmar se conserva y aparece separado cuando corresponde.
+- Al presionar "Iniciar draft" en online, ahora se abre una fase de listo antes de iniciar el draft.
+- Cada jugador asignado ve una caja con su nombre.
+- La caja pasa de gris oscura a más brillante cuando el jugador marca LISTO.
+- El botón LISTO es grande, centrado y rojo; al pulsarlo cambia a "Esperando a los demás jugadores".
+- Cuando todos están listos, se muestra la transición con `video/introV/Loading.mp4` antes de entrar al draft.
+- Los bots participan en el ready check automáticamente.
+- Los bots ya no usan nombres tipo BOT; toman nombres aleatorios desde `player_names_config.js`.

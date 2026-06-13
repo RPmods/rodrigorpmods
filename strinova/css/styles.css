@@ -12262,3 +12262,297 @@ body.online-role-host.own-team-turn .character-card {
     width: 100%;
   }
 }
+
+
+/* =========================================================
+   v3.2.6 - Ajustes visuales de turno + Ready Check Online
+   ========================================================= */
+
+/* El cuadro grande de turno ya cumple la función; el panel viejo deja de tapar visualmente en online. */
+body.online-role-player .phase-status-panel,
+body.online-role-host.own-team-turn .phase-status-panel {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+}
+
+body.online-role-player .phase-status-panel .phase-status-copy,
+body.online-role-player .phase-status-panel .status-character-box,
+body.online-role-host.own-team-turn .phase-status-panel .phase-status-copy,
+body.online-role-host.own-team-turn .phase-status-panel .status-character-box {
+  display: none !important;
+}
+
+/* El botón de confirmar se conserva, pero separado del panel antiguo. */
+body.online-role-player #confirm-action:not(.hidden),
+body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
+  position: fixed !important;
+  left: 50% !important;
+  top: clamp(188px, 21vh, 242px) !important;
+  transform: translateX(-50%) !important;
+  z-index: 130 !important;
+  pointer-events: auto !important;
+  min-width: 220px !important;
+}
+
+.captain-turn-banner.is-own-turn,
+.captain-turn-banner.is-teammate-turn,
+.captain-turn-banner.is-spectator-turn {
+  top: clamp(66px, 7.4vh, 92px) !important;
+  width: min(560px, 54vw) !important;
+  padding: 10px 16px !important;
+  border-radius: 15px !important;
+  font-size: clamp(0.78rem, 1.05vw, 1.04rem) !important;
+}
+
+.captain-turn-banner.is-teammate-turn {
+  width: min(640px, 60vw) !important;
+}
+
+.captain-turn-banner.is-own-turn strong,
+.captain-turn-banner.is-teammate-turn strong,
+.captain-turn-banner.is-spectator-turn strong {
+  font-size: 1.18em !important;
+  letter-spacing: 0.13em !important;
+}
+
+.captain-turn-banner.is-own-turn em,
+.captain-turn-banner.is-teammate-turn em,
+.captain-turn-banner.is-spectator-turn em {
+  transform: scale(0.9);
+  margin-top: 3px !important;
+}
+
+/* Ready check online */
+.online-ready-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  padding: clamp(20px, 4vw, 54px);
+  background:
+    radial-gradient(circle at 50% 18%, rgba(196,41,62,0.32), transparent 34%),
+    linear-gradient(180deg, rgba(8,10,15,0.92), rgba(17,18,24,0.96));
+}
+
+.online-ready-overlay.hidden {
+  display: none !important;
+}
+
+.online-ready-loading-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  filter: saturate(1.15) contrast(1.08);
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+
+.online-ready-overlay.is-loading .online-ready-loading-video {
+  opacity: 0.48;
+}
+
+.online-ready-card {
+  position: relative;
+  z-index: 2;
+  width: min(1040px, 92vw);
+  display: grid;
+  gap: 18px;
+  padding: clamp(22px, 3vw, 38px);
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background:
+    linear-gradient(135deg, rgba(33,35,43,0.92), rgba(20,21,28,0.94)),
+    radial-gradient(circle at top left, rgba(207,43,66,0.26), transparent 44%);
+  box-shadow:
+    inset 0 -4px 0 rgba(207,43,66,0.78),
+    0 24px 80px rgba(0,0,0,0.46);
+  text-align: center;
+  overflow: hidden;
+}
+
+.online-ready-card::before,
+.online-ready-card::after {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 2px;
+  background: rgba(255,255,255,0.20);
+  transform: rotate(45deg);
+}
+
+.online-ready-card::before {
+  left: -44px;
+  top: 38px;
+}
+
+.online-ready-card::after {
+  right: -46px;
+  bottom: 36px;
+}
+
+.online-ready-kicker {
+  margin: 0;
+  color: rgba(255,255,255,0.60);
+  font-size: 0.76rem;
+  font-weight: 1000;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.online-ready-card h2 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.6rem, 3.1vw, 3.4rem);
+  font-weight: 1000;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  text-shadow: 0 12px 30px rgba(0,0,0,0.34);
+}
+
+.online-ready-copy,
+.online-ready-status {
+  margin: 0 auto;
+  max-width: 780px;
+  color: rgba(255,255,255,0.72);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.online-ready-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.online-ready-player {
+  display: grid;
+  gap: 6px;
+  align-content: center;
+  min-height: 92px;
+  padding: 14px 12px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(48,51,60,0.94), rgba(30,32,39,0.92));
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: inset 0 -2px 0 rgba(255,255,255,0.08);
+  opacity: 0.72;
+  transition: opacity 0.24s ease, transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+}
+
+.online-ready-player.team-a {
+  box-shadow: inset 0 -2px 0 rgba(255,80,100,0.18);
+}
+
+.online-ready-player.team-b {
+  box-shadow: inset 0 -2px 0 rgba(85,168,255,0.18);
+}
+
+.online-ready-player.is-ready {
+  opacity: 1;
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,0.26);
+  background: linear-gradient(180deg, rgba(86,91,104,0.96), rgba(49,53,64,0.94));
+}
+
+.online-ready-player.team-a.is-ready {
+  box-shadow: inset 0 -3px 0 rgba(255,80,100,0.86), 0 0 26px rgba(255,80,100,0.18);
+}
+
+.online-ready-player.team-b.is-ready {
+  box-shadow: inset 0 -3px 0 rgba(85,168,255,0.86), 0 0 26px rgba(85,168,255,0.18);
+}
+
+.online-ready-player strong {
+  color: #fff;
+  font-size: 0.98rem;
+  font-weight: 1000;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  word-break: break-word;
+}
+
+.online-ready-player span {
+  color: rgba(255,255,255,0.58);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.online-ready-player em {
+  color: rgba(255,255,255,0.40);
+  font-size: 0.66rem;
+  font-weight: 1000;
+  font-style: normal;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.online-ready-player.is-ready em {
+  color: rgba(255,255,255,0.86);
+}
+
+.online-ready-button {
+  justify-self: center;
+  min-width: min(380px, 88vw);
+  min-height: 72px;
+  margin-top: 6px;
+  border: 0;
+  clip-path: polygon(0 0, 92% 0, 100% 50%, 92% 100%, 0 100%, 4% 50%);
+  background: linear-gradient(135deg, #d83b54, #b91832);
+  color: #fff;
+  font-size: clamp(1.35rem, 2.4vw, 2.35rem);
+  font-weight: 1000;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 18px 42px rgba(0,0,0,0.34), 0 0 24px rgba(216,59,84,0.28);
+  cursor: pointer;
+}
+
+.online-ready-button:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.online-ready-button.is-ready,
+.online-ready-button:disabled {
+  background: linear-gradient(135deg, #5c6069, #3e424a);
+  color: #252932;
+  cursor: default;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 12px 34px rgba(0,0,0,0.26);
+}
+
+.online-ready-button.hidden {
+  display: none !important;
+}
+
+.online-ready-overlay.is-loading .online-ready-grid,
+.online-ready-overlay.is-loading .online-ready-status {
+  opacity: 0.72;
+}
+
+@media (max-width: 860px) {
+  .captain-turn-banner.is-own-turn,
+  .captain-turn-banner.is-teammate-turn,
+  .captain-turn-banner.is-spectator-turn {
+    width: min(92vw, 580px) !important;
+  }
+
+  body.online-role-player #confirm-action:not(.hidden),
+  body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
+    top: clamp(170px, 22vh, 220px) !important;
+  }
+
+  .online-ready-grid {
+    grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  }
+}

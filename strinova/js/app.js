@@ -575,6 +575,8 @@ let testingBotTurnKey = null;
 let testingBotTimerId = null;
 let onlineSummaryIntroShownKey = null;
 let hostNameSaveTimer = null;
+let onlineReadyStartKey = null;
+const testingBotReadyTimers = new Map();
 let onlineRoomListenerCode = null;
 let onlineRoomDeletionListenerCode = null;
 let onlineStartedForRoom = null;
@@ -5116,16 +5118,18 @@ function testingBotClientId(team, slotKey = "captain") {
   return `bot_${testingBotSafeKey(currentRoomCode || "room")}_${testingBotSafeKey(team)}_${testingBotSafeKey(slotKey)}`;
 }
 
+function testingBotNameSeed(team, slotKey = "captain") {
+  const value = `${currentRoomCode || "room"}:${team}:${slotKey}`;
+  return [...value].reduce((sum, char, index) => sum + char.charCodeAt(0) * (index + 3), 0);
+}
+
 function testingBotName(team, slotKey = "captain") {
-  const teamText = team === "B" ? "B" : "A";
-  const slotNames = {
-    captain: "Capitán",
-    subcaptain: "Subcapitán",
-    player3: "Jugador 3",
-    player4: "Jugador 4",
-    player5: "Jugador 5",
-  };
-  return `BOT ${teamText} · ${slotNames[slotKey] || "Jugador"}`;
+  const pool = getConfiguredRandomNamePool(team).filter(name => !/^bot\b/i.test(String(name || "").trim()));
+  const fallback = ["Rukioto", "Shennae", "XLixusX", "Andercito007", "EmikoAi", "AVega"];
+  const candidates = pool.length ? pool : fallback;
+  const seed = testingBotNameSeed(team, slotKey);
+  const chosen = candidates[seed % candidates.length] || `Jugador ${team}`;
+  return String(chosen).slice(0, 24);
 }
 
 function testingBotPayload(team, slotKey = "captain") {
@@ -5679,10 +5683,12 @@ function updateRoomLobby(data = {}) {
   if (startButton) {
     const isHost = currentRole === "host";
     const canStart = config.mode === "advanced" ? advancedComplete : bothCaptainsAssigned;
+    const readyCheck = onlineReadyCheckFromRoom(data);
     startButton.style.display = isHost ? "inline-flex" : "none";
-    startButton.disabled = Boolean(data.started) || !canStart;
+    startButton.disabled = Boolean(data.started) || Boolean(readyCheck?.active) || !canStart;
     if (data.started) startButton.textContent = t("draft_started");
-    else startButton.textContent = canStart ? t("start_draft") : (config.mode === "advanced" ? "ASIGNA TODOS LOS JUGADORES" : t("assign_captains"));
+    else if (readyCheck?.active) startButton.textContent = t("ready_check_starting");
+    else startButton.textContent = canStart ? t("start_draft") : (config.mode === "advanced" ? t("assign_all_players") : t("assign_captains"));
   }
 
   const closeButton = document.getElementById("close-room-btn");
@@ -5975,6 +5981,8 @@ function startOnlineDraftFromRoom(data = {}) {
 function updateDraftUI(data = {}) {
   onlineLatestRoomData = data || {};
   updateRoomLobby(data);
+  renderOnlineReadyCheck(data);
+  maybeAdvanceOnlineReadyCheck(data);
   if (data.closed) {
     handleRoomClosed(currentRoomCode);
     return;
@@ -7270,6 +7278,411 @@ function setupJoinNameModal() {
   });
 }
 
+
+function onlineReadyCheckFromRoom(data = {}) {
+  return data.readyCheck || data.draftState?.readyCheck || null;
+}
+
+function onlineRequiredReadyUsersFromPrepared(roomData = {}, prepared = null) {
+  const draftConfig = prepared?.draftConfig || sanitizeDraftConfig(roomData.draftConfig || currentDraftConfig());
+  const users = [];
+  const pushUnique = (entry = {}) => {
+    if (!entry.clientId || users.some(user => user.clientId === entry.clientId)) return;
+    users.push({
+      clientId: entry.clientId,
+      name: String(entry.name || `Usuario ${String(entry.clientId).slice(-4)}`),
+      team: entry.team || null,
+      slotKey: entry.slotKey || null,
+      slotLabel: entry.slotLabel || "",
+      isBot: Boolean(entry.isBot),
+      order: users.length,
+    });
+  };
+
+  if (draftConfig.mode === "advanced") {
+    const slots = prepared?.slots || advancedSlotsFromRoom(roomData, draftConfig);
+    ["A", "B"].forEach(team => {
+      advancedSlotsForTeamSize(draftConfig.teamSize).forEach(slotKey => {
+        const slot = slots?.[team]?.[slotKey];
+        if (!slot?.clientId) return;
+        pushUnique({
+          clientId: slot.clientId,
+          name: slot.name,
+          team,
+          slotKey,
+          slotLabel: advancedSlotLabel(slotKey),
+          isBot: isTestingBotParticipant(slot),
+        });
+      });
+    });
+  } else {
+    const assignments = prepared?.assignments || captainAssignmentsFromRoom(roomData);
+    ["A", "B"].forEach(team => {
+      const participant = participantByClientId(roomData, assignments?.[team]);
+      if (!participant?.clientId) return;
+      pushUnique({
+        clientId: participant.clientId,
+        name: participant.name,
+        team,
+        slotKey: "captain",
+        slotLabel: team === "A" ? t("captain_attackers") : t("captain_defenders"),
+        isBot: isTestingBotParticipant(participant),
+      });
+    });
+  }
+
+  return users;
+}
+
+function onlineRequiredReadyUsersFromRoom(data = {}) {
+  const readyCheck = onlineReadyCheckFromRoom(data);
+  if (readyCheck?.required && typeof readyCheck.required === "object") {
+    return Object.entries(readyCheck.required)
+      .map(([clientId, value]) => ({
+        clientId,
+        name: String(value?.name || `Usuario ${clientId.slice(-4)}`),
+        team: value?.team || null,
+        slotKey: value?.slotKey || null,
+        slotLabel: value?.slotLabel || "",
+        isBot: Boolean(value?.isBot),
+        order: Number(value?.order || 0),
+      }))
+      .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+  }
+  return onlineRequiredReadyUsersFromPrepared(data);
+}
+
+function onlineReadyRequiredObject(users = []) {
+  return users.reduce((acc, user, index) => {
+    acc[user.clientId] = {
+      name: user.name,
+      team: user.team || null,
+      slotKey: user.slotKey || null,
+      slotLabel: user.slotLabel || "",
+      isBot: Boolean(user.isBot),
+      order: index,
+    };
+    return acc;
+  }, {});
+}
+
+function currentClientReadyRequirement(data = {}) {
+  const clientId = onlineClientId();
+  return onlineRequiredReadyUsersFromRoom(data).find(user => user.clientId === clientId) || null;
+}
+
+function isReadyUserMarked(data = {}, clientId) {
+  const ready = onlineReadyCheckFromRoom(data)?.ready || {};
+  return Boolean(ready?.[clientId]?.ready);
+}
+
+function allReadyUsersMarked(data = {}) {
+  const users = onlineRequiredReadyUsersFromRoom(data);
+  if (!users.length) return false;
+  return users.every(user => isReadyUserMarked(data, user.clientId));
+}
+
+function ensureOnlineReadyOverlay() {
+  let overlay = document.getElementById("online-ready-overlay");
+  if (overlay) return overlay;
+
+  overlay = document.createElement("div");
+  overlay.id = "online-ready-overlay";
+  overlay.className = "online-ready-overlay hidden";
+  overlay.innerHTML = `
+    <video id="online-ready-loading-video" class="online-ready-loading-video" muted playsinline loop preload="auto">
+      <source src="video/introV/Loading.mp4" type="video/mp4" />
+    </video>
+    <section class="online-ready-card" role="dialog" aria-modal="true" aria-live="polite">
+      <p class="online-ready-kicker">${escapeHtml(t("ready_check_kicker"))}</p>
+      <h2 id="online-ready-title">${escapeHtml(t("ready_check_title"))}</h2>
+      <p id="online-ready-copy" class="online-ready-copy">${escapeHtml(t("ready_check_copy"))}</p>
+      <div id="online-ready-grid" class="online-ready-grid"></div>
+      <button id="online-ready-button" class="online-ready-button" type="button">${escapeHtml(t("ready_check_button"))}</button>
+      <p id="online-ready-status" class="online-ready-status">${escapeHtml(t("ready_check_waiting"))}</p>
+    </section>
+  `;
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+function updateOnlineReadyOverlayLanguage() {
+  const overlay = document.getElementById("online-ready-overlay");
+  if (!overlay) return;
+  const kicker = overlay.querySelector(".online-ready-kicker");
+  if (kicker) kicker.textContent = t("ready_check_kicker");
+}
+
+function renderOnlineReadyCheck(data = {}) {
+  const readyCheck = onlineReadyCheckFromRoom(data);
+  const overlay = ensureOnlineReadyOverlay();
+  const video = document.getElementById("online-ready-loading-video");
+  const title = document.getElementById("online-ready-title");
+  const copy = document.getElementById("online-ready-copy");
+  const grid = document.getElementById("online-ready-grid");
+  const button = document.getElementById("online-ready-button");
+  const status = document.getElementById("online-ready-status");
+
+  if (!readyCheck?.active || data.started) {
+    overlay.classList.add("hidden");
+    overlay.classList.remove("is-loading");
+    try { video?.pause(); } catch (_) {}
+    return;
+  }
+
+  const users = onlineRequiredReadyUsersFromRoom(data);
+  const required = currentClientReadyRequirement(data);
+  const myReady = required ? isReadyUserMarked(data, required.clientId) : false;
+  const isLoading = readyCheck.status === "loading";
+
+  overlay.classList.remove("hidden");
+  overlay.classList.toggle("is-loading", isLoading);
+
+  if (isLoading) {
+    if (title) title.textContent = t("ready_check_loading_title");
+    if (copy) copy.textContent = t("ready_check_loading_copy");
+    if (button) button.classList.add("hidden");
+    if (status) status.textContent = t("ready_check_loading_status");
+    try {
+      video.currentTime = 0;
+      void video.play();
+    } catch (_) {}
+  } else {
+    if (title) title.textContent = t("ready_check_title");
+    if (copy) copy.textContent = t("ready_check_copy");
+    if (button) {
+      button.classList.toggle("hidden", !required);
+      button.disabled = myReady;
+      button.classList.toggle("is-ready", myReady);
+      button.textContent = myReady ? t("ready_check_button_waiting") : t("ready_check_button");
+      button.onclick = () => markCurrentPlayerReady();
+    }
+    if (status) status.textContent = required
+      ? (myReady ? t("ready_check_waiting_others") : t("ready_check_player_prompt"))
+      : t("ready_check_spectator_status");
+    try { video?.pause(); } catch (_) {}
+  }
+
+  if (grid) {
+    grid.innerHTML = users.map(user => {
+      const ready = isReadyUserMarked(data, user.clientId);
+      const teamClass = user.team === "B" ? "team-b" : "team-a";
+      const slot = user.slotLabel || (user.team === "B" ? t("captain_defenders") : t("captain_attackers"));
+      return `
+        <article class="online-ready-player ${teamClass} ${ready ? "is-ready" : ""}">
+          <strong>${escapeHtml(user.name)}</strong>
+          <span>${escapeHtml(slot)}</span>
+          <em>${ready ? escapeHtml(t("ready_check_ready")) : escapeHtml(t("ready_check_pending"))}</em>
+        </article>
+      `;
+    }).join("");
+  }
+}
+
+async function markCurrentPlayerReady() {
+  if (!currentRoomCode) return;
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return;
+  try {
+    const snapshot = await roomRef.get();
+    const data = snapshot.val() || {};
+    const required = currentClientReadyRequirement(data);
+    const readyCheck = onlineReadyCheckFromRoom(data);
+    if (!readyCheck?.active || readyCheck.status !== "waiting" || !required) return;
+    await roomRef.update({
+      [`readyCheck/ready/${required.clientId}`]: {
+        ready: true,
+        name: required.name,
+        at: onlineNow(),
+        byClientId: onlineClientId(),
+      },
+      updatedAt: onlineNow(),
+    });
+  } catch (error) {
+    console.warn("No se pudo marcar listo.", error);
+    alert(t("ready_check_error"));
+  }
+}
+
+function clearTestingBotReadyTimers() {
+  testingBotReadyTimers.forEach(timerId => clearTimeout(timerId));
+  testingBotReadyTimers.clear();
+}
+
+function scheduleTestingBotReadySimulation(data = {}) {
+  if (currentRole !== "host" || !currentRoomCode) return;
+  const readyCheck = onlineReadyCheckFromRoom(data);
+  if (!readyCheck?.active || readyCheck.status !== "waiting" || data.started) return;
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return;
+
+  onlineRequiredReadyUsersFromRoom(data)
+    .filter(user => user.isBot && !isReadyUserMarked(data, user.clientId))
+    .forEach(user => {
+      const key = `${currentRoomCode}:${readyCheck.requestedAt || 0}:${user.clientId}`;
+      if (testingBotReadyTimers.has(key)) return;
+      const timerId = setTimeout(() => {
+        testingBotReadyTimers.delete(key);
+        roomRef.update({
+          [`readyCheck/ready/${user.clientId}`]: {
+            ready: true,
+            name: user.name,
+            at: onlineNow(),
+            byClientId: onlineClientId(),
+            isBot: true,
+          },
+          updatedAt: onlineNow(),
+        }).catch(error => console.warn("No se pudo marcar bot listo.", error));
+      }, 700 + Math.round(Math.random() * 1800));
+      testingBotReadyTimers.set(key, timerId);
+    });
+}
+
+function prepareOnlineDraftStart(roomData = {}) {
+  const draftConfig = sanitizeDraftConfig(roomData.draftConfig || currentDraftConfig());
+  let assignments = captainAssignmentsFromRoom(roomData);
+  let slots = advancedSlotsFromRoom(roomData, draftConfig);
+  let players;
+  let captainA;
+  let captainB;
+
+  if (draftConfig.mode === "advanced") {
+    if (!areAdvancedSlotsComplete(slots, draftConfig)) {
+      throw new Error("advanced_slots_missing");
+    }
+    assignments = {
+      A: slots.A?.captain?.clientId || null,
+      B: slots.B?.captain?.clientId || null,
+    };
+    captainA = slots.A?.captain;
+    captainB = slots.B?.captain;
+    players = playersPayloadFromAdvancedSlots(slots, draftConfig);
+  } else {
+    if (!assignments.A || !assignments.B || assignments.A === assignments.B) {
+      throw new Error("captains_missing");
+    }
+    captainA = participantByClientId(roomData, assignments.A);
+    captainB = participantByClientId(roomData, assignments.B);
+    if (!captainA || !captainB) {
+      throw new Error("captains_unavailable");
+    }
+    readPlayers();
+    players = { A: [...state.players.A], B: [...state.players.B] };
+  }
+
+  return { draftConfig, assignments, slots, players, captainA, captainB };
+}
+
+async function requestOnlineReadyCheck(roomRef, roomData = {}) {
+  const prepared = prepareOnlineDraftStart(roomData);
+  const requiredUsers = onlineRequiredReadyUsersFromPrepared(roomData, prepared);
+  if (!requiredUsers.length) throw new Error("ready_users_missing");
+
+  await roomRef.update({
+    readyCheck: {
+      active: true,
+      status: "waiting",
+      requestedAt: onlineNow(),
+      requestedBy: onlineClientId(),
+      required: onlineReadyRequiredObject(requiredUsers),
+      ready: {},
+    },
+    updatedAt: onlineNow(),
+  });
+}
+
+async function startOnlineDraftNow(roomRef, roomData = {}) {
+  const prepared = prepareOnlineDraftStart(roomData);
+  const { draftConfig, assignments, slots, players, captainA, captainB } = prepared;
+
+  resetDraftStateBeforeStart();
+  if (draftConfig.mode === "advanced") {
+    state.onlineSlots = slots;
+    state.players = players;
+  }
+  state.draftConfig = draftConfig;
+  state.draftSessionId += 1;
+  state.onlinePhase = "draft";
+  prepareClockForTurnIndex(0, phaseOverlayDurationMs());
+  const initialTurn = currentTurn();
+  const initialPhaseEventType = initialTurn?.type === "ban" ? "banPhase" : "pickPhase";
+  const draftPayload = blankOnlineDraftState({
+    phase: "draft",
+    draftSessionId: state.draftSessionId,
+    turnIndex: 0,
+    turnDuration: state.turnDuration,
+    turnStartedAt: state.turnStartedAt,
+    turnDeadlineAt: state.turnDeadlineAt,
+    draftConfig,
+    players,
+    slots,
+    captainAssignments: assignments,
+    phaseEvent: createOnlinePhaseEvent(initialPhaseEventType),
+  });
+
+  await roomRef.update({
+    started: true,
+    startedAt: onlineNow(),
+    updatedAt: onlineNow(),
+    readyCheck: null,
+    players,
+    turnDuration: state.turnDuration,
+    draftConfig,
+    slots,
+    captainAssignments: assignments,
+    teamA: captainA ? { clientId: assignments.A, name: captainA.name, connected: captainA.connected, isBot: Boolean(captainA.isBot), role: "CAPITÁN_ATACANTES", lastSeen: captainA.lastSeen || onlineNow() } : null,
+    teamB: captainB ? { clientId: assignments.B, name: captainB.name, connected: captainB.connected, isBot: Boolean(captainB.isBot), role: "CAPITÁN_DEFENSORES", lastSeen: captainB.lastSeen || onlineNow() } : null,
+    draftState: draftPayload,
+  });
+}
+
+function maybeAdvanceOnlineReadyCheck(data = {}) {
+  if (currentRole !== "host" || !currentRoomCode || data.started) return;
+  const readyCheck = onlineReadyCheckFromRoom(data);
+  if (!readyCheck?.active) return;
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return;
+
+  scheduleTestingBotReadySimulation(data);
+
+  if (readyCheck.status === "waiting" && allReadyUsersMarked(data)) {
+    const key = `${currentRoomCode}:${readyCheck.requestedAt || 0}:loading`;
+    if (onlineReadyStartKey === key) return;
+    onlineReadyStartKey = key;
+    roomRef.update({
+      "readyCheck/status": "loading",
+      "readyCheck/loadingStartedAt": onlineNow(),
+      updatedAt: onlineNow(),
+    }).catch(error => {
+      console.warn("No se pudo iniciar la carga del ready check.", error);
+      onlineReadyStartKey = null;
+    });
+    return;
+  }
+
+  if (readyCheck.status === "loading") {
+    const key = `${currentRoomCode}:${readyCheck.requestedAt || 0}:${readyCheck.loadingStartedAt || 0}:start`;
+    if (onlineReadyStartKey === key) return;
+    onlineReadyStartKey = key;
+    const elapsed = Math.max(0, onlineNow() - Number(readyCheck.loadingStartedAt || onlineNow()));
+    const delayMs = Math.max(1200, 4200 - elapsed);
+    setTimeout(async () => {
+      try {
+        const snapshot = await roomRef.get();
+        const latest = snapshot.val() || {};
+        const latestReady = onlineReadyCheckFromRoom(latest);
+        if (!latestReady?.active || latestReady.status !== "loading" || latest.started) return;
+        if (!allReadyUsersMarked(latest)) return;
+        await startOnlineDraftNow(roomRef, latest);
+      } catch (error) {
+        console.error(error);
+        onlineReadyStartKey = null;
+        alert(t("online_start_error"));
+      }
+    }, delayMs);
+  }
+}
+
 function setupOnlineControls() {
   const toggle = document.getElementById("toggle-room-code");
   const copy = document.getElementById("copy-room-code");
@@ -7365,86 +7778,15 @@ function setupOnlineControls() {
         onlineStartBtn.disabled = true;
         const snapshot = await roomRef.get();
         const roomData = snapshot.val() || {};
-        const draftConfig = sanitizeDraftConfig(roomData.draftConfig || currentDraftConfig());
-        let assignments = captainAssignmentsFromRoom(roomData);
-        let slots = advancedSlotsFromRoom(roomData, draftConfig);
-        let players;
-        let captainA;
-        let captainB;
-
-        if (draftConfig.mode === "advanced") {
-          if (!areAdvancedSlotsComplete(slots, draftConfig)) {
-            alert("Modo avanzado: asigna todos los jugadores requeridos antes de iniciar.");
-            onlineStartBtn.disabled = false;
-            return;
-          }
-          assignments = {
-            A: slots.A?.captain?.clientId || null,
-            B: slots.B?.captain?.clientId || null,
-          };
-          captainA = slots.A?.captain;
-          captainB = slots.B?.captain;
-          players = playersPayloadFromAdvancedSlots(slots, draftConfig);
-          state.onlineSlots = slots;
-          state.players = players;
-        } else {
-          if (!assignments.A || !assignments.B || assignments.A === assignments.B) {
-            alert(t("lobby_alert_assign_captains"));
-            onlineStartBtn.disabled = false;
-            return;
-          }
-          captainA = participantByClientId(roomData, assignments.A);
-          captainB = participantByClientId(roomData, assignments.B);
-          if (!captainA || !captainB) {
-            alert(t("lobby_alert_missing_captains"));
-            onlineStartBtn.disabled = false;
-            return;
-          }
-          readPlayers();
-          players = { A: [...state.players.A], B: [...state.players.B] };
-        }
-
-        resetDraftStateBeforeStart();
-        if (draftConfig.mode === "advanced") {
-          state.onlineSlots = slots;
-          state.players = players;
-        }
-        state.draftConfig = draftConfig;
-        state.draftSessionId += 1;
-        state.onlinePhase = "draft";
-        prepareClockForTurnIndex(0, phaseOverlayDurationMs());
-        const initialTurn = currentTurn();
-        const initialPhaseEventType = initialTurn?.type === "ban" ? "banPhase" : "pickPhase";
-        const draftPayload = blankOnlineDraftState({
-          phase: "draft",
-          draftSessionId: state.draftSessionId,
-          turnIndex: 0,
-          turnDuration: state.turnDuration,
-          turnStartedAt: state.turnStartedAt,
-          turnDeadlineAt: state.turnDeadlineAt,
-          draftConfig,
-          players,
-          slots,
-          captainAssignments: assignments,
-          phaseEvent: createOnlinePhaseEvent(initialPhaseEventType),
-        });
-        await roomRef.update({
-          started: true,
-          startedAt: onlineNow(),
-          updatedAt: onlineNow(),
-          players,
-          turnDuration: state.turnDuration,
-          draftConfig,
-          slots,
-          captainAssignments: assignments,
-          teamA: captainA ? { clientId: assignments.A, name: captainA.name, connected: captainA.connected, role: "CAPITÁN_ATACANTES", lastSeen: captainA.lastSeen || onlineNow() } : null,
-          teamB: captainB ? { clientId: assignments.B, name: captainB.name, connected: captainB.connected, role: "CAPITÁN_DEFENSORES", lastSeen: captainB.lastSeen || onlineNow() } : null,
-          draftState: draftPayload,
-        });
+        if (roomData.readyCheck?.active) return;
+        await requestOnlineReadyCheck(roomRef, roomData);
       } catch (error) {
         onlineStartBtn.disabled = false;
         console.error(error);
-        alert("No se pudo iniciar el draft online.");
+        if (error?.message === "advanced_slots_missing") alert(t("ready_check_missing_players"));
+        else if (error?.message === "captains_missing") alert(t("lobby_alert_assign_captains"));
+        else if (error?.message === "captains_unavailable") alert(t("lobby_alert_missing_captains"));
+        else alert(t("online_start_error"));
       }
     });
   }
@@ -7531,6 +7873,10 @@ function handleRoomClosed(roomCode, options = {}) {
     hostNameSaveTimer = null;
   }
   clearTestingBotTurnTimer();
+  clearTestingBotReadyTimers();
+  onlineReadyStartKey = null;
+  const readyOverlay = document.getElementById("online-ready-overlay");
+  if (readyOverlay) readyOverlay.classList.add("hidden");
   abortDraftRuntime();
   currentRoomCode = null;
   currentRole = null;
