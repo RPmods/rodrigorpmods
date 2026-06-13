@@ -18,7 +18,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORIAL",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.2.8 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.9 by RPmods",
       "setup_subtitle": "Configura nombres, tamaño de partida y fase de bloqueos antes de iniciar.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -328,7 +328,9 @@ window.I18N_CONFIG = {
       "update_21": "v3.2.5 Hotfix (Bot Thinking Delay) — Los bots ahora simulan mejor un turno real: tardan entre 3 y 6 segundos, hacen varias preselecciones aleatorias de laminantes válidos y luego confirman el bloqueo o la selección.",
       "update_22": "v3.2.6 Ready Check + Visual Turn UI — Se redujo y reubicó el cuadro de turno online, se ocultó el panel antiguo detrás del aviso, se añadió sistema de listo antes del draft con cajas por jugador, transición con Loading.mp4 y bots con nombres aleatorios desde player_names_config.js.",
       "update_23": "v3.2.7 Hotfix Visual + Selección Aleatoria — Se ocultó el mini panel superior redundante sin tocar el panel inferior del draft, se refinó el mensaje final del sistema draft, se añadió botón de selección aleatoria con narración, se corrigió la lógica de facciones válidas de los bots y se mejoró el ready check online con un estilo inspirado en la referencia enviada.",
-      "update_24": "v3.2.8 Hotfix (Random Button + Ready Polish) — Se reposicionó el botón de selección aleatoria dentro del panel inferior para no flotar ni romper el selector, y se pulió la entrada visual del ready check con animación de paneles/cajas más cercana a la referencia."
+      "update_24": "v3.2.8 Hotfix (Random Button + Ready Polish) — Se reposicionó el botón de selección aleatoria dentro del panel inferior para no flotar ni romper el selector, y se pulió la entrada visual del ready check con animación de paneles/cajas más cercana a la referencia.",
+      "ready_check_timeout": "Confirma en {seconds} segundos.",
+      "update_25": "v3.2.9 Hotfix (UI Alignment + Ready Timeout + Map Polish) — Se reajustaron el aviso de turno y el panel inferior, se corrigieron las tarjetas del ready check con nombres dentro de cajas uniformes, se añadió timeout de 30 segundos para listos, se mejoró la ruleta de mapas con borde dorado/brillo y se añadió botón para que jugadores puedan retirarse al terminar."
     },
     "en": {
       "tab_menu": "MENU",
@@ -339,7 +341,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORY",
       "tab_credits": "CREDITS",
       "setup_eyebrow": "Competitive system",
-      "setup_title": "STRINOVA Draft System v3.2.8 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.9 by RPmods",
       "setup_subtitle": "Set player names and enter the ban phase directly.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -616,7 +618,9 @@ window.I18N_CONFIG = {
       "update_21": "v3.2.5 Hotfix (Bot Thinking Delay) — Bots now simulate a real turn better: they take between 3 and 6 seconds, make several random pre-selections of valid laminants, then confirm the ban or pick.",
       "update_22": "v3.2.6 Ready Check + Visual Turn UI — Reduced and moved the online turn banner, hid the old panel behind it, added a ready-check system before the draft with player cards, Loading.mp4 transition and bots using random names from player_names_config.js.",
       "update_23": "v3.2.7 Visual Hotfix + Random Selection — Hid the redundant upper mini panel without changing the lower draft panel, refined the final draft-finished message, added a random selection button with narration, fixed the bots' valid-faction logic and improved the online ready-check with a style inspired by the provided reference.",
-      "update_24": "v3.2.8 Hotfix (Random Button + Ready Polish) — Repositioned the random selection button inside the lower panel so it no longer floats or breaks the selector, and polished the ready-check entrance with panel/card animation closer to the reference."
+      "update_24": "v3.2.8 Hotfix (Random Button + Ready Polish) — Repositioned the random selection button inside the lower panel so it no longer floats or breaks the selector, and polished the ready-check entrance with panel/card animation closer to the reference.",
+      "ready_check_timeout": "Confirm in {seconds} seconds.",
+      "update_25": "v3.2.9 Hotfix (UI Alignment + Ready Timeout + Map Polish) — Adjusted the turn banner and lower panel, fixed ready-check cards with uniform name boxes, added a 30-second ready timeout, improved map roulette with golden border/glow, and added a leave option for players after the draft ends."
     },
     "ja": {
       "tab_menu": "メニュー",
@@ -627,7 +631,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新履歴",
       "tab_credits": "クレジット",
       "setup_eyebrow": "競技システム",
-      "setup_title": "STRINOVA Draft System v3.2.8 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.9 by RPmods",
       "setup_subtitle": "プレイヤー名を設定してブロックフェーズへ進みます。",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -902,7 +906,9 @@ window.I18N_CONFIG = {
       "update_21": "v3.2.5 Hotfix (Bot Thinking Delay) — ボットがより自然なターンを再現するようになりました。3〜6秒かけて有効なラミナントを複数回ランダムに仮選択し、その後BANまたは選択を確定します。",
       "update_22": "v3.2.6 Ready Check + Visual Turn UI — オンラインのターン表示を縮小・再配置し、背面の旧パネルを非表示にしました。ドラフト前の準備確認、プレイヤーカード、Loading.mp4移行、player_names_config.jsからのランダム名ボットを追加。",
       "update_23": "v3.2.7 ビジュアルホットフィックス + ランダム選択 — 下部ドラフトパネルを維持したまま上部の冗長なミニパネルを非表示にし、ドラフト終了メッセージを調整、ナレーション付きランダム選択ボタンを追加し、ボットの有効勢力ロジックとオンライン準備確認UIを改善。",
-      "update_24": "v3.2.8 Hotfix (Random Button + Ready Polish) — ランダム選択ボタンを下部パネル内に再配置し、浮いたりセレクターを崩したりしないように調整。ready check の登場演出も、参考映像に近いパネル/カード演出へ改善しました。"
+      "update_24": "v3.2.8 Hotfix (Random Button + Ready Polish) — ランダム選択ボタンを下部パネル内に再配置し、浮いたりセレクターを崩したりしないように調整。ready check の登場演出も、参考映像に近いパネル/カード演出へ改善しました。",
+      "ready_check_timeout": "{seconds} 秒以内に確認してください。",
+      "update_25": "v3.2.9 Hotfix (UI Alignment + Ready Timeout + Map Polish) — ターン表示と下部パネルを調整し、ready checkカードの名前枠を統一、30秒の準備タイムアウトを追加。マップルーレットに金色の枠/発光を追加し、終了後にプレイヤーが退出できるボタンを追加。"
     },
     "ru": {
       "tab_menu": "МЕНЮ",
@@ -913,7 +919,7 @@ window.I18N_CONFIG = {
       "tab_updates": "ОБНОВЛЕНИЯ",
       "tab_credits": "АВТОРЫ",
       "setup_eyebrow": "Соревновательная система",
-      "setup_title": "STRINOVA Draft System v3.2.8 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.9 by RPmods",
       "setup_subtitle": "Настройте имена игроков и перейдите к фазе блокировок.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -1188,7 +1194,9 @@ window.I18N_CONFIG = {
       "update_21": "v3.2.5 Hotfix (Bot Thinking Delay) — Боты теперь лучше имитируют реальный ход: ждут от 3 до 6 секунд, несколько раз случайно предвыбирают доступных ламинантов, затем подтверждают бан или выбор.",
       "update_22": "v3.2.6 Ready Check + Visual Turn UI — Уменьшен и перемещён онлайн-баннер хода, скрыта старая панель за ним, добавлена система готовности перед драфтом с карточками игроков, переходом Loading.mp4 и ботами со случайными именами из player_names_config.js.",
       "update_23": "v3.2.7 Визуальный хотфикс + случайный выбор — Скрыта лишняя верхняя мини-панель без изменения нижней панели драфта, улучшено финальное сообщение о завершении драфта, добавлена кнопка случайного выбора с озвучкой, исправлена логика допустимых фракций у ботов и улучшен онлайн ready-check в стиле присланного референса.",
-      "update_24": "v3.2.8 Hotfix (Random Button + Ready Polish) — Кнопка случайного выбора перемещена внутрь нижней панели, чтобы не плавать и не ломать селектор; входная анимация ready check доработана с панелями/карточками ближе к референсу."
+      "update_24": "v3.2.8 Hotfix (Random Button + Ready Polish) — Кнопка случайного выбора перемещена внутрь нижней панели, чтобы не плавать и не ломать селектор; входная анимация ready check доработана с панелями/карточками ближе к референсу.",
+      "ready_check_timeout": "Подтвердите за {seconds} сек.",
+      "update_25": "v3.2.9 Hotfix (UI Alignment + Ready Timeout + Map Polish) — Исправлены баннер хода и нижняя панель, карточки ready check получили одинаковые блоки имён, добавлен таймаут готовности 30 секунд, улучшена рулетка карт золотой рамкой/свечением и добавлена возможность выйти после завершения."
     },
     "zh": {
       "tab_menu": "菜单",
@@ -1199,7 +1207,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新记录",
       "tab_credits": "制作名单",
       "setup_eyebrow": "竞技系统",
-      "setup_title": "STRINOVA Draft System v3.2.8 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.9 by RPmods",
       "setup_subtitle": "设置玩家名称并进入禁用阶段。",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -1474,7 +1482,9 @@ window.I18N_CONFIG = {
       "update_21": "v3.2.5 Hotfix (Bot Thinking Delay) — 机器人现在能更自然地模拟真实回合：会等待 3 到 6 秒，多次随机预选可用层能者，然后确认禁用或选择。",
       "update_22": "v3.2.6 Ready Check + Visual Turn UI — 缩小并上移在线回合提示，隐藏其后方旧面板，新增草稿前准备系统、玩家卡片、Loading.mp4 过渡，以及使用 player_names_config.js 随机名称的机器人。",
       "update_23": "v3.2.7 视觉热修复 + 随机选择 — 隐藏了冗余的顶部小面板且保留下方草稿面板，优化了草稿结束提示，新增带旁白的随机选择按钮，修正了机器人可用阵营逻辑，并参考你提供的视频改进了在线准备确认界面。",
-      "update_24": "v3.2.8 Hotfix (Random Button + Ready Polish) — 将随机选择按钮重新放入底部面板，避免悬浮或破坏选择区域；同时优化 ready check 入场动画，使面板/卡片效果更接近参考视频。"
+      "update_24": "v3.2.8 Hotfix (Random Button + Ready Polish) — 将随机选择按钮重新放入底部面板，避免悬浮或破坏选择区域；同时优化 ready check 入场动画，使面板/卡片效果更接近参考视频。",
+      "ready_check_timeout": "请在 {seconds} 秒内确认。",
+      "update_25": "v3.2.9 Hotfix (UI Alignment + Ready Timeout + Map Polish) — 调整回合提示和底部面板，修复 ready check 卡片并统一名称框，新增30秒准备超时，优化地图轮盘金色边框/发光，并添加玩家结束后退出按钮。"
     },
     "pt": {
       "tab_menu": "MENU",
@@ -1485,7 +1495,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTÓRICO",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.2.8 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.9 by RPmods",
       "setup_subtitle": "Configure os nomes e entre diretamente na fase de bloqueios.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -1760,7 +1770,9 @@ window.I18N_CONFIG = {
       "update_21": "v3.2.5 Hotfix (Bot Thinking Delay) — Os bots agora simulam melhor um turno real: demoram entre 3 e 6 segundos, fazem várias pré-seleções aleatórias de laminantes válidos e depois confirmam o ban ou a seleção.",
       "update_22": "v3.2.6 Ready Check + Visual Turn UI — O aviso de turno online foi reduzido e reposicionado, o painel antigo atrás do aviso foi ocultado, foi adicionado sistema de pronto antes do draft com cartões de jogadores, transição com Loading.mp4 e bots com nomes aleatórios de player_names_config.js.",
       "update_23": "v3.2.7 Hotfix Visual + Seleção Aleatória — O mini painel superior redundante foi ocultado sem mexer no painel inferior do draft, a mensagem final do sistema draft foi refinada, foi adicionado botão de seleção aleatória com narração, a lógica de facções válidas dos bots foi corrigida e o ready check online foi melhorado com estilo inspirado na referência enviada.",
-      "update_24": "v3.2.8 Hotfix (Random Button + Ready Polish) — O botão de seleção aleatória foi reposicionado dentro do painel inferior para não flutuar nem quebrar o seletor, e a entrada visual do ready check foi polida com animação de painéis/cartões mais próxima da referência."
+      "update_24": "v3.2.8 Hotfix (Random Button + Ready Polish) — O botão de seleção aleatória foi reposicionado dentro do painel inferior para não flutuar nem quebrar o seletor, e a entrada visual do ready check foi polida com animação de painéis/cartões mais próxima da referência.",
+      "ready_check_timeout": "Confirma em {seconds} segundos.",
+      "update_25": "v3.2.9 Hotfix (UI Alignment + Ready Timeout + Map Polish) — Ajustado o aviso de turno e o painel inferior, corrigidos os cartões do ready check com caixas uniformes para nomes, adicionado timeout de 30 segundos, melhorada a roleta de mapas com borda/brilho dourado e adicionada opção para jogadores saírem ao final."
     }
   }
 };

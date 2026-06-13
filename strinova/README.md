@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.8 by RPmods
+# STRINOVA Draft System v3.2.9 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -161,3 +161,19 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
   - cajas listas con brillo/pulso;
   - estado loading con pulso visual.
 - Se actualizó Updates / Historial con v3.2.8.
+
+
+## v3.2.9 Hotfix UI Alignment + Ready Timeout + Map Polish
+
+- Se reajustó el cuadro grande de turno para que quede centrado, más compacto y un poco más abajo de la barra de tiempo.
+- Se reorganizó el panel inferior del draft para que SELECCIONAR/BANEAR y SELECCIÓN ALEATORIA puedan convivir sin romper el selector.
+- Se cambió el texto de rival avanzado para evitar que TEAM A / TEAM B salga gigante fuera del cuadro.
+- En ready check:
+  - se retiraron las líneas que sostenían visualmente las tarjetas;
+  - los nombres ahora viven dentro de una caja interna uniforme;
+  - los nombres largos se ajustan dentro de la tarjeta;
+  - la animación de listo deja de reiniciar todas las tarjetas;
+  - se añadió timeout de 30 segundos para confirmar listo.
+- Si el ready check vence o un jugador requerido se desconecta antes de estar listo, se cancela y vuelve al lobby.
+- La ruleta de mapas ahora usa borde dorado/brillo sin reconstruir tarjetas ni provocar parpadeos visuales fuertes.
+- Los jugadores pueden retirarse al terminar el draft usando un botón de salida en el resumen.

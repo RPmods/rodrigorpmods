@@ -576,6 +576,9 @@ let testingBotTurnKey = null;
 let testingBotTimerId = null;
 let onlineSummaryIntroShownKey = null;
 let hostNameSaveTimer = null;
+let onlineReadyTimeoutTimerId = null;
+let onlineReadyTimeoutKey = null;
+const ONLINE_READY_TIMEOUT_MS = 30000;
 let onlineReadyStartKey = null;
 const testingBotReadyTimers = new Map();
 let onlineRoomListenerCode = null;
@@ -4219,9 +4222,9 @@ function renderCaptainTurnBanner() {
   } else if (isOpponentTurn) {
     captainTurnBanner.classList.add("is-opponent-turn");
     kicker = t("online_kicker_rival_turn");
-    main = onlineTeamLabel(turn.team);
+    main = isAdvanced ? t(advancedTurnPhraseKey("rival", turn)) : onlineTeamLabel(turn.team);
     detail = isAdvanced
-      ? `${actorName} · ${t(advancedTurnPhraseKey("rival", turn))}`
+      ? `${actorName} · ${onlineTeamLabel(turn.team)}`
       : t("online_is_doing_action", { action });
   } else {
     captainTurnBanner.classList.add("is-spectator-turn");
@@ -7121,6 +7124,29 @@ function showSummaryIntro(options = {}) {
   );
 }
 
+
+function ensureOnlineLeaveButton() {
+  let button = document.getElementById("online-leave-floating");
+  if (button) return button;
+  button = document.createElement("button");
+  button.id = "online-leave-floating";
+  button.type = "button";
+  button.className = "online-leave-floating hidden";
+  button.textContent = t("disconnect_room");
+  button.addEventListener("click", () => {
+    if (currentRole === "player" && currentRoomCode) disconnectCurrentRoom();
+  });
+  document.body.appendChild(button);
+  return button;
+}
+
+function updateOnlineLeaveButtonVisibility() {
+  const button = ensureOnlineLeaveButton();
+  button.textContent = t("disconnect_room");
+  const canShow = Boolean(currentRoomCode && currentRole === "player" && (hasScreenActive(summaryScreen) || state.onlinePhase === "summary"));
+  button.classList.toggle("hidden", !canShow);
+}
+
 function finishDraft(options = {}) {
   const force = Boolean(options.force);
   if (!force && !isDraftSessionActive()) return;
@@ -7139,6 +7165,7 @@ function finishDraft(options = {}) {
   renderSummaryBans("B", $("#summary-bans-b"));
   renderSummaryMap();
   switchScreen(summaryScreen);
+  updateOnlineLeaveButtonVisibility();
   summaryScreen?.classList.remove("summary-enter");
   void summaryScreen?.offsetWidth;
   summaryScreen?.classList.add("summary-enter");
@@ -7514,6 +7541,7 @@ function renderOnlineReadyCheck(data = {}) {
   const required = currentClientReadyRequirement(data);
   const myReady = required ? isReadyUserMarked(data, required.clientId) : false;
   const isLoading = readyCheck.status === "loading";
+  const secondsLeft = Math.max(0, Math.ceil((Number(readyCheck.deadlineAt || 0) - onlineNow()) / 1000));
 
   overlay.classList.remove("hidden");
   overlay.classList.toggle("is-loading", isLoading);
@@ -7537,25 +7565,37 @@ function renderOnlineReadyCheck(data = {}) {
       button.textContent = myReady ? t("ready_check_button_waiting") : t("ready_check_button");
       button.onclick = () => markCurrentPlayerReady();
     }
-    if (status) status.textContent = required
-      ? (myReady ? t("ready_check_waiting_others") : t("ready_check_player_prompt"))
-      : t("ready_check_spectator_status");
+    if (status) status.innerHTML = required
+      ? (myReady ? escapeHtml(t("ready_check_waiting_others")) : `${escapeHtml(t("ready_check_player_prompt"))} · ${t("ready_check_timeout", { seconds: `<strong>${secondsLeft}</strong>` })}`)
+      : `${escapeHtml(t("ready_check_spectator_status"))} · ${t("ready_check_timeout", { seconds: `<strong>${secondsLeft}</strong>` })}`;
     try { video?.pause(); } catch (_) {}
   }
 
   if (grid) {
-    grid.innerHTML = users.map(user => {
+    const signature = users.map(user => `${user.clientId}:${user.name}:${user.team}:${user.slotLabel}`).join("|");
+    if (grid.dataset.readySignature !== signature) {
+      grid.dataset.readySignature = signature;
+      grid.innerHTML = users.map(user => {
+        const teamClass = user.team === "B" ? "team-b" : "team-a";
+        const slot = user.slotLabel || (user.team === "B" ? t("captain_defenders") : t("captain_attackers"));
+        return `
+          <article class="online-ready-player ${teamClass}" data-ready-client-id="${escapeHtml(user.clientId)}">
+            <div class="online-ready-namebox"><strong>${escapeHtml(user.name)}</strong></div>
+            <span>${escapeHtml(slot)}</span>
+            <em>${escapeHtml(t("ready_check_pending"))}</em>
+          </article>
+        `;
+      }).join("");
+    }
+
+    users.forEach(user => {
+      const card = grid.querySelector(`[data-ready-client-id="${CSS.escape(user.clientId)}"]`);
+      if (!card) return;
       const ready = isReadyUserMarked(data, user.clientId);
-      const teamClass = user.team === "B" ? "team-b" : "team-a";
-      const slot = user.slotLabel || (user.team === "B" ? t("captain_defenders") : t("captain_attackers"));
-      return `
-        <article class="online-ready-player ${teamClass} ${ready ? "is-ready" : ""}">
-          <strong>${escapeHtml(user.name)}</strong>
-          <span>${escapeHtml(slot)}</span>
-          <em>${ready ? escapeHtml(t("ready_check_ready")) : escapeHtml(t("ready_check_pending"))}</em>
-        </article>
-      `;
-    }).join("");
+      card.classList.toggle("is-ready", ready);
+      const status = card.querySelector("em");
+      if (status) status.textContent = ready ? t("ready_check_ready") : t("ready_check_pending");
+    });
   }
 }
 
@@ -7664,6 +7704,7 @@ async function requestOnlineReadyCheck(roomRef, roomData = {}) {
       active: true,
       status: "waiting",
       requestedAt: onlineNow(),
+      deadlineAt: onlineNow() + ONLINE_READY_TIMEOUT_MS,
       requestedBy: onlineClientId(),
       required: onlineReadyRequiredObject(requiredUsers),
       ready: {},
@@ -7717,6 +7758,57 @@ async function startOnlineDraftNow(roomRef, roomData = {}) {
   });
 }
 
+
+function readyCheckHasDisconnectedUser(data = {}) {
+  const readyCheck = onlineReadyCheckFromRoom(data);
+  if (!readyCheck?.active || readyCheck.status !== "waiting") return false;
+  return onlineRequiredReadyUsersFromRoom(data).some(user => {
+    if (user.isBot) return false;
+    const participant = participantByClientId(data, user.clientId);
+    if (!participant) return true;
+    return participant.connected === false;
+  });
+}
+
+function cancelOnlineReadyCheck(roomRef, reason = "timeout") {
+  if (!roomRef) return Promise.resolve();
+  clearTestingBotReadyTimers();
+  if (onlineReadyTimeoutTimerId) {
+    clearTimeout(onlineReadyTimeoutTimerId);
+    onlineReadyTimeoutTimerId = null;
+  }
+  onlineReadyTimeoutKey = null;
+  onlineReadyStartKey = null;
+  return roomRef.update({
+    readyCheck: null,
+    started: false,
+    updatedAt: onlineNow(),
+    readyCancelReason: reason,
+  });
+}
+
+function scheduleOnlineReadyTimeout(roomRef, readyCheck = {}) {
+  if (!roomRef || !readyCheck?.active || readyCheck.status !== "waiting") return;
+  const deadline = Number(readyCheck.deadlineAt || 0);
+  if (!deadline) return;
+  const key = `${currentRoomCode}:${readyCheck.requestedAt || 0}:${deadline}`;
+  if (onlineReadyTimeoutKey === key) return;
+  if (onlineReadyTimeoutTimerId) clearTimeout(onlineReadyTimeoutTimerId);
+  onlineReadyTimeoutKey = key;
+  onlineReadyTimeoutTimerId = setTimeout(async () => {
+    try {
+      const snapshot = await roomRef.get();
+      const latest = snapshot.val() || {};
+      const latestReady = onlineReadyCheckFromRoom(latest);
+      if (!latestReady?.active || latestReady.status !== "waiting" || latest.started) return;
+      if (allReadyUsersMarked(latest)) return;
+      await cancelOnlineReadyCheck(roomRef, "timeout");
+    } catch (error) {
+      console.warn("No se pudo cancelar el ready check por timeout.", error);
+    }
+  }, Math.max(300, deadline - onlineNow()));
+}
+
 function maybeAdvanceOnlineReadyCheck(data = {}) {
   if (currentRole !== "host" || !currentRoomCode || data.started) return;
   const readyCheck = onlineReadyCheckFromRoom(data);
@@ -7725,6 +7817,31 @@ function maybeAdvanceOnlineReadyCheck(data = {}) {
   if (!roomRef) return;
 
   scheduleTestingBotReadySimulation(data);
+  scheduleOnlineReadyTimeout(roomRef, readyCheck);
+
+  if (readyCheck.status === "waiting" && readyCheckHasDisconnectedUser(data) && !allReadyUsersMarked(data)) {
+    const key = `${currentRoomCode}:${readyCheck.requestedAt || 0}:disconnected`;
+    if (onlineReadyStartKey === key) return;
+    onlineReadyStartKey = key;
+    cancelOnlineReadyCheck(roomRef, "disconnected").catch(error => {
+      console.warn("No se pudo cancelar el ready check por desconexión.", error);
+      onlineReadyStartKey = null;
+    });
+    return;
+  }
+
+  if (readyCheck.status === "waiting" && Number(readyCheck.deadlineAt || 0) && onlineNow() >= Number(readyCheck.deadlineAt || 0) && !allReadyUsersMarked(data)) {
+    const key = `${currentRoomCode}:${readyCheck.requestedAt || 0}:timeout`;
+    if (onlineReadyStartKey === key) return;
+    onlineReadyStartKey = key;
+    cancelOnlineReadyCheck(roomRef, "timeout").then(() => {
+      onlineReadyStartKey = null;
+    }).catch(error => {
+      console.warn("No se pudo cancelar el ready check por timeout.", error);
+      onlineReadyStartKey = null;
+    });
+    return;
+  }
 
   if (readyCheck.status === "waiting" && allReadyUsersMarked(data)) {
     const key = `${currentRoomCode}:${readyCheck.requestedAt || 0}:loading`;
@@ -7742,6 +7859,11 @@ function maybeAdvanceOnlineReadyCheck(data = {}) {
   }
 
   if (readyCheck.status === "loading") {
+    if (onlineReadyTimeoutTimerId) {
+      clearTimeout(onlineReadyTimeoutTimerId);
+      onlineReadyTimeoutTimerId = null;
+      onlineReadyTimeoutKey = null;
+    }
     const key = `${currentRoomCode}:${readyCheck.requestedAt || 0}:${readyCheck.loadingStartedAt || 0}:start`;
     if (onlineReadyStartKey === key) return;
     onlineReadyStartKey = key;
@@ -7955,6 +8077,11 @@ function handleRoomClosed(roomCode, options = {}) {
   }
   clearTestingBotTurnTimer();
   clearTestingBotReadyTimers();
+  if (onlineReadyTimeoutTimerId) {
+    clearTimeout(onlineReadyTimeoutTimerId);
+    onlineReadyTimeoutTimerId = null;
+  }
+  onlineReadyTimeoutKey = null;
   onlineReadyStartKey = null;
   const readyOverlay = document.getElementById("online-ready-overlay");
   if (readyOverlay) readyOverlay.classList.add("hidden");
@@ -7966,6 +8093,7 @@ function handleRoomClosed(roomCode, options = {}) {
   onlineRoomStartedState = false;
   clearOnlineSession();
   updateOnlineBodyClasses();
+  updateOnlineLeaveButtonVisibility();
   activateSetupTab("menu");
   switchScreen(setupScreen);
   startMusic("menu");

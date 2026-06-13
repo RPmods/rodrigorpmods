@@ -13069,3 +13069,338 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
     justify-self: center !important;
   }
 }
+
+
+/* =========================================================
+   v3.2.9 - Corrección final de alineación visual
+   ========================================================= */
+
+/* Avisos de turno: bajar un poco, reducir tamaño y evitar textos gigantes saliendo del cuadro. */
+.captain-turn-banner.is-own-turn,
+.captain-turn-banner.is-teammate-turn,
+.captain-turn-banner.is-opponent-turn,
+.captain-turn-banner.is-spectator-turn {
+  top: clamp(82px, 9.5vh, 112px) !important;
+  width: min(500px, 46vw) !important;
+  min-height: 0 !important;
+  padding: 9px 16px !important;
+  border-radius: 14px !important;
+  font-size: clamp(0.78rem, 1.15vw, 1.12rem) !important;
+  line-height: 1.08 !important;
+  overflow: hidden !important;
+}
+
+.captain-turn-banner.is-opponent-turn {
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  animation: none !important;
+}
+
+.captain-turn-banner strong {
+  display: block !important;
+  max-width: 100% !important;
+  font-size: clamp(0.98rem, 1.55vw, 1.52rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0.10em !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+.captain-turn-banner span:not(.banner-kicker) {
+  display: block !important;
+  max-width: 100% !important;
+  font-size: 0.70em !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0.08em !important;
+  overflow-wrap: anywhere !important;
+}
+
+.captain-turn-banner .banner-kicker {
+  font-size: 0.58em !important;
+  margin-bottom: 4px !important;
+  letter-spacing: 0.16em !important;
+}
+
+.captain-turn-banner em {
+  margin-top: 5px !important;
+  padding: 4px 12px !important;
+  font-size: 0.58em !important;
+}
+
+/* Panel inferior: acciones apiladas para que SELECCIONAR/BANEAR y SELECCIÓN ALEATORIA encajen sin romper el selector. */
+.phase-status-panel {
+  width: min(840px, calc(100vw - 560px)) !important;
+  min-width: 680px !important;
+  grid-template-columns: minmax(210px, 1fr) minmax(190px, 220px) 154px 30px !important;
+  grid-template-rows: 34px 34px !important;
+  gap: 6px 8px !important;
+  align-items: stretch !important;
+  padding: 10px 12px !important;
+}
+
+.phase-status-panel .phase-status-copy {
+  grid-column: 1 !important;
+  grid-row: 1 / 3 !important;
+  align-self: center !important;
+}
+
+.phase-status-panel .status-character-box {
+  grid-column: 2 !important;
+  grid-row: 1 / 3 !important;
+  align-self: stretch !important;
+  min-height: 0 !important;
+}
+
+#confirm-action,
+.phase-status-panel .action-button {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  width: 154px !important;
+  min-width: 154px !important;
+  max-width: 154px !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 10px !important;
+  font-size: 0.82rem !important;
+  letter-spacing: 0.14em !important;
+}
+
+#random-selection-action.random-selection-button {
+  grid-column: 3 !important;
+  grid-row: 2 !important;
+  position: static !important;
+  width: 154px !important;
+  min-width: 154px !important;
+  max-width: 154px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  font-size: 0.56rem !important;
+  letter-spacing: 0.08em !important;
+  line-height: 1.02 !important;
+  justify-self: stretch !important;
+  align-self: stretch !important;
+  white-space: normal !important;
+}
+
+#random-selection-action.random-selection-button.hidden {
+  display: inline-flex !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#clear-preselection.clear-preselection-button {
+  grid-column: 4 !important;
+  grid-row: 1 / 3 !important;
+  align-self: center !important;
+  justify-self: center !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  height: 38px !important;
+}
+
+/* Ready check: quitar líneas colgantes y mejorar nombres largos dentro de caja uniforme. */
+.online-ready-player::before {
+  display: none !important;
+  content: none !important;
+}
+
+.online-ready-grid {
+  align-items: stretch !important;
+  perspective: 1200px;
+}
+
+.online-ready-player {
+  min-height: 160px !important;
+  display: grid !important;
+  grid-template-rows: minmax(62px, auto) auto auto !important;
+  align-content: center !important;
+  justify-items: center !important;
+  gap: 8px !important;
+  padding: 16px 10px 14px !important;
+  animation: readyPlayerFloatV329 3.8s ease-in-out infinite alternate !important;
+}
+
+.online-ready-player:nth-child(2n) { animation-delay: 0.25s !important; }
+.online-ready-player:nth-child(3n) { animation-delay: 0.45s !important; }
+
+.online-ready-namebox {
+  width: 100% !important;
+  min-height: 58px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 6px 7px !important;
+  border-radius: 8px !important;
+  background: rgba(8,12,18,0.16) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16) !important;
+  overflow: hidden !important;
+}
+
+.online-ready-namebox strong {
+  max-width: 100% !important;
+  color: #121820 !important;
+  font-size: clamp(0.58rem, 0.75vw, 0.82rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0.03em !important;
+  text-align: center !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.online-ready-player > span {
+  font-size: 0.66rem !important;
+  line-height: 1.05 !important;
+}
+
+.online-ready-player > em {
+  font-size: 0.64rem !important;
+  line-height: 1 !important;
+}
+
+.online-ready-player.is-ready {
+  transform: none !important;
+  animation: readyPlayerFloatV329 3.8s ease-in-out infinite alternate !important;
+  filter: brightness(1.12) !important;
+}
+
+.online-ready-player.is-ready::after {
+  display: none !important;
+  content: none !important;
+}
+
+.online-ready-status strong {
+  color: #f33d49 !important;
+  font-size: 1.25em !important;
+  text-shadow: 0 0 14px rgba(243,61,73,0.42) !important;
+}
+
+@keyframes readyPlayerFloatV329 {
+  from { transform: translateY(0); }
+  to { transform: translateY(-4px); }
+}
+
+/* Ruleta de mapas: mantener tarjetas estables, sin parpadeo, con borde dorado brillante. */
+.map-card,
+.map-card-image,
+.map-card-image img {
+  backface-visibility: hidden !important;
+  transform: translateZ(0) !important;
+}
+
+.map-card.map-roulette-highlight {
+  animation: mapRouletteGoldV329 0.20s ease both !important;
+  border-color: rgba(255,218,83,0.98) !important;
+  box-shadow:
+    0 0 0 2px rgba(255,218,83,0.98),
+    0 0 28px rgba(255,201,46,0.76),
+    0 0 54px rgba(255,167,34,0.30),
+    inset 0 -4px 0 rgba(255,218,83,0.88) !important;
+  z-index: 6 !important;
+}
+
+.map-card.map-roulette-highlight .map-card-image img {
+  filter: brightness(1.22) saturate(1.16) contrast(1.05) !important;
+}
+
+.map-card.map-roulette-highlight::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border: 1px solid rgba(255,255,255,0.42) !important;
+  pointer-events: none !important;
+  background: linear-gradient(120deg, transparent 0 38%, rgba(255,255,255,0.22) 48%, transparent 58% 100%) !important;
+  animation: mapGoldSweepV329 0.45s ease both !important;
+}
+
+@keyframes mapRouletteGoldV329 {
+  from { transform: translateY(0) scale(1); filter: brightness(1); }
+  to { transform: translateY(-6px) scale(1.025); filter: brightness(1.12); }
+}
+
+@keyframes mapGoldSweepV329 {
+  from { opacity: 0; transform: translateX(-28%); }
+  45% { opacity: 1; }
+  to { opacity: 0; transform: translateX(28%); }
+}
+
+/* Botón flotante para que jugadores puedan retirarse después del resumen. */
+.online-leave-floating {
+  position: fixed;
+  z-index: 220;
+  right: 24px;
+  top: 24px;
+  min-width: 132px;
+  height: 42px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: linear-gradient(180deg, rgba(44,50,63,0.94), rgba(24,28,37,0.98));
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 1000;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: inset 0 -2px 0 #f33d49, 0 14px 34px rgba(0,0,0,0.28);
+}
+
+.online-leave-floating.hidden {
+  display: none !important;
+}
+
+@media (max-width: 1320px) {
+  .phase-status-panel {
+    width: min(820px, calc(100vw - 440px)) !important;
+    min-width: 620px !important;
+    grid-template-columns: minmax(190px, 1fr) minmax(170px, 200px) 142px 28px !important;
+  }
+
+  #confirm-action,
+  .phase-status-panel .action-button,
+  #random-selection-action.random-selection-button {
+    width: 142px !important;
+    min-width: 142px !important;
+    max-width: 142px !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .phase-status-panel {
+    width: min(720px, calc(100vw - 40px)) !important;
+    min-width: 0 !important;
+    grid-template-columns: minmax(0, 1fr) 142px 28px !important;
+    grid-template-rows: auto 34px 34px !important;
+  }
+
+  .phase-status-panel .phase-status-copy {
+    grid-column: 1 / 4 !important;
+    grid-row: 1 !important;
+  }
+
+  .phase-status-panel .status-character-box {
+    grid-column: 1 !important;
+    grid-row: 2 / 4 !important;
+  }
+
+  #confirm-action,
+  .phase-status-panel .action-button {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+  }
+
+  #random-selection-action.random-selection-button {
+    grid-column: 2 !important;
+    grid-row: 3 !important;
+  }
+
+  #clear-preselection.clear-preselection-button {
+    grid-column: 3 !important;
+    grid-row: 2 / 4 !important;
+  }
+}
