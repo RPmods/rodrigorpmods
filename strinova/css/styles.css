@@ -11993,3 +11993,212 @@ select option:disabled {
 .room-input {
   background-color: #2f3640 !important;
 }
+
+
+/* =========================================================
+   AJUSTE V3.2.0 - modo avanzado online y avisos compactos
+   ========================================================= */
+.room-mode-advanced-selected .room-captain-assignment,
+.room-mode-advanced-selected .room-player-config-grid {
+  display: none !important;
+}
+
+.room-advanced-slot-panel {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(46,51,60,0.90), rgba(37,42,51,0.86));
+  box-shadow: inset 0 -3px 0 #f33d49, 0 18px 40px rgba(0,0,0,0.22);
+}
+
+.room-advanced-slot-panel.hidden {
+  display: none !important;
+}
+
+.room-advanced-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.room-advanced-team {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.22);
+}
+
+.room-advanced-team > span {
+  color: rgba(255,255,255,0.76);
+  font-size: 0.72rem;
+  font-weight: 1000;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.room-advanced-team-a {
+  box-shadow: inset 4px 0 0 rgba(255,67,86,0.72);
+}
+
+.room-advanced-team-b {
+  box-shadow: inset -4px 0 0 rgba(85,168,255,0.72);
+}
+
+.room-advanced-slot-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.46fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.room-advanced-slot-row strong {
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 1000;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.room-advanced-slot-row .room-captain-select {
+  min-height: 38px !important;
+  font-size: 0.78rem;
+}
+
+.captain-turn-banner.is-own-turn,
+.captain-turn-banner.is-teammate-turn,
+.captain-turn-banner.is-spectator-turn {
+  position: fixed !important;
+  left: 50% !important;
+  top: clamp(92px, 10vh, 128px) !important;
+  transform: translateX(-50%) !important;
+  width: min(650px, 62vw) !important;
+  min-height: 0 !important;
+  padding: 13px 18px !important;
+  font-size: clamp(0.9rem, 1.28vw, 1.24rem) !important;
+  line-height: 1.12 !important;
+  z-index: 116 !important;
+  pointer-events: none !important;
+  opacity: 0.94 !important;
+  border-radius: 18px !important;
+}
+
+.captain-turn-banner.is-teammate-turn {
+  width: min(760px, 70vw) !important;
+}
+
+.captain-turn-banner.is-own-turn strong,
+.captain-turn-banner.is-teammate-turn strong,
+.captain-turn-banner.is-spectator-turn strong {
+  font-size: 1.28em !important;
+}
+
+.captain-turn-banner.is-own-turn span:not(.banner-kicker),
+.captain-turn-banner.is-teammate-turn span:not(.banner-kicker),
+.captain-turn-banner.is-spectator-turn span:not(.banner-kicker) {
+  font-size: 0.78em !important;
+  letter-spacing: 0.08em !important;
+}
+
+.captain-turn-banner.is-own-turn em,
+.captain-turn-banner.is-teammate-turn em,
+.captain-turn-banner.is-spectator-turn em {
+  margin-top: 4px !important;
+  padding: 5px 14px !important;
+  font-size: 0.62em !important;
+}
+
+.captain-turn-banner.is-opponent-turn {
+  top: 45% !important;
+  width: min(960px, 80vw) !important;
+  min-height: min(260px, 34vh) !important;
+  padding: clamp(24px, 3.7vw, 48px) !important;
+  font-size: clamp(1.75rem, 4.2vw, 4.25rem) !important;
+  border-radius: 26px !important;
+}
+
+.captain-turn-banner.turn-a {
+  border-color: rgba(255,92,110,0.86) !important;
+  background: linear-gradient(135deg, rgba(70,8,18,0.92), rgba(210,42,62,0.84)) !important;
+}
+
+.captain-turn-banner.turn-b {
+  border-color: rgba(92,182,255,0.88) !important;
+  background: linear-gradient(135deg, rgba(8,28,70,0.92), rgba(38,122,220,0.84)) !important;
+}
+
+body.phase-announcing .captain-turn-banner {
+  opacity: 0 !important;
+  transform: translateX(-50%) translateY(-8px) scale(0.98) !important;
+  transition: opacity 0.35s ease, transform 0.35s ease !important;
+}
+
+@media (max-width: 860px) {
+  .room-advanced-slot-grid,
+  .room-advanced-slot-row {
+    grid-template-columns: 1fr !important;
+  }
+  .captain-turn-banner.is-own-turn,
+  .captain-turn-banner.is-teammate-turn,
+  .captain-turn-banner.is-spectator-turn {
+    width: min(92vw, 620px) !important;
+  }
+}
+
+
+/* v3.2.0: si el líder/host también juega y es su turno, sí puede confirmar. */
+body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
+  display: inline-flex !important;
+}
+body.online-role-host.own-team-turn .character-card {
+  cursor: pointer !important;
+}
+
+
+/* =========================================================
+   v3.2.2 - Testing Bots
+   ========================================================= */
+.room-testing-bots-panel {
+  display: grid;
+  gap: 12px;
+  padding: 15px;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background:
+    radial-gradient(circle at top left, rgba(235,150,40,0.18), transparent 34%),
+    linear-gradient(180deg, rgba(48,42,53,0.90), rgba(30,32,40,0.86));
+  box-shadow: inset 0 -3px 0 rgba(235,150,40,0.72), 0 18px 42px rgba(0,0,0,0.24);
+}
+
+.room-testing-bots-panel.hidden {
+  display: none !important;
+}
+
+.room-testing-bots-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.room-testing-bots-actions > button {
+  min-height: 40px;
+  font-size: 0.74rem;
+  letter-spacing: 0.10em;
+}
+
+.room-participant-list p strong:has(+ span) {
+  word-break: break-word;
+}
+
+@media (max-width: 860px) {
+  .room-testing-bots-actions {
+    flex-direction: column;
+  }
+
+  .room-testing-bots-actions > button {
+    width: 100%;
+  }
+}

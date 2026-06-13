@@ -22,11 +22,48 @@ const DEFAULT_DRAFT_CONFIG = {
 };
 
 const baseBanTurns = [
-  { type: "ban", team: "A", faction: "pus", text: "TEAM A bloquea un personaje de P.U.S", banIndex: 0, slotIndex: 0 },
-  { type: "ban", team: "B", faction: "scissors", text: "TEAM B bloquea un personaje de The Scissors", banIndex: 1, slotIndex: 0 },
-  { type: "ban", team: "A", faction: "urbino", text: "TEAM A bloquea un personaje de Cizallas", banIndex: 2, slotIndex: 1 },
-  { type: "ban", team: "B", faction: "urbino", text: "TEAM B bloquea un personaje de Cizallas", banIndex: 3, slotIndex: 1 },
+  { type: "ban", team: "A", faction: "pus", text: "TEAM A bloquea un personaje de P.U.S", banIndex: 0, slotIndex: 0, advancedSlotKey: "captain" },
+  { type: "ban", team: "B", faction: "scissors", text: "TEAM B bloquea un personaje de The Scissors", banIndex: 1, slotIndex: 0, advancedSlotKey: "captain" },
+  { type: "ban", team: "A", faction: "urbino", text: "TEAM A bloquea un personaje de Cizallas", banIndex: 2, slotIndex: 1, advancedSlotKey: "subcaptain" },
+  { type: "ban", team: "B", faction: "urbino", text: "TEAM B bloquea un personaje de Cizallas", banIndex: 3, slotIndex: 1, advancedSlotKey: "subcaptain" },
 ];
+
+const ADVANCED_SLOT_KEYS = ["captain", "subcaptain", "player3", "player4", "player5"];
+
+function advancedSlotsForTeamSize(teamSize = DEFAULT_DRAFT_CONFIG.teamSize) {
+  const size = TEAM_SIZE_OPTIONS.includes(Number(teamSize)) ? Number(teamSize) : DEFAULT_DRAFT_CONFIG.teamSize;
+  return ADVANCED_SLOT_KEYS.slice(0, size);
+}
+
+function advancedSlotIndex(slotKey) {
+  const index = ADVANCED_SLOT_KEYS.indexOf(slotKey);
+  return index >= 0 ? index : 0;
+}
+
+function advancedSlotLabel(slotKey) {
+  if (slotKey === "captain") return "Capitán";
+  if (slotKey === "subcaptain") return "Subcapitán";
+  const match = String(slotKey || "").match(/player(\d+)/i);
+  return match ? `Jugador ${match[1]}` : "Jugador";
+}
+
+function advancedSlotLabelLong(team, slotKey) {
+  const teamText = team === "B" ? "TEAM B · DEFENSORES" : "TEAM A · ATACANTES";
+  return `${advancedSlotLabel(slotKey)} · ${teamText}`;
+}
+
+function isAdvancedDraftConfig(config = currentDraftConfig()) {
+  return sanitizeDraftConfig(config).mode === "advanced";
+}
+
+function emptyAdvancedSlots(teamSize = DEFAULT_DRAFT_CONFIG.teamSize) {
+  const slots = { A: {}, B: {} };
+  advancedSlotsForTeamSize(teamSize).forEach(slotKey => {
+    slots.A[slotKey] = null;
+    slots.B[slotKey] = null;
+  });
+  return slots;
+}
 
 function sanitizeDraftConfig(config = {}) {
   const requestedSize = Number(config.teamSize);
@@ -72,11 +109,24 @@ function pickGroupsForTeamSize(teamSize = DEFAULT_DRAFT_CONFIG.teamSize) {
 function buildBanTurns(config = DEFAULT_DRAFT_CONFIG) {
   const normalized = sanitizeDraftConfig(config);
   if (!normalized.bansEnabled) return [];
-  return baseBanTurns.map(turn => ({ ...turn }));
+  return baseBanTurns.map(turn => ({
+    ...turn,
+    slotKey: normalized.mode === "advanced" ? turn.advancedSlotKey : null,
+    advanced: normalized.mode === "advanced",
+  }));
 }
 
 function buildPickTurns(config = DEFAULT_DRAFT_CONFIG) {
   const normalized = sanitizeDraftConfig(config);
+
+  if (normalized.mode === "advanced") {
+    const slotKeys = advancedSlotsForTeamSize(normalized.teamSize);
+    return slotKeys.flatMap((slotKey, index) => ([
+      { type: "pick", team: "A", groupId: index, groupCount: 1, groupSlot: 0, slotIndex: index, slotKey, advanced: true },
+      { type: "pick", team: "B", groupId: index, groupCount: 1, groupSlot: 0, slotIndex: index, slotKey, advanced: true },
+    ]));
+  }
+
   const counters = { A: 0, B: 0 };
   return pickGroupsForTeamSize(normalized.teamSize).flatMap((group, groupId) => {
     return Array.from({ length: group.count }, (_, slot) => {
@@ -89,6 +139,8 @@ function buildPickTurns(config = DEFAULT_DRAFT_CONFIG) {
         groupCount: group.count,
         groupSlot: slot,
         slotIndex,
+        slotKey: null,
+        advanced: false,
       };
     });
   });
@@ -491,6 +543,12 @@ const systemDraftVoiceLines = {
   team_b_ban_scissors: makeSystemVoiceLine("team_b_ban_scissors", "voice_team_b_ban_scissors", "Los defensores están bloqueando un laminante de las Cizallas."),
   team_a_pick: makeSystemVoiceLine("team_a_pick", "voice_team_a_pick", "Los atacantes están eligiendo un laminante."),
   team_b_pick: makeSystemVoiceLine("team_b_pick", "voice_team_b_pick", "Los defensores están eligiendo un laminante."),
+  advanced_team_ban_laminant: makeSystemVoiceLine("advanced_team_ban_laminant", "voice_advanced_team_ban_laminant", "Tu equipo está bloqueando un laminante."),
+  advanced_team_ban_scissors_laminant: makeSystemVoiceLine("advanced_team_ban_scissors_laminant", "voice_advanced_team_ban_scissors_laminant", "Tu equipo está bloqueando un laminante de las Cizallas."),
+  advanced_team_pick_laminant: makeSystemVoiceLine("advanced_team_pick_laminant", "voice_advanced_team_pick_laminant", "Tu equipo está seleccionando un laminante."),
+  advanced_please_pick_laminant: makeSystemVoiceLine("advanced_please_pick_laminant", "voice_advanced_please_pick_laminant", "Por favor selecciona un laminante."),
+  advanced_please_ban_laminant: makeSystemVoiceLine("advanced_please_ban_laminant", "voice_advanced_please_ban_laminant", "Por favor bloquea un laminante."),
+  advanced_please_ban_scissors_laminant: makeSystemVoiceLine("advanced_please_ban_scissors_laminant", "voice_advanced_please_ban_scissors_laminant", "Por favor bloquea un laminante de las Cizallas."),
   random_start: makeSystemVoiceLine("random_start", "voice_random_start", "Tiempo agotado. Iniciando selección aleatoria."),
   map_selector_voice: makeSystemVoiceLine("map_selector_voice", "voice_map_selector", "Iniciando selección aleatoria de mapa."),
   voice_finish_draft: makeSystemVoiceLine("voice_finish_draft", "voice_finish_draft_text", "El sistema draft ha concluido, mostrando resultados."),
@@ -512,6 +570,9 @@ const turnVoices = {
 let currentRoomCode = null;
 let currentRole = null;
 let playerTeam = null;
+let onlineLatestRoomData = null;
+let testingBotTurnKey = null;
+let testingBotTimerId = null;
 let onlineRoomListenerCode = null;
 let onlineRoomDeletionListenerCode = null;
 let onlineStartedForRoom = null;
@@ -658,6 +719,7 @@ const state = {
     secondaryStarted: false,
     progress: 0,
   },
+  onlineSlots: emptyAdvancedSlots(DEFAULT_DRAFT_CONFIG.teamSize),
 };
 
 const SETTINGS_STORAGE_KEY = "rpmods_draft_settings_v1";
@@ -917,7 +979,12 @@ function applyLanguage(lang = currentLanguage(), options = {}) {
   [['text_language','text_language_desc'],['narration_audio','narration_audio_desc'],['character_audio','character_audio_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="idioma"] .language-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
   document.querySelectorAll('.locked-language-select option').forEach(o=>{o.textContent=t('default')}); setText('.language-note-panel strong','voice_system_title'); setText('.language-note-panel p','voice_system_complete_body');
   setText('[data-panel="random"] .subconfig-heading span','random_selector'); setText('[data-panel="random"] .subconfig-heading strong','random_summary'); setText('[data-panel="random"] .subconfig-copy span','random_summary_action'); setText('[data-panel="random"] .subconfig-copy small','random_summary_desc'); setText('#simulate-summary','simulate');
-  setText('[data-panel="updates"] .subconfig-heading span','updates'); setText('[data-panel="updates"] .subconfig-heading strong','important_improvements'); document.querySelectorAll('.updates-history-panel li').forEach((li,i)=>{ li.textContent=t(`update_${i+1}`); });
+  setText('[data-panel="updates"] .subconfig-heading span','updates'); setText('[data-panel="updates"] .subconfig-heading strong','important_improvements'); document.querySelectorAll('.updates-history-panel li').forEach((li,i)=>{
+    const key = `update_${i+1}`;
+    const value = t(key);
+    li.textContent = value === key ? "" : value;
+    li.style.display = value === key ? "none" : "";
+  });
   setText('[data-panel="creditos"] .subconfig-heading span','credits'); setText('[data-panel="creditos"] .subconfig-heading strong','voices'); setText('.credits-line strong','system_voice'); updateCreditsPanel();
   setText('[data-panel="configuracion"] .subconfig-heading span','config'); setText('[data-panel="configuracion"] .subconfig-heading strong','game_settings');
   [['turn_time','turn_time_desc'],['animation_duration','animation_duration_desc'],['narration_toggle','narration_toggle_desc'],['selection_animation','selection_animation_desc'],['auto_resolve','auto_resolve_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="configuracion"] .subconfig-row, [data-panel="configuracion"] .toggle-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
@@ -2044,7 +2111,19 @@ function updateDraftConfigVisibility() {
 }
 
 function applyDraftConfigPatch(patch = {}, options = {}) {
-  state.draftConfig = sanitizeDraftConfig({ ...currentDraftConfig(), ...patch });
+  const previousConfig = currentDraftConfig();
+  state.draftConfig = sanitizeDraftConfig({ ...previousConfig, ...patch });
+  if (state.draftConfig.mode === "advanced") {
+    const currentSlots = state.onlineSlots || emptyAdvancedSlots(state.draftConfig.teamSize);
+    const normalizedSlots = emptyAdvancedSlots(state.draftConfig.teamSize);
+    ["A", "B"].forEach(team => {
+      advancedSlotsForTeamSize(state.draftConfig.teamSize).forEach(slotKey => {
+        normalizedSlots[team][slotKey] = currentSlots?.[team]?.[slotKey] || null;
+      });
+    });
+    state.onlineSlots = normalizedSlots;
+    applyAdvancedSlotsToPlayers(state.onlineSlots, state.draftConfig);
+  }
   state.players.A = Array.from({ length: 5 }, (_, index) => state.players.A[index] || defaultPlayerName("A", index));
   state.players.B = Array.from({ length: 5 }, (_, index) => state.players.B[index] || defaultPlayerName("B", index));
   updateDraftConfigVisibility();
@@ -3387,7 +3466,13 @@ function currentTeamClass(turn = currentTurn()) {
 function currentOnlineTeamLetter() {
   if (playerTeam === "teamA") return "A";
   if (playerTeam === "teamB") return "B";
+  const advancedAssignment = advancedAssignmentForClient(onlineClientId(), state.onlineSlots);
+  if (advancedAssignment?.team) return advancedAssignment.team;
   return null;
+}
+
+function currentOnlineSlotKey() {
+  return advancedAssignmentForClient(onlineClientId(), state.onlineSlots)?.slotKey || null;
 }
 
 function isOnlineMode() {
@@ -3400,9 +3485,17 @@ function canManageOnlineRoom() {
 
 function canControlCurrentTurn() {
   if (!currentRoomCode) return true;
-  if (currentRole !== "player") return false;
   const turn = currentTurn();
-  if (!turn || currentOnlineTeamLetter() !== turn.team) return false;
+  if (!turn) return false;
+
+  if (isAdvancedDraftConfig()) {
+    const assignedSlot = advancedSlotForTurn(turn);
+    if (!assignedSlot?.clientId || assignedSlot.clientId !== onlineClientId()) return false;
+  } else {
+    if (currentRole !== "player") return false;
+    if (currentOnlineTeamLetter() !== turn.team) return false;
+  }
+
   if (state.turnStartedAt && onlineNow() < Number(state.turnStartedAt)) return false;
   return true;
 }
@@ -3851,7 +3944,10 @@ function renderSelected() {
     button.classList.add("hidden");
     if (clearButton) clearButton.classList.add("hidden");
     if (statusName) statusName.textContent = viewerSelected ? viewerSelected.name.toUpperCase() : t("none");
-    if (statusFaction) statusFaction.textContent = viewerSelected ? `${factions[viewerSelected.faction].label} · ${roleOf(viewerSelected.name)}` : "Esperando al capitán del turno...";
+    const waitingText = isAdvancedDraftConfig()
+      ? (currentOnlineTeamLetter() === turn.team ? "Esperando a tu compañero del turno..." : "Esperando al jugador rival del turno...")
+      : "Esperando al capitán del turno...";
+    if (statusFaction) statusFaction.textContent = viewerSelected ? `${factions[viewerSelected.faction].label} · ${roleOf(viewerSelected.name)}` : waitingText;
     return;
   }
 
@@ -3921,21 +4017,24 @@ function renderTurnInfo() {
 
   if (turn.type === "ban") {
     const roundText = t("ban_round", { current: state.turnIndex + 1, total: activeBanTurnCount() });
+    const actorName = isAdvancedDraftConfig() ? advancedTurnPlayerName(turn) : "";
     phaseLabel.textContent = t("block_character");
-    turnLabel.textContent = t("team_blocks", { team: turn.team });
+    turnLabel.textContent = actorName
+      ? `${actorName} · ${t("team_blocks", { team: turn.team })}`
+      : t("team_blocks", { team: turn.team });
     restriction.textContent = `${t("team_blocks", { team: turn.team })}: ${factions[turn.faction].label}.`;
-    batchIndicator.textContent = roundText;
+    batchIndicator.textContent = isAdvancedDraftConfig() && turn.slotKey ? `${roundText} · ${advancedSlotLabel(turn.slotKey)}` : roundText;
     dockTitle.textContent = "";
     if (statusPhase) statusPhase.textContent = `${t("phase_ban")} · ${roundText}`;
-    if (statusTurn) statusTurn.textContent = t("team_blocks", { team: turn.team });
+    if (statusTurn) statusTurn.textContent = actorName ? `${actorName} · ${t("team_blocks", { team: turn.team })}` : t("team_blocks", { team: turn.team });
   } else {
     const pickNumber = state.picks[turn.team].length + 1;
-    const playerName = state.players[turn.team][pickNumber - 1];
+    const playerName = isAdvancedDraftConfig() ? advancedTurnPlayerName(turn) : state.players[turn.team][pickNumber - 1];
     const roundText = t("pick_round", { team: turn.team, current: turn.groupSlot + 1, total: turn.groupCount });
     phaseLabel.textContent = t("pick_character");
     turnLabel.textContent = t("team_picks_player", { team: turn.team, player: playerName });
     restriction.textContent = t("team_can_pick", { team: turn.team, factions: getAllowedFactionKeysForPick(turn.team).map(key => factions[key].label).join(t("and_or")) });
-    batchIndicator.textContent = roundText;
+    batchIndicator.textContent = isAdvancedDraftConfig() && turn.slotKey ? `${advancedSlotLabel(turn.slotKey)} · ${playerName}` : roundText;
     dockTitle.textContent = "";
     if (statusPhase) statusPhase.textContent = `${t("phase_pick")} · ${roundText}`;
     if (statusTurn) statusTurn.textContent = t("team_picks", { team: turn.team });
@@ -3953,12 +4052,15 @@ function onlineActionLabel(turn) {
 
 function updateOnlineBodyClasses() {
   document.body.classList.toggle("online-role-host", Boolean(currentRoomCode && currentRole === "host"));
-  document.body.classList.toggle("online-role-player", Boolean(currentRoomCode && currentRole === "player"));
-  document.body.classList.toggle("online-role-spectator", Boolean(currentRoomCode && currentRole === "host"));
+  document.body.classList.toggle("online-role-player", Boolean(currentRoomCode && currentRole === "player" || (currentRoomCode && currentRole === "host" && currentOnlineTeamLetter())));
+  document.body.classList.toggle("online-role-spectator", Boolean(currentRoomCode && currentRole === "host" && !currentOnlineTeamLetter()));
   const turn = currentTurn();
   const ownTeam = currentOnlineTeamLetter();
-  document.body.classList.toggle("own-team-turn", Boolean(currentRoomCode && currentRole === "player" && turn && ownTeam === turn.team));
-  document.body.classList.toggle("other-team-turn", Boolean(currentRoomCode && currentRole === "player" && turn && ownTeam && ownTeam !== turn.team));
+  const turnSlot = isAdvancedDraftConfig() ? advancedSlotForTurn(turn) : null;
+  const isMyAdvancedTurn = Boolean(turnSlot?.clientId && turnSlot.clientId === onlineClientId());
+  document.body.classList.toggle("own-team-turn", Boolean(currentRoomCode && turn && ((isAdvancedDraftConfig() && isMyAdvancedTurn) || (!isAdvancedDraftConfig() && currentRole === "player" && ownTeam === turn.team))));
+  document.body.classList.toggle("same-team-turn", Boolean(currentRoomCode && isAdvancedDraftConfig() && turn && ownTeam === turn.team && !isMyAdvancedTurn));
+  document.body.classList.toggle("other-team-turn", Boolean(currentRoomCode && turn && ownTeam && ownTeam !== turn.team));
   if (cancelDraftButton) {
     cancelDraftButton.style.display = (!currentRoomCode || currentRole === "host") ? "inline-flex" : "none";
     cancelDraftButton.textContent = currentRoomCode ? t("close_room") : t("cancel");
@@ -3972,6 +4074,32 @@ function updateOnlineBodyClasses() {
   }
 }
 
+function advancedTurnTargetKey(turn = currentTurn()) {
+  if (!turn) return "pick_laminant";
+  if (turn.type === "pick") return "pick_laminant";
+  return turn.faction === "urbino" || Number(turn.banIndex) >= 2 ? "ban_scissors_laminant" : "ban_laminant";
+}
+
+function advancedTurnPhraseKey(prefix, turn = currentTurn()) {
+  const target = advancedTurnTargetKey(turn);
+  if (prefix === "please") {
+    if (target === "pick_laminant") return "online_please_pick_laminant";
+    if (target === "ban_scissors_laminant") return "online_please_ban_scissors_laminant";
+    return "online_please_ban_laminant";
+  }
+  if (prefix === "team") {
+    if (target === "pick_laminant") return "online_team_pick_laminant";
+    if (target === "ban_scissors_laminant") return "online_team_ban_scissors_laminant";
+    return "online_team_ban_laminant";
+  }
+  if (prefix === "rival") {
+    if (target === "pick_laminant") return "online_rival_pick_laminant";
+    if (target === "ban_scissors_laminant") return "online_rival_ban_scissors_laminant";
+    return "online_rival_ban_laminant";
+  }
+  return "online_team_pick_laminant";
+}
+
 function renderCaptainTurnBanner() {
   updateOnlineBodyClasses();
   if (!captainTurnBanner) return;
@@ -3983,24 +4111,66 @@ function renderCaptainTurnBanner() {
   }
 
   const ownTeam = currentOnlineTeamLetter();
-  const isHost = currentRole === "host";
-  const isOwnTurn = currentRole === "player" && ownTeam === turn.team;
-  const isOpponentTurn = currentRole === "player" && ownTeam && ownTeam !== turn.team;
+  const isAdvanced = isAdvancedDraftConfig();
+  const assignedSlot = isAdvanced ? advancedSlotForTurn(turn) : null;
+  const actorName = isAdvanced ? (assignedSlot?.name || advancedTurnPlayerName(turn)) : onlineTeamLabel(turn.team);
+  const isMine = isAdvanced && assignedSlot?.clientId === onlineClientId();
+  const isHostSpectator = currentRole === "host" && !ownTeam;
+  const isHostPlaying = currentRole === "host" && Boolean(ownTeam);
+  const isOwnTurn = isAdvanced ? isMine : currentRole === "player" && ownTeam === turn.team;
+  const isTeammateTurn = isAdvanced && !isMine && ownTeam && ownTeam === turn.team;
+  const isOpponentTurn = ownTeam && ownTeam !== turn.team;
+  const isSpectatorTurn = isHostSpectator || (currentRole === "host" && !isHostPlaying);
   const action = onlineActionLabel(turn);
   const actionUpper = turn.type === "ban" ? t("online_action_ban_upper") : t("online_action_pick_upper");
 
-  captainTurnBanner.classList.remove("hidden", "turn-a", "turn-b", "is-own-turn", "is-opponent-turn", "is-spectator-turn");
+  captainTurnBanner.classList.remove(
+    "hidden",
+    "turn-a",
+    "turn-b",
+    "is-own-turn",
+    "is-opponent-turn",
+    "is-spectator-turn",
+    "is-teammate-turn",
+  );
   captainTurnBanner.classList.add(turn.team === "A" ? "turn-a" : "turn-b");
-  if (isHost) captainTurnBanner.classList.add("is-spectator-turn");
-  else if (isOpponentTurn) captainTurnBanner.classList.add("is-opponent-turn");
-  else if (isOwnTurn) captainTurnBanner.classList.add("is-own-turn");
 
-  const kicker = isHost ? t("online_kicker_spectator") : isOwnTurn ? t("online_kicker_own_turn") : isOpponentTurn ? t("online_kicker_rival_turn") : t("online_kicker_waiting_assignment");
+  let kicker = t("online_kicker_waiting_assignment");
+  let main = onlineTeamLabel(turn.team);
+  let detail = t("online_is_doing_action", { action });
+  let extra = actionUpper;
+
+  if (isOwnTurn) {
+    captainTurnBanner.classList.add("is-own-turn");
+    kicker = t("online_kicker_own_turn");
+    main = t(advancedTurnPhraseKey("please", turn));
+    detail = isAdvanced ? `${advancedSlotLabel(turn.slotKey)} · ${actorName}` : t("online_your_turn_main");
+  } else if (isTeammateTurn) {
+    captainTurnBanner.classList.add("is-teammate-turn");
+    kicker = t("online_kicker_teammate_turn");
+    main = t(advancedTurnPhraseKey("team", turn));
+    detail = t("online_teammate_actor_detail", { player: actorName });
+  } else if (isOpponentTurn) {
+    captainTurnBanner.classList.add("is-opponent-turn");
+    kicker = t("online_kicker_rival_turn");
+    main = onlineTeamLabel(turn.team);
+    detail = isAdvanced
+      ? `${actorName} · ${t(advancedTurnPhraseKey("rival", turn))}`
+      : t("online_is_doing_action", { action });
+  } else {
+    captainTurnBanner.classList.add("is-spectator-turn");
+    kicker = t("online_kicker_spectator");
+    main = isAdvanced ? `${actorName} · ${onlineTeamLabel(turn.team)}` : onlineTeamLabel(turn.team);
+    detail = isAdvanced ? t(advancedTurnPhraseKey("rival", turn)) : (turn.type === "ban"
+      ? t("online_spectator_ban_detail", { faction: "laminante" })
+      : t("online_spectator_pick_detail"));
+  }
+
   captainTurnBanner.innerHTML = `
-    <span class="banner-kicker">${kicker}</span>
-    <strong>${onlineTeamLabel(turn.team)}</strong>
-    <span>${t("online_is_doing_action", { action })}</span>
-    <em>${actionUpper}</em>
+    <span class="banner-kicker">${escapeHtml(kicker)}</span>
+    <strong>${escapeHtml(main)}</strong>
+    <span>${escapeHtml(detail)}</span>
+    <em>${escapeHtml(extra)}</em>
   `;
 }
 
@@ -4434,6 +4604,93 @@ function roomPlayersPayload() {
   };
 }
 
+function normalizeAdvancedSlotValue(value, data = {}) {
+  if (!value || typeof value !== "object" || !value.clientId) return null;
+  const participant = participantByClientId(data, value.clientId);
+  return {
+    clientId: String(value.clientId),
+    name: String(participant?.name || value.name || `Usuario ${String(value.clientId).slice(-4)}`),
+    connected: participant ? Boolean(participant.connected) : Boolean(value.connected),
+    ready: Boolean(value.ready),
+    isBot: Boolean(value.isBot),
+    assignedAt: Number(value.assignedAt || 0),
+  };
+}
+
+function advancedSlotsFromRoom(data = {}, config = currentDraftConfig()) {
+  const normalized = sanitizeDraftConfig(config);
+  const raw = data.draftState?.slots || data.slots || {};
+  const slots = emptyAdvancedSlots(normalized.teamSize);
+  ["A", "B"].forEach(team => {
+    advancedSlotsForTeamSize(normalized.teamSize).forEach(slotKey => {
+      slots[team][slotKey] = normalizeAdvancedSlotValue(raw?.[team]?.[slotKey], data);
+    });
+  });
+  return slots;
+}
+
+function allAdvancedAssignedClientIds(slots = state.onlineSlots) {
+  const ids = new Set();
+  ["A", "B"].forEach(team => {
+    Object.values(slots?.[team] || {}).forEach(slot => {
+      if (slot?.clientId) ids.add(slot.clientId);
+    });
+  });
+  return ids;
+}
+
+function advancedAssignmentForClient(clientId = onlineClientId(), slots = state.onlineSlots) {
+  if (!clientId) return null;
+  for (const team of ["A", "B"]) {
+    for (const slotKey of ADVANCED_SLOT_KEYS) {
+      const slot = slots?.[team]?.[slotKey];
+      if (slot?.clientId === clientId) {
+        return { team, slotKey, slot };
+      }
+    }
+  }
+  return null;
+}
+
+function advancedSlotForTurn(turn = currentTurn(), slots = state.onlineSlots) {
+  if (!turn?.team || !turn?.slotKey) return null;
+  return slots?.[turn.team]?.[turn.slotKey] || null;
+}
+
+function advancedTurnPlayerName(turn = currentTurn()) {
+  const slot = advancedSlotForTurn(turn);
+  if (slot?.name) return slot.name;
+  if (turn?.team && turn?.slotKey) return advancedSlotLabel(turn.slotKey);
+  return "";
+}
+
+function playersPayloadFromAdvancedSlots(slots = state.onlineSlots, config = currentDraftConfig()) {
+  const normalized = sanitizeDraftConfig(config);
+  const players = { A: [], B: [] };
+  ["A", "B"].forEach(team => {
+    advancedSlotsForTeamSize(normalized.teamSize).forEach((slotKey, index) => {
+      const fallback = `Jugador ${team}${index + 1}`;
+      players[team][index] = String(slots?.[team]?.[slotKey]?.name || fallback);
+    });
+    for (let i = players[team].length; i < 5; i += 1) players[team][i] = `Jugador ${team}${i + 1}`;
+  });
+  return players;
+}
+
+function applyAdvancedSlotsToPlayers(slots = state.onlineSlots, config = currentDraftConfig()) {
+  if (!isAdvancedDraftConfig(config)) return;
+  const players = playersPayloadFromAdvancedSlots(slots, config);
+  state.players = players;
+  updateLocalPlayerInputsFromState();
+}
+
+function areAdvancedSlotsComplete(slots = state.onlineSlots, config = currentDraftConfig()) {
+  const normalized = sanitizeDraftConfig(config);
+  return ["A", "B"].every(team => {
+    return advancedSlotsForTeamSize(normalized.teamSize).every(slotKey => Boolean(slots?.[team]?.[slotKey]?.clientId));
+  });
+}
+
 function currentOnlineDraftPayload(extra = {}) {
   return {
     phase: state.onlinePhase || inferOnlinePhase(),
@@ -4448,6 +4705,7 @@ function currentOnlineDraftPayload(extra = {}) {
       A: [...state.players.A],
       B: [...state.players.B],
     },
+    slots: state.onlineSlots || emptyAdvancedSlots(activeTeamSize()),
     picks: {
       A: serializeCharacterListForOnline(state.picks.A),
       B: serializeCharacterListForOnline(state.picks.B),
@@ -4512,10 +4770,17 @@ function applyOnlineSettingsFromRoom(data = {}) {
   const draftState = data.draftState || {};
   const duration = data.turnDuration ?? draftState.turnDuration;
   const draftConfig = draftState.draftConfig || data.draftConfig;
+  const normalizedConfig = draftConfig ? sanitizeDraftConfig(draftConfig) : currentDraftConfig();
   if (draftConfig) applyDraftConfigPatch(draftConfig, { persist: false, syncOnline: false });
   if (duration != null) applyTurnDuration(duration, false);
-  if (data.players) applyOnlinePlayers(data.players);
-  if (draftState.players) applyOnlinePlayers(draftState.players);
+
+  if (normalizedConfig.mode === "advanced") {
+    state.onlineSlots = advancedSlotsFromRoom(data, normalizedConfig);
+    applyAdvancedSlotsToPlayers(state.onlineSlots, normalizedConfig);
+  } else {
+    if (data.players) applyOnlinePlayers(data.players);
+    if (draftState.players) applyOnlinePlayers(draftState.players);
+  }
 }
 
 function onlineParticipantsFromRoom(data = {}) {
@@ -4526,7 +4791,28 @@ function onlineParticipantsFromRoom(data = {}) {
     connected: Boolean(value?.connected),
     joinedAt: Number(value?.joinedAt || 0),
     lastSeen: Number(value?.lastSeen || 0),
+    isBot: Boolean(value?.isBot),
   })).sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0) || a.name.localeCompare(b.name));
+}
+
+function onlineAssignableUsersFromRoom(data = {}) {
+  const users = [];
+  const hostId = data.host?.clientId;
+  if (hostId) {
+    users.push({
+      clientId: hostId,
+      name: String(data.host?.name || currentOnlinePlayerName || "Líder / Host"),
+      connected: Boolean(data.host?.connected),
+      joinedAt: Number(data.createdAt || 0),
+      lastSeen: Number(data.host?.lastSeen || 0),
+      isHost: true,
+      isBot: false,
+    });
+  }
+  onlineParticipantsFromRoom(data).forEach(participant => {
+    if (!users.some(user => user.clientId === participant.clientId)) users.push(participant);
+  });
+  return users;
 }
 
 function captainAssignmentsFromRoom(data = {}) {
@@ -4539,6 +4825,17 @@ function captainAssignmentsFromRoom(data = {}) {
 
 function participantByClientId(data = {}, clientId) {
   if (!clientId) return null;
+  if (data.host?.clientId === clientId) {
+    return {
+      clientId,
+      name: String(data.host.name || currentOnlinePlayerName || "Líder / Host"),
+      connected: Boolean(data.host.connected),
+      joinedAt: Number(data.createdAt || 0),
+      lastSeen: Number(data.host.lastSeen || 0),
+      isHost: true,
+      isBot: false,
+    };
+  }
   const participant = data.participants?.[clientId];
   if (participant) return {
     clientId,
@@ -4546,25 +4843,42 @@ function participantByClientId(data = {}, clientId) {
     connected: Boolean(participant.connected),
     joinedAt: Number(participant.joinedAt || 0),
     lastSeen: Number(participant.lastSeen || 0),
+    isBot: Boolean(participant.isBot),
   };
-  if (data.teamA?.clientId === clientId) return { clientId, name: data.teamA.name || "Capitán Atacantes", connected: Boolean(data.teamA.connected) };
-  if (data.teamB?.clientId === clientId) return { clientId, name: data.teamB.name || "Capitán Defensores", connected: Boolean(data.teamB.connected) };
+  if (data.teamA?.clientId === clientId) return { clientId, name: data.teamA.name || "Capitán Atacantes", connected: Boolean(data.teamA.connected), isBot: Boolean(data.teamA.isBot) };
+  if (data.teamB?.clientId === clientId) return { clientId, name: data.teamB.name || "Capitán Defensores", connected: Boolean(data.teamB.connected), isBot: Boolean(data.teamB.isBot) };
   return null;
 }
 
 function setCurrentOnlineAssignmentFromRoom(data = {}) {
-  if (currentRole !== "player") return;
-  const assignments = captainAssignmentsFromRoom(data);
   const clientId = onlineClientId();
-  if (assignments.A === clientId) playerTeam = "teamA";
-  else if (assignments.B === clientId) playerTeam = "teamB";
-  else playerTeam = null;
+  const config = sanitizeDraftConfig(data.draftConfig || data.draftState?.draftConfig || currentDraftConfig());
+  let advancedAssignment = null;
+
+  if (config.mode === "advanced") {
+    state.onlineSlots = advancedSlotsFromRoom(data, config);
+    applyAdvancedSlotsToPlayers(state.onlineSlots, config);
+    advancedAssignment = advancedAssignmentForClient(clientId, state.onlineSlots);
+    if (advancedAssignment?.team === "A") playerTeam = "teamA";
+    else if (advancedAssignment?.team === "B") playerTeam = "teamB";
+    else playerTeam = null;
+  } else {
+    const assignments = captainAssignmentsFromRoom(data);
+    if (assignments.A === clientId) playerTeam = "teamA";
+    else if (assignments.B === clientId) playerTeam = "teamB";
+    else playerTeam = null;
+  }
 
   const participant = participantByClientId(data, clientId);
   if (participant?.name) currentOnlinePlayerName = participant.name;
 
-  if (playerTeam === "teamA") setRoomRoleDisplay(`${t("role_captain_attackers")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
+  if (config.mode === "advanced" && advancedAssignment) {
+    const slotText = advancedSlotLabel(advancedAssignment.slotKey);
+    const teamText = advancedAssignment.team === "A" ? t("attackers") : t("defenders");
+    setRoomRoleDisplay(`${slotText} · ${teamText}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
+  } else if (playerTeam === "teamA") setRoomRoleDisplay(`${t("role_captain_attackers")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
   else if (playerTeam === "teamB") setRoomRoleDisplay(`${t("role_captain_defenders")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
+  else if (currentRole === "host") setRoomRoleDisplay(t("leader_spectator"));
   else setRoomRoleDisplay(`${t("role_in_room_waiting")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
   saveOnlineSession();
 }
@@ -4576,35 +4890,48 @@ function captainStatusText(data = {}, team) {
   return `${participant.name} · ${participant.connected ? t("connected") : t("disconnected")}`;
 }
 
+function advancedAssignedLabelForClient(data = {}, clientId) {
+  const config = sanitizeDraftConfig(data.draftConfig || data.draftState?.draftConfig || currentDraftConfig());
+  const slots = advancedSlotsFromRoom(data, config);
+  const assignment = advancedAssignmentForClient(clientId, slots);
+  if (!assignment) return t("no_assignment");
+  const teamLabel = assignment.team === "A" ? t("attackers") : t("defenders");
+  return `${advancedSlotLabel(assignment.slotKey)} · ${teamLabel}`;
+}
+
 function renderParticipantList(data = {}) {
   const list = document.getElementById("room-participant-list");
   if (!list) return;
-  const participants = onlineParticipantsFromRoom(data);
+  const config = sanitizeDraftConfig(data.draftConfig || data.draftState?.draftConfig || currentDraftConfig());
+  const participants = config.mode === "advanced" ? onlineAssignableUsersFromRoom(data) : onlineParticipantsFromRoom(data);
   const assignments = captainAssignmentsFromRoom(data);
   if (!participants.length) {
     list.innerHTML = `<p class="room-empty-list">${t("waiting_users")}</p>`;
     return;
   }
   list.innerHTML = participants.map(participant => {
-    const assigned = assignments.A === participant.clientId
-      ? t("captain_attackers")
-      : assignments.B === participant.clientId
-        ? t("captain_defenders")
-        : t("no_assignment");
-    return `<p><strong>${escapeHtml(participant.name)}</strong><span>${assigned} · ${participant.connected ? t("connected") : t("disconnected")}</span></p>`;
+    const assigned = config.mode === "advanced"
+      ? advancedAssignedLabelForClient(data, participant.clientId)
+      : assignments.A === participant.clientId
+        ? t("captain_attackers")
+        : assignments.B === participant.clientId
+          ? t("captain_defenders")
+          : t("no_assignment");
+    const hostTag = participant.isHost ? " · HOST" : "";
+    return `<p><strong>${escapeHtml(participant.name)}${hostTag}</strong><span>${escapeHtml(assigned)} · ${participant.connected ? t("connected") : t("disconnected")}</span></p>`;
   }).join("");
 }
 
 function populateCaptainSelect(select, team, data = {}) {
   if (!select) return;
   const assignments = captainAssignmentsFromRoom(data);
-  const participants = onlineParticipantsFromRoom(data);
+  const participants = onlineAssignableUsersFromRoom(data);
   const previousValue = select.value;
   select.innerHTML = `<option value="">${t("no_assignment")}</option>`;
   participants.forEach(participant => {
     const option = document.createElement("option");
     option.value = participant.clientId;
-    option.textContent = `${participant.name}${participant.connected ? "" : ` (${t("disconnected")})`}`;
+    option.textContent = `${participant.name}${participant.isHost ? " · HOST" : ""}${participant.connected ? "" : ` (${t("disconnected")})`}`;
     select.appendChild(option);
   });
   select.value = assignments[team] || previousValue || "";
@@ -4621,34 +4948,563 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
+function ensureAdvancedSlotPanel() {
+  let panel = document.getElementById("room-advanced-slot-panel");
+  if (panel) return panel;
+
+  panel = document.createElement("section");
+  panel.id = "room-advanced-slot-panel";
+  panel.className = "room-advanced-slot-panel hidden";
+  panel.innerHTML = `
+    <div class="room-config-heading">
+      <span>MODO AVANZADO</span>
+      <strong>Asignación por jugador</strong>
+    </div>
+    <p class="room-config-copy">
+      En modo avanzado los nombres se toman de los usuarios conectados. Asigna cada persona a su slot; durante el draft cada jugador elegirá su propio personaje.
+    </p>
+    <div id="room-advanced-slot-grid" class="room-advanced-slot-grid"></div>
+    <p id="room-advanced-slot-summary" class="draft-config-summary">Asigna todos los slots para iniciar.</p>
+  `;
+
+  const participantPanel = document.querySelector(".room-participant-panel");
+  if (participantPanel?.parentNode) participantPanel.parentNode.insertBefore(panel, participantPanel.nextSibling);
+  else roomPlayerConfig?.appendChild(panel);
+  return panel;
+}
+
+function populateAdvancedSlotSelect(select, data = {}, team = "A", slotKey = "captain") {
+  if (!select) return;
+  const config = sanitizeDraftConfig(data.draftConfig || data.draftState?.draftConfig || currentDraftConfig());
+  const slots = advancedSlotsFromRoom(data, config);
+  const users = onlineAssignableUsersFromRoom(data);
+  const selected = slots?.[team]?.[slotKey]?.clientId || "";
+  const usedIds = allAdvancedAssignedClientIds(slots);
+
+  select.innerHTML = `<option value="">Vacante</option>`;
+  users.forEach(user => {
+    const option = document.createElement("option");
+    option.value = user.clientId;
+    option.textContent = `${user.name}${user.isHost ? " · HOST" : ""}${user.connected ? "" : ` (${t("disconnected")})`}`;
+    option.disabled = usedIds.has(user.clientId) && user.clientId !== selected;
+    select.appendChild(option);
+  });
+  select.value = selected;
+  select.disabled = currentRole !== "host" || Boolean(data.started);
+}
+
+function renderAdvancedSlotPanel(data = {}) {
+  const panel = ensureAdvancedSlotPanel();
+  const grid = document.getElementById("room-advanced-slot-grid");
+  const summary = document.getElementById("room-advanced-slot-summary");
+  const config = sanitizeDraftConfig(data.draftConfig || data.draftState?.draftConfig || currentDraftConfig());
+  const isAdvanced = config.mode === "advanced";
+  panel.classList.toggle("hidden", !isAdvanced || currentRole !== "host" || Boolean(data.started));
+  if (!grid) return;
+
+  if (!isAdvanced) {
+    grid.innerHTML = "";
+    return;
+  }
+
+  const slots = advancedSlotsFromRoom(data, config);
+  state.onlineSlots = slots;
+  const slotKeys = advancedSlotsForTeamSize(config.teamSize);
+  const buildTeam = (team) => `
+    <div class="room-advanced-team room-advanced-team-${team.toLowerCase()}">
+      <span>${team === "A" ? "TEAM A · ATACANTES" : "TEAM B · DEFENSORES"}</span>
+      ${slotKeys.map(slotKey => `
+        <label class="room-advanced-slot-row">
+          <strong>${advancedSlotLabel(slotKey)}</strong>
+          <select class="room-captain-select room-advanced-slot-select" data-advanced-team="${team}" data-advanced-slot="${slotKey}"></select>
+        </label>
+      `).join("")}
+    </div>
+  `;
+  grid.innerHTML = `${buildTeam("A")}${buildTeam("B")}`;
+  grid.querySelectorAll(".room-advanced-slot-select").forEach(select => {
+    const team = select.dataset.advancedTeam;
+    const slotKey = select.dataset.advancedSlot;
+    populateAdvancedSlotSelect(select, data, team, slotKey);
+    select.addEventListener("change", () => assignAdvancedSlot(team, slotKey, select.value || null));
+  });
+
+  const assigned = ["A", "B"].reduce((total, team) => {
+    return total + slotKeys.filter(slotKey => Boolean(slots?.[team]?.[slotKey]?.clientId)).length;
+  }, 0);
+  const needed = slotKeys.length * 2;
+  if (summary) summary.textContent = `Modo avanzado: ${assigned}/${needed} jugadores asignados · ${config.teamSize}v${config.teamSize}`;
+}
+
+function advancedSlotsToRoomPlayers(slots, config = currentDraftConfig()) {
+  return playersPayloadFromAdvancedSlots(slots, config);
+}
+
+async function assignAdvancedSlot(team, slotKey, clientId) {
+  if (!currentRoomCode || currentRole !== "host") return;
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return;
+  const normalizedTeam = team === "B" ? "B" : "A";
+  const normalizedSlot = ADVANCED_SLOT_KEYS.includes(slotKey) ? slotKey : "captain";
+
+  try {
+    const snapshot = await roomRef.get();
+    const data = snapshot.val() || {};
+    if (data.started) return;
+    const config = sanitizeDraftConfig(data.draftConfig || currentDraftConfig());
+    const slots = advancedSlotsFromRoom(data, config);
+    const updates = { updatedAt: onlineNow() };
+
+    ["A", "B"].forEach(tKey => {
+      ADVANCED_SLOT_KEYS.forEach(sKey => {
+        if (slots?.[tKey]?.[sKey]?.clientId === clientId && clientId) {
+          updates[`slots/${tKey}/${sKey}`] = null;
+          updates[`draftState/slots/${tKey}/${sKey}`] = null;
+        }
+      });
+    });
+
+    const participant = clientId ? participantByClientId(data, clientId) : null;
+    const value = participant ? {
+      clientId,
+      name: participant.name,
+      connected: participant.connected,
+      assignedAt: onlineNow(),
+      role: advancedSlotLabel(normalizedSlot).toUpperCase(),
+    } : null;
+
+    updates[`slots/${normalizedTeam}/${normalizedSlot}`] = value;
+    updates[`draftState/slots/${normalizedTeam}/${normalizedSlot}`] = value;
+
+    const nextSlots = advancedSlotsFromRoom({ ...data, slots: data.slots || {} }, config);
+    if (value) nextSlots[normalizedTeam][normalizedSlot] = value;
+    else nextSlots[normalizedTeam][normalizedSlot] = null;
+    ["A", "B"].forEach(tKey => {
+      ADVANCED_SLOT_KEYS.forEach(sKey => {
+        if (tKey !== normalizedTeam || sKey !== normalizedSlot) {
+          if (clientId && nextSlots?.[tKey]?.[sKey]?.clientId === clientId) nextSlots[tKey][sKey] = null;
+        }
+      });
+    });
+
+    const players = advancedSlotsToRoomPlayers(nextSlots, config);
+    updates.players = players;
+    updates["draftState/players"] = players;
+
+    const captainA = nextSlots.A?.captain || null;
+    const captainB = nextSlots.B?.captain || null;
+    updates["captainAssignments/A"] = captainA?.clientId || null;
+    updates["captainAssignments/B"] = captainB?.clientId || null;
+    updates.teamA = captainA ? { clientId: captainA.clientId, name: captainA.name, connected: captainA.connected, role: "CAPITÁN_ATACANTES", lastSeen: onlineNow() } : null;
+    updates.teamB = captainB ? { clientId: captainB.clientId, name: captainB.name, connected: captainB.connected, role: "CAPITÁN_DEFENSORES", lastSeen: onlineNow() } : null;
+
+    await roomRef.update(updates);
+  } catch (error) {
+    console.warn("No se pudo asignar el slot avanzado.", error);
+    alert("No se pudo asignar el jugador. Intenta de nuevo.");
+  }
+}
+
+
+function testingBotSafeKey(value) {
+  return String(value || "bot").toLowerCase().replace(/[^a-z0-9_-]/g, "_").slice(0, 48);
+}
+
+function testingBotClientId(team, slotKey = "captain") {
+  return `bot_${testingBotSafeKey(currentRoomCode || "room")}_${testingBotSafeKey(team)}_${testingBotSafeKey(slotKey)}`;
+}
+
+function testingBotName(team, slotKey = "captain") {
+  const teamText = team === "B" ? "B" : "A";
+  const slotNames = {
+    captain: "Capitán",
+    subcaptain: "Subcapitán",
+    player3: "Jugador 3",
+    player4: "Jugador 4",
+    player5: "Jugador 5",
+  };
+  return `BOT ${teamText} · ${slotNames[slotKey] || "Jugador"}`;
+}
+
+function testingBotPayload(team, slotKey = "captain") {
+  return {
+    name: testingBotName(team, slotKey),
+    displayName: testingBotName(team, slotKey),
+    connected: true,
+    isBot: true,
+    role: advancedSlotLabel(slotKey).toUpperCase(),
+    joinedAt: onlineNow(),
+    lastSeen: onlineNow(),
+  };
+}
+
+function isTestingBotParticipant(participant) {
+  return Boolean(participant?.isBot || String(participant?.clientId || "").startsWith("bot_"));
+}
+
+function botClientIdForCurrentTurn(data = onlineLatestRoomData || {}, turn = currentTurn()) {
+  if (!currentRoomCode || !turn) return null;
+  const config = sanitizeDraftConfig(data.draftConfig || data.draftState?.draftConfig || currentDraftConfig());
+
+  if (config.mode === "advanced") {
+    const slots = advancedSlotsFromRoom(data, config);
+    const slot = slots?.[turn.team]?.[turn.slotKey];
+    return isTestingBotParticipant(slot) ? slot.clientId : null;
+  }
+
+  const assignments = captainAssignmentsFromRoom(data);
+  const clientId = assignments?.[turn.team];
+  const participant = participantByClientId(data, clientId);
+  return isTestingBotParticipant(participant) ? clientId : null;
+}
+
+function testingBotPickCharacter(turn = currentTurn()) {
+  const available = characters.filter(character => isCharacterAvailable(character, turn));
+  if (!available.length) return null;
+
+  // Pequeña lógica de testing: en picks evita repetir roles si puede, pero siempre prioriza válidos.
+  if (turn?.type === "pick") {
+    const teamRoles = state.picks[turn.team].map(character => roleOf(character.name));
+    const balanced = available.filter(character => !teamRoles.includes(roleOf(character.name)));
+    if (balanced.length) return balanced[Math.floor(Math.random() * balanced.length)];
+  }
+
+  return available[Math.floor(Math.random() * available.length)];
+}
+
+function clearTestingBotTurnTimer() {
+  if (testingBotTimerId) {
+    clearTimeout(testingBotTimerId);
+    testingBotTimerId = null;
+  }
+}
+
+async function claimAndRunTestingBotTurn(turnKey, botClientId) {
+  if (!currentRoomCode || !botClientId || currentRole !== "host") return;
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return;
+
+  try {
+    const claimRef = roomRef.child("draftState/testingBotClaim");
+    const result = await claimRef.transaction((claim) => {
+      if (claim?.key === turnKey) return claim;
+      return {
+        key: turnKey,
+        botClientId,
+        byClientId: onlineClientId(),
+        at: onlineNow(),
+      };
+    });
+
+    if (!result.committed) return;
+    const latestSnapshot = await roomRef.get();
+    const latestData = latestSnapshot.val() || {};
+    onlineLatestRoomData = latestData;
+    syncDraftStateFromRoom(latestData);
+
+    const turn = currentTurn();
+    const activeBot = botClientIdForCurrentTurn(latestData, turn);
+    if (!turn || activeBot !== botClientId || state.locked || state.roulette.active) return;
+
+    const character = testingBotPickCharacter(turn);
+    if (!character) return;
+
+    state.selected = character;
+    state.preselectLocked = true;
+    renderAll();
+    pushOnlineDraftState({
+      reason: "testing-bot-preselect",
+      actionEvent: createOnlineActionEvent("preselect", turn.team, character, { source: "testing-bot", botClientId }),
+    });
+
+    scheduleDraftTimeout(() => {
+      if (!isDraftSessionActive()) return;
+      const stillBot = botClientIdForCurrentTurn(onlineLatestRoomData || {}, currentTurn());
+      if (stillBot !== botClientId) return;
+      confirmTurn(true, { onlineSystem: true, testingBot: true });
+    }, 650 + Math.round(Math.random() * 700));
+  } catch (error) {
+    console.warn("No se pudo ejecutar el turno del bot de testing.", error);
+  }
+}
+
+function scheduleTestingBotTurn() {
+  if (!currentRoomCode || currentRole !== "host" || !state.draftActive || state.onlinePhase !== "draft") return;
+  const turn = currentTurn();
+  if (!turn || state.locked || state.roulette.active || state.turnIndex >= activeTurnCount()) return;
+
+  const botClientId = botClientIdForCurrentTurn(onlineLatestRoomData || {}, turn);
+  if (!botClientId) return;
+
+  const turnKey = `${currentRoomCode}:${state.draftSessionId}:${state.turnIndex}:${state.turnDeadlineAt || 0}:${botClientId}`;
+  if (testingBotTurnKey === turnKey) return;
+  testingBotTurnKey = turnKey;
+  clearTestingBotTurnTimer();
+
+  const delayMs = 1100 + Math.round(Math.random() * 1800);
+  testingBotTimerId = setTimeout(() => {
+    void claimAndRunTestingBotTurn(turnKey, botClientId);
+  }, delayMs);
+}
+
+function ensureTestingBotsPanel() {
+  let panel = document.getElementById("room-testing-bots-panel");
+  if (panel) return panel;
+
+  panel = document.createElement("section");
+  panel.id = "room-testing-bots-panel";
+  panel.className = "room-testing-bots-panel hidden";
+  panel.innerHTML = `
+    <div class="room-config-heading">
+      <span>${escapeHtml(t("testing_bots_label"))}</span>
+      <strong>${escapeHtml(t("testing_bots_title"))}</strong>
+    </div>
+    <p class="room-config-copy">${escapeHtml(t("testing_bots_desc"))}</p>
+    <div class="room-testing-bots-actions">
+      <button id="testing-bots-fill-classic" class="secondary-button room-code-button" type="button">${escapeHtml(t("testing_bots_fill_classic"))}</button>
+      <button id="testing-bots-fill-advanced" class="secondary-button room-code-button" type="button">${escapeHtml(t("testing_bots_fill_advanced"))}</button>
+      <button id="testing-bots-remove" class="secondary-button danger-button" type="button">${escapeHtml(t("testing_bots_remove"))}</button>
+    </div>
+    <p id="testing-bots-summary" class="draft-config-summary">${escapeHtml(t("testing_bots_note"))}</p>
+  `;
+
+  const advancedPanel = document.getElementById("room-advanced-slot-panel");
+  const participantPanel = document.querySelector(".room-participant-panel");
+  if (advancedPanel?.parentNode) advancedPanel.parentNode.insertBefore(panel, advancedPanel.nextSibling);
+  else if (participantPanel?.parentNode) participantPanel.parentNode.insertBefore(panel, participantPanel.nextSibling);
+  else roomPlayerConfig?.appendChild(panel);
+  return panel;
+}
+
+function renderTestingBotsPanel(data = {}) {
+  const panel = ensureTestingBotsPanel();
+  const config = sanitizeDraftConfig(data.draftConfig || data.draftState?.draftConfig || currentDraftConfig());
+  const isHostLobby = currentRole === "host" && !Boolean(data.started);
+  panel.classList.toggle("hidden", !isHostLobby);
+
+  const classicButton = document.getElementById("testing-bots-fill-classic");
+  const advancedButton = document.getElementById("testing-bots-fill-advanced");
+  const removeButton = document.getElementById("testing-bots-remove");
+  const summary = document.getElementById("testing-bots-summary");
+
+  if (classicButton) {
+    classicButton.style.display = config.mode === "classic" ? "inline-flex" : "none";
+    classicButton.onclick = () => fillClassicTestingBots();
+  }
+  if (advancedButton) {
+    advancedButton.style.display = config.mode === "advanced" ? "inline-flex" : "none";
+    advancedButton.onclick = () => fillAdvancedTestingBots();
+  }
+  if (removeButton) removeButton.onclick = () => removeTestingBots();
+
+  if (summary) {
+    const participants = onlineParticipantsFromRoom(data);
+    const botCount = participants.filter(isTestingBotParticipant).length;
+    summary.textContent = t("testing_bots_summary", { count: botCount });
+  }
+}
+
+async function fillClassicTestingBots() {
+  if (!currentRoomCode || currentRole !== "host") return;
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return;
+
+  try {
+    const snapshot = await roomRef.get();
+    const data = snapshot.val() || {};
+    if (data.started) return;
+    const config = sanitizeDraftConfig(data.draftConfig || currentDraftConfig());
+    if (config.mode !== "classic") return;
+
+    const assignments = captainAssignmentsFromRoom(data);
+    const updates = { updatedAt: onlineNow() };
+
+    ["A", "B"].forEach(team => {
+      const assignedId = assignments[team];
+      const assignedParticipant = participantByClientId(data, assignedId);
+      if (assignedId && !isTestingBotParticipant(assignedParticipant)) return;
+
+      const botId = testingBotClientId(team, "captain");
+      const botPayload = testingBotPayload(team, "captain");
+      const teamPath = team === "A" ? "teamA" : "teamB";
+
+      updates[`participants/${botId}`] = botPayload;
+      updates[`captainAssignments/${team}`] = botId;
+      updates[teamPath] = {
+        clientId: botId,
+        name: botPayload.name,
+        connected: true,
+        isBot: true,
+        role: team === "A" ? "CAPITÁN_ATACANTES" : "CAPITÁN_DEFENSORES",
+        lastSeen: onlineNow(),
+      };
+    });
+
+    await roomRef.update(updates);
+  } catch (error) {
+    console.warn("No se pudieron crear bots clásicos.", error);
+    alert(t("testing_bots_error"));
+  }
+}
+
+async function fillAdvancedTestingBots() {
+  if (!currentRoomCode || currentRole !== "host") return;
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return;
+
+  try {
+    const snapshot = await roomRef.get();
+    const data = snapshot.val() || {};
+    if (data.started) return;
+    const config = sanitizeDraftConfig(data.draftConfig || currentDraftConfig());
+    if (config.mode !== "advanced") return;
+
+    const slots = advancedSlotsFromRoom(data, config);
+    const updates = { updatedAt: onlineNow() };
+
+    ["A", "B"].forEach(team => {
+      advancedSlotsForTeamSize(config.teamSize).forEach(slotKey => {
+        if (slots?.[team]?.[slotKey]?.clientId) return;
+        const botId = testingBotClientId(team, slotKey);
+        const botPayload = testingBotPayload(team, slotKey);
+        const slotValue = {
+          clientId: botId,
+          name: botPayload.name,
+          connected: true,
+          isBot: true,
+          assignedAt: onlineNow(),
+          role: advancedSlotLabel(slotKey).toUpperCase(),
+        };
+        slots[team][slotKey] = slotValue;
+        updates[`participants/${botId}`] = botPayload;
+        updates[`slots/${team}/${slotKey}`] = slotValue;
+        updates[`draftState/slots/${team}/${slotKey}`] = slotValue;
+      });
+    });
+
+    const players = playersPayloadFromAdvancedSlots(slots, config);
+    const captainA = slots.A?.captain || null;
+    const captainB = slots.B?.captain || null;
+
+    updates.players = players;
+    updates["draftState/players"] = players;
+    updates["draftState/slots"] = slots;
+    updates["captainAssignments/A"] = captainA?.clientId || null;
+    updates["captainAssignments/B"] = captainB?.clientId || null;
+    updates.teamA = captainA ? { clientId: captainA.clientId, name: captainA.name, connected: true, isBot: Boolean(captainA.isBot), role: "CAPITÁN_ATACANTES", lastSeen: onlineNow() } : null;
+    updates.teamB = captainB ? { clientId: captainB.clientId, name: captainB.name, connected: true, isBot: Boolean(captainB.isBot), role: "CAPITÁN_DEFENSORES", lastSeen: onlineNow() } : null;
+
+    await roomRef.update(updates);
+  } catch (error) {
+    console.warn("No se pudieron crear bots avanzados.", error);
+    alert(t("testing_bots_error"));
+  }
+}
+
+async function removeTestingBots() {
+  if (!currentRoomCode || currentRole !== "host") return;
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return;
+
+  try {
+    const snapshot = await roomRef.get();
+    const data = snapshot.val() || {};
+    if (data.started) return;
+    const config = sanitizeDraftConfig(data.draftConfig || currentDraftConfig());
+    const participants = data.participants || {};
+    const botIds = Object.entries(participants)
+      .filter(([, value]) => isTestingBotParticipant(value))
+      .map(([clientId]) => clientId);
+
+    const updates = { updatedAt: onlineNow() };
+    botIds.forEach(botId => {
+      updates[`participants/${botId}`] = null;
+    });
+
+    const assignments = captainAssignmentsFromRoom(data);
+    ["A", "B"].forEach(team => {
+      if (botIds.includes(assignments[team])) {
+        updates[`captainAssignments/${team}`] = null;
+        updates[team === "A" ? "teamA" : "teamB"] = null;
+      }
+    });
+
+    const slots = advancedSlotsFromRoom(data, config);
+    ["A", "B"].forEach(team => {
+      ADVANCED_SLOT_KEYS.forEach(slotKey => {
+        const slot = slots?.[team]?.[slotKey];
+        if (slot?.clientId && botIds.includes(slot.clientId)) {
+          slots[team][slotKey] = null;
+          updates[`slots/${team}/${slotKey}`] = null;
+          updates[`draftState/slots/${team}/${slotKey}`] = null;
+        }
+      });
+    });
+
+    if (config.mode === "advanced") {
+      const players = playersPayloadFromAdvancedSlots(slots, config);
+      updates.players = players;
+      updates["draftState/players"] = players;
+      updates["draftState/slots"] = slots;
+      const captainA = slots.A?.captain || null;
+      const captainB = slots.B?.captain || null;
+      updates["captainAssignments/A"] = captainA?.clientId || null;
+      updates["captainAssignments/B"] = captainB?.clientId || null;
+      updates.teamA = captainA ? { clientId: captainA.clientId, name: captainA.name, connected: captainA.connected, isBot: Boolean(captainA.isBot), role: "CAPITÁN_ATACANTES", lastSeen: onlineNow() } : null;
+      updates.teamB = captainB ? { clientId: captainB.clientId, name: captainB.name, connected: captainB.connected, isBot: Boolean(captainB.isBot), role: "CAPITÁN_DEFENSORES", lastSeen: onlineNow() } : null;
+    }
+
+    await roomRef.update(updates);
+  } catch (error) {
+    console.warn("No se pudieron quitar bots.", error);
+    alert(t("testing_bots_error"));
+  }
+}
+
 function updateRoomLobby(data = {}) {
   applyOnlineSettingsFromRoom(data);
   setCurrentOnlineAssignmentFromRoom(data);
   renderParticipantList(data);
 
   const status = document.getElementById("room-status");
+  const config = sanitizeDraftConfig(data.draftConfig || data.draftState?.draftConfig || currentDraftConfig());
   const assignments = captainAssignmentsFromRoom(data);
+  const slots = advancedSlotsFromRoom(data, config);
   const bothCaptainsAssigned = Boolean(assignments.A && assignments.B && assignments.A !== assignments.B);
+  const advancedComplete = config.mode === "advanced" && areAdvancedSlotsComplete(slots, config);
 
   if (status) {
     const hostText = data.host?.connected ? t("connected") : t("reconnecting");
-    status.innerHTML = `
-      <p>${t("host_leader_spectator")}: ${hostText}</p>
-      <p>${t("captain_attackers")}: ${escapeHtml(captainStatusText(data, "A"))}</p>
-      <p>${t("captain_defenders")}: ${escapeHtml(captainStatusText(data, "B"))}</p>
-    `;
+    if (config.mode === "advanced") {
+      const required = advancedSlotsForTeamSize(config.teamSize).length * 2;
+      const assigned = ["A", "B"].reduce((total, team) => total + advancedSlotsForTeamSize(config.teamSize).filter(slotKey => Boolean(slots?.[team]?.[slotKey]?.clientId)).length, 0);
+      status.innerHTML = `
+        <p>${t("host_leader_spectator")}: ${hostText}</p>
+        <p>Modo avanzado: ${assigned}/${required} jugadores</p>
+        <p>${config.teamSize}v${config.teamSize} · ${config.bansEnabled ? t("bans_enabled") : t("bans_disabled")}</p>
+      `;
+    } else {
+      status.innerHTML = `
+        <p>${t("host_leader_spectator")}: ${hostText}</p>
+        <p>${t("captain_attackers")}: ${escapeHtml(captainStatusText(data, "A"))}</p>
+        <p>${t("captain_defenders")}: ${escapeHtml(captainStatusText(data, "B"))}</p>
+      `;
+    }
   }
 
   populateCaptainSelect(document.getElementById("captain-a-select"), "A", data);
   populateCaptainSelect(document.getElementById("captain-b-select"), "B", data);
+  renderAdvancedSlotPanel(data);
+  renderTestingBotsPanel(data);
 
   const startButton = document.getElementById("start-online-draft");
   if (startButton) {
     const isHost = currentRole === "host";
+    const canStart = config.mode === "advanced" ? advancedComplete : bothCaptainsAssigned;
     startButton.style.display = isHost ? "inline-flex" : "none";
-    startButton.disabled = Boolean(data.started) || !bothCaptainsAssigned;
+    startButton.disabled = Boolean(data.started) || !canStart;
     if (data.started) startButton.textContent = t("draft_started");
-    else startButton.textContent = bothCaptainsAssigned ? t("start_draft") : t("assign_captains");
+    else startButton.textContent = canStart ? t("start_draft") : (config.mode === "advanced" ? "ASIGNA TODOS LOS JUGADORES" : t("assign_captains"));
   }
 
   const closeButton = document.getElementById("close-room-btn");
@@ -4658,7 +5514,15 @@ function updateRoomLobby(data = {}) {
   if (disconnectButton) disconnectButton.style.display = currentRole === "player" ? "inline-flex" : "none";
 
   const randomRoomNamesButton = document.getElementById("room-random-player-names");
-  if (randomRoomNamesButton) randomRoomNamesButton.disabled = currentRole !== "host" || Boolean(data.started);
+  if (randomRoomNamesButton) {
+    randomRoomNamesButton.disabled = currentRole !== "host" || Boolean(data.started) || config.mode === "advanced";
+    randomRoomNamesButton.style.display = config.mode === "advanced" ? "none" : "inline-flex";
+  }
+
+  const classicCaptainAssignment = document.querySelector(".room-captain-assignment");
+  if (classicCaptainAssignment) classicCaptainAssignment.classList.toggle("hidden", config.mode === "advanced");
+  const manualPlayerGrid = document.querySelector(".room-player-config-grid");
+  if (manualPlayerGrid) manualPlayerGrid.classList.toggle("hidden", config.mode === "advanced");
 
   if (roomPlayerConfig) roomPlayerConfig.classList.toggle("hidden", currentRole !== "host" || Boolean(data.started));
   updateRoomDraftConfigUI();
@@ -4879,6 +5743,8 @@ function syncDraftStateFromRoom(data = {}) {
     renderSummaryBans("B", $("#summary-bans-b"));
     renderSummaryMap();
   }
+
+  scheduleTestingBotTurn();
 }
 
 function startOnlineDraftFromRoom(data = {}) {
@@ -4927,6 +5793,7 @@ function startOnlineDraftFromRoom(data = {}) {
 }
 
 function updateDraftUI(data = {}) {
+  onlineLatestRoomData = data || {};
   updateRoomLobby(data);
   if (data.closed) {
     handleRoomClosed(currentRoomCode);
@@ -5020,6 +5887,8 @@ function setupPresenceForCurrentRoom() {
   const seatRef = roomRef.child(path);
   const payload = { connected: true, clientId: onlineClientId(), lastSeen: onlineNow() };
   if (currentRole === "player" && currentOnlinePlayerName) payload.name = currentOnlinePlayerName;
+  if (currentRole === "host" && currentOnlinePlayerName) payload.name = currentOnlinePlayerName;
+  if (currentRole === "host" && !payload.name) payload.name = "Líder / Host";
   seatRef.update(payload).catch(() => {});
   try {
     seatRef.child("connected").onDisconnect().set(false);
@@ -5063,6 +5932,7 @@ function blankOnlineDraftState(startPayload = {}) {
     turnDeadlineAt: null,
     draftConfig: currentDraftConfig(),
     players: roomPlayersPayload(),
+    slots: state.onlineSlots || emptyAdvancedSlots(activeTeamSize()),
     picks: { A: [], B: [] },
     bans: { A: [], B: [] },
     pickBatchSelections: {},
@@ -5096,20 +5966,23 @@ async function createOnlineRoom() {
   const roomRef = database.ref("rooms/" + roomCode);
   state.onlinePhase = "lobby";
 
+  const initialConfig = currentDraftConfig();
+  state.onlineSlots = emptyAdvancedSlots(initialConfig.teamSize);
   await roomRef.set({
     createdAt: onlineNow(),
     updatedAt: onlineNow(),
     started: false,
     closed: false,
     turnDuration: state.turnDuration,
-    draftConfig: currentDraftConfig(),
-    players: roomPlayersPayload(),
-    host: { connected: true, clientId: onlineClientId(), role: "LÍDER_ESPECTADOR", lastSeen: onlineNow() },
+    draftConfig: initialConfig,
+    players: initialConfig.mode === "advanced" ? playersPayloadFromAdvancedSlots(state.onlineSlots, initialConfig) : roomPlayersPayload(),
+    host: { connected: true, clientId: onlineClientId(), name: "Líder / Host", role: "LÍDER_ESPECTADOR", lastSeen: onlineNow() },
     participants: {},
     captainAssignments: { A: null, B: null },
+    slots: state.onlineSlots,
     teamA: null,
     teamB: null,
-    draftState: blankOnlineDraftState(),
+    draftState: blankOnlineDraftState({ slots: state.onlineSlots }),
   });
 
   attachCurrentRoom(roomCode, "host", null);
@@ -5427,25 +6300,53 @@ function turnVoiceKey(turn) {
   return "ban";
 }
 
-function turnNarrationText(turn) {
-  if (!turn) return "";
+function advancedTurnVoiceLineForViewer(turn) {
+  if (!turn || !isAdvancedDraftConfig()) return null;
+  const ownTeam = currentOnlineTeamLetter();
+  const assignedSlot = advancedSlotForTurn(turn);
+  const isMine = Boolean(assignedSlot?.clientId && assignedSlot.clientId === onlineClientId());
+  const sameTeam = Boolean(ownTeam && ownTeam === turn.team);
+  const target = advancedTurnTargetKey(turn);
+
+  if (isMine) {
+    if (target === "pick_laminant") return systemDraftVoiceLines.advanced_please_pick_laminant;
+    if (target === "ban_scissors_laminant") return systemDraftVoiceLines.advanced_please_ban_scissors_laminant;
+    return systemDraftVoiceLines.advanced_please_ban_laminant;
+  }
+
+  if (sameTeam) {
+    if (target === "pick_laminant") return systemDraftVoiceLines.advanced_team_pick_laminant;
+    if (target === "ban_scissors_laminant") return systemDraftVoiceLines.advanced_team_ban_scissors_laminant;
+    return systemDraftVoiceLines.advanced_team_ban_laminant;
+  }
+
+  return null;
+}
+
+function turnNarrationVoiceLine(turn) {
+  const advancedVoiceLine = advancedTurnVoiceLineForViewer(turn);
+  if (advancedVoiceLine) return advancedVoiceLine;
+
   const key = turnVoiceKey(turn);
-  if (turn.team === "A" && key === "ban_scissors") return systemDraftVoiceLines.team_a_ban_scissors.text;
-  if (turn.team === "B" && key === "ban_scissors") return systemDraftVoiceLines.team_b_ban_scissors.text;
-  if (turn.team === "A" && key === "ban") return systemDraftVoiceLines.team_a_ban.text;
-  if (turn.team === "B" && key === "ban") return systemDraftVoiceLines.team_b_ban.text;
-  if (turn.team === "A" && key === "pick") return systemDraftVoiceLines.team_a_pick.text;
-  if (turn.team === "B" && key === "pick") return systemDraftVoiceLines.team_b_pick.text;
-  return "";
+  if (turn?.team === "A" && key === "ban_scissors") return systemDraftVoiceLines.team_a_ban_scissors;
+  if (turn?.team === "B" && key === "ban_scissors") return systemDraftVoiceLines.team_b_ban_scissors;
+  if (turn?.team === "A" && key === "ban") return systemDraftVoiceLines.team_a_ban;
+  if (turn?.team === "B" && key === "ban") return systemDraftVoiceLines.team_b_ban;
+  if (turn?.team === "A" && key === "pick") return systemDraftVoiceLines.team_a_pick;
+  if (turn?.team === "B" && key === "pick") return systemDraftVoiceLines.team_b_pick;
+  return null;
+}
+
+function turnNarrationText(turn) {
+  return turnNarrationVoiceLine(turn)?.text || "";
 }
 
 function playTurnNarration(turn) {
   if (!turn) return;
-  const key = turnVoiceKey(turn);
-  const src = turnVoices[turn.team]?.[key];
+  const voiceLine = turnNarrationVoiceLine(turn);
   // Si hay voz grabada se reproduce desde archivos locales; si la voz elegida es lectura de bot,
   // el navegador lee el texto traducido del turno.
-  playNarration(src, turnNarrationText(turn), 0.88);
+  playNarration(voiceLine?.src, voiceLine?.text || "", 0.88);
 }
 
 function startTurn(options = {}) {
@@ -5457,6 +6358,7 @@ function startTurn(options = {}) {
   renderAll();
   if (!options.skipNarration) playTurnNarration(currentTurn());
   resetTimer();
+  scheduleTestingBotTurn();
 }
 
 function ensureDraftStartStyle() {
@@ -6055,9 +6957,16 @@ function pushRoomLobbyConfig() {
   if (!currentRoomCode || currentRole !== "host") return;
   const roomRef = roomRefFor(currentRoomCode);
   if (!roomRef) return;
-  readPlayers();
-  const players = { A: [...state.players.A], B: [...state.players.B] };
   const draftConfig = currentDraftConfig();
+  let players;
+
+  if (draftConfig.mode === "advanced") {
+    players = playersPayloadFromAdvancedSlots(state.onlineSlots, draftConfig);
+  } else {
+    readPlayers();
+    players = { A: [...state.players.A], B: [...state.players.B] };
+  }
+
   roomRef.update({
     players,
     turnDuration: state.turnDuration,
@@ -6066,6 +6975,7 @@ function pushRoomLobbyConfig() {
     "draftState/players": players,
     "draftState/turnDuration": state.turnDuration,
     "draftState/draftConfig": draftConfig,
+    "draftState/slots": state.onlineSlots || emptyAdvancedSlots(draftConfig.teamSize),
   }).catch(error => console.warn("No se pudo sincronizar la configuración de sala.", error));
 }
 
@@ -6253,25 +7163,54 @@ function setupOnlineControls() {
         onlineStartBtn.disabled = true;
         const snapshot = await roomRef.get();
         const roomData = snapshot.val() || {};
-        const assignments = captainAssignmentsFromRoom(roomData);
-        if (!assignments.A || !assignments.B || assignments.A === assignments.B) {
-          alert(t("lobby_alert_assign_captains"));
-          onlineStartBtn.disabled = false;
-          return;
+        const draftConfig = sanitizeDraftConfig(roomData.draftConfig || currentDraftConfig());
+        let assignments = captainAssignmentsFromRoom(roomData);
+        let slots = advancedSlotsFromRoom(roomData, draftConfig);
+        let players;
+        let captainA;
+        let captainB;
+
+        if (draftConfig.mode === "advanced") {
+          if (!areAdvancedSlotsComplete(slots, draftConfig)) {
+            alert("Modo avanzado: asigna todos los jugadores requeridos antes de iniciar.");
+            onlineStartBtn.disabled = false;
+            return;
+          }
+          assignments = {
+            A: slots.A?.captain?.clientId || null,
+            B: slots.B?.captain?.clientId || null,
+          };
+          captainA = slots.A?.captain;
+          captainB = slots.B?.captain;
+          players = playersPayloadFromAdvancedSlots(slots, draftConfig);
+          state.onlineSlots = slots;
+          state.players = players;
+        } else {
+          if (!assignments.A || !assignments.B || assignments.A === assignments.B) {
+            alert(t("lobby_alert_assign_captains"));
+            onlineStartBtn.disabled = false;
+            return;
+          }
+          captainA = participantByClientId(roomData, assignments.A);
+          captainB = participantByClientId(roomData, assignments.B);
+          if (!captainA || !captainB) {
+            alert(t("lobby_alert_missing_captains"));
+            onlineStartBtn.disabled = false;
+            return;
+          }
+          readPlayers();
+          players = { A: [...state.players.A], B: [...state.players.B] };
         }
-        const captainA = participantByClientId(roomData, assignments.A);
-        const captainB = participantByClientId(roomData, assignments.B);
-        if (!captainA || !captainB) {
-          alert(t("lobby_alert_missing_captains"));
-          onlineStartBtn.disabled = false;
-          return;
-        }
-        readPlayers();
+
         resetDraftStateBeforeStart();
+        if (draftConfig.mode === "advanced") {
+          state.onlineSlots = slots;
+          state.players = players;
+        }
+        state.draftConfig = draftConfig;
         state.draftSessionId += 1;
         state.onlinePhase = "draft";
         prepareClockForTurnIndex(0, phaseOverlayDurationMs());
-        const players = { A: [...state.players.A], B: [...state.players.B] };
         const initialTurn = currentTurn();
         const initialPhaseEventType = initialTurn?.type === "ban" ? "banPhase" : "pickPhase";
         const draftPayload = blankOnlineDraftState({
@@ -6281,8 +7220,9 @@ function setupOnlineControls() {
           turnDuration: state.turnDuration,
           turnStartedAt: state.turnStartedAt,
           turnDeadlineAt: state.turnDeadlineAt,
-          draftConfig: currentDraftConfig(),
+          draftConfig,
           players,
+          slots,
           captainAssignments: assignments,
           phaseEvent: createOnlinePhaseEvent(initialPhaseEventType),
         });
@@ -6292,10 +7232,11 @@ function setupOnlineControls() {
           updatedAt: onlineNow(),
           players,
           turnDuration: state.turnDuration,
-          draftConfig: currentDraftConfig(),
+          draftConfig,
+          slots,
           captainAssignments: assignments,
-          teamA: { clientId: assignments.A, name: captainA.name, connected: captainA.connected, role: "CAPITÁN_ATACANTES", lastSeen: captainA.lastSeen || onlineNow() },
-          teamB: { clientId: assignments.B, name: captainB.name, connected: captainB.connected, role: "CAPITÁN_DEFENSORES", lastSeen: captainB.lastSeen || onlineNow() },
+          teamA: captainA ? { clientId: assignments.A, name: captainA.name, connected: captainA.connected, role: "CAPITÁN_ATACANTES", lastSeen: captainA.lastSeen || onlineNow() } : null,
+          teamB: captainB ? { clientId: assignments.B, name: captainB.name, connected: captainB.connected, role: "CAPITÁN_DEFENSORES", lastSeen: captainB.lastSeen || onlineNow() } : null,
           draftState: draftPayload,
         });
       } catch (error) {
@@ -6352,6 +7293,16 @@ async function disconnectCurrentRoom() {
           updates["captainAssignments/B"] = null;
           updates.teamB = null;
         }
+        const config = sanitizeDraftConfig(data.draftConfig || currentDraftConfig());
+        const slots = advancedSlotsFromRoom(data, config);
+        ["A", "B"].forEach(team => {
+          ADVANCED_SLOT_KEYS.forEach(slotKey => {
+            if (slots?.[team]?.[slotKey]?.clientId === clientId) {
+              updates[`slots/${team}/${slotKey}`] = null;
+              updates[`draftState/slots/${team}/${slotKey}`] = null;
+            }
+          });
+        });
       }
 
       await roomRef.update(updates).catch(() => {});
@@ -6371,6 +7322,9 @@ function handleRoomClosed(roomCode, options = {}) {
   } catch (_) {}
   onlineRoomListenerCode = null;
   onlineRoomDeletionListenerCode = null;
+  onlineLatestRoomData = null;
+  testingBotTurnKey = null;
+  clearTestingBotTurnTimer();
   abortDraftRuntime();
   currentRoomCode = null;
   currentRole = null;

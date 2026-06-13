@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.1.6 by RPmods
+# STRINOVA Draft System v3.2.2 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -68,3 +68,41 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
 - El workflow debe estar en `.github/workflows/deploy-pages.yml` en la raíz del repositorio.
 - GitHub Actions genera `strinova/js/firebase-env.js` usando Repository Secrets.
 - No subir manualmente `strinova/js/firebase-env.js` con valores reales.
+
+
+## v3.2.0 Modo Avanzado Online
+
+- Se añadió modo avanzado online real para 2v2, 3v3, 4v4 y 5v5.
+- El líder/host puede quedarse como espectador o asignarse a un slot de jugador.
+- En modo avanzado los nombres de los slots se rellenan desde los usuarios conectados.
+- Los bans avanzados se reparten entre capitán y subcapitán.
+- Los picks avanzados son individuales por jugador/slot.
+- Se añadieron avisos visuales diferenciados: tu turno, compañero actuando, rival actuando y espectador.
+- Se corrigió el caso donde Updates / Historial podía mostrar claves internas como update_15.
+
+
+## v3.2.1 Hotfix Advanced Voice/Text
+
+- Se corrigieron los textos del modo avanzado para usar frases específicas:
+  - TU EQUIPO ESTÁ BLOQUEANDO UN LAMINANTE.
+  - TU EQUIPO ESTÁ BLOQUEANDO UN LAMINANTE DE LAS CIZALLAS.
+  - TU EQUIPO ESTÁ SELECCIONANDO UN LAMINANTE.
+  - POR FAVOR SELECCIONA UN LAMINANTE.
+  - POR FAVOR BLOQUEA UN LAMINANTE.
+  - POR FAVOR BLOQUEA UN LAMINANTE DE LAS CIZALLAS.
+- Se añadieron claves de voz nuevas para que puedas agregar archivos de audio correspondientes.
+- Se agregó soporte i18n para los idiomas disponibles.
+
+
+## v3.2.2 Testing Bots
+
+- Se añadió un apartado de Testing Bots en el lobby online para el host.
+- En modo clásico, el host puede rellenar capitanes vacantes con bots.
+- En modo avanzado, el host puede rellenar slots vacantes con bots.
+- Los bots aparecen como participantes de sala y pueden ser eliminados antes de iniciar.
+- Durante el draft, si el turno pertenece a un bot, el host ejecuta automáticamente la simulación:
+  - el bot preselecciona un personaje válido;
+  - confirma ban o pick;
+  - sincroniza el resultado en Firebase.
+- Los bots respetan personajes disponibles, facción de ban, picks válidos y no duplican seleccionados/baneados.
+- Se añadió soporte i18n para el apartado de Testing Bots en los idiomas disponibles.
