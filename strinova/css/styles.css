@@ -12202,3 +12202,63 @@ body.online-role-host.own-team-turn .character-card {
     width: 100%;
   }
 }
+
+
+/* =========================================================
+   v3.2.4 - Nombre del líder/host jugador
+   ========================================================= */
+.room-host-name-panel {
+  display: grid;
+  gap: 12px;
+  padding: 15px;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background:
+    radial-gradient(circle at top right, rgba(85,168,255,0.16), transparent 35%),
+    linear-gradient(180deg, rgba(35,42,54,0.92), rgba(27,30,38,0.86));
+  box-shadow: inset 0 -3px 0 rgba(85,168,255,0.62), 0 18px 42px rgba(0,0,0,0.22);
+}
+
+.room-host-name-panel.hidden {
+  display: none !important;
+}
+
+.room-host-name-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.38fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.room-host-name-row > span {
+  color: rgba(255,255,255,0.78);
+  font-size: 0.72rem;
+  font-weight: 1000;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.room-host-name-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.room-host-name-actions > button {
+  min-height: 38px;
+  font-size: 0.72rem;
+  letter-spacing: 0.10em;
+}
+
+@media (max-width: 860px) {
+  .room-host-name-row {
+    grid-template-columns: 1fr;
+  }
+
+  .room-host-name-actions {
+    justify-content: stretch;
+  }
+
+  .room-host-name-actions > button {
+    width: 100%;
+  }
+}

@@ -18,7 +18,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORIAL",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.2.3 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.5 by RPmods",
       "setup_subtitle": "Configura nombres, tamaño de partida y fase de bloqueos antes de iniciar.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -293,7 +293,15 @@ window.I18N_CONFIG = {
       "testing_bots_summary": "Bots activos en sala: {count}",
       "testing_bots_error": "No se pudo actualizar el sistema de bots.",
       "update_17": "v3.2.2 Testing Bots — Se añadió un apartado de Testing Bots para que el host pueda rellenar capitanes o slots vacantes con bots; los bots pueden bloquear y seleccionar automáticamente en modo clásico y avanzado para facilitar pruebas online.",
-      "update_18": "v3.2.3 Hotfix (Testing Bots) — Se corrigió el fallo al rellenar slots vacantes con bots en modo avanzado; ahora el guardado de slots evita conflictos de rutas en Firebase Realtime Database."
+      "update_18": "v3.2.3 Hotfix (Testing Bots) — Se corrigió el fallo al rellenar slots vacantes con bots en modo avanzado; ahora el guardado de slots evita conflictos de rutas en Firebase Realtime Database.",
+      "host_name_label": "NOMBRE DEL LÍDER",
+      "host_name_title": "Identidad del host",
+      "host_name_desc": "Si el líder va a jugar como capitán o jugador, escribe aquí el nombre que aparecerá en los slots y en el draft.",
+      "host_name_field": "Nombre del host",
+      "host_name_save": "GUARDAR NOMBRE",
+      "host_name_error": "No se pudo actualizar el nombre del líder.",
+      "update_19": "v3.2.4 Hotfix (Online Finish + Host Name) — Se restauró el anuncio/voz online de finalización del draft usando voice_finish_draft y se añadió un apartado para que el líder/host pueda escribir su nombre antes de asignarse como capitán o jugador.",
+      "update_20": "v3.2.5 Hotfix (Bot Thinking Delay) — Los bots ahora simulan mejor un turno real: tardan entre 3 y 6 segundos, hacen varias preselecciones aleatorias de laminantes válidos y luego confirman el bloqueo o la selección."
     },
     "en": {
       "tab_menu": "MENU",
@@ -304,7 +312,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORY",
       "tab_credits": "CREDITS",
       "setup_eyebrow": "Competitive system",
-      "setup_title": "STRINOVA Draft System v3.2.3 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.5 by RPmods",
       "setup_subtitle": "Set player names and enter the ban phase directly.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -546,7 +554,15 @@ window.I18N_CONFIG = {
       "testing_bots_summary": "Active bots in room: {count}",
       "testing_bots_error": "Could not update the bot system.",
       "update_17": "v3.2.2 Testing Bots — Added a Testing Bots section so the host can fill captains or empty slots with bots; bots can automatically ban and pick in classic and advanced mode to simplify online testing.",
-      "update_18": "v3.2.3 Hotfix (Testing Bots) — Fixed the error when filling empty slots with bots in advanced mode; slot saving now avoids conflicting paths in Firebase Realtime Database."
+      "update_18": "v3.2.3 Hotfix (Testing Bots) — Fixed the error when filling empty slots with bots in advanced mode; slot saving now avoids conflicting paths in Firebase Realtime Database.",
+      "host_name_label": "LEADER NAME",
+      "host_name_title": "Host identity",
+      "host_name_desc": "If the leader will play as captain or player, enter the name that should appear in slots and in the draft.",
+      "host_name_field": "Host name",
+      "host_name_save": "SAVE NAME",
+      "host_name_error": "Could not update the leader name.",
+      "update_19": "v3.2.4 Hotfix (Online Finish + Host Name) — Restored the online draft-finished announcement/voice using voice_finish_draft and added a section so the leader/host can enter their name before assigning themselves as captain or player.",
+      "update_20": "v3.2.5 Hotfix (Bot Thinking Delay) — Bots now simulate a real turn better: they take between 3 and 6 seconds, make several random pre-selections of valid laminants, then confirm the ban or pick."
     },
     "ja": {
       "tab_menu": "メニュー",
@@ -557,7 +573,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新履歴",
       "tab_credits": "クレジット",
       "setup_eyebrow": "競技システム",
-      "setup_title": "STRINOVA Draft System v3.2.3 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.5 by RPmods",
       "setup_subtitle": "プレイヤー名を設定してブロックフェーズへ進みます。",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -799,7 +815,15 @@ window.I18N_CONFIG = {
       "testing_bots_summary": "ルーム内の有効ボット: {count}",
       "testing_bots_error": "ボットシステムを更新できませんでした。",
       "update_17": "v3.2.2 Testing Bots — ホストがキャプテンまたは空きスロットをボットで埋められるTesting Botsセクションを追加。ボットはクラシック/アドバンスモードで自動BANと選択ができ、オンラインテストを簡単にします。",
-      "update_18": "v3.2.3 Hotfix (Testing Bots) — アドバンスモードで空きスロットをボットで埋める際のエラーを修正。Firebase Realtime Database のパス競合を避けるように保存処理を調整しました。"
+      "update_18": "v3.2.3 Hotfix (Testing Bots) — アドバンスモードで空きスロットをボットで埋める際のエラーを修正。Firebase Realtime Database のパス競合を避けるように保存処理を調整しました。",
+      "host_name_label": "リーダー名",
+      "host_name_title": "ホストの表示名",
+      "host_name_desc": "リーダーがキャプテンまたはプレイヤーとして参加する場合、スロットとドラフトに表示する名前を入力します。",
+      "host_name_field": "ホスト名",
+      "host_name_save": "名前を保存",
+      "host_name_error": "リーダー名を更新できませんでした。",
+      "update_19": "v3.2.4 Hotfix (Online Finish + Host Name) — voice_finish_draft を使ったオンラインのドラフト終了アナウンス/音声を復元し、リーダー/ホストがキャプテンまたはプレイヤーとして自分を割り当てる前に名前を入力できる欄を追加しました。",
+      "update_20": "v3.2.5 Hotfix (Bot Thinking Delay) — ボットがより自然なターンを再現するようになりました。3〜6秒かけて有効なラミナントを複数回ランダムに仮選択し、その後BANまたは選択を確定します。"
     },
     "ru": {
       "tab_menu": "МЕНЮ",
@@ -810,7 +834,7 @@ window.I18N_CONFIG = {
       "tab_updates": "ОБНОВЛЕНИЯ",
       "tab_credits": "АВТОРЫ",
       "setup_eyebrow": "Соревновательная система",
-      "setup_title": "STRINOVA Draft System v3.2.3 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.5 by RPmods",
       "setup_subtitle": "Настройте имена игроков и перейдите к фазе блокировок.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -1052,7 +1076,15 @@ window.I18N_CONFIG = {
       "testing_bots_summary": "Активных ботов в комнате: {count}",
       "testing_bots_error": "Не удалось обновить систему ботов.",
       "update_17": "v3.2.2 Testing Bots — Добавлен раздел Testing Bots, чтобы хост мог заполнять капитанов или пустые слоты ботами; боты могут автоматически банить и выбирать в классическом и продвинутом режимах для упрощения онлайн-тестов.",
-      "update_18": "v3.2.3 Hotfix (Testing Bots) — Исправлена ошибка при заполнении пустых слотов ботами в продвинутом режиме; сохранение слотов теперь избегает конфликтующих путей в Firebase Realtime Database."
+      "update_18": "v3.2.3 Hotfix (Testing Bots) — Исправлена ошибка при заполнении пустых слотов ботами в продвинутом режиме; сохранение слотов теперь избегает конфликтующих путей в Firebase Realtime Database.",
+      "host_name_label": "ИМЯ ЛИДЕРА",
+      "host_name_title": "Имя хоста",
+      "host_name_desc": "Если лидер будет играть как капитан или игрок, введите имя, которое будет отображаться в слотах и в драфте.",
+      "host_name_field": "Имя хоста",
+      "host_name_save": "СОХРАНИТЬ ИМЯ",
+      "host_name_error": "Не удалось обновить имя лидера.",
+      "update_19": "v3.2.4 Hotfix (Online Finish + Host Name) — Восстановлены онлайн-анонс и голос завершения драфта через voice_finish_draft; добавлен раздел, где лидер/хост может ввести имя перед назначением себя капитаном или игроком.",
+      "update_20": "v3.2.5 Hotfix (Bot Thinking Delay) — Боты теперь лучше имитируют реальный ход: ждут от 3 до 6 секунд, несколько раз случайно предвыбирают доступных ламинантов, затем подтверждают бан или выбор."
     },
     "zh": {
       "tab_menu": "菜单",
@@ -1063,7 +1095,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新记录",
       "tab_credits": "制作名单",
       "setup_eyebrow": "竞技系统",
-      "setup_title": "STRINOVA Draft System v3.2.3 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.5 by RPmods",
       "setup_subtitle": "设置玩家名称并进入禁用阶段。",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -1305,7 +1337,15 @@ window.I18N_CONFIG = {
       "testing_bots_summary": "房间内活动机器人：{count}",
       "testing_bots_error": "无法更新机器人系统。",
       "update_17": "v3.2.2 Testing Bots — 新增 Testing Bots 区域，房主可以用机器人填充队长或空位；机器人可在经典和高级模式中自动禁用和选择，方便在线测试。",
-      "update_18": "v3.2.3 Hotfix (Testing Bots) — 修复高级模式中用机器人填充空位时的错误；现在保存 slots 时会避免 Firebase Realtime Database 的路径冲突。"
+      "update_18": "v3.2.3 Hotfix (Testing Bots) — 修复高级模式中用机器人填充空位时的错误；现在保存 slots 时会避免 Firebase Realtime Database 的路径冲突。",
+      "host_name_label": "房主名称",
+      "host_name_title": "房主身份",
+      "host_name_desc": "如果房主要作为队长或玩家参与，请在这里输入会显示在槽位和选角中的名称。",
+      "host_name_field": "房主名称",
+      "host_name_save": "保存名称",
+      "host_name_error": "无法更新房主名称。",
+      "update_19": "v3.2.4 Hotfix (Online Finish + Host Name) — 恢复了使用 voice_finish_draft 的在线草稿结束公告/语音，并新增房主在将自己分配为队长或玩家前输入名称的区域。",
+      "update_20": "v3.2.5 Hotfix (Bot Thinking Delay) — 机器人现在能更自然地模拟真实回合：会等待 3 到 6 秒，多次随机预选可用层能者，然后确认禁用或选择。"
     },
     "pt": {
       "tab_menu": "MENU",
@@ -1316,7 +1356,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTÓRICO",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.2.3 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.5 by RPmods",
       "setup_subtitle": "Configure os nomes e entre diretamente na fase de bloqueios.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -1558,7 +1598,15 @@ window.I18N_CONFIG = {
       "testing_bots_summary": "Bots ativos na sala: {count}",
       "testing_bots_error": "Não foi possível atualizar o sistema de bots.",
       "update_17": "v3.2.2 Testing Bots — Foi adicionada uma seção de Testing Bots para o host preencher capitães ou slots vazios com bots; os bots podem banir e selecionar automaticamente no modo clássico e avançado para facilitar testes online.",
-      "update_18": "v3.2.3 Hotfix (Testing Bots) — Corrigido o erro ao preencher slots vazios com bots no modo avançado; o salvamento de slots agora evita conflitos de rotas no Firebase Realtime Database."
+      "update_18": "v3.2.3 Hotfix (Testing Bots) — Corrigido o erro ao preencher slots vazios com bots no modo avançado; o salvamento de slots agora evita conflitos de rotas no Firebase Realtime Database.",
+      "host_name_label": "NOME DO LÍDER",
+      "host_name_title": "Identidade do host",
+      "host_name_desc": "Se o líder vai jogar como capitão ou jogador, escreve aqui o nome que aparecerá nos slots e no draft.",
+      "host_name_field": "Nome do host",
+      "host_name_save": "GUARDAR NOME",
+      "host_name_error": "Não foi possível atualizar o nome do líder.",
+      "update_19": "v3.2.4 Hotfix (Online Finish + Host Name) — Foi restaurado o anúncio/voz online de finalização do draft usando voice_finish_draft e foi adicionada uma secção para o líder/host escrever o seu nome antes de se atribuir como capitão ou jogador.",
+      "update_20": "v3.2.5 Hotfix (Bot Thinking Delay) — Os bots agora simulam melhor um turno real: demoram entre 3 e 6 segundos, fazem várias pré-seleções aleatórias de laminantes válidos e depois confirmam o ban ou a seleção."
     }
   }
 };

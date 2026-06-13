@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.3 by RPmods
+# STRINOVA Draft System v3.2.5 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -114,3 +114,22 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
 - La causa era una actualización multi-ruta conflictiva en Firebase Realtime Database.
 - Ahora el sistema guarda los slots avanzados de bots sin mezclar rutas padre e hijas dentro del mismo update.
 - Se mantiene el soporte para bots en modo clásico y avanzado.
+
+
+## v3.2.4 Hotfix Online Finish + Host Name
+
+- Se restauró el anuncio/voz online de finalización del draft.
+- El final online vuelve a usar `voice_finish_draft` / `voice_finish_draft.ogg|mp3|mp4`.
+- Los espectadores/jugadores remotos ahora reciben el overlay de finalización antes del resumen.
+- Se añadió un apartado "Nombre del líder" en el lobby del host.
+- Si el host se asigna como capitán, subcapitán o jugador, su nombre se usa automáticamente en el slot y en el draft.
+- El nombre del host se guarda localmente para reutilizarlo en salas futuras.
+
+
+## v3.2.5 Hotfix Bot Thinking Delay
+
+- Los bots ya no confirman casi de inmediato.
+- Cuando llega el turno de un bot, simula estar pensando entre 3 y 6 segundos.
+- Durante ese tiempo hace varias preselecciones aleatorias de laminantes válidos.
+- Al final confirma el ban o pick con una pequeña pausa final.
+- Aplica tanto para modo clásico como para modo avanzado.

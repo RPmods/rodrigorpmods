@@ -573,6 +573,8 @@ let playerTeam = null;
 let onlineLatestRoomData = null;
 let testingBotTurnKey = null;
 let testingBotTimerId = null;
+let onlineSummaryIntroShownKey = null;
+let hostNameSaveTimer = null;
 let onlineRoomListenerCode = null;
 let onlineRoomDeletionListenerCode = null;
 let onlineStartedForRoom = null;
@@ -3401,7 +3403,7 @@ function showPhaseOverlay(text, voiceSrc, subtitle, callback) {
 
   title.textContent = text;
   subtitleElement.textContent = subtitle || t("phase_preparing");
-  kicker.textContent = text.includes("RESUMEN") || text.includes("SUMMARY") ? t("phase_result") : text.includes("BLOQUEO") || text.includes("BAN") ? t("phase_ban") : t("phase_selection");
+  kicker.textContent = text.includes("RESUMEN") || text.includes("SUMMARY") || text === t("voice_finish_draft_text") ? t("phase_result") : text.includes("BLOQUEO") || text.includes("BAN") ? t("phase_ban") : t("phase_selection");
 
   overlay.classList.remove("hidden", "animate");
   void overlay.offsetWidth;
@@ -5179,6 +5181,28 @@ function clearTestingBotTurnTimer() {
   }
 }
 
+function testingBotThinkingDurationMs() {
+  return 3000 + Math.round(Math.random() * 3000);
+}
+
+function testingBotPreselectDelayMs() {
+  return 520 + Math.round(Math.random() * 680);
+}
+
+function testingBotApplyPreselection(character, botClientId, source = "testing-bot-thinking") {
+  const turn = currentTurn();
+  if (!character || !turn || !isCharacterAvailable(character, turn)) return false;
+
+  state.selected = character;
+  state.preselectLocked = false;
+  renderAll();
+  pushOnlineDraftState({
+    reason: source,
+    actionEvent: createOnlineActionEvent("preselect", turn.team, character, { source, botClientId }),
+  });
+  return true;
+}
+
 async function claimAndRunTestingBotTurn(turnKey, botClientId) {
   if (!currentRoomCode || !botClientId || currentRole !== "host") return;
   const roomRef = roomRefFor(currentRoomCode);
@@ -5206,23 +5230,45 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
     const activeBot = botClientIdForCurrentTurn(latestData, turn);
     if (!turn || activeBot !== botClientId || state.locked || state.roulette.active) return;
 
-    const character = testingBotPickCharacter(turn);
-    if (!character) return;
+    const startedAt = Date.now();
+    const thinkingDuration = testingBotThinkingDurationMs();
 
-    state.selected = character;
-    state.preselectLocked = true;
-    renderAll();
-    pushOnlineDraftState({
-      reason: "testing-bot-preselect",
-      actionEvent: createOnlineActionEvent("preselect", turn.team, character, { source: "testing-bot", botClientId }),
-    });
-
-    scheduleDraftTimeout(() => {
+    const thinkStep = () => {
       if (!isDraftSessionActive()) return;
-      const stillBot = botClientIdForCurrentTurn(onlineLatestRoomData || {}, currentTurn());
-      if (stillBot !== botClientId) return;
-      confirmTurn(true, { onlineSystem: true, testingBot: true });
-    }, 650 + Math.round(Math.random() * 700));
+      const current = currentTurn();
+      const stillBot = botClientIdForCurrentTurn(onlineLatestRoomData || {}, current);
+      if (!current || stillBot !== botClientId || state.locked || state.roulette.active) return;
+
+      const elapsed = Date.now() - startedAt;
+      const character = testingBotPickCharacter(current);
+      if (character) {
+        testingBotApplyPreselection(character, botClientId, elapsed >= thinkingDuration ? "testing-bot-final-preselect" : "testing-bot-thinking");
+      }
+
+      if (elapsed >= thinkingDuration) {
+        state.preselectLocked = true;
+        renderAll();
+        scheduleDraftTimeout(() => {
+          if (!isDraftSessionActive()) return;
+          const finalTurn = currentTurn();
+          const finalBot = botClientIdForCurrentTurn(onlineLatestRoomData || {}, finalTurn);
+          if (!finalTurn || finalBot !== botClientId || state.locked || state.roulette.active) return;
+
+          if (!state.selected || !isCharacterAvailable(state.selected, finalTurn)) {
+            const fallback = testingBotPickCharacter(finalTurn);
+            if (!fallback) return;
+            state.selected = fallback;
+          }
+
+          confirmTurn(true, { onlineSystem: true, testingBot: true });
+        }, 280 + Math.round(Math.random() * 320));
+        return;
+      }
+
+      scheduleDraftTimeout(thinkStep, testingBotPreselectDelayMs());
+    };
+
+    scheduleDraftTimeout(thinkStep, testingBotPreselectDelayMs());
   } catch (error) {
     console.warn("No se pudo ejecutar el turno del bot de testing.", error);
   }
@@ -5241,10 +5287,143 @@ function scheduleTestingBotTurn() {
   testingBotTurnKey = turnKey;
   clearTestingBotTurnTimer();
 
-  const delayMs = 1100 + Math.round(Math.random() * 1800);
+  const delayMs = 350 + Math.round(Math.random() * 650);
   testingBotTimerId = setTimeout(() => {
     void claimAndRunTestingBotTurn(turnKey, botClientId);
   }, delayMs);
+}
+
+
+function hostDisplayNameFromRoom(data = {}) {
+  const fromRoom = String(data.host?.name || "").trim();
+  if (fromRoom) return fromRoom;
+  if (currentOnlinePlayerName) return currentOnlinePlayerName;
+  try {
+    const stored = String(localStorage.getItem(ONLINE_PLAYER_NAME_STORAGE_KEY) || "").trim();
+    if (stored) return stored;
+  } catch (_) {}
+  return "Líder / Host";
+}
+
+function sanitizeOnlineDisplayName(name, fallback = "Líder / Host") {
+  const value = String(name || "").trim().replace(/\s+/g, " ").slice(0, 24);
+  return value || fallback;
+}
+
+function ensureHostNamePanel() {
+  let panel = document.getElementById("room-host-name-panel");
+  if (panel) return panel;
+
+  panel = document.createElement("section");
+  panel.id = "room-host-name-panel";
+  panel.className = "room-host-name-panel hidden";
+  panel.innerHTML = `
+    <div class="room-config-heading">
+      <span>${escapeHtml(t("host_name_label"))}</span>
+      <strong>${escapeHtml(t("host_name_title"))}</strong>
+    </div>
+    <p class="room-config-copy">${escapeHtml(t("host_name_desc"))}</p>
+    <label class="room-host-name-row">
+      <span>${escapeHtml(t("host_name_field"))}</span>
+      <input id="room-host-name-input" class="room-input" type="text" maxlength="24" autocomplete="nickname" />
+    </label>
+    <div class="room-host-name-actions">
+      <button id="room-host-name-save" class="secondary-button room-code-button" type="button">${escapeHtml(t("host_name_save"))}</button>
+    </div>
+  `;
+
+  const draftPanel = document.querySelector(".room-draft-config-panel");
+  if (draftPanel?.parentNode) draftPanel.parentNode.insertBefore(panel, draftPanel.nextSibling);
+  else roomPlayerConfig?.prepend(panel);
+  return panel;
+}
+
+async function updateHostOnlineName(name) {
+  if (!currentRoomCode || currentRole !== "host") return;
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return;
+
+  const safeName = sanitizeOnlineDisplayName(name);
+  currentOnlinePlayerName = safeName;
+  try { localStorage.setItem(ONLINE_PLAYER_NAME_STORAGE_KEY, safeName); } catch (_) {}
+  setRoomRoleDisplay(`${t("leader_spectator")} · ${safeName}`);
+
+  try {
+    const snapshot = await roomRef.get();
+    const data = snapshot.val() || {};
+    if (data.started) return;
+
+    const hostId = data.host?.clientId || onlineClientId();
+    const config = sanitizeDraftConfig(data.draftConfig || data.draftState?.draftConfig || currentDraftConfig());
+    const updates = {
+      "host/name": safeName,
+      "host/lastSeen": onlineNow(),
+      updatedAt: onlineNow(),
+    };
+
+    const assignments = captainAssignmentsFromRoom(data);
+    if (assignments.A === hostId) updates["teamA/name"] = safeName;
+    if (assignments.B === hostId) updates["teamB/name"] = safeName;
+
+    const slots = advancedSlotsFromRoom(data, config);
+    ["A", "B"].forEach(team => {
+      ADVANCED_SLOT_KEYS.forEach(slotKey => {
+        if (slots?.[team]?.[slotKey]?.clientId === hostId) {
+          updates[`slots/${team}/${slotKey}/name`] = safeName;
+          updates[`draftState/slots/${team}/${slotKey}/name`] = safeName;
+        }
+      });
+    });
+
+    await roomRef.update(updates);
+  } catch (error) {
+    console.warn("No se pudo actualizar el nombre del líder.", error);
+    alert(t("host_name_error"));
+  }
+}
+
+function scheduleHostNameSave(name) {
+  if (hostNameSaveTimer) clearTimeout(hostNameSaveTimer);
+  hostNameSaveTimer = setTimeout(() => {
+    void updateHostOnlineName(name);
+  }, 450);
+}
+
+function renderHostNamePanel(data = {}) {
+  const panel = ensureHostNamePanel();
+  const isHostLobby = currentRole === "host" && !Boolean(data.started);
+  panel.classList.toggle("hidden", !isHostLobby);
+
+  const input = document.getElementById("room-host-name-input");
+  const save = document.getElementById("room-host-name-save");
+  if (!input) return;
+
+  const value = hostDisplayNameFromRoom(data);
+  if (document.activeElement !== input && input.value !== value) input.value = value;
+
+  if (!input.dataset.boundHostName) {
+    input.dataset.boundHostName = "1";
+    input.addEventListener("input", () => {
+      const nextName = sanitizeOnlineDisplayName(input.value, "");
+      if (nextName) {
+        currentOnlinePlayerName = nextName;
+        scheduleHostNameSave(nextName);
+      }
+    });
+    input.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        void updateHostOnlineName(input.value);
+      }
+    });
+  }
+
+  if (save && !save.dataset.boundHostName) {
+    save.dataset.boundHostName = "1";
+    save.addEventListener("click", () => {
+      void updateHostOnlineName(input.value);
+    });
+  }
 }
 
 function ensureTestingBotsPanel() {
@@ -5492,6 +5671,7 @@ function updateRoomLobby(data = {}) {
 
   populateCaptainSelect(document.getElementById("captain-a-select"), "A", data);
   populateCaptainSelect(document.getElementById("captain-b-select"), "B", data);
+  renderHostNamePanel(data);
   renderAdvancedSlotPanel(data);
   renderTestingBotsPanel(data);
 
@@ -5582,7 +5762,9 @@ function hasScreenActive(screen) {
 function applyOnlineScreenForPhase(phase) {
   if (!currentRoomCode || !state.draftActive) return;
   if (phase === "summary") {
-    if (!hasScreenActive(summaryScreen)) finishDraft({ force: true, silentOnline: true });
+    if (!hasScreenActive(summaryScreen)) {
+      showSummaryIntro({ fromOnline: true, skipNarration: true });
+    }
     return;
   }
   if (phase === "map") {
@@ -5960,6 +6142,13 @@ async function createOnlineRoom() {
   startOnlineClockSync();
 
   readPlayers();
+  try {
+    const storedHostName = String(localStorage.getItem(ONLINE_PLAYER_NAME_STORAGE_KEY) || "").trim();
+    currentOnlinePlayerName = sanitizeOnlineDisplayName(currentOnlinePlayerName || storedHostName || "Líder / Host");
+  } catch (_) {
+    currentOnlinePlayerName = sanitizeOnlineDisplayName(currentOnlinePlayerName || "Líder / Host");
+  }
+
   const roomCode = generateRoomCode();
   const roomRef = database.ref("rooms/" + roomCode);
   state.onlinePhase = "lobby";
@@ -5974,7 +6163,7 @@ async function createOnlineRoom() {
     turnDuration: state.turnDuration,
     draftConfig: initialConfig,
     players: initialConfig.mode === "advanced" ? playersPayloadFromAdvancedSlots(state.onlineSlots, initialConfig) : roomPlayersPayload(),
-    host: { connected: true, clientId: onlineClientId(), name: "Líder / Host", role: "LÍDER_ESPECTADOR", lastSeen: onlineNow() },
+    host: { connected: true, clientId: onlineClientId(), name: currentOnlinePlayerName || "Líder / Host", role: "LÍDER_ESPECTADOR", lastSeen: onlineNow() },
     participants: {},
     captainAssignments: { A: null, B: null },
     slots: state.onlineSlots,
@@ -6419,6 +6608,7 @@ function resetDraftStateBeforeStart() {
   state.mapRoulette = { active: false, highlightedId: null, finalId: null };
   state.turnStartedAt = null;
   state.turnDeadlineAt = null;
+  onlineSummaryIntroShownKey = null;
   state.onlinePhase = currentRoomCode ? "draft" : "local";
 }
 
@@ -6750,7 +6940,6 @@ async function runMapRoulette(options = {}) {
 
   state.mapRoulette.active = false;
   clearMapRouletteVisuals();
-  if (currentRoomCode) pushOnlineDraftState({ phase: "summary" });
   showSummaryIntro();
 }
 
@@ -6815,14 +7004,29 @@ function renderSummaryMap() {
   if (summaryMapName) summaryMapName.textContent = map?.name || t("no_map");
 }
 
-function showSummaryIntro() {
+function showSummaryIntro(options = {}) {
   if (!isDraftSessionActive()) return;
-  // Nueva línea de narración: draft finalizado y resultados.
-  if (currentRoomCode) pushOnlineDraftState({ phase: "summary", audioEvent: createOnlineAudioEvent("finishDraft") });
-  playNarration(systemDraftVoiceLines.voice_finish_draft.src, systemDraftVoiceLines.voice_finish_draft.text, 0.92);
+
+  const key = `${currentRoomCode || "local"}:${state.draftSessionId}:summary`;
+  if (onlineSummaryIntroShownKey === key && !options.force) return;
+  onlineSummaryIntroShownKey = key;
+
+  const shouldPushOnline = Boolean(currentRoomCode && !options.fromOnline);
+  const shouldPlayNarration = !options.skipNarration;
+
+  if (shouldPushOnline) {
+    pushOnlineDraftState({
+      phase: "summary",
+      audioEvent: createOnlineAudioEvent("finishDraft", { playForOrigin: false }),
+    });
+  }
+
+  if (shouldPlayNarration) {
+    playNarration(systemDraftVoiceLines.voice_finish_draft.src, systemDraftVoiceLines.voice_finish_draft.text, 0.92);
+  }
 
   showPhaseOverlay(
-    t("summary_final"),
+    t("voice_finish_draft_text"),
     "",
     state.selectedMap ? t("summary_map_selected", { map: state.selectedMap.name }) : t("summary_prepare"),
     finishDraft,
@@ -7321,6 +7525,11 @@ function handleRoomClosed(roomCode, options = {}) {
   onlineRoomDeletionListenerCode = null;
   onlineLatestRoomData = null;
   testingBotTurnKey = null;
+  onlineSummaryIntroShownKey = null;
+  if (hostNameSaveTimer) {
+    clearTimeout(hostNameSaveTimer);
+    hostNameSaveTimer = null;
+  }
   clearTestingBotTurnTimer();
   abortDraftRuntime();
   currentRoomCode = null;
