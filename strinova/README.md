@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.10 by RPmods
+# STRINOVA Draft System v3.2.11 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -186,3 +186,12 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
 - Se redujo la caja de información del personaje en el panel inferior.
 - BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA ahora tienen el mismo ancho y están mejor apilados.
 - El contador del ready check ahora se actualiza localmente cada 0.5 segundos, sin depender de cambios de Firebase, para evitar que se quede congelado en 28/27.
+
+
+## v3.2.11 Hotfix Panel Buttons Alignment
+
+- Se ajustó la grilla del panel inferior.
+- La caja de información del personaje se movió más a la izquierda.
+- La caja de información del personaje se redujo para liberar espacio.
+- BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA ahora tienen exactamente el mismo ancho.
+- El botón de limpiar selección mantiene su columna propia sin empujar los otros botones.

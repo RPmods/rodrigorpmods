@@ -13614,3 +13614,177 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
     grid-row: 2 / 4 !important;
   }
 }
+
+
+/* =========================================================
+   v3.2.11 - Alineación final del panel inferior
+   ========================================================= */
+.phase-status-panel {
+  width: min(780px, calc(100vw - 560px)) !important;
+  min-width: 640px !important;
+  grid-template-columns: minmax(300px, 330px) 154px 164px 32px !important;
+  grid-template-rows: 34px 34px !important;
+  column-gap: 8px !important;
+  row-gap: 6px !important;
+  align-items: stretch !important;
+  padding: 10px 12px !important;
+  box-sizing: border-box !important;
+}
+
+.phase-status-panel .phase-status-copy {
+  grid-column: 1 !important;
+  grid-row: 1 / 3 !important;
+  align-self: center !important;
+  min-width: 0 !important;
+  padding-right: 4px !important;
+}
+
+.phase-status-panel .phase-status-copy strong,
+.phase-status-panel .phase-status-copy span {
+  max-width: 310px !important;
+}
+
+.phase-status-panel .status-character-box {
+  grid-column: 2 !important;
+  grid-row: 1 / 3 !important;
+  width: 154px !important;
+  min-width: 154px !important;
+  max-width: 154px !important;
+  align-self: stretch !important;
+  justify-self: stretch !important;
+  padding: 8px 9px !important;
+  box-sizing: border-box !important;
+}
+
+.phase-status-panel .status-character-box strong,
+#status-character-name {
+  max-width: 134px !important;
+  display: block !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.phase-status-panel .status-character-box small,
+#status-character-faction {
+  max-width: 134px !important;
+  display: block !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+#confirm-action,
+.phase-status-panel .action-button,
+#random-selection-action.random-selection-button {
+  grid-column: 3 !important;
+  width: 164px !important;
+  min-width: 164px !important;
+  max-width: 164px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  justify-self: stretch !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+#confirm-action,
+.phase-status-panel .action-button {
+  grid-row: 1 !important;
+  font-size: 0.82rem !important;
+  letter-spacing: 0.13em !important;
+}
+
+#random-selection-action.random-selection-button {
+  grid-row: 2 !important;
+  font-size: 0.54rem !important;
+  letter-spacing: 0.065em !important;
+  line-height: 1.02 !important;
+  white-space: normal !important;
+  text-align: center !important;
+}
+
+#clear-preselection.clear-preselection-button {
+  grid-column: 4 !important;
+  grid-row: 1 / 3 !important;
+  width: 32px !important;
+  min-width: 32px !important;
+  max-width: 32px !important;
+  height: 40px !important;
+  align-self: center !important;
+  justify-self: center !important;
+}
+
+@media (max-width: 1320px) {
+  .phase-status-panel {
+    width: min(740px, calc(100vw - 430px)) !important;
+    min-width: 590px !important;
+    grid-template-columns: minmax(270px, 300px) 146px 154px 30px !important;
+  }
+
+  .phase-status-panel .phase-status-copy strong,
+  .phase-status-panel .phase-status-copy span {
+    max-width: 282px !important;
+  }
+
+  .phase-status-panel .status-character-box {
+    width: 146px !important;
+    min-width: 146px !important;
+    max-width: 146px !important;
+  }
+
+  .phase-status-panel .status-character-box strong,
+  #status-character-name,
+  .phase-status-panel .status-character-box small,
+  #status-character-faction {
+    max-width: 126px !important;
+  }
+
+  #confirm-action,
+  .phase-status-panel .action-button,
+  #random-selection-action.random-selection-button {
+    width: 154px !important;
+    min-width: 154px !important;
+    max-width: 154px !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .phase-status-panel {
+    width: min(720px, calc(100vw - 40px)) !important;
+    min-width: 0 !important;
+    grid-template-columns: minmax(0, 1fr) 150px 30px !important;
+    grid-template-rows: auto 34px 34px !important;
+  }
+
+  .phase-status-panel .phase-status-copy {
+    grid-column: 1 / 4 !important;
+    grid-row: 1 !important;
+  }
+
+  .phase-status-panel .status-character-box {
+    grid-column: 1 !important;
+    grid-row: 2 / 4 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  #confirm-action,
+  .phase-status-panel .action-button,
+  #random-selection-action.random-selection-button {
+    grid-column: 2 !important;
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
+  }
+
+  #confirm-action,
+  .phase-status-panel .action-button { grid-row: 2 !important; }
+  #random-selection-action.random-selection-button { grid-row: 3 !important; }
+  #clear-preselection.clear-preselection-button { grid-column: 3 !important; grid-row: 2 / 4 !important; }
+}
