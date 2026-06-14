@@ -13788,3 +13788,132 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   #random-selection-action.random-selection-button { grid-row: 3 !important; }
   #clear-preselection.clear-preselection-button { grid-column: 3 !important; grid-row: 2 / 4 !important; }
 }
+
+
+/* =========================================================
+   v3.2.12 - Igualar ancho real de BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA
+   ========================================================= */
+
+/* La columna de acciones ahora tiene un ancho único y ambos botones lo respetan. */
+.phase-status-panel {
+  grid-template-columns: minmax(220px, 1fr) 160px 158px 30px !important;
+  grid-template-rows: 34px 34px !important;
+  column-gap: 8px !important;
+}
+
+/* El botón principal no debe estirarse más que el botón aleatorio. */
+#confirm-action,
+#confirm-action.action-button,
+.phase-status-panel #confirm-action,
+.phase-status-panel .action-button#confirm-action,
+#random-selection-action,
+#random-selection-action.random-selection-button,
+.phase-status-panel #random-selection-action,
+.phase-status-panel .random-selection-button#random-selection-action {
+  grid-column: 3 !important;
+  width: 158px !important;
+  min-width: 158px !important;
+  max-width: 158px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  box-sizing: border-box !important;
+  justify-self: start !important;
+  align-self: center !important;
+  margin: 0 !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+/* Orden vertical fijo: arriba BANEAR/SELECCIONAR, abajo SELECCIÓN ALEATORIA. */
+#confirm-action,
+#confirm-action.action-button,
+.phase-status-panel #confirm-action {
+  grid-row: 1 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem !important;
+  line-height: 1 !important;
+}
+
+#random-selection-action,
+#random-selection-action.random-selection-button,
+.phase-status-panel #random-selection-action {
+  grid-row: 2 !important;
+  position: static !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.54rem !important;
+  line-height: 1.02 !important;
+  letter-spacing: 0.075em !important;
+  white-space: normal !important;
+}
+
+/* Si el botón aleatorio está oculto, conserva el espacio para que el botón principal no cambie tamaño. */
+#random-selection-action.hidden,
+#random-selection-action.random-selection-button.hidden,
+.phase-status-panel #random-selection-action.hidden {
+  display: inline-flex !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Caja de personaje un poco más a la izquierda y controlada para liberar espacio a los botones. */
+.phase-status-panel .status-character-box {
+  grid-column: 2 !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+  justify-self: start !important;
+}
+
+/* Botón de limpiar selección no debe empujar la columna de acciones. */
+#clear-preselection,
+#clear-preselection.clear-preselection-button,
+.phase-status-panel #clear-preselection {
+  grid-column: 4 !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  justify-self: start !important;
+}
+
+/* Responsive: mantener la igualdad aunque baje el ancho. */
+@media (max-width: 1320px) {
+  .phase-status-panel {
+    grid-template-columns: minmax(190px, 1fr) 150px 146px 28px !important;
+  }
+
+  .phase-status-panel .status-character-box {
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
+  }
+
+  #confirm-action,
+  #confirm-action.action-button,
+  .phase-status-panel #confirm-action,
+  #random-selection-action,
+  #random-selection-action.random-selection-button,
+  .phase-status-panel #random-selection-action {
+    width: 146px !important;
+    min-width: 146px !important;
+    max-width: 146px !important;
+  }
+}
+
+@media (max-width: 980px) {
+  #confirm-action,
+  #confirm-action.action-button,
+  .phase-status-panel #confirm-action,
+  #random-selection-action,
+  #random-selection-action.random-selection-button,
+  .phase-status-panel #random-selection-action {
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
+  }
+}

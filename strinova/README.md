@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.11 by RPmods
+# STRINOVA Draft System v3.2.12 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -195,3 +195,11 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
 - La caja de información del personaje se redujo para liberar espacio.
 - BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA ahora tienen exactamente el mismo ancho.
 - El botón de limpiar selección mantiene su columna propia sin empujar los otros botones.
+
+
+## v3.2.12 Hotfix Equal Action Buttons
+
+- Se corrigió el ancho real de los botones del panel inferior.
+- BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA ahora usan exactamente la misma anchura.
+- La columna de acciones queda fija.
+- La caja de información del personaje se redujo/movió para liberar espacio y alinear mejor los botones.
