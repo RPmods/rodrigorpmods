@@ -14086,3 +14086,120 @@ html body .phase-status-panel button#clear-preselection {
     flex-basis: 145px !important;
   }
 }
+
+
+/* =========================================================
+   v3.2.14 - Fix final: botón seleccionado no se estira + voz mapa única
+   ========================================================= */
+
+/*
+  Al seleccionar un personaje, #confirm-action pierde .hidden y puede recibir .ban.
+  Una regla antigua muy específica:
+  body.online-role-player #confirm-action:not(.hidden) { min-width:176px !important; }
+  seguía ganando. Esta regla la supera por especificidad y fuerza la caja real.
+*/
+html body.online-role-player .phase-status-panel > button#confirm-action.action-button:not(.hidden),
+html body.online-role-player .phase-status-panel > button#confirm-action.action-button.ban:not(.hidden),
+html body.online-role-host.own-team-turn .phase-status-panel > button#confirm-action.action-button:not(.hidden),
+html body.online-role-host.own-team-turn .phase-status-panel > button#confirm-action.action-button.ban:not(.hidden),
+html body .phase-status-panel > button#confirm-action.action-button:not(.hidden),
+html body .phase-status-panel > button#confirm-action.action-button.ban:not(.hidden) {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  inline-size: 148px !important;
+  width: 148px !important;
+  min-width: 148px !important;
+  max-width: 148px !important;
+  flex: 0 0 148px !important;
+  flex-basis: 148px !important;
+  box-sizing: border-box !important;
+  justify-self: start !important;
+  align-self: stretch !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  transform: none !important;
+  left: auto !important;
+  top: auto !important;
+  position: static !important;
+}
+
+html body.online-role-player .phase-status-panel > button#random-selection-action.random-selection-button,
+html body.online-role-host.own-team-turn .phase-status-panel > button#random-selection-action.random-selection-button,
+html body .phase-status-panel > button#random-selection-action.random-selection-button {
+  grid-column: 3 !important;
+  grid-row: 2 !important;
+  inline-size: 148px !important;
+  width: 148px !important;
+  min-width: 148px !important;
+  max-width: 148px !important;
+  flex: 0 0 148px !important;
+  flex-basis: 148px !important;
+  box-sizing: border-box !important;
+  justify-self: start !important;
+  align-self: stretch !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  transform: none !important;
+  position: static !important;
+}
+
+/* Texto de espera en ready check aún más compacto. */
+html body .online-ready-button.is-ready,
+html body .online-ready-button[disabled].is-ready {
+  width: min(220px, 88%) !important;
+  min-height: 38px !important;
+  height: 38px !important;
+  padding: 0 12px !important;
+  font-size: clamp(0.54rem, 0.82vw, 0.70rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: 0.06em !important;
+}
+
+html body .online-ready-status {
+  font-size: clamp(0.60rem, 0.88vw, 0.78rem) !important;
+  line-height: 1.14 !important;
+}
+
+@media (max-width: 1320px) {
+  html body.online-role-player .phase-status-panel > button#confirm-action.action-button:not(.hidden),
+  html body.online-role-player .phase-status-panel > button#confirm-action.action-button.ban:not(.hidden),
+  html body.online-role-host.own-team-turn .phase-status-panel > button#confirm-action.action-button:not(.hidden),
+  html body.online-role-host.own-team-turn .phase-status-panel > button#confirm-action.action-button.ban:not(.hidden),
+  html body .phase-status-panel > button#confirm-action.action-button:not(.hidden),
+  html body .phase-status-panel > button#confirm-action.action-button.ban:not(.hidden),
+  html body.online-role-player .phase-status-panel > button#random-selection-action.random-selection-button,
+  html body.online-role-host.own-team-turn .phase-status-panel > button#random-selection-action.random-selection-button,
+  html body .phase-status-panel > button#random-selection-action.random-selection-button {
+    inline-size: 140px !important;
+    width: 140px !important;
+    min-width: 140px !important;
+    max-width: 140px !important;
+    flex: 0 0 140px !important;
+    flex-basis: 140px !important;
+  }
+}
+
+@media (max-width: 980px) {
+  html body.online-role-player .phase-status-panel > button#confirm-action.action-button:not(.hidden),
+  html body.online-role-player .phase-status-panel > button#confirm-action.action-button.ban:not(.hidden),
+  html body.online-role-host.own-team-turn .phase-status-panel > button#confirm-action.action-button:not(.hidden),
+  html body.online-role-host.own-team-turn .phase-status-panel > button#confirm-action.action-button.ban:not(.hidden),
+  html body .phase-status-panel > button#confirm-action.action-button:not(.hidden),
+  html body .phase-status-panel > button#confirm-action.action-button.ban:not(.hidden),
+  html body.online-role-player .phase-status-panel > button#random-selection-action.random-selection-button,
+  html body.online-role-host.own-team-turn .phase-status-panel > button#random-selection-action.random-selection-button,
+  html body .phase-status-panel > button#random-selection-action.random-selection-button {
+    inline-size: 145px !important;
+    width: 145px !important;
+    min-width: 145px !important;
+    max-width: 145px !important;
+    flex: 0 0 145px !important;
+    flex-basis: 145px !important;
+  }
+}

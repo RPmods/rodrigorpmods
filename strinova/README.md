@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.13 by RPmods
+# STRINOVA Draft System v3.2.14 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -211,3 +211,11 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
 - El problema venía de reglas CSS antiguas que seguían aplicando `min-width: 176px` y padding al botón principal.
 - Ahora BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA usan la misma caja real con `width`, `min-width`, `max-width`, `inline-size`, `flex-basis` y `box-sizing` forzados.
 - Se redujo el botón/texto de "esperando a los demás jugadores" en ready check.
+
+
+## v3.2.14 Hotfix Selected Button + Map Voice
+
+- Se corrigió el estado visible del botón BANEAR/SELECCIONAR.
+- Cuando el jugador selecciona un personaje y el botón aparece, ya no debe heredar el min-width antiguo.
+- El botón BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA quedan iguales también en estado seleccionado/.ban.
+- Se corrigió la voz de selección de mapa para que no suene dos veces al pasar del draft a la selección de mapa online.

@@ -6544,7 +6544,7 @@ function confirmTurn(isAuto = false, options = {}) {
         state.onlinePhase = "map";
         state.turnStartedAt = null;
         state.turnDeadlineAt = null;
-        pushOnlineDraftState({ phase: "map", actionEvent: null, audioEvent: createOnlineAudioEvent("mapSelector", { playForOrigin: true }) });
+        pushOnlineDraftState({ phase: "map", actionEvent: null, audioEvent: null });
       } else {
         const nextTurn = currentTurn();
         const justEnteredPickPhase = activeBanTurnCount() > 0 && state.turnIndex === activeBanTurnCount() && nextTurn?.type === "pick";
