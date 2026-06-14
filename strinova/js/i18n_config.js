@@ -18,7 +18,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORIAL",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.2.12 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.13 by RPmods",
       "setup_subtitle": "Configura nombres, tamaño de partida y fase de bloqueos antes de iniciar.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -333,7 +333,8 @@ window.I18N_CONFIG = {
       "update_25": "v3.2.9 Hotfix (UI Alignment + Ready Timeout + Map Polish) — Se reajustaron el aviso de turno y el panel inferior, se corrigieron las tarjetas del ready check con nombres dentro de cajas uniformes, se añadió timeout de 30 segundos para listos, se mejoró la ruleta de mapas con borde dorado/brillo y se añadió botón para que jugadores puedan retirarse al terminar.",
       "update_26": "v3.2.10 Hotfix (Turn Banner + Ready Countdown) — Se corrigió la posición/tamaño del banner de turno propio para que tape menos al personaje, se restauró el turno enemigo como aviso grande centrado, se ajustó el panel inferior para que BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA tengan el mismo ancho, y el contador de listo ahora se actualiza localmente sin quedarse congelado.",
       "update_27": "v3.2.11 Hotfix (Panel Buttons Alignment) — Se igualó el ancho de BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA, se movió la caja de información del personaje más a la izquierda y se ajustó el panel inferior para que los controles queden compactos y alineados.",
-      "update_28": "v3.2.12 Hotfix (Equal Action Buttons) — Se igualó el ancho real de BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA, se fijó la columna de acciones y se movió la caja de personaje para que el panel inferior se vea alineado."
+      "update_28": "v3.2.12 Hotfix (Equal Action Buttons) — Se igualó el ancho real de BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA, se fijó la columna de acciones y se movió la caja de personaje para que el panel inferior se vea alineado.",
+      "update_29": "v3.2.13 Hotfix (Deep Equal Buttons) — Se corrigió a profundidad el ancho real de BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA anulando reglas antiguas heredadas; también se redujo el tamaño del botón/texto de espera en el ready check."
     },
     "en": {
       "tab_menu": "MENU",
@@ -344,7 +345,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORY",
       "tab_credits": "CREDITS",
       "setup_eyebrow": "Competitive system",
-      "setup_title": "STRINOVA Draft System v3.2.12 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.13 by RPmods",
       "setup_subtitle": "Set player names and enter the ban phase directly.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -626,7 +627,8 @@ window.I18N_CONFIG = {
       "update_25": "v3.2.9 Hotfix (UI Alignment + Ready Timeout + Map Polish) — Adjusted the turn banner and lower panel, fixed ready-check cards with uniform name boxes, added a 30-second ready timeout, improved map roulette with golden border/glow, and added a leave option for players after the draft ends.",
       "update_26": "v3.2.10 Hotfix (Turn Banner + Ready Countdown) — Adjusted own-turn banner size/position so it covers the character less, restored enemy turns as a large centered warning, aligned BAN/PICK and RANDOM SELECTION buttons to the same width, and made the ready countdown update locally without freezing.",
       "update_27": "v3.2.11 Hotfix (Panel Buttons Alignment) — Matched the width of BAN/PICK and RANDOM SELECTION, moved the character info box further left, and adjusted the lower panel so controls stay compact and aligned.",
-      "update_28": "v3.2.12 Hotfix (Equal Action Buttons) — Matched the real width of BAN/PICK and RANDOM SELECTION, fixed the action column and moved the character info box so the lower panel looks aligned."
+      "update_28": "v3.2.12 Hotfix (Equal Action Buttons) — Matched the real width of BAN/PICK and RANDOM SELECTION, fixed the action column and moved the character info box so the lower panel looks aligned.",
+      "update_29": "v3.2.13 Hotfix (Deep Equal Buttons) — Deep-fixed the real width of BAN/PICK and RANDOM SELECTION by overriding old inherited rules; also reduced the waiting button/text size in the ready check."
     },
     "ja": {
       "tab_menu": "メニュー",
@@ -637,7 +639,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新履歴",
       "tab_credits": "クレジット",
       "setup_eyebrow": "競技システム",
-      "setup_title": "STRINOVA Draft System v3.2.12 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.13 by RPmods",
       "setup_subtitle": "プレイヤー名を設定してブロックフェーズへ進みます。",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -917,7 +919,8 @@ window.I18N_CONFIG = {
       "update_25": "v3.2.9 Hotfix (UI Alignment + Ready Timeout + Map Polish) — ターン表示と下部パネルを調整し、ready checkカードの名前枠を統一、30秒の準備タイムアウトを追加。マップルーレットに金色の枠/発光を追加し、終了後にプレイヤーが退出できるボタンを追加。",
       "update_26": "v3.2.10 Hotfix (Turn Banner + Ready Countdown) — 自分のターン表示のサイズ/位置を調整してキャラクターを隠しにくくし、敵ターンは中央の大きな警告表示に戻しました。BAN/選択とランダム選択ボタンを同じ幅に整え、準備カウントダウンが固まらずローカル更新されるようにしました。",
       "update_27": "v3.2.11 Hotfix (Panel Buttons Alignment) — BAN/選択とランダム選択の幅を揃え、キャラクター情報ボックスを少し左へ移動し、下部パネルの操作がコンパクトに揃うよう調整しました。",
-      "update_28": "v3.2.12 Hotfix (Equal Action Buttons) — BAN/選択 と ランダム選択 の実際の幅を統一し、アクション列を固定、キャラクター情報ボックスを移動して下部パネルを整えました。"
+      "update_28": "v3.2.12 Hotfix (Equal Action Buttons) — BAN/選択 と ランダム選択 の実際の幅を統一し、アクション列を固定、キャラクター情報ボックスを移動して下部パネルを整えました。",
+      "update_29": "v3.2.13 Hotfix (Deep Equal Buttons) — 古い継承ルールを上書きしてBAN/選択とランダム選択の実幅を根本修正。ready check の待機ボタン/テキストも小さくしました。"
     },
     "ru": {
       "tab_menu": "МЕНЮ",
@@ -928,7 +931,7 @@ window.I18N_CONFIG = {
       "tab_updates": "ОБНОВЛЕНИЯ",
       "tab_credits": "АВТОРЫ",
       "setup_eyebrow": "Соревновательная система",
-      "setup_title": "STRINOVA Draft System v3.2.12 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.13 by RPmods",
       "setup_subtitle": "Настройте имена игроков и перейдите к фазе блокировок.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -1208,7 +1211,8 @@ window.I18N_CONFIG = {
       "update_25": "v3.2.9 Hotfix (UI Alignment + Ready Timeout + Map Polish) — Исправлены баннер хода и нижняя панель, карточки ready check получили одинаковые блоки имён, добавлен таймаут готовности 30 секунд, улучшена рулетка карт золотой рамкой/свечением и добавлена возможность выйти после завершения.",
       "update_26": "v3.2.10 Hotfix (Turn Banner + Ready Countdown) — Исправлены размер/позиция баннера собственного хода, чтобы он меньше закрывал персонажа; ход врага снова отображается крупным предупреждением по центру; кнопки BAN/SELECT и RANDOM SELECTION выровнены по ширине; таймер готовности теперь обновляется локально и не зависает.",
       "update_27": "v3.2.11 Hotfix (Panel Buttons Alignment) — Выровнена ширина BAN/SELECT и RANDOM SELECTION, блок информации персонажа смещён левее, нижняя панель стала компактнее и ровнее.",
-      "update_28": "v3.2.12 Hotfix (Equal Action Buttons) — Реальная ширина BAN/SELECT и RANDOM SELECTION выровнена, колонка действий закреплена, а блок информации персонажа сдвинут для аккуратного нижнего панели."
+      "update_28": "v3.2.12 Hotfix (Equal Action Buttons) — Реальная ширина BAN/SELECT и RANDOM SELECTION выровнена, колонка действий закреплена, а блок информации персонажа сдвинут для аккуратного нижнего панели.",
+      "update_29": "v3.2.13 Hotfix (Deep Equal Buttons) — Глубоко исправлена реальная ширина BAN/SELECT и RANDOM SELECTION через переопределение старых наследуемых правил; также уменьшен размер кнопки/текста ожидания в ready check."
     },
     "zh": {
       "tab_menu": "菜单",
@@ -1219,7 +1223,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新记录",
       "tab_credits": "制作名单",
       "setup_eyebrow": "竞技系统",
-      "setup_title": "STRINOVA Draft System v3.2.12 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.13 by RPmods",
       "setup_subtitle": "设置玩家名称并进入禁用阶段。",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -1499,7 +1503,8 @@ window.I18N_CONFIG = {
       "update_25": "v3.2.9 Hotfix (UI Alignment + Ready Timeout + Map Polish) — 调整回合提示和底部面板，修复 ready check 卡片并统一名称框，新增30秒准备超时，优化地图轮盘金色边框/发光，并添加玩家结束后退出按钮。",
       "update_26": "v3.2.10 Hotfix (Turn Banner + Ready Countdown) — 调整了己方回合提示的大小和位置，减少遮挡角色；敌方回合恢复为居中的大型警告；BAN/选择与随机选择按钮宽度统一；准备倒计时改为本地刷新，避免卡住。",
       "update_27": "v3.2.11 Hotfix (Panel Buttons Alignment) — 统一 BAN/选择 与 随机选择 的宽度，将角色信息框向左移动，并调整底部面板让控件更紧凑且对齐。",
-      "update_28": "v3.2.12 Hotfix (Equal Action Buttons) — 统一 BAN/选择 与 随机选择 的真实宽度，固定操作列，并移动角色信息框，让底部面板更整齐。"
+      "update_28": "v3.2.12 Hotfix (Equal Action Buttons) — 统一 BAN/选择 与 随机选择 的真实宽度，固定操作列，并移动角色信息框，让底部面板更整齐。",
+      "update_29": "v3.2.13 Hotfix (Deep Equal Buttons) — 通过覆盖旧继承规则彻底修复 BAN/选择 与 随机选择 的真实宽度；同时缩小 ready check 等待按钮/文字。"
     },
     "pt": {
       "tab_menu": "MENU",
@@ -1510,7 +1515,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTÓRICO",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.2.12 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.13 by RPmods",
       "setup_subtitle": "Configure os nomes e entre diretamente na fase de bloqueios.",
       "team_a": "TEAM A",
       "team_b": "TEAM B",
@@ -1790,7 +1795,8 @@ window.I18N_CONFIG = {
       "update_25": "v3.2.9 Hotfix (UI Alignment + Ready Timeout + Map Polish) — Ajustado o aviso de turno e o painel inferior, corrigidos os cartões do ready check com caixas uniformes para nomes, adicionado timeout de 30 segundos, melhorada a roleta de mapas com borda/brilho dourado e adicionada opção para jogadores saírem ao final.",
       "update_26": "v3.2.10 Hotfix (Turn Banner + Ready Countdown) — Ajustado o tamanho/posição do aviso do próprio turno para tapar menos o personagem, restaurado o turno inimigo como aviso grande centralizado, alinhados os botões BANIR/SELECIONAR e SELEÇÃO ALEATÓRIA com a mesma largura, e o contador de pronto agora atualiza localmente sem travar.",
       "update_27": "v3.2.11 Hotfix (Panel Buttons Alignment) — Igualado o tamanho de BANIR/SELECIONAR e SELEÇÃO ALEATÓRIA, movida a caixa de informação do personagem mais para a esquerda e ajustado o painel inferior para controles compactos e alinhados.",
-      "update_28": "v3.2.12 Hotfix (Equal Action Buttons) — Igualado o tamanho real de BANIR/SELECIONAR e SELEÇÃO ALEATÓRIA, fixada a coluna de ações e movida a caixa de personagem para alinhar melhor o painel inferior."
+      "update_28": "v3.2.12 Hotfix (Equal Action Buttons) — Igualado o tamanho real de BANIR/SELECIONAR e SELEÇÃO ALEATÓRIA, fixada a coluna de ações e movida a caixa de personagem para alinhar melhor o painel inferior.",
+      "update_29": "v3.2.13 Hotfix (Deep Equal Buttons) — Corrigido a fundo o tamanho real de BANIR/SELECIONAR e SELEÇÃO ALEATÓRIA anulando regras antigas herdadas; também foi reduzido o tamanho do botão/texto de espera no ready check."
     }
   }
 };
