@@ -1,10 +1,11 @@
 var db = null;
 
-(function initFirebase() {
-  const injectedConfig = window.RPMODS_FIREBASE_CONFIG || null;
-  const firebaseConfig = injectedConfig && typeof injectedConfig === "object" ? injectedConfig : null;
+(function exposeRpmodsServicesInitializer() {
+  function initRpmodsServices() {
+  const injectedConfig = window.RPMODS_SERVICES_CONFIG || window.RPMODS_FIREBASE_CONFIG || null;
+  const serviceConfig = injectedConfig && typeof injectedConfig === "object" ? injectedConfig : null;
 
-  function hasValidFirebaseConfig(config) {
+  function hasValidServiceConfig(config) {
     return Boolean(
       config &&
       typeof config.apiKey === "string" &&
@@ -23,31 +24,31 @@ var db = null;
 
   try {
     if (!window.firebase) {
-      console.warn("Firebase SDK no está disponible. El modo online quedará desactivado.");
+      console.warn("RPmods Services no está disponible. El modo online quedará desactivado.");
       window.db = null;
       return;
     }
 
-    if (!hasValidFirebaseConfig(firebaseConfig)) {
-      console.warn(
-        "Firebase no fue inicializado: falta js/firebase-env.js o contiene variables sin configurar. " +
-        "En GitHub Pages usa el workflow con Repository Secrets. En local crea js/firebase-env.js a partir de js/firebase-env.example.js."
-      );
+    if (!hasValidServiceConfig(serviceConfig)) {
+      console.warn("RPmods Services no pudo iniciarse porque falta la configuración del entorno.");
       window.db = null;
       return;
     }
 
-    if (!firebase.apps || !firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-
+    if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(serviceConfig);
     db = firebase.database();
     window.db = db;
     window.firebase = firebase;
-    console.log("Firebase conectado");
+    console.log("RPmods Services conectado");
   } catch (error) {
     db = null;
     window.db = null;
-    console.error("No se pudo inicializar Firebase.", error);
+    console.error("No se pudo inicializar RPmods Services.", error);
   }
+
+    return window.db || null;
+  }
+
+  window.initRpmodsServices = initRpmodsServices;
+  initRpmodsServices();
 })();

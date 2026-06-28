@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.14 by RPmods
+# STRINOVA Draft System v3.2.23 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -9,7 +9,7 @@ Versión estable del sistema draft competitivo.
 - Se añadió opción para activar o desactivar la fase de bloqueos.
 - Si la fase de bloqueos está desactivada, el draft inicia directamente en selección de personajes.
 - El resumen final, slots, picks, reglas visibles y selección aleatoria se adaptan al tamaño elegido.
-- El lobby online clásico sincroniza la configuración de tamaño de partida y fase de bloqueos mediante Firebase.
+- El lobby online clásico sincroniza la configuración de tamaño de partida y fase de bloqueos mediante RPmods Services.
 - Se añadió base visual en el lobby online para modo clásico / modo avanzado, dejando el modo avanzado 5v5 preparado para una actualización futura.
 - Updates / Historial actualizado hasta v3.1.
 
@@ -23,7 +23,7 @@ Versión estable del sistema draft competitivo.
 
 ## Hotfix v3.1.2 Security
 
-- Se registró la rotación de la Firebase Web API Key usada por la versión pública en GitHub Pages.
+- Se registró la rotación de la RPmods Services Web API Key usada por la versión pública en GitHub Pages.
 - Se retiró la referencia a la clave anterior expuesta y se actualizó la configuración web para usar la nueva clave restringida.
 - Se documentó la recomendación de mantener restricciones por dominio y reglas de Realtime Database revisadas.
 - Updates / Historial incluye la entrada v3.1.2 HOTFIX (Security).
@@ -44,7 +44,7 @@ Versión estable del sistema draft competitivo.
 
 ## Hotfix v3.1.5 Env Config / GitHub Pages
 
-- La configuración web de Firebase ya no está escrita directamente en `js/firebase.js`.
+- La configuración web de RPmods Services ya no está escrita directamente en `js/firebase.js`.
 - `js/firebase.js` ahora lee `window.RPMODS_FIREBASE_CONFIG` desde `js/firebase-env.js`.
 - `js/firebase-env.js` no debe subirse con valores reales al repo público; se genera en GitHub Actions desde Repository Secrets.
 - Para local, copia `js/firebase-env.example.js` como `js/firebase-env.js` y rellena tus datos solamente en tu PC.
@@ -103,7 +103,7 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
 - Durante el draft, si el turno pertenece a un bot, el host ejecuta automáticamente la simulación:
   - el bot preselecciona un personaje válido;
   - confirma ban o pick;
-  - sincroniza el resultado en Firebase.
+  - sincroniza el resultado en RPmods Services.
 - Los bots respetan personajes disponibles, facción de ban, picks válidos y no duplican seleccionados/baneados.
 - Se añadió soporte i18n para el apartado de Testing Bots en los idiomas disponibles.
 
@@ -111,7 +111,7 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
 ## v3.2.3 Hotfix Testing Bots
 
 - Se corrigió el error al pulsar "Rellenar slots vacantes con bots" en modo avanzado.
-- La causa era una actualización multi-ruta conflictiva en Firebase Realtime Database.
+- La causa era una actualización multi-ruta conflictiva en RPmods Services.
 - Ahora el sistema guarda los slots avanzados de bots sin mezclar rutas padre e hijas dentro del mismo update.
 - Se mantiene el soporte para bots en modo clásico y avanzado.
 
@@ -185,7 +185,7 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
 - El turno enemigo vuelve a mostrarse como aviso grande centrado y opacante.
 - Se redujo la caja de información del personaje en el panel inferior.
 - BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA ahora tienen el mismo ancho y están mejor apilados.
-- El contador del ready check ahora se actualiza localmente cada 0.5 segundos, sin depender de cambios de Firebase, para evitar que se quede congelado en 28/27.
+- El contador del ready check ahora se actualiza localmente cada 0.5 segundos, sin depender de cambios de RPmods Services, para evitar que se quede congelado en 28/27.
 
 
 ## v3.2.11 Hotfix Panel Buttons Alignment
@@ -219,3 +219,114 @@ Para publicar con este sistema, configura GitHub Pages para usar GitHub Actions 
 - Cuando el jugador selecciona un personaje y el botón aparece, ya no debe heredar el min-width antiguo.
 - El botón BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA quedan iguales también en estado seleccionado/.ban.
 - Se corrigió la voz de selección de mapa para que no suene dos veces al pasar del draft a la selección de mapa online.
+
+
+## v3.2.15 Update Online Sync + Animation Performance
+
+- Se redujeron escrituras y reconstrucciones completas del modo online.
+- El hover de personajes permanece local; la selección fijada usa una actualización pequeña.
+- Las ruletas de personajes y mapas se sincronizan como una sola secuencia temporizada.
+- Se eliminó el listener duplicado de la sala.
+- El video de fondo ya no se recarga por pausas breves del hilo principal.
+- Las animaciones de bloqueo y selección usan una sola implementación final, con menos filtros y sin reconstruir el grid de personajes.
+- Las referencias visibles del servicio online usan el nombre RPmods Services.
+
+
+## v3.2.16 Update Modern Draft Animations
+
+- Se modernizaron las animaciones de confirmación de BAN y PICK con efectos visuales diferenciados.
+- Las nuevas secuencias priorizan `transform` y `opacity` para reducir trabajo de pintura.
+- Las casillas de jugadores mantienen nodos estables en lugar de reconstruirse completamente.
+- Se añadieron estados visuales para slot vacío, turno activo, previsualización y selección confirmada.
+- La animación de una selección confirmada no se reinicia por actualizaciones repetidas del modo online.
+- Se añadió compatibilidad específica con `prefers-reduced-motion`.
+
+
+## v3.2.17 Update Integrated Online Notices
+
+- Los mensajes del modo online ya no utilizan cuadros nativos del navegador.
+- RPmods Services muestra una tarjeta integrada y animada cuando no está disponible.
+- La tarjeta incluye acciones de reintento y cierre.
+- Los errores, advertencias e información restante aparecen como notificaciones no bloqueantes dentro de la página.
+- Se mantiene intacta la conexión y la estructura de datos del servicio online.
+
+
+
+## v3.2.19 Update Silent Multi-Intro Precache
+
+- Se configuraron cinco parejas inseparables de video y música: `Intro_menu.mp4`/`music_intro.mp3` hasta las variantes `_5`.
+- La pareja se elige al aceptar el aviso principal y no repite inmediatamente la usada en la ejecución anterior.
+- El video y su audio se precargan con prioridad alta y permanecen en elementos multimedia persistentes para evitar una segunda inicialización al comenzar la intro.
+- La precarga general comienza en paralelo sin mostrar la pantalla de progreso.
+- Las otras cuatro parejas se procesan con prioridad baja, una por una y durante tiempo inactivo, para no competir con la reproducción actual.
+- Si una variante no está disponible, el sistema vuelve de forma segura a la pareja original.
+
+## v3.2.18 Update Online Connection Gate
+
+- Crear sala, abrir el formulario para unirse y confirmar la entrada verifican primero la conexión real a RPmods Services.
+- Durante la validación aparece el estado “Comprobando conexión a RPmods Services”.
+- Si el servicio no responde, la acción queda pendiente y aparece el botón RECONECTAR.
+- Al recuperar la conexión, la acción pendiente continúa automáticamente sin repetir los datos.
+- La comprobación usa el estado `.info/connected` y no se limita a comprobar que el SDK esté cargado.
+
+
+## v3.2.20 Hotfix Multi-Intro Selection
+
+- Se separó el estado “todavía cargando” de un error multimedia real.
+- Una variante ya no vuelve a `Intro_menu.mp4` solo por no alcanzar `canplaythrough` dentro del tiempo de precarga.
+- La validez se confirma desde `loadedmetadata`, `loadeddata`, `canplay` o un error real del elemento multimedia.
+- Se normalizaron las comparaciones de rutas para funcionar correctamente tanto en web como al abrir `index.html` localmente.
+- El fallback a la pareja original se conserva, pero solo se activa cuando el MP4 o MP3 seleccionado reporta un error real.
+
+
+## v3.2.21 Update Dedicated Intro Media Structure
+
+- Las cinco parejas de intro se migraron a una ruta dedicada: `media/intro-menu/intro-01` hasta `intro-05`.
+- Cada carpeta utiliza exactamente dos nombres: `video.mp4` y `music.mp3`.
+- La aplicación intenta primero la nueva estructura y conserva las rutas antiguas como fallback temporal.
+- El video y su música se resuelven como una pareja completa para evitar combinaciones incorrectas.
+- Se añadieron carpetas preparadas dentro del paquete para colocar los recursos locales.
+
+Estructura recomendada:
+
+```text
+media/intro-menu/
+├── intro-01/
+│   ├── video.mp4
+│   └── music.mp3
+├── intro-02/
+│   ├── video.mp4
+│   └── music.mp3
+├── intro-03/
+│   ├── video.mp4
+│   └── music.mp3
+├── intro-04/
+│   ├── video.mp4
+│   └── music.mp3
+└── intro-05/
+    ├── video.mp4
+    └── music.mp3
+```
+
+
+## v3.2.22 Update Intro Selection Settings
+
+- Nuevo apartado de intro dentro de Configuración.
+- La selección aleatoria permanece activada de forma predeterminada.
+- Al desactivarla, puede elegirse manualmente INTRO 01 a INTRO 05.
+- La preferencia se guarda en la configuración local.
+- El modo manual y el aleatorio utilizan la misma precarga silenciosa por parejas.
+- El modo aleatorio continúa evitando repetir inmediatamente el conjunto anterior.
+
+
+## v3.2.23 Update Named Intro Sets
+
+Los conjuntos muestran estos nombres en Configuración:
+
+1. `Strinova Season 9 (26sp3)`
+2. `Strinova Season 6 (Michelle Skin)`
+3. `Strinova Season 7 (p2)`
+4. `Strinova Season 7`
+5. `Kanami [Be Shining] - Strinova`
+
+Los nombres están centralizados en `INTRO_MENU_SETS`. No se modificaron las rutas, el modo aleatorio, la selección manual ni la asociación de cada `video.mp4` con su `music.mp3`.

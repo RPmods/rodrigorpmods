@@ -1,6 +1,4 @@
-// Copia este archivo como js/firebase-env.js SOLO para pruebas locales.
-// No subas tu js/firebase-env.js local con valores reales a un repositorio público.
-window.RPMODS_FIREBASE_CONFIG = {
+window.RPMODS_SERVICES_CONFIG = {
   apiKey: "TU_API_KEY",
   authDomain: "TU_PROYECTO.firebaseapp.com",
   databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",

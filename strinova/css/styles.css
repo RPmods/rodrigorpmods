@@ -133,7 +133,7 @@ button { user-select: none; }
   box-shadow: 0 18px 42px rgba(0,0,0,0.36), 0 0 34px rgba(255,255,255,0.08) inset;
 }
 
-/* PANTALLA DE CONFIGURACIÓN */
+
 .setup-screen,
 .summary-screen {
   align-items: center;
@@ -343,7 +343,7 @@ button { user-select: none; }
   text-align: center;
 }
 
-/* HUD */
+
 .draft-screen {
   flex-direction: column;
   padding: 14px 26px 10px;
@@ -497,7 +497,7 @@ button { user-select: none; }
   to { filter: drop-shadow(0 0 18px rgba(255, 47, 69, 0.95)); }
 }
 
-/* ESCENA */
+
 .battle-screen {
   position: relative;
   height: 100%;
@@ -958,7 +958,7 @@ button { user-select: none; }
   color: #fff;
 }
 
-/* GALERÍA INFERIOR */
+
 .character-dock {
   position: relative;
   z-index: 10;
@@ -1156,7 +1156,7 @@ button { user-select: none; }
 .strip-pus { background: var(--blue); box-shadow: 0 0 10px var(--blue); }
 .strip-urbino { background: var(--yellow); box-shadow: 0 0 10px var(--yellow); }
 
-/* OVERLAY DE FASES */
+
 .phase-overlay {
   position: fixed;
   inset: 0;
@@ -1242,7 +1242,7 @@ button { user-select: none; }
   100% { opacity: 0; transform: scale(1.02); }
 }
 
-/* RESUMEN */
+
 .summary-screen { align-items: center; }
 .summary-shell { min-height: min(840px, calc(100vh - 52px)); }
 
@@ -1355,7 +1355,7 @@ button { user-select: none; }
   border: 1px solid rgba(255,255,255,0.16);
 }
 
-/* RESPONSIVE */
+
 @media (max-width: 1200px) {
   .game-hud { grid-template-columns: 110px 1fr 110px; }
   .battle-screen { grid-template-columns: 250px minmax(380px, 1fr) 250px; gap: 12px; }
@@ -1446,9 +1446,7 @@ body.overlay-lock { cursor: wait; }
   max-width: none;
 }
 
-/* =========================================================
-   AJUSTES V3.7 - Canvas fijo 1920x1080 y layout estable
-   ========================================================= */
+
 html,
 body {
   width: 100%;
@@ -1523,7 +1521,7 @@ body {
   grid-template-columns: 320px minmax(760px, 1fr) 320px;
 }
 
-/* Laterales compactos y simétricos */
+
 .team-column {
   justify-content: center;
   gap: 10px;
@@ -1585,7 +1583,7 @@ body {
   justify-content: flex-start;
 }
 
-/* Centro estable: seleccionar un personaje ya no empuja el dock inferior */
+
 .hero-stage {
   justify-content: flex-start;
   padding: 4px 0 92px;
@@ -1649,7 +1647,7 @@ body {
   clip-path: none !important;
 }
 
-/* Barra inferior fija: evita cortes y saltos entre 1920x1080 y otras resoluciones */
+
 .character-dock {
   flex: 0 0 150px;
   height: 150px;
@@ -1678,7 +1676,7 @@ body {
   flex: 0 0 72px;
 }
 
-/* Panel de estado con información de personaje */
+
 .phase-status-panel {
   width: 760px;
   min-height: 58px;
@@ -1689,7 +1687,7 @@ body {
   line-height: 1.15;
 }
 
-/* Resumen final: boxes invisibles para que entren 5 por equipo */
+
 .summary-shell {
   width: 1500px;
   min-height: 960px;
@@ -1770,7 +1768,7 @@ body {
   overflow: hidden;
 }
 
-/* Animación de fase: entrada lateral sin blur */
+
 .phase-overlay.animate .phase-kicker { animation: phaseFromLeft 3.4s ease both; }
 .phase-overlay.animate .phase-title { animation: phaseTitleCenter 3.4s ease both; }
 .phase-overlay.animate .phase-subtitle { animation: phaseFromRight 3.4s ease both; }
@@ -1796,7 +1794,7 @@ body {
   100% { opacity: 0; transform: scale(1.02); }
 }
 
-/* Efecto de baneo mejorado */
+
 .fullbody-card.banishing::before {
   content: "";
   position: absolute;
@@ -1830,18 +1828,16 @@ body {
   100% { opacity: 0; transform: translateX(-50%) rotate(-16deg) scaleX(1); }
 }
 
-/* Ajuste extra de altura para que la segunda fila del dock nunca se recorte */
+
 .character-dock {
   flex-basis: 166px;
   height: 166px;
 }
 
 
-/* =========================================================
-   AJUSTES V3.8 - prioridad: dock completo + stage centrado
-   ========================================================= */
 
-/* más espacio real para el dock inferior dentro del canvas 1920x1080 */
+
+
 .draft-screen.active {
   grid-template-rows: 82px minmax(0, 1fr) 182px !important;
 }
@@ -1890,7 +1886,7 @@ body {
   width: min(39%, 300px) !important;
 }
 
-/* dos cajas invisibles para encajar mejor los PNG full */
+
 .fullbody-box,
 .summary-fullbody-box {
   position: relative;
@@ -1944,7 +1940,7 @@ body {
   min-height: 500px !important;
 }
 
-/* el efecto de baneo ya no usa el cuadro extraño */
+
 .fullbody-card.banishing::before {
   content: none !important;
 }
@@ -1975,7 +1971,7 @@ body {
   100% { opacity: 0; transform: translate(-50%, -50%) rotate(-14deg) scaleX(1); }
 }
 
-/* dock inferior: que siempre se vea completo */
+
 .character-dock {
   flex: 0 0 182px !important;
   height: 182px !important;
@@ -2006,7 +2002,7 @@ body {
   height: 46px;
 }
 
-/* resumen: boxes invisibles, zoom al torso/rostro y anclado arriba */
+
 .summary-shell {
   width: 1560px;
   min-height: 980px;
@@ -2057,7 +2053,7 @@ body {
   direction: ltr;
 }
 
-/* laterales compactos sin mover el orden visual */
+
 .team-column-b .player-slot {
   width: 286px;
   grid-template-columns: 178px 90px;
@@ -2074,9 +2070,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.9 - dock más arriba + modelos de tamaño uniforme
-   ========================================================= */
+
 .draft-screen.active {
   grid-template-rows: 82px minmax(0, 1fr) 174px !important;
 }
@@ -2128,7 +2122,7 @@ body {
   height: 102px;
 }
 
-/* usar altura estable y cajas más controladas */
+
 .fullbody-box--standard { width: 82%; }
 .fullbody-box--wide { width: 96%; }
 
@@ -2136,7 +2130,7 @@ body {
   object-position: center bottom !important;
 }
 
-/* resumen sin recortes laterales y anclado arriba */
+
 .summary-lineup {
   height: 292px !important;
   min-height: 292px !important;
@@ -2155,9 +2149,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.10 - modelos más uniformes + dock totalmente visible
-   ========================================================= */
+
 .draft-screen {
   padding: 10px 24px 6px !important;
   gap: 4px !important;
@@ -2276,9 +2268,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.11 - dock compacto visible y fase arriba
-   ========================================================= */
+
 .draft-screen.active {
   grid-template-rows: 76px minmax(0, 1fr) 138px !important;
 }
@@ -2358,9 +2348,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.12 - resumen sin box + selector centrado
-   ========================================================= */
+
 .phase-status-panel {
   bottom: 16px !important;
 }
@@ -2405,7 +2393,7 @@ body {
   flex: initial !important;
 }
 
-/* Resumen: sin box invisible, menos recorte */
+
 .summary-lineup {
   height: 300px !important;
   min-height: 300px !important;
@@ -2449,14 +2437,12 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.13 - 11 arriba / 12 abajo + zoom superior
-   ========================================================= */
+
 .phase-status-panel {
   bottom: 24px !important;
 }
 
-/* selector de personajes centrado: 11 arriba y 12 abajo */
+
 .character-dock {
   flex: 0 0 142px !important;
   height: 142px !important;
@@ -2487,7 +2473,7 @@ body {
   gap: 18px !important;
 }
 
-/* imágenes grandes: más zoom al torso y mejor encaje */
+
 .stage-characters {
   flex: 0 0 430px !important;
   height: 430px !important;
@@ -2532,7 +2518,7 @@ body {
   max-height: none !important;
 }
 
-/* resumen: volver a caja invisible para mantener dentro del recuadro */
+
 .summary-lineup {
   height: 300px !important;
   min-height: 300px !important;
@@ -2573,9 +2559,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.14 - estética tipo menú de ajustes para setup/resumen
-   ========================================================= */
+
 .setup-screen,
 .summary-screen {
   align-items: center;
@@ -2891,9 +2875,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.15 - subconfiguración + animación de selección
-   ========================================================= */
+
 .settings-topbar {
   justify-content: space-between;
 }
@@ -3070,9 +3052,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.16 - categorías internas menú / volumen / configuración
-   ========================================================= */
+
 .setup-center-card {
   align-items: stretch;
   justify-items: stretch;
@@ -3194,9 +3174,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.17 - mover categorías al panel superior
-   ========================================================= */
+
 .setup-screen .settings-topbar {
   justify-content: flex-start;
 }
@@ -3237,9 +3215,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.18 - compactar pestañas superiores
-   ========================================================= */
+
 .setup-screen .settings-brand::after {
   display: none !important;
   content: none !important;
@@ -3342,9 +3318,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.19 - resumen fullscreen + random selector
-   ========================================================= */
+
 .setup-screen .settings-tabs {
   flex-wrap: wrap;
 }
@@ -3537,9 +3511,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.20 - pasada fina draft/resumen + random fix
-   ========================================================= */
+
 .fullbody-card,
 .fullbody-empty {
   height: 400px !important;
@@ -3621,7 +3593,7 @@ body {
   object-position: center top !important;
 }
 
-/* ajuste fino del resumen para que no se corten */
+
 .summary-fullbody.summary-audrey img { transform: translate(-34px, -6px) scale(0.98) !important; }
 .summary-fullbody.summary-bai-mo img { transform: translate(8px, -4px) scale(0.98) !important; }
 .summary-fullbody.summary-celestia img { transform: translate(-3px, -6px) scale(0.97) !important; }
@@ -3658,9 +3630,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.21 - editor manual + nueva animación de selección
-   ========================================================= */
+
 .fullbody-card.selecting {
   animation: selectionPulseGlow 1.05s ease both !important;
 }
@@ -3713,9 +3683,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.22 - DEVELOPMENT editor manual
-   ========================================================= */
+
 .setup-top-tab[data-tab="development"] {
   min-width: 170px;
 }
@@ -3897,9 +3865,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.23 - Development deshabilitado + cancelar draft
-   ========================================================= */
+
 .setup-top-tab.is-unavailable,
 .setup-top-tab:disabled {
   cursor: not-allowed !important;
@@ -3951,9 +3917,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.24 - bloqueos más visibles + audio turn voices
-   ========================================================= */
+
 .ban-stack {
   min-height: 92px !important;
   padding-top: 8px !important;
@@ -3997,7 +3961,7 @@ body {
   font-size: 2.15rem !important;
 }
 
-/* Resumen final: bloqueos en cuadros más grandes y en blanco/negro */
+
 .summary-team h3 {
   margin-top: 14px !important;
   margin-bottom: 8px !important;
@@ -4072,24 +4036,16 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.25 - box full PNG más grande y slots dobles estables
-   ========================================================= */
-/*
-  La configuración principal ahora está en js/app.js, en:
-  DRAFT_FULLBODY_BOX_CONFIG
-  Cambia stageWidth/stageHeight/singleBoxWidth/doubleBoxWidth/doubleGap/statusBottom.
-*/
+
+
 .stage-characters.is-double .fullbody-card.locked-picked {
   animation: none !important;
 }
 
 
-/* =========================================================
-   AJUSTES V3.27 - movimiento, roulette, mapa y resumen animado
-   ========================================================= */
 
-/* movimiento leve en PNG full dentro del draft */
+
+
 .fullbody-card.idle-fullbody .fullbody-frame {
   animation: draftFullbodyFloat 5.6s ease-in-out infinite;
   will-change: transform;
@@ -4110,7 +4066,7 @@ body {
   70% { transform: translate3d(2px, -3px, 0) rotate(-0.12deg); }
 }
 
-/* animaciones en cuadros de selección y baneo */
+
 .player-slot.pick-flash {
   animation: pickSlotFlash 1.15s ease both;
 }
@@ -4147,7 +4103,7 @@ body {
   100% { filter: grayscale(1); transform: scale(1); box-shadow: none; }
 }
 
-/* selección más resaltante, sin cuadros de texto */
+
 .fullbody-card.selection-burst {
   animation: selectionBurstCard 1.05s ease both !important;
 }
@@ -4208,7 +4164,7 @@ body {
   100% { opacity: 0; transform: translateX(22%) skewX(-10deg); }
 }
 
-/* roulette arcade en menú de personajes */
+
 .character-card.roulette-highlight {
   z-index: 8;
   animation: rouletteCardHop 0.16s ease both;
@@ -4233,7 +4189,7 @@ body {
   100% { transform: translateY(0) scale(1.04); filter: brightness(1.1); }
 }
 
-/* pantalla de selección de mapa */
+
 .map-screen {
   align-items: center;
   justify-content: center;
@@ -4365,7 +4321,7 @@ body {
   text-transform: uppercase;
 }
 
-/* mapa seleccionado en resumen */
+
 .summary-map-card {
   position: relative;
   z-index: 2;
@@ -4417,7 +4373,7 @@ body {
   text-transform: uppercase;
 }
 
-/* entrada del resumen */
+
 .summary-screen.summary-enter .summary-shell {
   animation: summaryShellIntro 1.2s cubic-bezier(.18,.84,.2,1) both;
 }
@@ -4456,7 +4412,7 @@ body {
 }
 
 
-/* AJUSTE V3.28 - entrada de selección de mapa y roulette loop visual */
+
 .map-screen.map-enter .map-shell {
   animation: mapScreenIntro 0.72s cubic-bezier(.16,.84,.24,1) both;
 }
@@ -4491,15 +4447,13 @@ body {
   to { opacity: 1; transform: translateY(0) scale(1); filter: brightness(1); }
 }
 
-/* =========================================================
-   AJUSTES V3.30 - resumen final: botón, título TEAM B y limpieza visual
-   ========================================================= */
+
 .summary-screen {
   position: relative !important;
   overflow: hidden !important;
 }
 
-/* Oculta el panel decorativo derecho y la barra vertical que se veían detrás del TEAM B */
+
 .summary-screen .settings-preview-pane,
 .summary-screen .settings-scroll-rail {
   display: none !important;
@@ -4507,12 +4461,12 @@ body {
   pointer-events: none !important;
 }
 
-/* Evita que el resumen se coma el botón inferior */
+
 .summary-shell {
   padding-bottom: 86px !important;
 }
 
-/* Botón visible para reiniciar / volver a configurar */
+
 .summary-screen #restart-draft {
   position: absolute !important;
   left: 34px !important;
@@ -4528,7 +4482,7 @@ body {
   pointer-events: auto !important;
 }
 
-/* TEAM A: título e indicador rojo a la izquierda */
+
 .summary-team-a .summary-team-title {
   text-align: left !important;
   padding-left: 18px !important;
@@ -4541,7 +4495,7 @@ body {
   background: #e64657 !important;
 }
 
-/* TEAM B: título alineado a la derecha e indicador azul a la derecha */
+
 .summary-team-b .summary-team-title {
   text-align: right !important;
   padding-left: 0 !important;
@@ -4560,9 +4514,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.31 - ruleta sin tick visual
-   ========================================================= */
+
 .character-card.roulette-highlight {
   transform: none !important;
   animation: rouletteCardFlashStable 0.12s ease both !important;
@@ -4602,10 +4554,8 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.32 - limpieza visual setup/resumen + volumen 40%
-   ========================================================= */
-/* Quita definitivamente el cuadro decorativo y la barra vertical en setup, mapas y resumen */
+
+
 .settings-preview-pane,
 .settings-scroll-rail {
   display: none !important;
@@ -4614,12 +4564,12 @@ body {
   pointer-events: none !important;
 }
 
-/* Oculta la nota técnica inferior de assets si alguna versión del HTML la conserva */
+
 .asset-note {
   display: none !important;
 }
 
-/* Ajuste para el nombre largo del rework */
+
 .settings-brand {
   max-width: 760px !important;
   white-space: nowrap !important;
@@ -4640,7 +4590,7 @@ body {
   font-size: clamp(2.4rem, 4.1vw, 4.6rem) !important;
 }
 
-/* Evita que el botón de reinicio tape contenido del resumen */
+
 .summary-shell {
   padding-bottom: 104px !important;
 }
@@ -4656,19 +4606,17 @@ body {
   transform: none !important;
 }
 
-/* Reserva espacio visual en la parte inferior para que el botón no se sienta encima del resumen */
+
 .summary-versus-layout {
   margin-bottom: 26px !important;
 }
 
-/* La música inicia visualmente al 40% incluso si el navegador conserva estilos previos */
+
 #music-volume-range {
   accent-color: #f33d49;
 }
 
-/* =========================================================
-   AJUSTE V3.34 - resumen organizado sin solapar botón
-   ========================================================= */
+
 .summary-screen {
   padding: 6px !important;
   align-items: stretch !important;
@@ -4869,9 +4817,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.35 - nombres aleatorios + créditos
-   ========================================================= */
+
 .setup-top-tab[data-tab="creditos"] {
   min-width: 126px;
 }
@@ -4977,11 +4923,9 @@ body {
   gap: 12px;
 }
 
-/* =========================================================
-   AJUSTES V3.36 - setup estable, tabs visibles y nombres al costado
-   ========================================================= */
 
-/* Hace que la barra superior siempre se vea y no sea tapada por el título. */
+
+
 .setup-screen .settings-surface {
   overflow: hidden !important;
 }
@@ -5040,7 +4984,7 @@ body {
   max-width: 132px !important;
 }
 
-/* Se reserva espacio real para la barra superior; así no desaparece al cambiar de categoría. */
+
 .setup-screen .setup-shell {
   width: min(1520px, calc(100vw - 44px)) !important;
   height: min(930px, calc(100vh - 28px)) !important;
@@ -5066,7 +5010,7 @@ body {
   display: none !important;
 }
 
-/* El layout principal mantiene siempre el mismo tamaño base para evitar saltos al cambiar tabs. */
+
 .setup-screen .setup-teams {
   margin: 22px 0 0 !important;
   min-height: 535px !important;
@@ -5112,7 +5056,7 @@ body {
   margin-bottom: 10px !important;
 }
 
-/* Las opciones de nombres ya no ocupan el centro; quedan al costado inferior. */
+
 .setup-shell.view-menu .player-name-mode-panel {
   position: absolute !important;
   right: 34px !important;
@@ -5146,7 +5090,7 @@ body {
   font-size: 0.68rem !important;
 }
 
-/* El centro vuelve a ser limpio: VS, reglas y botón de iniciar. */
+
 .setup-shell.view-menu .setup-center-card .menu-panel-copy {
   display: grid !important;
   min-height: 118px !important;
@@ -5169,7 +5113,7 @@ body {
   min-height: 48px !important;
 }
 
-/* Las subcategorías que no son MENÚ usan un panel centrado estable, sin cambiar todo el tamaño. */
+
 .setup-shell.view-volumen .setup-team,
 .setup-shell.view-configuracion .setup-team,
 .setup-shell.view-random .setup-team,
@@ -5251,7 +5195,7 @@ body {
   gap: 12px !important;
 }
 
-/* Mantiene la barra superior estable incluso en pantallas angostas. */
+
 @media (max-width: 1500px) {
   .setup-screen .settings-brand {
     flex-basis: 285px !important;
@@ -5268,13 +5212,9 @@ body {
   }
 }
 
-/* =========================================================
-   AJUSTES V3.37 - panel de nombres aleatorios a la izquierda
-   ========================================================= */
 
-/* El panel de nombres ya no se coloca encima del botón INICIAR DRAFT.
-   Ahora queda anclado al costado inferior izquierdo, dentro de la zona libre
-   del TEAM A. */
+
+
 .setup-shell.view-menu .player-name-mode-panel {
   left: 34px !important;
   right: auto !important;
@@ -5284,15 +5224,13 @@ body {
   z-index: 36 !important;
 }
 
-/* Mantiene el botón principal por encima de su panel central, pero sin pelear
-   visualmente con el panel de nombres. */
+
 .setup-shell.view-menu #start-draft {
   position: relative !important;
   z-index: 20 !important;
 }
 
-/* Pequeña reducción para que el panel izquierdo se vea más integrado y no tape
-   demasiado espacio vacío del equipo. */
+
 .setup-shell.view-menu .player-name-mode-panel .compact-heading strong {
   font-size: 0.98rem !important;
   line-height: 1.05 !important;
@@ -5317,18 +5255,14 @@ body {
   }
 }
 
-/* =========================================================
-   AJUSTES V3.38 - panel de nombres realmente anclado al TEAM A
-   ========================================================= */
 
-/* El problema era que el panel seguía posicionándose relativo al cuadro central
-   del VS. Dejamos ese contenedor sin referencia absoluta para que el panel se
-   ancle al shell completo del menú. */
+
+
 .setup-shell.view-menu .setup-center-card {
   position: static !important;
 }
 
-/* Panel de nombres manual/aleatorio colocado en la zona inferior libre del TEAM A. */
+
 .setup-shell.view-menu .player-name-mode-panel {
   position: absolute !important;
   left: 58px !important;
@@ -5368,7 +5302,7 @@ body {
   margin-top: 8px !important;
 }
 
-/* Asegura que el botón principal del centro no quede debajo ni sea cubierto. */
+
 .setup-shell.view-menu #start-draft {
   position: relative !important;
   z-index: 30 !important;
@@ -5383,12 +5317,9 @@ body {
   }
 }
 
-/* =========================================================
-   AJUSTES V3.39 - panel de nombres fijado realmente a la izquierda
-   ========================================================= */
 
-/* El panel estaba quedando relativo a .setup-panels, que está dentro del bloque
-   central. Esto lo libera para que se posicione respecto al .setup-shell completo. */
+
+
 .setup-shell.view-menu .setup-panels {
   position: static !important;
 }
@@ -5401,8 +5332,7 @@ body {
   position: static !important;
 }
 
-/* Panel manual/aleatorio colocado en la zona inferior izquierda del menú,
-   dentro del espacio libre del TEAM A y lejos del botón INICIAR DRAFT. */
+
 .setup-shell.view-menu .player-name-mode-panel {
   position: absolute !important;
   left: 46px !important;
@@ -5416,7 +5346,7 @@ body {
   padding: 10px 12px !important;
 }
 
-/* Mantiene el centro despejado. */
+
 .setup-shell.view-menu #start-draft {
   position: relative !important;
   z-index: 30 !important;
@@ -5431,11 +5361,9 @@ body {
   }
 }
 
-/* =========================================================
-   AJUSTES V3.41 - panel defensores + animaciones reforzadas
-   ========================================================= */
 
-/* TEAM B se mantiene pegado al lateral derecho y el texto ya no se desborda */
+
+
 .team-column-b {
   align-items: flex-end !important;
   justify-items: end !important;
@@ -5503,7 +5431,7 @@ body {
   justify-content: flex-end !important;
 }
 
-/* Si la pantalla es muy estrecha, mantenemos el lateral ordenado sin romper textos */
+
 @media (max-width: 1360px) {
   .team-column-b .player-slot {
     width: 300px !important;
@@ -5515,7 +5443,7 @@ body {
   }
 }
 
-/* Animación de selección más vistosa en el PNG full */
+
 .fullbody-card.selecting,
 .fullbody-card.selection-burst {
   animation: selectionBurstCardPlus 1.18s cubic-bezier(.17,.84,.32,1) both !important;
@@ -5586,7 +5514,7 @@ body {
   100% { opacity: 0; transform: translateX(38%) skewX(-12deg); }
 }
 
-/* Cuadros de selección: más brillo, borde y pulso sin cambiar layout */
+
 .player-slot.pick-flash {
   position: relative;
   overflow: visible;
@@ -5638,7 +5566,7 @@ body {
   100% { text-shadow: 0 2px 6px rgba(0,0,0,0.45); }
 }
 
-/* Animación de baneo más fuerte en PNG full y cuadros */
+
 .fullbody-card.banishing::before {
   content: "" !important;
   position: absolute !important;
@@ -5733,9 +5661,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.42 - preview full en ruleta + defaults + historial
-   ========================================================= */
+
 .player-slot.roulette-preview-slot,
 .ban-slot.roulette-preview-slot {
   outline: 2px solid rgba(255, 218, 78, 0.85) !important;
@@ -5830,9 +5756,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.44 - IDIOMA / traducción de texto
-   ========================================================= */
+
 .setup-top-tab[data-tab="idioma"] { min-width: 116px; }
 .setup-shell.view-idioma .setup-team,
 .setup-shell.view-idioma .setup-hero { display: none !important; }
@@ -5855,13 +5779,7 @@ body {
 .language-note-panel strong { display: block; margin-bottom: 6px; font-weight: 1000; letter-spacing: 0.06em; text-transform: uppercase; }
 .language-note-panel p { margin: 0; font-size: 0.88rem; line-height: 1.45; font-weight: 800; }
 
-/* =========================================================
-   AJUSTE V3.45 - restaurar animación anterior SOLO del PNG full en baneo
-   =========================================================
-   Nota: esto no cambia la animación de los cuadros de baneo.
-   Solo devuelve el efecto del modelo grande a la versión anterior:
-   sin aura roja grande, con slash simple + fade/desaturación del PNG.
-*/
+
 .fullbody-card.banishing::before {
   content: none !important;
   animation: none !important;
@@ -5904,9 +5822,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.46 - menu de personajes más alto + facciones separadas
-   ========================================================= */
+
 .character-dock {
   flex: 0 0 188px !important;
   height: 188px !important;
@@ -6049,9 +5965,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.47 - subir dock del selector y acomodar fila Urbinos
-   ========================================================= */
+
 .character-dock {
   flex: 0 0 222px !important;
   height: 222px !important;
@@ -6087,9 +6001,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.48 - dock más alto, más arriba y Urbinos más a la izquierda
-   ========================================================= */
+
 .character-dock {
   flex: 0 0 244px !important;
   height: 244px !important;
@@ -6144,9 +6056,7 @@ body {
   margin-top: 6px !important;
 }
 
-/* =========================================================
-   AJUSTE V3.49 - dock más alto y Urbinos más a la izquierda
-   ========================================================= */
+
 .character-dock {
   flex: 0 0 282px !important;
   height: 282px !important;
@@ -6225,14 +6135,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.50 - reestructura limpia del selector inferior por facciones
-   =========================================================
-   Problema corregido:
-   - El header interno del dock ocupaba altura aunque no se usaba.
-   - La fila de Urbinos estaba empujada con flex-end/padding-right y se iba demasiado a la derecha.
-   - La caja tenía altura visual insuficiente para 3 filas.
-*/
+
 .character-dock {
   flex: 0 0 340px !important;
   height: 340px !important;
@@ -6245,7 +6148,7 @@ body {
   background: linear-gradient(180deg, rgba(7,8,14,0.34), rgba(7,8,14,0.58)) !important;
 }
 
-/* Ya no necesitamos el texto interno del dock porque la fase se muestra en el panel superior */
+
 .character-dock .dock-header {
   display: none !important;
   height: 0 !important;
@@ -6279,7 +6182,7 @@ body {
   overflow: visible !important;
 }
 
-/* The Scissors y P.U.S mantienen label izquierda + iconos a la derecha */
+
 .faction-row-scissors,
 .faction-row-pus {
   grid-template-columns: 210px minmax(0, 1fr) !important;
@@ -6299,8 +6202,7 @@ body {
   margin: 0 !important;
 }
 
-/* Urbinos: iconos primero, label después, todo movido hacia la izquierda.
-   Celestia queda aproximadamente debajo de Lawine. */
+
 .faction-row-urbino {
   grid-template-columns: minmax(0, 1fr) 150px !important;
 }
@@ -6392,9 +6294,7 @@ body {
   bottom: 4px !important;
 }
 
-/* =========================================================
-   AJUSTE V3.51 - dock más compacto, más abajo y Urbinos más cerca
-   ========================================================= */
+
 .character-dock {
   flex: 0 0 304px !important;
   height: 304px !important;
@@ -6423,13 +6323,13 @@ body {
   height: 38px !important;
 }
 
-/* Mantener las filas superior e inferior estables */
+
 .faction-row-scissors,
 .faction-row-pus {
   grid-template-columns: 180px minmax(0, 1fr) !important;
 }
 
-/* Urbinos más cerca de sus iconos y más hacia la izquierda */
+
 .faction-row-urbino {
   grid-template-columns: minmax(0, 1fr) 150px !important;
 }
@@ -6445,9 +6345,7 @@ body {
   justify-self: start !important;
 }
 
-/* =========================================================
-   AJUSTE V3.52 - selector compacto, debajo del panel de fase y Urbinos unido
-   ========================================================= */
+
 .character-dock {
   flex: 0 0 238px !important;
   height: 238px !important;
@@ -6504,7 +6402,7 @@ body {
   margin: 0 !important;
 }
 
-/* Urbinos: Celestia queda aproximadamente debajo de Lawine y la etiqueta queda pegada a los iconos */
+
 .faction-row-urbino {
   grid-template-columns: 260px max-content 150px minmax(0, 1fr) !important;
 }
@@ -6557,20 +6455,12 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.53 - selector inferior reestructurado y estable
-   =========================================================
-   Objetivo:
-   - Volver el selector al área inferior, debajo del panel de fase.
-   - Evitar que la caja invada el panel central.
-   - Mantener visibles las 3 facciones sin recortes.
-   - Juntar URBINOS con sus iconos y alinear Celestia aprox. bajo Lawine.
-*/
+
 .draft-screen.active {
   position: relative !important;
 }
 
-/* Caja del selector: posición fija dentro del canvas 1920x1080 */
+
 .character-dock {
   position: absolute !important;
   left: 50% !important;
@@ -6593,7 +6483,7 @@ body {
   border-top: 1px solid rgba(255,255,255,0.12) !important;
 }
 
-/* El header del dock ya no se usa; la fase vive en el panel superior */
+
 .character-dock .dock-header {
   display: none !important;
   height: 0 !important;
@@ -6602,7 +6492,7 @@ body {
   padding: 0 !important;
 }
 
-/* Grid interno completamente controlado */
+
 .character-grid {
   display: grid !important;
   grid-template-columns: 1fr !important;
@@ -6632,7 +6522,7 @@ body {
   overflow: visible !important;
 }
 
-/* The Scissors y P.U.S: etiqueta izquierda, iconos al costado */
+
 .faction-row-scissors .faction-row-label,
 .faction-row-pus .faction-row-label {
   grid-column: 1 !important;
@@ -6652,8 +6542,7 @@ body {
   padding: 0 !important;
 }
 
-/* Urbinos: iconos un poco desplazados a la derecha para alinear Celestia con Lawine,
-   pero la etiqueta dorada queda pegada al final de esos iconos. */
+
 .faction-row-urbino {
   grid-template-columns: 268px max-content 150px minmax(0, 1fr) !important;
 }
@@ -6679,7 +6568,7 @@ body {
   margin-top: 0 !important;
 }
 
-/* Etiquetas de facción */
+
 .faction-row-label {
   height: 38px !important;
   min-height: 38px !important;
@@ -6695,7 +6584,7 @@ body {
   border-width: 2px !important;
 }
 
-/* Iconos */
+
 .faction-row-cards {
   display: flex !important;
   flex-wrap: nowrap !important;
@@ -6720,14 +6609,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.54 - corrección de filas del selector por facción
-   =========================================================
-   Corrige:
-   - Los iconos de Urbinos invadiendo la fila de P.U.S.
-   - El dock demasiado pegado al panel de fase.
-   - Mantener Urbinos cerca de su etiqueta sin romper las otras 2 filas.
-*/
+
 .character-dock {
   bottom: 24px !important;
   height: 196px !important;
@@ -6745,7 +6627,7 @@ body {
   align-content: start !important;
 }
 
-/* Fuerza el orden visual real de las filas para evitar mezclas */
+
 .faction-row-scissors { grid-row: 1 !important; }
 .faction-row-urbino { grid-row: 2 !important; }
 .faction-row-pus { grid-row: 3 !important; }
@@ -6756,7 +6638,7 @@ body {
   align-items: center !important;
 }
 
-/* Filas izquierda -> derecha para Scissors y P.U.S */
+
 .faction-row-scissors,
 .faction-row-pus {
   grid-template-columns: 168px minmax(0, 1fr) !important;
@@ -6778,7 +6660,7 @@ body {
   margin: 0 !important;
 }
 
-/* Urbinos: iconos y luego etiqueta, ambos en la MISMA fila */
+
 .faction-row-urbino {
   grid-template-columns: 220px max-content 136px !important;
   justify-content: start !important;
@@ -6823,15 +6705,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.55 - dock compacto y fila Urbinos corregida
-   =========================================================
-   Corrige:
-   - Urbinos ya no invade la fila de P.U.S.
-   - La etiqueta de Urbinos queda a la derecha y pegada a sus iconos.
-   - El dock inferior baja un poco y reduce su anchura.
-   - Se resetean offsets heredados que estaban empujando la fila 2.
-*/
+
 .character-dock {
   left: 50% !important;
   bottom: 26px !important;
@@ -6861,7 +6735,7 @@ body {
   align-items: center !important;
 }
 
-/* Reset duro de posibles desplazamientos heredados */
+
 .faction-row .faction-row-label,
 .faction-row .faction-row-cards {
   position: static !important;
@@ -6873,7 +6747,7 @@ body {
   align-self: center !important;
 }
 
-/* The Scissors y P.U.S. se comportan normal: etiqueta + iconos */
+
 .faction-row-scissors,
 .faction-row-pus {
   grid-template-columns: 168px minmax(0, 1fr) !important;
@@ -6894,7 +6768,7 @@ body {
   padding: 0 !important;
 }
 
-/* Urbinos: iconos a la derecha y etiqueta pegada al extremo derecho */
+
 .faction-row-urbino {
   grid-template-columns: 1fr max-content 138px !important;
 }
@@ -6935,16 +6809,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.56 - reestructuración definitiva del selector
-   =========================================================
-   Soluciona de forma fuerte:
-   - Urbinos ya no se mete debajo de P.U.S.
-   - La fila de Urbinos usa la MISMA lógica visual que las otras,
-     pero alineada a la derecha: [iconos][etiqueta].
-   - Se elimina cualquier interferencia previa de grid-row/grid-column.
-   - El dock se compacta un poco más y queda estable.
-*/
+
 .character-dock {
   left: 50% !important;
   bottom: 18px !important;
@@ -7028,7 +6893,7 @@ body {
   z-index: 2 !important;
 }
 
-/* Scissors y P.U.S.: etiqueta a la izquierda, iconos a la derecha */
+
 .faction-row-scissors .faction-row-label,
 .faction-row-pus .faction-row-label {
   order: 1 !important;
@@ -7038,7 +6903,7 @@ body {
   order: 2 !important;
 }
 
-/* Urbinos: iconos pegados a su etiqueta, ambos alineados al lado derecho */
+
 .faction-row-urbino .faction-row-cards {
   order: 1 !important;
   margin-right: 0 !important;
@@ -7059,15 +6924,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.57 - facciones alineadas + caja invisible
-   =========================================================
-   Corrige:
-   - Urbinos ahora usa la misma estructura que The Scissors y P.U.S.
-   - Las 3 etiquetas quedan alineadas al lateral izquierdo.
-   - Los iconos de las 3 facciones empiezan en la misma columna.
-   - La caja general del menú de personajes queda invisible.
-*/
+
 .character-dock {
   background: transparent !important;
   border: 0 !important;
@@ -7118,7 +6975,7 @@ body {
   padding: 0 !important;
 }
 
-/* Reset específico para quitar el comportamiento anterior de Urbinos a la derecha */
+
 .faction-row-urbino .faction-row-cards {
   margin-right: 0 !important;
 }
@@ -7128,14 +6985,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.58 - centrar visualmente el selector invisible
-   =========================================================
-   Corrige:
-   - El selector se veía cargado hacia la izquierda porque el contenedor invisible era más ancho que el contenido real.
-   - Se reduce el ancho real del dock/grid al tamaño necesario de las filas.
-   - Las tres facciones mantienen la misma estructura: [etiqueta][iconos].
-*/
+
 .character-dock {
   width: min(760px, calc(100vw - 180px)) !important;
   min-width: 0 !important;
@@ -7182,15 +7032,7 @@ body {
   justify-content: flex-start !important;
 }
 
-/* =========================================================
-   AJUSTE V3.59 - iconos limpios sin texto, puntos ni marcas
-   =========================================================
-   Pedido:
-   - Mostrar solo los iconos en el selector de personajes.
-   - Ocultar nombre inferior de cada icono.
-   - Ocultar el circulito/indicador de facción dentro del icono.
-   - Ocultar las marcas visuales de PICK / BAN dentro del icono.
-*/
+
 .character-grid .character-name {
   display: none !important;
 }
@@ -7210,13 +7052,7 @@ body {
   overflow: hidden !important;
 }
 
-/* =========================================================
-   AJUSTE V3.60 - restaurar marcas PICK/BAN y quitar letras grandes
-   =========================================================
-   - Mantiene el selector limpio: sin nombres ni circulitos de facción.
-   - Quita las letras grandes de fallback (F, Y, M, etc.).
-   - Restaura y mejora las marcas PICK / BAN en iconos ya usados.
-*/
+
 .character-grid .thumb-fallback {
   display: none !important;
   opacity: 0 !important;
@@ -7266,13 +7102,7 @@ body {
   overflow: hidden !important;
 }
 
-/* =========================================================
-   AJUSTE V3.61 - bajar panel de fase + bordes animados
-   =========================================================
-   - Baja un poco el panel que indica la fase actual.
-   - Añade movimiento sutil a los bordes del selector.
-   - Mantiene intactas las marcas PICK/BAN.
-*/
+
 .phase-status-panel {
   bottom: 124px !important;
 }
@@ -7372,13 +7202,7 @@ body {
   }
 }
 
-/* =========================================================
-   AJUSTE V3.62 - selección random más visible
-   =========================================================
-   - Refuerza el recorrido visual de la ruleta.
-   - Mejora el ganador final.
-   - Hace más visibles los cuadros/casilleros previos.
-*/
+
 
 .character-card.roulette-highlight {
   position: relative !important;
@@ -7511,18 +7335,9 @@ body {
   }
 }
 
-/* =========================================================
-   AJUSTE V3.63 - PICK por equipo + fase animada + random más visible
-   =========================================================
-   - PICK de Team A/atacantes: rojo.
-   - PICK de Team B/defensores: azul.
-   - Preselección con borde rojo/azul según turno actual.
-   - Borde de iconos más delgado, con brillo animado por facción.
-   - Panel de fase con animación de caja y texto por equipo.
-   - Ruleta random más visible en iconos, casilleros y PNG full.
-*/
 
-/* Iconos: borde más delgado, pero con glow */
+
+
 .character-grid .character-card {
   border-width: 2px !important;
   transition: filter 0.16s ease, opacity 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease !important;
@@ -7543,7 +7358,7 @@ body {
   box-shadow: 0 0 10px rgba(255, 220, 71, 0.18), inset 0 0 0 1px rgba(255,255,255,0.04) !important;
 }
 
-/* Preselección: rojo para atacantes, azul para defensores */
+
 .character-grid .character-card.selected-team-a,
 .character-grid .character-card.selected.selected-team-a {
   border-color: rgba(255, 72, 91, 1) !important;
@@ -7576,7 +7391,7 @@ body {
   to { filter: brightness(1.25) saturate(1.24); }
 }
 
-/* PICK/BAN más resaltantes */
+
 .character-grid .character-card.picked::after,
 .character-grid .character-card.banned::after {
   z-index: 9 !important;
@@ -7615,7 +7430,7 @@ body {
   to { opacity: 1; filter: brightness(1.22); }
 }
 
-/* Panel de fase: animación por equipo */
+
 .phase-status-panel {
   animation: phasePanelTeamA 2.2s ease-in-out infinite alternate !important;
 }
@@ -7672,7 +7487,7 @@ body {
   to { text-shadow: 0 0 10px rgba(86,177,255,0.62), 0 2px 6px rgba(0,0,0,0.55); }
 }
 
-/* Ruleta random: refuerzo visual extra */
+
 .character-card.roulette-highlight,
 .character-grid .character-card.roulette-highlight {
   opacity: 1 !important;
@@ -7761,11 +7576,7 @@ body {
 }
 
 
-/*
-   AJUSTE V3.64 - Badge PICK/BAN también en PNG FULL
-   - Replica la marca PICK / BAN sobre el personaje full del draft.
-   - El resalte del PNG full en selección usa rojo para Team A y azul para Team B.
-*/
+
 .fullbody-card.turn-action-card {
   position: relative !important;
   overflow: visible !important;
@@ -7894,18 +7705,16 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.65 - badge PICK/BAN solo al confirmar + más movimiento PNG full
-   ========================================================= */
 
-/* Mantener el badge oculto normalmente para que NO aparezca en preselección. */
+
+
 .fullbody-action-badge {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
 }
 
-/* Solo mostrarlo cuando ya ocurre la animación final de BAN / PICK. */
+
 .fullbody-card.banishing .fullbody-action-badge,
 .fullbody-card.selection-burst .fullbody-action-badge {
   opacity: 1 !important;
@@ -7964,7 +7773,7 @@ body {
   }
 }
 
-/* Aumentar un poco más el movimiento idle de los PNG full. */
+
 .fullbody-card.idle-fullbody .fullbody-frame {
   animation: draftFullbodyFloatV365 4.7s ease-in-out infinite !important;
   will-change: transform !important;
@@ -8007,11 +7816,9 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.66 - full PNG sin cuadro trasero + badge confirm mejorado
-   ========================================================= */
 
-/* Quitar el cuadrado/borde que aparecía detrás del PNG full. */
+
+
 .fullbody-card.turn-action-card .fullbody-frame,
 .fullbody-card.selection-burst .fullbody-frame,
 .fullbody-card.banishing .fullbody-frame {
@@ -8030,8 +7837,7 @@ body {
   border-color: transparent !important;
 }
 
-/* Mantener más consistencia entre la preselección y la confirmación.
-   La preselección queda un poco menos "encima" y la confirmación entra un poco más grande. */
+
 .fullbody-card.idle-fullbody .fullbody-img,
 .fullbody-card.selection-burst .fullbody-img,
 .fullbody-card.banishing .fullbody-img,
@@ -8055,7 +7861,7 @@ body {
   }
 }
 
-/* Cuando se confirma PICK, el PNG entra con más presencia que en preselección. */
+
 .fullbody-card.selection-burst .fullbody-img {
   animation: fullbodyPickConfirmV366 0.78s cubic-bezier(.18,.86,.22,1) both !important;
 }
@@ -8079,7 +7885,7 @@ body {
   }
 }
 
-/* BAN también entra con una animación clara, sin encoger de forma rara. */
+
 .fullbody-card.banishing .fullbody-img {
   animation: fullbodyBanConfirmV366 0.72s cubic-bezier(.18,.86,.22,1) both !important;
 }
@@ -8103,8 +7909,7 @@ body {
   }
 }
 
-/* Rediseño del badge BAN/PICK en el PNG full.
-   Solo aparece al confirmar y con una entrada más elegante tipo UI del selector. */
+
 .fullbody-card.banishing .fullbody-action-badge,
 .fullbody-card.selection-burst .fullbody-action-badge {
   opacity: 1 !important;
@@ -8228,11 +8033,9 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.67 - quitar borde full PNG + badge BAN/PICK rediseñado
-   ========================================================= */
 
-/* El PNG full no debe mostrar ningún recuadro visible detrás/alrededor. */
+
+
 .fullbody-card.turn-action-card,
 .fullbody-card.selection-burst,
 .fullbody-card.banishing,
@@ -8274,7 +8077,7 @@ body {
   background: transparent !important;
 }
 
-/* Mantener glow del PNG, pero sin cambiar bruscamente de escala respecto a la preselección. */
+
 .fullbody-card.idle-fullbody .fullbody-img,
 .fullbody-card.selection-burst .fullbody-img,
 .fullbody-card.banishing .fullbody-img,
@@ -8332,7 +8135,7 @@ body {
   }
 }
 
-/* Badge central rediseñado: más tipo rótulo/placa y con entrada/salida. */
+
 .fullbody-card.banishing .fullbody-action-badge,
 .fullbody-card.selection-burst .fullbody-action-badge {
   opacity: 1 !important;
@@ -8476,12 +8279,9 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.68 - quitar rectángulo real del PNG full + badge más grande
-   ========================================================= */
 
-/* Eliminación fuerte del marco/rectángulo del FULL PNG.
-   Esto sobreescribe también las reglas anteriores con team-a/team-b que tenían más especificidad. */
+
+
 .fullbody-card.turn-action-card .fullbody-frame,
 .fullbody-card.turn-action-card.turn-pick.team-a .fullbody-frame,
 .fullbody-card.turn-action-card.turn-pick.team-b .fullbody-frame,
@@ -8503,7 +8303,7 @@ body {
   backdrop-filter: none !important;
 }
 
-/* El contenedor debe existir para posicionar, pero no dibujar nada. */
+
 .fullbody-card.turn-action-card,
 .fullbody-card.selection-burst,
 .fullbody-card.banishing {
@@ -8513,7 +8313,7 @@ body {
   box-shadow: none !important;
 }
 
-/* Quita cualquier pseudo-elemento rectangular heredado, pero NO toca el badge. */
+
 .fullbody-card.turn-action-card::before,
 .fullbody-card.turn-action-card::after,
 .fullbody-card.selection-burst::before,
@@ -8534,14 +8334,14 @@ body {
 .fullbody-card.banishing .fullbody-frame::after {
   content: none !important;
   display: none !important;
-  opacity: 0 !important;
+  opacity: 0;
   background: transparent !important;
   border: 0 !important;
   outline: 0 !important;
   box-shadow: none !important;
 }
 
-/* Conserva el resalte, pero solo mediante glow del PNG, no mediante caja. */
+
 .fullbody-card.turn-action-card.turn-pick.team-a .fullbody-img,
 .fullbody-card.selection-burst.turn-pick.team-a .fullbody-img {
   filter:
@@ -8578,7 +8378,7 @@ body {
     saturate(1.10) !important;
 }
 
-/* Badge nuevo: más grande, estilo placa cortada, entrada/salida más fuerte. */
+
 .fullbody-card.banishing .fullbody-action-badge,
 .fullbody-card.selection-burst .fullbody-action-badge {
   opacity: 1 !important;
@@ -8740,14 +8540,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.72 - baneo PNG full: blanco/negro + fade out
-   =========================================================
-   Cuando un personaje es baneado:
-   - el PNG full se vuelve blanco y negro,
-   - pierde brillo poco a poco,
-   - desaparece con fade.
-*/
+
 .fullbody-card.banishing .fullbody-img {
   animation: banFullGrayscaleFadeV372 1.35s cubic-bezier(.18,.82,.24,1) forwards !important;
   transform-origin: 50% 80% !important;
@@ -8803,7 +8596,7 @@ body {
   }
 }
 
-/* Evita que efectos antiguos de baneo vuelvan a dibujar un panel/cuadro detrás del PNG. */
+
 .fullbody-card.banishing,
 .fullbody-card.banishing .fullbody-box,
 .fullbody-card.banishing .fullbody-frame {
@@ -8825,14 +8618,7 @@ body {
   box-shadow: none !important;
 }
 
-/* =========================================================
-   AJUSTE V3.73 - baneo PNG full: blanco/negro más visible + fade más largo
-   =========================================================
-   Refuerzo del efecto de baneo:
-   - el PNG full entra a blanco y negro casi de inmediato,
-   - se mantiene visible en blanco y negro antes de desaparecer,
-   - fade out más largo y claro.
-*/
+
 .fullbody-card.banishing .fullbody-img,
 .fullbody-card.banishing.turn-ban .fullbody-img,
 .stage-characters .fullbody-card.banishing .fullbody-img {
@@ -8937,23 +8723,15 @@ body {
   }
 }
 
-/* Si algún efecto anterior intenta recolorear el baneo, este filtro queda como prioridad visual. */
+
 .fullbody-card.banishing .fullbody-img:not(.no-ban-filter) {
   mix-blend-mode: normal !important;
 }
 
 
-/* =========================================================
-   AJUSTES V3.74 - grayscale real en BAN + fade suave en BAN/PICK
-   =========================================================
-   Correcciones:
-   - Al banear, el PNG full se convierte claramente a blanco y negro.
-   - El fade de salida del BAN es más suave.
-   - La selección/PICK también tiene fade de salida.
-   - Se fuerza -webkit-filter para Chrome/GitHub Pages.
-*/
 
-/* BAN: fuerza blanco y negro desde el inicio y luego salida suave */
+
+
 .fullbody-card.banishing,
 .fullbody-card.banishing .fullbody-box,
 .fullbody-card.banishing .fullbody-frame {
@@ -8969,7 +8747,7 @@ body {
 .fullbody-card.banishing img.fullbody-img,
 .fullbody-card.banishing .fullbody-frame img,
 .fullbody-card.banishing .fullbody-box img {
-  opacity: 1 !important;
+  opacity: 1;
   filter: grayscale(1) saturate(0) contrast(1.08) brightness(1.03)
           drop-shadow(0 20px 28px rgba(0,0,0,0.38)) !important;
   -webkit-filter: grayscale(1) saturate(0) contrast(1.08) brightness(1.03)
@@ -8978,7 +8756,7 @@ body {
   will-change: opacity, transform, filter !important;
 }
 
-/* PICK: salida suave al confirmar selección */
+
 .fullbody-card.selection-burst .fullbody-img,
 .fullbody-card.selecting .fullbody-img,
 .fullbody-card.selection-burst img.fullbody-img,
@@ -8989,7 +8767,7 @@ body {
   will-change: opacity, transform, filter !important;
 }
 
-/* El badge acompaña mejor el fade, sin quedarse cortado */
+
 .fullbody-card.banishing .fullbody-action-badge,
 .fullbody-card.selection-burst .fullbody-action-badge {
   animation: fullbodyBadgeConfirmV74 1.08s cubic-bezier(.18,.82,.22,1) both !important;
@@ -9089,12 +8867,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTES V3.75 - fade de salida PICK más suave
-   =========================================================
-   - La selección/PICK permanece un poco más antes de desaparecer.
-   - La salida del PNG full seleccionado es más suave y menos brusca.
-*/
+
 .fullbody-card.selection-burst .fullbody-img,
 .fullbody-card.selecting .fullbody-img,
 .fullbody-card.selection-burst img.fullbody-img,
@@ -9172,9 +8945,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.77 - preselección por hover + fijar con click
-   ========================================================= */
+
 .clear-preselection-button {
   min-width: 46px !important;
   height: 46px !important;
@@ -9229,9 +9000,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.78 - X compacta + bloqueo real de preselección
-   ========================================================= */
+
 .phase-status-panel {
   gap: 6px !important;
 }
@@ -9265,8 +9034,7 @@ body {
   transform: translateY(1px) scale(0.98) !important;
 }
 
-/* Cuando un personaje está fijado con click, el resto queda visualmente bloqueado
-   hasta presionar la X. */
+
 .character-card.preselect-locked {
   cursor: default !important;
 }
@@ -9276,12 +9044,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.79 - panel de acción más ancho y X en la misma línea
-   =========================================================
-   Corrige que la X se vaya a una segunda línea/row cuando aparece
-   el botón BANEAR / SELECCIONAR.
-*/
+
 .phase-status-panel {
   width: min(880px, calc(100vw - 110px)) !important;
   grid-template-columns: minmax(0, 1fr) 250px 176px 34px !important;
@@ -9335,7 +9098,7 @@ body {
   font-size: 0.98rem !important;
 }
 
-/* En resoluciones más pequeñas, mantener todo en una sola línea reduciendo un poco */
+
 @media (max-width: 1100px) {
   .phase-status-panel {
     width: min(820px, calc(100vw - 56px)) !important;
@@ -9364,15 +9127,9 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.80 - Cizallas + brillo por equipo activo
-   =========================================================
-   - Urbinos cambia a Cizallas en el selector.
-   - Equipo activo: barra superior + panel lateral brillan rojo/azul.
-   - Equipo inactivo: barra/panel quedan en gris apagado.
-*/
 
-/* Barras superiores: por defecto apagadas/grises */
+
+
 .team-ribbon {
   transition: filter .22s ease, box-shadow .22s ease, background .22s ease, color .22s ease, opacity .22s ease !important;
 }
@@ -9417,7 +9174,7 @@ body {
   text-shadow: 0 0 10px rgba(85,168,255,.72), 0 0 22px rgba(85,168,255,.42), 0 2px 5px rgba(0,0,0,.38) !important;
 }
 
-/* Paneles laterales */
+
 .team-column {
   transition: opacity .22s ease, filter .22s ease, text-shadow .22s ease !important;
 }
@@ -9499,9 +9256,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.81 - intro inicial con video/audio
-   ========================================================= */
+
 .intro-sequence-overlay {
   position: fixed;
   inset: 0;
@@ -9532,6 +9287,22 @@ body {
   object-fit: cover;
   object-position: center;
   background: #000;
+}
+
+.intro-menu-video {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.intro-menu-phase .intro-primary-video {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.intro-menu-phase .intro-menu-video {
+  opacity: 1;
+  visibility: visible;
 }
 
 .intro-black-screen {
@@ -9609,9 +9380,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.82 - logo con sonido + texto intro corregido
-   ========================================================= */
+
 .intro-continue-text {
   font-family: "Segoe UI", "Inter", "Arial", sans-serif !important;
   font-size: clamp(1.25rem, 2.05vw, 2.35rem) !important;
@@ -9634,12 +9403,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.83 - ocultar texto durante logo
-   =========================================================
-   El texto "Haz clic..." solo aparece durante Intro_menu.mp4,
-   no durante logo.mp4 ni durante la pantalla negra/loading.
-*/
+
 .intro-logo-phase .intro-continue-text,
 .intro-black-phase .intro-continue-text,
 .intro-loading-phase .intro-continue-text {
@@ -9653,9 +9417,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.86 - pantalla inicial de aviso + F11
-   ========================================================= */
+
 .intro-notice-card,
 .intro-accept-button,
 .intro-fullscreen-hint {
@@ -9855,9 +9617,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.87 - audio logo prime + texto/F11 refinados
-   ========================================================= */
+
 .intro-notice-card {
   width: min(940px, calc(100vw - 56px)) !important;
   font-size: clamp(0.98rem, 1.18vw, 1.24rem) !important;
@@ -9911,15 +9671,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.90 - menú de configuración fullscreen
-   =========================================================
-   Objetivo:
-   - El menú del sistema draft ya no se ve como subventana.
-   - La superficie del menú ocupa todo el área del simulador.
-   - Las categorías quedan pegadas/adaptadas a la barra superior.
-   - Las subcategorías mantienen la misma estructura fullscreen.
-*/
+
 .setup-screen {
   width: 1920px !important;
   height: 1080px !important;
@@ -9963,7 +9715,7 @@ body {
   background-size: 160px 160px, 160px 160px, auto, auto !important;
 }
 
-/* Barra superior completamente integrada al borde de pantalla. */
+
 .setup-screen .settings-topbar {
   position: absolute !important;
   left: 0 !important;
@@ -10044,14 +9796,14 @@ body {
   box-shadow: inset 0 -3px 0 rgba(255,255,255,0.14), 0 0 18px rgba(227,53,65,0.18) !important;
 }
 
-/* Eliminar cajas auxiliares que hacían ver el menú como ventana interna. */
+
 .setup-screen .settings-canvas,
 .setup-screen .settings-preview-pane,
 .setup-screen .settings-scroll-rail {
   display: none !important;
 }
 
-/* Área principal más amplia. */
+
 .setup-screen .setup-top {
   position: relative !important;
   z-index: 3 !important;
@@ -10092,7 +9844,7 @@ body {
   opacity: 0.25 !important;
 }
 
-/* Menú principal fullscreen: equipos más separados y más espacio útil. */
+
 .setup-shell.view-menu .setup-teams {
   grid-template-columns: minmax(560px, 1fr) 310px minmax(560px, 1fr) !important;
   gap: 24px !important;
@@ -10152,7 +9904,7 @@ body {
   min-height: 54px !important;
 }
 
-/* Subcategorías fullscreen: panel grande, no ventana pequeña. */
+
 .setup-shell.view-volumen .setup-team,
 .setup-shell.view-configuracion .setup-team,
 .setup-shell.view-random .setup-team,
@@ -10210,7 +9962,7 @@ body {
   box-shadow: 0 18px 42px rgba(35,43,56,0.08) !important;
 }
 
-/* Ajuste para pantallas muy angostas dentro del escalado del simulador. */
+
 @media (max-width: 1500px) {
   .setup-screen .setup-shell,
   .setup-screen .settings-surface {
@@ -10242,16 +9994,9 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.91 - menú principal + barra superior estilo Strinova
-   =========================================================
-   - Quita el título gigante del menú principal.
-   - Agrega título centrado: "Strinova System Draft" + "By RodrigoRPmods".
-   - Sube y acomoda las cajas principales.
-   - Barra superior con pestaña activa estilo trapezoide tipo menú Strinova.
-*/
 
-/* Barra superior tipo Strinova */
+
+
 .setup-screen .settings-topbar {
   height: 58px !important;
   min-height: 58px !important;
@@ -10323,7 +10068,7 @@ body {
   color: rgba(255,255,255,0.84) !important;
 }
 
-/* Activa: trapezoide grande tipo JUGAR / CARRERA */
+
 .setup-screen .settings-tab.is-active,
 .setup-screen .setup-top-tab.is-active {
   min-width: 178px !important;
@@ -10356,13 +10101,13 @@ body {
   opacity: 1 !important;
 }
 
-/* Development bloqueado queda gris, incluso si el mouse pasa encima. */
+
 .setup-screen .setup-top-tab[data-tab="development"] {
   color: rgba(235,239,244,0.34) !important;
   background: rgba(255,255,255,0.025) !important;
 }
 
-/* Menú principal: reemplazo del título gigante por uno centrado */
+
 .setup-shell.view-menu .setup-top {
   max-width: none !important;
   min-height: 128px !important;
@@ -10401,7 +10146,7 @@ body {
   text-transform: uppercase;
 }
 
-/* Ajustar posiciones del menú para compensar el título más pequeño */
+
 .setup-shell.view-menu .setup-teams {
   margin: 8px 0 0 !important;
   min-height: 684px !important;
@@ -10419,7 +10164,7 @@ body {
   padding-top: 22px !important;
 }
 
-/* El panel de nombres queda más integrado y no tan abajo. */
+
 .setup-shell.view-menu .player-name-mode-panel {
   left: 92px !important;
   bottom: 54px !important;
@@ -10427,13 +10172,13 @@ body {
   max-width: 390px !important;
 }
 
-/* Personajes de fondo menos invasivos tras compactar el título. */
+
 .setup-shell.view-menu .setup-hero {
   height: 78% !important;
   opacity: 0.22 !important;
 }
 
-/* Subcategorías: mantener título normal pero más compacto bajo la barra. */
+
 .setup-shell:not(.view-menu) .setup-top {
   min-height: 120px !important;
 }
@@ -10443,7 +10188,7 @@ body {
   line-height: 0.95 !important;
 }
 
-/* Ajustes responsive del nuevo topbar */
+
 @media (max-width: 1500px) {
   .setup-screen .settings-brand {
     flex-basis: 290px !important;
@@ -10479,14 +10224,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.92 - quitar título gigante en subcategorías
-   =========================================================
-   El título grande solo queda reemplazado en MENÚ por:
-   "Strinova System Draft" + "By RodrigoRPmods".
-   En Volumen / Configuración / Random Selector / Idioma /
-   Updates / Créditos se oculta por completo.
-*/
+
 .setup-shell:not(.view-menu) .setup-top,
 .setup-shell.view-volumen .setup-top,
 .setup-shell.view-configuracion .setup-top,
@@ -10504,7 +10242,7 @@ body {
   overflow: hidden !important;
 }
 
-/* Al quitar el título, las subcategorías suben y quedan mejor centradas. */
+
 .setup-shell.view-volumen .setup-teams,
 .setup-shell.view-configuracion .setup-teams,
 .setup-shell.view-random .setup-teams,
@@ -10517,7 +10255,7 @@ body {
   align-items: center !important;
 }
 
-/* Panel principal de cada subcategoría sin bajar demasiado. */
+
 .setup-shell.view-volumen .setup-center-card,
 .setup-shell.view-configuracion .setup-center-card,
 .setup-shell.view-random .setup-center-card,
@@ -10529,7 +10267,7 @@ body {
   transform: translateY(-18px) !important;
 }
 
-/* En créditos y updates el contenido queda centrado sin parecer una caja perdida. */
+
 .setup-shell.view-creditos .setup-panel.is-active,
 .setup-shell.view-updates .setup-panel.is-active,
 .setup-shell.view-idioma .setup-panel.is-active {
@@ -10537,16 +10275,14 @@ body {
   text-align: center !important;
 }
 
-/* Mantener el título bonito solo en MENÚ. */
+
 .setup-shell.view-menu .setup-top {
   display: grid !important;
   visibility: visible !important;
 }
 
 
-/* =========================================================
-   AJUSTE V3.94 - selector de voz de narración
-   ========================================================= */
+
 .narration-voice-row {
   opacity: 1 !important;
 }
@@ -10583,9 +10319,7 @@ body {
 }
 
 
-/* =========================================================
-   AJUSTE V3.95 - créditos completos del proyecto
-   ========================================================= */
+
 .credits-detailed-panel {
   display: grid !important;
   gap: 16px !important;
@@ -10693,7 +10427,7 @@ body {
 @keyframes introLogoFade{from{opacity:0;transform:translate(-50%,-50%);}to{opacity:1;transform:translate(-50%,-50%);}}
 @keyframes introLogoFloat{0%{transform:translate(-50%,-50%);}50%{transform:translate(-50%,calc(-50% - 8px));}100%{transform:translate(-50%,-50%);}}
 
-/* === RPmods Online Sync Definitivo === */
+
 .secondary-button,
 .online-menu-button {
   min-height: 54px;
@@ -10895,7 +10629,7 @@ body.online-role-player.other-team-turn #confirm-action { display: none !importa
   .room-code-actions > * { width: 100%; }
 }
 
-/* === RPmods Online Sync Fix v2: banner y botones con estilo de INICIAR DRAFT === */
+
 .captain-turn-banner,
 .captain-turn-banner.turn-a,
 .captain-turn-banner.turn-b {
@@ -10937,7 +10671,7 @@ body.online-role-player.other-team-turn #confirm-action { display: none !importa
   box-shadow: inset 0 -3px 0 #f33d49 !important;
 }
 
-/* === RPmods Online Sync Fix v3: capitanes, fases y sala === */
+
 .room-join-box {
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) auto !important;
 }
@@ -11158,8 +10892,8 @@ body.online-role-player.other-team-turn .phase-status-panel {
   }
 }
 
-/* === RPmods Online Sync Fix v5: lobby responsive, modal de nombre y audio === */
-/* El menú y el lobby pueden desplazarse si una pantalla pequeña/zoom alto corta botones. */
+
+
 .setup-screen.active,
 .room-screen.active {
   overflow-x: hidden !important;
@@ -11168,7 +10902,7 @@ body.online-role-player.other-team-turn .phase-status-panel {
   scrollbar-width: thin;
 }
 
-/* El draft competitivo se mantiene como HUD fijo, sin scroll. */
+
 .draft-screen.active,
 .map-screen.active,
 .summary-screen.active {
@@ -11403,7 +11137,7 @@ body.online-role-player.other-team-turn .phase-status-panel {
 }
 
 
-/* === RPmods Online Sync Fix v6: HUD online más compacto + lobby controlado === */
+
 .room-name-tools {
   display: flex;
   justify-content: center;
@@ -11420,7 +11154,7 @@ body.online-role-player.other-team-turn .phase-status-panel {
   display: none;
 }
 
-/* Espectador: indicador pequeño, arriba y con color de equipo. */
+
 .captain-turn-banner.is-spectator-turn {
   position: fixed !important;
   left: 50% !important;
@@ -11468,7 +11202,7 @@ body.online-role-player.other-team-turn .phase-status-panel {
   box-shadow: 0 14px 34px rgba(0,0,0,0.30), 0 0 22px rgba(86,177,255,0.22), inset 0 -2px 0 rgba(255,255,255,0.18) !important;
 }
 
-/* Capitanes: aviso de turno rival más pequeño, más arriba y más transparente. */
+
 .captain-turn-banner.is-opponent-turn {
   top: 42% !important;
   width: min(790px, 72vw) !important;
@@ -11525,7 +11259,7 @@ body.online-role-player.other-team-turn .phase-status-panel {
   }
 }
 
-/* === RPmods Online Sync Fix v7: precarga JS + HUD de turno propio compacto === */
+
 .resource-preload-overlay {
   position: fixed;
   inset: 0;
@@ -11616,7 +11350,7 @@ body.online-role-player.other-team-turn .phase-status-panel {
   letter-spacing: 0.16em;
 }
 
-/* Capitanes: cuando es TU TURNO se usa el mismo formato compacto que el espectador. */
+
 .captain-turn-banner.is-own-turn {
   position: fixed !important;
   left: 50% !important;
@@ -11664,7 +11398,7 @@ body.online-role-player.other-team-turn .phase-status-panel {
   box-shadow: 0 14px 34px rgba(0,0,0,0.30), 0 0 22px rgba(86,177,255,0.22), inset 0 -2px 0 rgba(255,255,255,0.18) !important;
 }
 
-/* Durante anuncios de fase, los indicadores de turno no compiten con la anunciante. */
+
 .captain-turn-banner {
   transition: opacity 220ms ease, visibility 220ms ease, filter 220ms ease !important;
 }
@@ -11683,9 +11417,7 @@ body.phase-announcing .captain-turn-banner:not(.hidden) {
 }
 
 
-/* =========================================================
-   AJUSTE V3.0 - historial final + soporte visual para más mapas
-   ========================================================= */
+
 .map-grid.map-grid-many {
   margin-top: clamp(14px, 2vh, 24px);
   gap: clamp(10px, 1.05vw, 16px);
@@ -11730,7 +11462,7 @@ body.phase-announcing .captain-turn-banner:not(.hidden) {
   }
 }
 
-/* Historial v3.0: entries by version are longer, so the panel is wider and scroll-safe. */
+
 .updates-history-panel {
   width: min(980px, 100%) !important;
   max-height: min(58vh, 560px);
@@ -11745,7 +11477,7 @@ body.phase-announcing .captain-turn-banner:not(.hidden) {
   text-align: left !important;
 }
 
-/* v3.1 · Configuración de draft local/online */
+
 .draft-config-card {
   max-width: min(720px, calc(100vw - 40px));
 }
@@ -11906,11 +11638,7 @@ body.bans-disabled .ban-stack {
 }
 
 
-/* =========================================================
-   AJUSTE V3.1.3 - corrección visual de selectores / dropdowns
-   - Corrige listas blancas con texto blanco en idioma, narración y lobby online.
-   - Homogeneiza el aspecto de los select del mini-lobby de crear sala.
-   ========================================================= */
+
 .language-select,
 .narration-voice-system-select,
 .room-captain-select,
@@ -11995,9 +11723,7 @@ select option:disabled {
 }
 
 
-/* =========================================================
-   AJUSTE V3.2.0 - modo avanzado online y avisos compactos
-   ========================================================= */
+
 .room-mode-advanced-selected .room-captain-assignment,
 .room-mode-advanced-selected .room-player-config-grid {
   display: none !important;
@@ -12149,7 +11875,7 @@ body.phase-announcing .captain-turn-banner {
 }
 
 
-/* v3.2.0: si el líder/host también juega y es su turno, sí puede confirmar. */
+
 body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   display: inline-flex !important;
 }
@@ -12158,9 +11884,7 @@ body.online-role-host.own-team-turn .character-card {
 }
 
 
-/* =========================================================
-   v3.2.2 - Testing Bots
-   ========================================================= */
+
 .room-testing-bots-panel {
   display: grid;
   gap: 12px;
@@ -12204,9 +11928,7 @@ body.online-role-host.own-team-turn .character-card {
 }
 
 
-/* =========================================================
-   v3.2.4 - Nombre del líder/host jugador
-   ========================================================= */
+
 .room-host-name-panel {
   display: grid;
   gap: 12px;
@@ -12264,11 +11986,9 @@ body.online-role-host.own-team-turn .character-card {
 }
 
 
-/* =========================================================
-   v3.2.6 - Ajustes visuales de turno + Ready Check Online
-   ========================================================= */
 
-/* El cuadro grande de turno ya cumple la función; el panel viejo deja de tapar visualmente en online. */
+
+
 body.online-role-player .phase-status-panel,
 body.online-role-host.own-team-turn .phase-status-panel {
   background: transparent !important;
@@ -12287,7 +12007,7 @@ body.online-role-host.own-team-turn .phase-status-panel .status-character-box {
   display: none !important;
 }
 
-/* El botón de confirmar se conserva, pero separado del panel antiguo. */
+
 body.online-role-player #confirm-action:not(.hidden),
 body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   position: fixed !important;
@@ -12327,7 +12047,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   margin-top: 3px !important;
 }
 
-/* Ready check online */
+
 .online-ready-overlay {
   position: fixed;
   inset: 0;
@@ -12558,11 +12278,9 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
 }
 
 
-/* =========================================================
-   v3.2.7 - Hotfix visual + random selection + ready polish
-   ========================================================= */
 
-/* En online se oculta solo el mini panel superior redundante; el panel inferior se mantiene. */
+
+
 body.online-role-player .hero-stage > .turn-chip,
 body.online-role-player .hero-stage > .restriction-text,
 body.online-role-host .hero-stage > .turn-chip,
@@ -12570,7 +12288,7 @@ body.online-role-host .hero-stage > .restriction-text {
   display: none !important;
 }
 
-/* Restaurar panel inferior del draft en online. */
+
 body.online-role-player .phase-status-panel,
 body.online-role-host.own-team-turn .phase-status-panel {
   background: linear-gradient(90deg, rgba(96,38,48,0.88), rgba(22,18,26,0.92)) !important;
@@ -12602,7 +12320,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   min-width: 176px !important;
 }
 
-/* Banner superior más compacto y más arriba. */
+
 .captain-turn-banner.is-own-turn,
 .captain-turn-banner.is-teammate-turn,
 .captain-turn-banner.is-spectator-turn,
@@ -12628,7 +12346,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   transform: scale(0.86) !important;
 }
 
-/* Botón de selección aleatoria junto al panel inferior. */
+
 .random-selection-button {
   position: absolute;
   right: 208px;
@@ -12655,7 +12373,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
 .random-selection-button:active { transform: translateY(1px); }
 .random-selection-button.hidden { display: none !important; }
 
-/* Ready Check más cercano al vídeo de referencia: oscuro, suspendido y con cajas colgantes. */
+
 .online-ready-overlay {
   background:
     radial-gradient(circle at 50% 10%, rgba(168, 214, 226, 0.18), transparent 32%),
@@ -12784,11 +12502,9 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
 }
 
 
-/* =========================================================
-   v3.2.8 - Posición exacta del botón aleatorio + ready polish
-   ========================================================= */
 
-/* El botón de selección aleatoria ya no flota: se integra dentro del panel inferior. */
+
+
 .phase-status-panel {
   grid-template-columns: minmax(0, 1fr) minmax(190px, 220px) 150px 164px 30px !important;
   gap: 7px !important;
@@ -12835,7 +12551,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   justify-self: start !important;
 }
 
-/* Cuando el botón aleatorio está oculto, el layout no salta visualmente. */
+
 #random-selection-action.random-selection-button.hidden {
   display: inline-flex !important;
   opacity: 0 !important;
@@ -12843,7 +12559,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   pointer-events: none !important;
 }
 
-/* Ready check: entrada con panel cinematográfico y tarjetas colgantes. */
+
 .online-ready-overlay:not(.hidden) {
   animation: readyOverlayFadeInV328 0.38s ease both;
 }
@@ -13071,11 +12787,9 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
 }
 
 
-/* =========================================================
-   v3.2.9 - Corrección final de alineación visual
-   ========================================================= */
 
-/* Avisos de turno: bajar un poco, reducir tamaño y evitar textos gigantes saliendo del cuadro. */
+
+
 .captain-turn-banner.is-own-turn,
 .captain-turn-banner.is-teammate-turn,
 .captain-turn-banner.is-opponent-turn,
@@ -13127,7 +12841,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   font-size: 0.58em !important;
 }
 
-/* Panel inferior: acciones apiladas para que SELECCIONAR/BANEAR y SELECCIÓN ALEATORIA encajen sin romper el selector. */
+
 .phase-status-panel {
   width: min(840px, calc(100vw - 560px)) !important;
   min-width: 680px !important;
@@ -13203,7 +12917,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   height: 38px !important;
 }
 
-/* Ready check: quitar líneas colgantes y mejorar nombres largos dentro de caja uniforme. */
+
 .online-ready-player::before {
   display: none !important;
   content: none !important;
@@ -13287,7 +13001,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   to { transform: translateY(-4px); }
 }
 
-/* Ruleta de mapas: mantener tarjetas estables, sin parpadeo, con borde dorado brillante. */
+
 .map-card,
 .map-card-image,
 .map-card-image img {
@@ -13331,7 +13045,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   to { opacity: 0; transform: translateX(28%); }
 }
 
-/* Botón flotante para que jugadores puedan retirarse después del resumen. */
+
 .online-leave-floating {
   position: fixed;
   z-index: 220;
@@ -13406,11 +13120,9 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
 }
 
 
-/* =========================================================
-   v3.2.10 - Turn banner correcto + botones inferiores iguales
-   ========================================================= */
 
-/* TU TURNO / TURNO DE TU EQUIPO: más pequeño, un poco más arriba, pero sin pegarse al timer. */
+
+
 .captain-turn-banner.is-own-turn,
 .captain-turn-banner.is-teammate-turn {
   top: clamp(64px, 7.5vh, 86px) !important;
@@ -13441,7 +13153,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   padding: 3px 11px !important;
 }
 
-/* TURNO DEL ENEMIGO: volver a aviso central grande, como antes, opacando la acción. */
+
 .captain-turn-banner.is-opponent-turn {
   left: 50% !important;
   top: 48% !important;
@@ -13487,7 +13199,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   to { filter: brightness(1.14); }
 }
 
-/* Panel inferior: reducir caja de personaje y hacer BANEAR/SELECCIONAR + SELECCIÓN ALEATORIA del mismo ancho. */
+
 .phase-status-panel {
   width: min(820px, calc(100vw - 560px)) !important;
   min-width: 650px !important;
@@ -13616,9 +13328,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
 }
 
 
-/* =========================================================
-   v3.2.11 - Alineación final del panel inferior
-   ========================================================= */
+
 .phase-status-panel {
   width: min(780px, calc(100vw - 560px)) !important;
   min-width: 640px !important;
@@ -13790,18 +13500,16 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
 }
 
 
-/* =========================================================
-   v3.2.12 - Igualar ancho real de BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA
-   ========================================================= */
 
-/* La columna de acciones ahora tiene un ancho único y ambos botones lo respetan. */
+
+
 .phase-status-panel {
   grid-template-columns: minmax(220px, 1fr) 160px 158px 30px !important;
   grid-template-rows: 34px 34px !important;
   column-gap: 8px !important;
 }
 
-/* El botón principal no debe estirarse más que el botón aleatorio. */
+
 #confirm-action,
 #confirm-action.action-button,
 .phase-status-panel #confirm-action,
@@ -13825,7 +13533,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   padding-right: 8px !important;
 }
 
-/* Orden vertical fijo: arriba BANEAR/SELECCIONAR, abajo SELECCIÓN ALEATORIA. */
+
 #confirm-action,
 #confirm-action.action-button,
 .phase-status-panel #confirm-action {
@@ -13851,7 +13559,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   white-space: normal !important;
 }
 
-/* Si el botón aleatorio está oculto, conserva el espacio para que el botón principal no cambie tamaño. */
+
 #random-selection-action.hidden,
 #random-selection-action.random-selection-button.hidden,
 .phase-status-panel #random-selection-action.hidden {
@@ -13861,7 +13569,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   pointer-events: none !important;
 }
 
-/* Caja de personaje un poco más a la izquierda y controlada para liberar espacio a los botones. */
+
 .phase-status-panel .status-character-box {
   grid-column: 2 !important;
   width: 160px !important;
@@ -13870,7 +13578,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   justify-self: start !important;
 }
 
-/* Botón de limpiar selección no debe empujar la columna de acciones. */
+
 #clear-preselection,
 #clear-preselection.clear-preselection-button,
 .phase-status-panel #clear-preselection {
@@ -13881,7 +13589,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   justify-self: start !important;
 }
 
-/* Responsive: mantener la igualdad aunque baje el ancho. */
+
 @media (max-width: 1320px) {
   .phase-status-panel {
     grid-template-columns: minmax(190px, 1fr) 150px 146px 28px !important;
@@ -13919,16 +13627,9 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
 }
 
 
-/* =========================================================
-   v3.2.13 - Deep fix ancho botones + ready waiting compacto
-   ========================================================= */
 
-/*
-  Solución fuerte:
-  El botón principal heredaba min-width/padding de reglas antiguas:
-  .phase-status-panel .action-button, #confirm-action { min-width: 176px; padding 18px; }
-  Aquí se fuerza inline-size + flex-basis + min/max + padding exacto para ambos botones.
-*/
+
+
 
 .phase-status-panel {
   grid-template-columns: minmax(220px, 1fr) 156px 148px 30px !important;
@@ -13952,7 +13653,7 @@ body.online-role-host.own-team-turn #confirm-action:not(.hidden) {
   padding-inline: 9px !important;
 }
 
-/* Misma caja real, sin heredar min-width ni padding grande. */
+
 .phase-status-panel > #confirm-action,
 .phase-status-panel > #random-selection-action,
 body .phase-status-panel > #confirm-action.action-button,
@@ -13974,7 +13675,7 @@ html body .phase-status-panel button#random-selection-action {
   transform: none !important;
 }
 
-/* Si hay estilos de clip/animación del botón rojo, no deben alterar su caja. */
+
 html body .phase-status-panel button#confirm-action {
   grid-row: 1 !important;
   height: 34px !important;
@@ -14003,7 +13704,7 @@ html body .phase-status-panel button#random-selection-action {
   justify-content: center !important;
 }
 
-/* Oculto pero preservando ancho, para que el layout no cambie. */
+
 html body .phase-status-panel button#random-selection-action.hidden {
   display: inline-flex !important;
   opacity: 0 !important;
@@ -14023,7 +13724,7 @@ html body .phase-status-panel button#clear-preselection {
   align-self: center !important;
 }
 
-/* Reducir el texto/botón de "esperando a los demás jugadores". */
+
 .online-ready-button.is-ready,
 .online-ready-button[disabled] {
   width: min(250px, 92%) !important;
@@ -14043,7 +13744,7 @@ html body .phase-status-panel button#clear-preselection {
   margin-inline: auto !important;
 }
 
-/* Responsive: mantener igualdad exacta. */
+
 @media (max-width: 1320px) {
   .phase-status-panel {
     grid-template-columns: minmax(190px, 1fr) 148px 140px 28px !important;
@@ -14088,16 +13789,9 @@ html body .phase-status-panel button#clear-preselection {
 }
 
 
-/* =========================================================
-   v3.2.14 - Fix final: botón seleccionado no se estira + voz mapa única
-   ========================================================= */
 
-/*
-  Al seleccionar un personaje, #confirm-action pierde .hidden y puede recibir .ban.
-  Una regla antigua muy específica:
-  body.online-role-player #confirm-action:not(.hidden) { min-width:176px !important; }
-  seguía ganando. Esta regla la supera por especificidad y fuerza la caja real.
-*/
+
+
 html body.online-role-player .phase-status-panel > button#confirm-action.action-button:not(.hidden),
 html body.online-role-player .phase-status-panel > button#confirm-action.action-button.ban:not(.hidden),
 html body.online-role-host.own-team-turn .phase-status-panel > button#confirm-action.action-button:not(.hidden),
@@ -14149,7 +13843,7 @@ html body .phase-status-panel > button#random-selection-action.random-selection-
   position: static !important;
 }
 
-/* Texto de espera en ready check aún más compacto. */
+
 html body .online-ready-button.is-ready,
 html body .online-ready-button[disabled].is-ready {
   width: min(220px, 88%) !important;
@@ -14201,5 +13895,1027 @@ html body .online-ready-status {
     max-width: 145px !important;
     flex: 0 0 145px !important;
     flex-basis: 145px !important;
+  }
+}
+
+
+:root {
+  --rpmods-ban-confirm-duration: 1408ms;
+  --rpmods-pick-confirm-duration: 1312ms;
+}
+
+.stage-characters .fullbody-card.banishing,
+.stage-characters .fullbody-card.selection-burst,
+.stage-characters .fullbody-card.selecting {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  isolation: isolate;
+}
+
+.stage-characters .fullbody-card.banishing .fullbody-img,
+.stage-characters .fullbody-card.banishing img.fullbody-img,
+.stage-characters .fullbody-card.banishing .fullbody-frame img,
+.stage-characters .fullbody-card.banishing .fullbody-box img {
+  animation: rpmodsBanConfirm var(--rpmods-ban-confirm-duration) cubic-bezier(.2,.76,.24,1) both !important;
+  filter: grayscale(1) saturate(0) contrast(1.08) brightness(1.02) !important;
+  -webkit-filter: grayscale(1) saturate(0) contrast(1.08) brightness(1.02) !important;
+  will-change: transform, opacity !important;
+  backface-visibility: hidden !important;
+}
+
+.stage-characters .fullbody-card.selection-burst .fullbody-img,
+.stage-characters .fullbody-card.selecting .fullbody-img,
+.stage-characters .fullbody-card.selection-burst img.fullbody-img,
+.stage-characters .fullbody-card.selecting img.fullbody-img,
+.stage-characters .fullbody-card.selection-burst .fullbody-frame img,
+.stage-characters .fullbody-card.selecting .fullbody-frame img {
+  animation: rpmodsPickConfirm var(--rpmods-pick-confirm-duration) cubic-bezier(.18,.82,.22,1) both !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  will-change: transform, opacity !important;
+  backface-visibility: hidden !important;
+}
+
+.stage-characters .fullbody-card.banishing .fullbody-action-badge {
+  animation: rpmodsBanBadge var(--rpmods-ban-confirm-duration) cubic-bezier(.18,.82,.22,1) both !important;
+  will-change: transform, opacity !important;
+}
+
+.stage-characters .fullbody-card.selection-burst .fullbody-action-badge,
+.stage-characters .fullbody-card.selecting .fullbody-action-badge {
+  animation: rpmodsPickBadge var(--rpmods-pick-confirm-duration) cubic-bezier(.18,.82,.22,1) both !important;
+  will-change: transform, opacity !important;
+}
+
+@keyframes rpmodsBanConfirm {
+  0% { opacity: 1; transform: translate3d(0,0,0) scale(1.02); }
+  22% { opacity: 1; transform: translate3d(0,-2px,0) scale(1.025); }
+  68% { opacity: .84; transform: translate3d(0,-5px,0) scale(.995); }
+  100% { opacity: 0; transform: translate3d(0,-12px,0) scale(.965); }
+}
+
+@keyframes rpmodsPickConfirm {
+  0% { opacity: .18; transform: translate3d(0,10px,0) scale(.96); }
+  20% { opacity: 1; transform: translate3d(0,-2px,0) scale(1.03); }
+  70% { opacity: 1; transform: translate3d(0,0,0) scale(1.008); }
+  100% { opacity: 0; transform: translate3d(0,-8px,0) scale(.99); }
+}
+
+@keyframes rpmodsBanBadge {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(.72); }
+  18% { opacity: 1; transform: translate(-50%,-50%) scale(1.05); }
+  72% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(.94) translateY(-10px); }
+}
+
+@keyframes rpmodsPickBadge {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(.7) translateY(10px); }
+  20% { opacity: 1; transform: translate(-50%,-50%) scale(1.06); }
+  74% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(.95) translateY(-8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-characters .fullbody-card.banishing .fullbody-img,
+  .stage-characters .fullbody-card.selection-burst .fullbody-img,
+  .stage-characters .fullbody-card.selecting .fullbody-img,
+  .stage-characters .fullbody-card.banishing .fullbody-action-badge,
+  .stage-characters .fullbody-card.selection-burst .fullbody-action-badge,
+  .stage-characters .fullbody-card.selecting .fullbody-action-badge {
+    animation-duration: 220ms !important;
+  }
+}
+
+
+:root {
+  --rpmods-slot-confirm-duration: 1312ms;
+}
+
+.stage-characters .fullbody-card.turn-action-card {
+  --rpmods-action-accent: 126, 226, 255;
+  --rpmods-action-accent-strong: 224, 250, 255;
+  contain: layout style;
+}
+
+.stage-characters .fullbody-card.turn-action-card.team-a {
+  --rpmods-action-accent: 255, 74, 94;
+  --rpmods-action-accent-strong: 255, 226, 232;
+}
+
+.stage-characters .fullbody-card.turn-action-card.team-b {
+  --rpmods-action-accent: 83, 164, 255;
+  --rpmods-action-accent-strong: 225, 243, 255;
+}
+
+.stage-characters .fullbody-card.banishing::before,
+.stage-characters .fullbody-card.selection-burst::before,
+.stage-characters .fullbody-card.selecting::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 7% 10% 8% !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  border: 1px solid rgba(var(--rpmods-action-accent-strong), .28) !important;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(var(--rpmods-action-accent), .24), transparent 57%),
+    linear-gradient(135deg, rgba(var(--rpmods-action-accent), .08), transparent 42%, rgba(var(--rpmods-action-accent-strong), .08)) !important;
+  box-shadow: inset 0 0 36px rgba(var(--rpmods-action-accent), .12), 0 0 34px rgba(var(--rpmods-action-accent), .12) !important;
+  transform-origin: center !important;
+  backface-visibility: hidden !important;
+}
+
+.stage-characters .fullbody-card.selection-burst::before,
+.stage-characters .fullbody-card.selecting::before {
+  animation: rpmodsModernPickAura var(--rpmods-pick-confirm-duration) cubic-bezier(.18,.82,.22,1) both !important;
+}
+
+.stage-characters .fullbody-card.banishing::before {
+  animation: rpmodsModernBanAura var(--rpmods-ban-confirm-duration) cubic-bezier(.22,.72,.24,1) both !important;
+}
+
+.stage-characters .fullbody-card.banishing::after,
+.stage-characters .fullbody-card.selection-burst::after,
+.stage-characters .fullbody-card.selecting::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 5% 5% 7% !important;
+  z-index: 4 !important;
+  pointer-events: none !important;
+  opacity: 0;
+  mix-blend-mode: screen !important;
+  backface-visibility: hidden !important;
+}
+
+.stage-characters .fullbody-card.selection-burst::after,
+.stage-characters .fullbody-card.selecting::after {
+  background: linear-gradient(102deg, transparent 37%, rgba(var(--rpmods-action-accent-strong), .92) 49%, rgba(var(--rpmods-action-accent), .42) 53%, transparent 64%) !important;
+  transform: translate3d(-82%,0,0) skewX(-9deg) !important;
+  animation: rpmodsModernPickSweep var(--rpmods-pick-confirm-duration) cubic-bezier(.2,.75,.2,1) both !important;
+}
+
+.stage-characters .fullbody-card.banishing::after {
+  inset: 8% 2% 8% !important;
+  background:
+    linear-gradient(108deg, transparent 43%, rgba(255,255,255,.96) 48%, rgba(var(--rpmods-action-accent), .92) 50%, rgba(255,255,255,.96) 52%, transparent 57%) !important;
+  transform: translate3d(-72%,0,0) skewX(-12deg) !important;
+  animation: rpmodsModernBanSlash var(--rpmods-ban-confirm-duration) cubic-bezier(.2,.72,.2,1) both !important;
+}
+
+.stage-characters .fullbody-card.turn-action-card .fullbody-box,
+.stage-characters .fullbody-card.turn-action-card .fullbody-frame {
+  z-index: 2 !important;
+}
+
+.stage-characters .fullbody-card.turn-action-card .fullbody-action-badge {
+  z-index: 6 !important;
+  overflow: hidden !important;
+  border-color: rgba(var(--rpmods-action-accent-strong), .72) !important;
+  background:
+    linear-gradient(115deg, rgba(10,13,20,.94), rgba(var(--rpmods-action-accent), .28)),
+    rgba(7,9,15,.92) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.42), 0 0 24px rgba(var(--rpmods-action-accent), .28), inset 0 0 18px rgba(var(--rpmods-action-accent-strong), .08) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.stage-characters .fullbody-card.selection-burst .fullbody-img,
+.stage-characters .fullbody-card.selecting .fullbody-img,
+.stage-characters .fullbody-card.selection-burst img.fullbody-img,
+.stage-characters .fullbody-card.selecting img.fullbody-img {
+  animation: rpmodsModernPickCharacter var(--rpmods-pick-confirm-duration) cubic-bezier(.16,.84,.2,1) both !important;
+  filter: drop-shadow(0 24px 30px rgba(0,0,0,.38)) !important;
+  -webkit-filter: drop-shadow(0 24px 30px rgba(0,0,0,.38)) !important;
+  will-change: transform, opacity !important;
+}
+
+.stage-characters .fullbody-card.banishing .fullbody-img,
+.stage-characters .fullbody-card.banishing img.fullbody-img {
+  animation: rpmodsModernBanCharacter var(--rpmods-ban-confirm-duration) cubic-bezier(.2,.74,.22,1) both !important;
+  filter: grayscale(1) saturate(0) contrast(1.1) brightness(.96) drop-shadow(0 22px 28px rgba(0,0,0,.38)) !important;
+  -webkit-filter: grayscale(1) saturate(0) contrast(1.1) brightness(.96) drop-shadow(0 22px 28px rgba(0,0,0,.38)) !important;
+  will-change: transform, opacity !important;
+}
+
+.stage-characters .fullbody-card.selection-burst .fullbody-action-badge,
+.stage-characters .fullbody-card.selecting .fullbody-action-badge {
+  animation: rpmodsModernPickBadge var(--rpmods-pick-confirm-duration) cubic-bezier(.16,.86,.2,1) both !important;
+}
+
+.stage-characters .fullbody-card.banishing .fullbody-action-badge {
+  animation: rpmodsModernBanBadge var(--rpmods-ban-confirm-duration) cubic-bezier(.2,.78,.22,1) both !important;
+}
+
+@keyframes rpmodsModernPickCharacter {
+  0% { opacity: 0; transform: translate3d(0,18px,0) scale(.945); }
+  18% { opacity: 1; transform: translate3d(0,-4px,0) scale(1.035); }
+  42% { opacity: 1; transform: translate3d(0,0,0) scale(1.012); }
+  78% { opacity: 1; transform: translate3d(0,0,0) scale(1.006); }
+  100% { opacity: 0; transform: translate3d(0,-10px,0) scale(.987); }
+}
+
+@keyframes rpmodsModernBanCharacter {
+  0% { opacity: 1; transform: translate3d(0,0,0) scale(1.018) rotate(0); }
+  16% { opacity: 1; transform: translate3d(-3px,-1px,0) scale(1.024) rotate(-.18deg); }
+  28% { opacity: 1; transform: translate3d(3px,-2px,0) scale(1.012) rotate(.16deg); }
+  62% { opacity: .86; transform: translate3d(0,-5px,0) scale(.995) rotate(0); }
+  100% { opacity: 0; transform: translate3d(0,-15px,0) scale(.955); }
+}
+
+@keyframes rpmodsModernPickAura {
+  0% { opacity: 0; transform: scale(.78); }
+  20% { opacity: 1; transform: scale(1.02); }
+  68% { opacity: .72; transform: scale(1.045); }
+  100% { opacity: 0; transform: scale(1.08); }
+}
+
+@keyframes rpmodsModernBanAura {
+  0% { opacity: 0; transform: scale(.92); }
+  16% { opacity: .9; transform: scale(1.02); }
+  54% { opacity: .62; transform: scale(1.04); }
+  100% { opacity: 0; transform: scale(1.08); }
+}
+
+@keyframes rpmodsModernPickSweep {
+  0%, 12% { opacity: 0; transform: translate3d(-82%,0,0) skewX(-9deg); }
+  24% { opacity: .9; }
+  58% { opacity: .5; transform: translate3d(76%,0,0) skewX(-9deg); }
+  100% { opacity: 0; transform: translate3d(112%,0,0) skewX(-9deg); }
+}
+
+@keyframes rpmodsModernBanSlash {
+  0%, 10% { opacity: 0; transform: translate3d(-72%,0,0) skewX(-12deg); }
+  18% { opacity: 1; }
+  38% { opacity: .96; transform: translate3d(42%,0,0) skewX(-12deg); }
+  58% { opacity: 0; transform: translate3d(86%,0,0) skewX(-12deg); }
+  100% { opacity: 0; transform: translate3d(100%,0,0) skewX(-12deg); }
+}
+
+@keyframes rpmodsModernPickBadge {
+  0% { opacity: 0; transform: translate(-50%,-50%) translate3d(0,14px,0) scale(.76); }
+  18% { opacity: 1; transform: translate(-50%,-50%) translate3d(0,0,0) scale(1.055); }
+  34% { transform: translate(-50%,-50%) scale(1); }
+  78% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) translate3d(0,-10px,0) scale(.96); }
+}
+
+@keyframes rpmodsModernBanBadge {
+  0% { opacity: 0; transform: translate(-50%,-50%) scaleX(.55) scaleY(.86); }
+  18% { opacity: 1; transform: translate(-50%,-50%) scaleX(1.06) scaleY(1.02); }
+  34% { transform: translate(-50%,-50%) scale(1); }
+  72% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) translate3d(0,-9px,0) scale(.95); }
+}
+
+.player-slot {
+  --rpmods-slot-accent: 255, 255, 255;
+  --rpmods-slot-direction: 1;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 5px 7px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: linear-gradient(105deg, rgba(8,10,17,.54), rgba(22,25,36,.26));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.025), 0 9px 24px rgba(0,0,0,.14);
+  transition: border-color .2s ease, background-color .2s ease, opacity .2s ease;
+  contain: layout style;
+}
+
+.player-slot.team-a { --rpmods-slot-accent: 255, 72, 94; }
+.player-slot.team-b { --rpmods-slot-accent: 79, 158, 255; --rpmods-slot-direction: -1; }
+
+.player-slot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(var(--rpmods-slot-accent), .16), transparent 54%);
+  opacity: 0;
+  transform: scaleX(.74);
+  transform-origin: calc(50% - (var(--rpmods-slot-direction) * 50%)) 50%;
+  transition: opacity .22s ease, transform .22s ease;
+}
+
+.player-slot.team-b::before {
+  background: linear-gradient(270deg, rgba(var(--rpmods-slot-accent), .16), transparent 54%);
+}
+
+.player-slot::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -42%;
+  width: 34%;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.38), transparent);
+  transform: skewX(-18deg) translate3d(-170%,0,0);
+  will-change: transform, opacity;
+}
+
+.player-slot.slot-filled {
+  border-color: rgba(var(--rpmods-slot-accent), .28);
+  background: linear-gradient(105deg, rgba(var(--rpmods-slot-accent), .1), rgba(10,12,20,.56) 45%, rgba(20,23,33,.32));
+}
+
+.player-slot.slot-filled::before,
+.player-slot.active-turn::before,
+.player-slot.slot-preview::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.player-slot.active-turn {
+  border-color: rgba(255,220,71,.55);
+  box-shadow: inset 0 0 0 1px rgba(255,220,71,.08), 0 0 22px rgba(255,220,71,.16), 0 9px 24px rgba(0,0,0,.16);
+}
+
+.player-slot.active-turn::after {
+  opacity: .42;
+  animation: rpmodsSlotIdleScan 2.8s cubic-bezier(.4,0,.2,1) infinite;
+}
+
+.player-slot.pick-flash {
+  animation: rpmodsModernSlotConfirm var(--rpmods-slot-confirm-duration) cubic-bezier(.16,.82,.22,1) both !important;
+}
+
+.player-slot.pick-flash::before {
+  animation: rpmodsModernSlotGlow var(--rpmods-slot-confirm-duration) ease-out both !important;
+}
+
+.player-slot.pick-flash::after {
+  opacity: 0;
+  animation: rpmodsModernSlotSweep var(--rpmods-slot-confirm-duration) cubic-bezier(.18,.78,.2,1) both !important;
+}
+
+.player-slot.pick-flash .slot-portrait {
+  animation: rpmodsModernSlotPortrait var(--rpmods-slot-confirm-duration) cubic-bezier(.16,.86,.22,1) both !important;
+  will-change: transform, opacity;
+}
+
+.player-slot.pick-flash .slot-portrait img {
+  animation: rpmodsModernSlotImage var(--rpmods-slot-confirm-duration) cubic-bezier(.16,.86,.22,1) both !important;
+  will-change: transform, opacity;
+}
+
+.player-slot.pick-flash .slot-details {
+  animation: rpmodsModernSlotDetails var(--rpmods-slot-confirm-duration) cubic-bezier(.18,.82,.22,1) both !important;
+  will-change: transform, opacity;
+}
+
+.player-slot.slot-preview .slot-portrait img {
+  opacity: .78;
+  transform: scale(1.035);
+}
+
+.player-slot .slot-portrait {
+  border-color: rgba(var(--rpmods-slot-accent), .34);
+  background: linear-gradient(135deg, rgba(var(--rpmods-slot-accent), .1), rgba(16,18,27,.72));
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.player-slot.slot-filled .slot-portrait {
+  border-color: rgba(var(--rpmods-slot-accent), .62);
+  box-shadow: inset 0 0 18px rgba(0,0,0,.24), 0 0 16px rgba(var(--rpmods-slot-accent), .12);
+}
+
+.player-slot .slot-name,
+.player-slot .slot-character {
+  transition: color .2s ease, opacity .2s ease;
+}
+
+.player-slot.slot-filled .slot-name {
+  color: rgba(255,255,255,.98);
+}
+
+.player-slot.slot-empty .slot-character {
+  opacity: .56;
+}
+
+@keyframes rpmodsModernSlotConfirm {
+  0% { opacity: .72; transform: translate3d(calc(var(--rpmods-slot-direction) * -12px),0,0) scale(.975); border-color: rgba(var(--rpmods-slot-accent),0); }
+  18% { opacity: 1; transform: translate3d(calc(var(--rpmods-slot-direction) * 3px),0,0) scale(1.018); border-color: rgba(var(--rpmods-slot-accent),.78); }
+  36% { transform: translate3d(0,0,0) scale(1); }
+  76% { border-color: rgba(var(--rpmods-slot-accent),.48); }
+  100% { opacity: 1; transform: translate3d(0,0,0) scale(1); border-color: rgba(var(--rpmods-slot-accent),.28); }
+}
+
+@keyframes rpmodsModernSlotPortrait {
+  0% { opacity: .25; transform: scale(.82) rotate(calc(var(--rpmods-slot-direction) * -1deg)); }
+  22% { opacity: 1; transform: scale(1.055) rotate(0); }
+  42%, 100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes rpmodsModernSlotImage {
+  0% { opacity: .15; transform: scale(1.16) translate3d(calc(var(--rpmods-slot-direction) * -8px),0,0); }
+  24% { opacity: 1; transform: scale(1.035) translate3d(0,0,0); }
+  52%, 100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes rpmodsModernSlotDetails {
+  0%, 10% { opacity: 0; transform: translate3d(calc(var(--rpmods-slot-direction) * -10px),5px,0); }
+  30% { opacity: 1; transform: translate3d(calc(var(--rpmods-slot-direction) * 2px),0,0); }
+  48%, 100% { opacity: 1; transform: translate3d(0,0,0); }
+}
+
+@keyframes rpmodsModernSlotGlow {
+  0% { opacity: 0; transform: scaleX(.5); }
+  22% { opacity: 1; transform: scaleX(1); }
+  68% { opacity: .72; }
+  100% { opacity: 1; transform: scaleX(1); }
+}
+
+@keyframes rpmodsModernSlotSweep {
+  0%, 12% { opacity: 0; transform: skewX(-18deg) translate3d(-170%,0,0); }
+  24% { opacity: .78; }
+  56% { opacity: .34; transform: skewX(-18deg) translate3d(430%,0,0); }
+  100% { opacity: 0; transform: skewX(-18deg) translate3d(520%,0,0); }
+}
+
+@keyframes rpmodsSlotIdleScan {
+  0%, 58% { opacity: 0; transform: skewX(-18deg) translate3d(-170%,0,0); }
+  70% { opacity: .34; }
+  100% { opacity: 0; transform: skewX(-18deg) translate3d(520%,0,0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-characters .fullbody-card.banishing::before,
+  .stage-characters .fullbody-card.banishing::after,
+  .stage-characters .fullbody-card.selection-burst::before,
+  .stage-characters .fullbody-card.selection-burst::after,
+  .stage-characters .fullbody-card.selecting::before,
+  .stage-characters .fullbody-card.selecting::after,
+  .player-slot.active-turn::after {
+    animation: none !important;
+  }
+
+  .player-slot.pick-flash,
+  .player-slot.pick-flash::before,
+  .player-slot.pick-flash::after,
+  .player-slot.pick-flash .slot-portrait,
+  .player-slot.pick-flash .slot-portrait img,
+  .player-slot.pick-flash .slot-details {
+    animation-duration: 180ms !important;
+  }
+}
+
+
+.stage-characters .fullbody-card.banishing,
+.stage-characters .fullbody-card.selection-burst,
+.stage-characters .fullbody-card.selecting {
+  animation: none !important;
+}
+
+.stage-characters .fullbody-card.banishing .fullbody-action-badge::after,
+.stage-characters .fullbody-card.selection-burst .fullbody-action-badge::after,
+.stage-characters .fullbody-card.selecting .fullbody-action-badge::after {
+  animation: none !important;
+  display: none !important;
+}
+
+.stage-characters .fullbody-card.banishing .fullbody-action-badge::before,
+.stage-characters .fullbody-card.selection-burst .fullbody-action-badge::before,
+.stage-characters .fullbody-card.selecting .fullbody-action-badge::before {
+  animation: none !important;
+  background: linear-gradient(110deg, rgba(var(--rpmods-action-accent), .86), rgba(18,22,32,.94) 54%, rgba(var(--rpmods-action-accent), .68)) !important;
+  box-shadow: inset 0 0 22px rgba(255,255,255,.08), 0 0 22px rgba(var(--rpmods-action-accent), .24) !important;
+}
+
+.stage-characters .fullbody-card.selection-burst .fullbody-action-badge .badge-main,
+.stage-characters .fullbody-card.selection-burst .fullbody-action-badge .badge-sub,
+.stage-characters .fullbody-card.selecting .fullbody-action-badge .badge-main,
+.stage-characters .fullbody-card.selecting .fullbody-action-badge .badge-sub {
+  animation: rpmodsModernPickBadgeText var(--rpmods-pick-confirm-duration) cubic-bezier(.16,.86,.2,1) both !important;
+}
+
+.stage-characters .fullbody-card.banishing .fullbody-action-badge .badge-main,
+.stage-characters .fullbody-card.banishing .fullbody-action-badge .badge-sub {
+  animation: rpmodsModernBanBadgeText var(--rpmods-ban-confirm-duration) cubic-bezier(.2,.78,.22,1) both !important;
+}
+
+@keyframes rpmodsModernPickBadgeText {
+  0%, 8% { opacity: 0; transform: translate3d(0,8px,0); letter-spacing: .42em; }
+  22% { opacity: 1; transform: translate3d(0,0,0); }
+  78% { opacity: 1; transform: translate3d(0,0,0); }
+  100% { opacity: 0; transform: translate3d(0,-7px,0); letter-spacing: .34em; }
+}
+
+@keyframes rpmodsModernBanBadgeText {
+  0%, 8% { opacity: 0; transform: translate3d(-10px,0,0); letter-spacing: .18em; }
+  20% { opacity: 1; transform: translate3d(2px,0,0); }
+  34% { transform: translate3d(0,0,0); }
+  74% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(8px,-5px,0); letter-spacing: .32em; }
+}
+
+
+.stage-characters .fullbody-card.banishing::before,
+.stage-characters .fullbody-card.banishing::after,
+.stage-characters .fullbody-card.selection-burst::before,
+.stage-characters .fullbody-card.selection-burst::after,
+.stage-characters .fullbody-card.selecting::before,
+.stage-characters .fullbody-card.selecting::after {
+  display: block !important;
+}
+
+html body .stage-characters .fullbody-card.selection-burst.turn-pick .fullbody-img,
+html body .stage-characters .fullbody-card.selecting.turn-pick .fullbody-img,
+html body .stage-characters .fullbody-card.selection-burst.turn-pick .fullbody-frame img.fullbody-img,
+html body .stage-characters .fullbody-card.selecting.turn-pick .fullbody-frame img.fullbody-img {
+  filter: drop-shadow(0 24px 30px rgba(0,0,0,.38)) drop-shadow(0 0 22px rgba(var(--rpmods-action-accent),.34)) !important;
+  -webkit-filter: drop-shadow(0 24px 30px rgba(0,0,0,.38)) drop-shadow(0 0 22px rgba(var(--rpmods-action-accent),.34)) !important;
+}
+
+html body .stage-characters .fullbody-card.banishing.turn-ban .fullbody-img,
+html body .stage-characters .fullbody-card.banishing.turn-ban .fullbody-frame img.fullbody-img {
+  filter: grayscale(1) saturate(0) contrast(1.1) brightness(.96) drop-shadow(0 22px 28px rgba(0,0,0,.38)) !important;
+  -webkit-filter: grayscale(1) saturate(0) contrast(1.1) brightness(.96) drop-shadow(0 22px 28px rgba(0,0,0,.38)) !important;
+}
+
+.stage-characters .fullbody-card.banishing .fullbody-action-badge,
+.stage-characters .fullbody-card.selection-burst .fullbody-action-badge,
+.stage-characters .fullbody-card.selecting .fullbody-action-badge {
+  animation: none !important;
+}
+
+.stage-characters .fullbody-card.banishing .fullbody-action-badge::before {
+  animation: rpmodsModernBanBadgePanel var(--rpmods-ban-confirm-duration) cubic-bezier(.2,.78,.22,1) both !important;
+  transform-origin: 50% 50% !important;
+}
+
+.stage-characters .fullbody-card.selection-burst .fullbody-action-badge::before,
+.stage-characters .fullbody-card.selecting .fullbody-action-badge::before {
+  animation: rpmodsModernPickBadgePanel var(--rpmods-pick-confirm-duration) cubic-bezier(.16,.86,.2,1) both !important;
+  transform-origin: 50% 50% !important;
+}
+
+@keyframes rpmodsModernPickBadgePanel {
+  0% { transform: scaleX(.18) scaleY(.82); }
+  18% { transform: scaleX(1.05) scaleY(1.03); }
+  32%, 78% { transform: scale(1); }
+  100% { transform: scaleX(.88) scaleY(.92); }
+}
+
+@keyframes rpmodsModernBanBadgePanel {
+  0% { transform: scaleX(.16) scaleY(.86); }
+  18% { transform: scaleX(1.07) scaleY(1.02); }
+  34%, 72% { transform: scale(1); }
+  100% { transform: scaleX(.84) scaleY(.9); }
+}
+
+.player-slot.pick-flash {
+  overflow: hidden !important;
+  filter: none !important;
+}
+
+.player-slot.pick-flash::after {
+  inset: auto !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: -42% !important;
+  right: auto !important;
+  width: 34% !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.38), transparent) !important;
+}
+
+
+/* v3.2.17 · Integrated in-page notices */
+.online-service-notice {
+  --service-accent: 255, 92, 112;
+  position: relative;
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  margin-top: 15px;
+  padding: 18px 18px 18px 16px;
+  overflow: hidden;
+  border: 1px solid rgba(var(--service-accent), .38);
+  background:
+    linear-gradient(110deg, rgba(var(--service-accent), .13), transparent 42%),
+    rgba(8, 13, 24, .88);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .32), inset 0 1px rgba(255, 255, 255, .04);
+  backdrop-filter: blur(18px);
+  transform-origin: 50% 0;
+  animation: onlineServiceNoticeInV3217 .5s cubic-bezier(.2,.85,.2,1) both;
+  isolation: isolate;
+}
+
+.online-service-notice::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 10%, rgba(255,255,255,.08) 48%, transparent 70%);
+  transform: translateX(-120%);
+  animation: onlineServiceScanV3217 3.8s ease-in-out infinite;
+}
+
+.online-service-notice.hidden { display: none !important; }
+.online-service-notice.notice-replay { animation: onlineServiceNoticeReplayV3217 .52s cubic-bezier(.2,.85,.2,1) both; }
+.online-service-notice.is-hiding { animation: onlineServiceNoticeOutV3217 .28s ease both; }
+.online-service-notice.retry-failed { animation: onlineServiceRetryFailedV3217 .48s ease both; }
+.online-service-notice.is-retrying,
+.online-service-notice.is-checking { --service-accent: 255, 193, 73; }
+.online-service-notice.is-connected { --service-accent: 77, 224, 160; }
+
+.online-service-signal {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+}
+
+.online-service-signal-core {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgb(var(--service-accent));
+  box-shadow: 0 0 18px rgba(var(--service-accent), .9), 0 0 36px rgba(var(--service-accent), .35);
+  animation: onlineServiceCoreV3217 1.45s ease-in-out infinite;
+}
+
+.online-service-signal-ring {
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgba(var(--service-accent), .6);
+  border-radius: 50%;
+  animation: onlineServiceRingV3217 1.8s ease-out infinite;
+}
+.online-service-signal-ring.ring-two { animation-delay: .9s; }
+.online-service-notice.is-retrying .online-service-signal-ring,
+.online-service-notice.is-checking .online-service-signal-ring { animation-duration: .9s; }
+.online-service-notice.is-connected .online-service-signal-ring { animation-iteration-count: 1; }
+
+.online-service-copy { min-width: 0; }
+.online-service-kicker {
+  display: block;
+  margin-bottom: 4px;
+  color: rgba(var(--service-accent), .9);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .2em;
+}
+.online-service-copy strong {
+  display: block;
+  color: #fff;
+  font-size: 17px;
+  line-height: 1.2;
+  letter-spacing: .015em;
+}
+.online-service-copy p {
+  margin: 5px 0 0;
+  color: rgba(235, 242, 255, .72);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.online-service-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.online-service-action {
+  min-width: 94px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(255,255,255,.13);
+  color: rgba(255,255,255,.82);
+  background: rgba(255,255,255,.045);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  cursor: pointer;
+  transition: transform .18s ease, border-color .18s ease, color .18s ease, background .18s ease;
+}
+.online-service-action.retry {
+  border-color: rgba(var(--service-accent), .55);
+  color: rgb(var(--service-accent));
+  background: rgba(var(--service-accent), .09);
+}
+.online-service-action:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: rgba(var(--service-accent), .72);
+  color: #fff;
+}
+.online-service-action:active:not(:disabled) { transform: translateY(0) scale(.98); }
+.online-service-action:disabled { cursor: wait; opacity: .62; }
+
+.app-notification-stack {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9000;
+  width: min(430px, calc(100vw - 48px));
+  display: grid;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.app-notification {
+  --notice-rgb: 92, 174, 255;
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px minmax(0,1fr) 30px;
+  align-items: center;
+  gap: 12px;
+  min-height: 72px;
+  padding: 13px 12px 13px 14px;
+  overflow: hidden;
+  pointer-events: auto;
+  border: 1px solid rgba(var(--notice-rgb), .38);
+  background:
+    linear-gradient(100deg, rgba(var(--notice-rgb), .14), transparent 52%),
+    rgba(7, 12, 22, .93);
+  box-shadow: 0 18px 48px rgba(0,0,0,.4), inset 0 1px rgba(255,255,255,.045);
+  backdrop-filter: blur(16px);
+  animation: appNotificationInV3217 .42s cubic-bezier(.18,.9,.22,1) both;
+}
+.app-notification::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: rgb(var(--notice-rgb));
+  box-shadow: 0 0 14px rgba(var(--notice-rgb), .72);
+}
+.app-notification.is-error { --notice-rgb: 255, 83, 106; }
+.app-notification.is-warning { --notice-rgb: 255, 190, 74; }
+.app-notification.is-success { --notice-rgb: 72, 218, 152; }
+.app-notification.is-leaving { animation: appNotificationOutV3217 .28s ease both; }
+
+.app-notification-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(var(--notice-rgb), .5);
+  border-radius: 50%;
+  color: rgb(var(--notice-rgb));
+  background: rgba(var(--notice-rgb), .1);
+  box-shadow: inset 0 0 16px rgba(var(--notice-rgb), .08), 0 0 18px rgba(var(--notice-rgb), .1);
+  font-size: 18px;
+  font-weight: 800;
+}
+.app-notification-copy { min-width: 0; }
+.app-notification-copy strong {
+  display: block;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.2;
+  letter-spacing: .02em;
+}
+.app-notification-copy p {
+  margin: 4px 0 0;
+  color: rgba(235,242,255,.72);
+  font-size: 11px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.app-notification-close {
+  align-self: start;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  color: rgba(255,255,255,.55);
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color .18s ease, transform .18s ease;
+}
+.app-notification-close:hover { color: #fff; transform: rotate(8deg) scale(1.08); }
+
+@keyframes onlineServiceNoticeInV3217 {
+  from { opacity: 0; transform: translateY(-10px) scale(.985); clip-path: inset(0 48% 0 48%); }
+  to { opacity: 1; transform: translateY(0) scale(1); clip-path: inset(0 0 0 0); }
+}
+@keyframes onlineServiceNoticeReplayV3217 {
+  0% { transform: scale(1); }
+  38% { transform: scale(1.012); box-shadow: 0 20px 52px rgba(var(--service-accent), .18); }
+  100% { transform: scale(1); }
+}
+@keyframes onlineServiceNoticeOutV3217 {
+  to { opacity: 0; transform: translateY(-8px) scale(.985); }
+}
+@keyframes onlineServiceRetryFailedV3217 {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+}
+@keyframes onlineServiceScanV3217 {
+  0%,55% { transform: translateX(-120%); opacity: 0; }
+  68% { opacity: 1; }
+  92%,100% { transform: translateX(120%); opacity: 0; }
+}
+@keyframes onlineServiceCoreV3217 {
+  0%,100% { transform: scale(.84); opacity: .76; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+@keyframes onlineServiceRingV3217 {
+  0% { transform: scale(.42); opacity: .72; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+@keyframes appNotificationInV3217 {
+  from { opacity: 0; transform: translateX(34px) scale(.97); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes appNotificationOutV3217 {
+  to { opacity: 0; transform: translateX(30px) scale(.97); }
+}
+
+@media (max-width: 900px) {
+  .online-service-notice { grid-template-columns: 54px minmax(0,1fr); }
+  .online-service-actions { grid-column: 1 / -1; justify-content: flex-end; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .online-service-notice,
+  .online-service-notice::before,
+  .online-service-signal-core,
+  .online-service-signal-ring,
+  .app-notification {
+    animation: none !important;
+  }
+}
+
+/* v3.2.17 layout refinement: service status floats inside the app viewport */
+.online-service-notice {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: 30px !important;
+  z-index: 8900 !important;
+  width: min(760px, calc(100vw - 96px)) !important;
+  margin: 0 !important;
+  transform: translateX(-50%);
+}
+
+@keyframes onlineServiceNoticeInV3217 {
+  from { opacity: 0; transform: translateX(-50%) translateY(16px) scale(.975); clip-path: inset(0 48% 0 48%); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); clip-path: inset(0 0 0 0); }
+}
+@keyframes onlineServiceNoticeReplayV3217 {
+  0% { transform: translateX(-50%) scale(1); }
+  38% { transform: translateX(-50%) scale(1.012); box-shadow: 0 20px 52px rgba(var(--service-accent), .18); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+@keyframes onlineServiceNoticeOutV3217 {
+  to { opacity: 0; transform: translateX(-50%) translateY(12px) scale(.985); }
+}
+@keyframes onlineServiceRetryFailedV3217 {
+  0%,100% { transform: translateX(-50%) translateX(0); }
+  25% { transform: translateX(-50%) translateX(-5px); }
+  50% { transform: translateX(-50%) translateX(4px); }
+  75% { transform: translateX(-50%) translateX(-2px); }
+}
+
+@media (max-width: 900px) {
+  .online-service-notice {
+    width: calc(100vw - 40px) !important;
+    bottom: 20px !important;
+  }
+}
+
+
+.online-service-notice[data-state="checking"]::before {
+  animation-duration: 1.15s;
+}
+.online-service-notice[data-state="checking"] .online-service-action.retry {
+  cursor: wait;
+}
+.online-service-notice[data-state="connected"] .online-service-action.retry {
+  border-color: rgba(77,224,160,.5);
+  color: rgb(77,224,160);
+  background: rgba(77,224,160,.08);
+}
+.online-menu-button[aria-busy="true"],
+#join-name-confirm[aria-busy="true"] {
+  cursor: wait;
+  opacity: .72;
+}
+
+/* v3.2.22 — Intro selection settings */
+.intro-settings-panel {
+  position: relative;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid rgba(46, 56, 70, 0.14);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.58), rgba(245,247,250,0.34)),
+    rgba(255,255,255,0.24);
+  box-shadow: 0 12px 28px rgba(35,43,56,0.07);
+  overflow: hidden;
+}
+
+.intro-settings-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, #e13a49, #ff7a73);
+  opacity: 0.92;
+}
+
+.intro-settings-panel .intro-settings-heading {
+  margin: 0 0 12px;
+}
+
+.intro-settings-panel .intro-random-row,
+.intro-settings-panel .intro-manual-row {
+  min-height: 68px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(46,56,70,0.1);
+  border-radius: 11px;
+  background: rgba(255,255,255,0.48);
+}
+
+.intro-settings-panel .intro-manual-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  margin-top: 10px;
+  transition: opacity 180ms ease, transform 180ms ease, background 180ms ease;
+}
+
+.intro-manual-select {
+  width: 176px;
+  min-width: 176px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.intro-settings-panel.is-random .intro-manual-row {
+  opacity: 0.52;
+  background: rgba(242,244,247,0.46);
+}
+
+.intro-settings-panel.is-manual .intro-manual-row {
+  opacity: 1;
+  transform: translateY(-1px);
+  border-color: rgba(218,49,68,0.24);
+  background: rgba(255,255,255,0.68);
+}
+
+.intro-selection-status {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  color: rgba(34,42,53,0.72);
+  background: rgba(31,37,45,0.055);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+}
+
+@media (max-width: 760px) {
+  .intro-settings-panel .intro-manual-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .intro-manual-select {
+    width: 100%;
+  }
+}
+
+.setup-shell.view-configuracion .setup-panel[data-panel="configuracion"].is-active {
+  max-height: min(690px, calc(100vh - 210px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding-right: 8px !important;
+}
+
+
+/* v3.2.23 — Named intro sets */
+.intro-manual-select {
+  width: min(360px, 52%);
+  min-width: 280px;
+  font-size: 0.76rem;
+  letter-spacing: 0.015em;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 900px) {
+  .intro-settings-panel .intro-manual-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .intro-manual-select {
+    width: 100%;
+    min-width: 0;
   }
 }

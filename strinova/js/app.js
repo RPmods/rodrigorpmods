@@ -295,21 +295,6 @@ const summaryImageOffsets = {
   Yugiri: { x: -6, y: -4 },
   Yvette: { x: 0, y: -4 },
 };
-
-/*
-  Ajuste visual de PNG FULL
-  ------------------------------------------------------------
-  mode = "stage"   => pantalla principal del draft.
-  mode = "summary" => resumen final.
-
-  Para editar a mano, usa js/character_layout_config.js.
-  En ese archivo:
-  - stageOffset.x positivo mueve a la derecha en el draft.
-  - stageOffset.x negativo mueve a la izquierda en el draft.
-  - stageOffset.y negativo sube el PNG en el draft.
-  - stageOffset.y positivo baja el PNG en el draft.
-  - summaryOffset hace lo mismo, pero SOLO en el resumen final.
-*/
 function createFullbodyImage(name, mode = "stage", groupSize = 1) {
   const img = makeImage([fullPath(name), thumbPath(name), legacyPath(name)], "fullbody-img", name);
   const defaultTweak = characterDisplayTweaks[name] || {};
@@ -585,12 +570,15 @@ let onlineReadyStartKey = null;
 const testingBotReadyTimers = new Map();
 let onlineRoomListenerCode = null;
 let onlineRoomDeletionListenerCode = null;
+let onlineRoomDeletionRef = null;
 let onlineStartedForRoom = null;
 let onlineRoomStartedState = false;
 let onlineLastActionEventId = null;
 let onlineLastPhaseEventId = null;
 let onlineLastMapEventId = null;
 let onlineLastRouletteEventId = null;
+let onlineRemoteRoulettePlaybackId = null;
+let onlineRemoteMapPlaybackId = null;
 let onlineLastAudioEventId = null;
 let onlineTurnAutoResolveKey = null;
 let onlineMapAutoResolveKey = null;
@@ -702,6 +690,8 @@ const state = {
     narrationEnabled: true,
     selectionAnimationEnabled: true,
     autoResolveEnabled: true,
+    introRandomEnabled: true,
+    introManualSetId: 1,
     animationDuration: 1.6,
   },
   devSelectedCharacter: "Ming",
@@ -721,6 +711,19 @@ const state = {
     introVoicePrimed: false,
     clicked: false,
     voicePlayed: false,
+    selectedSetIndex: -1,
+    selectedSet: null,
+    silentPrecacheStarted: false,
+    silentPrecachePromise: null,
+    alternativesPrecacheStarted: false,
+    alternativesPrecachePromise: null,
+    menuVideoReady: false,
+    menuAudioReady: false,
+    selectedPairStatus: null,
+    resolvedSetId: null,
+    resolvedVideoSource: "",
+    resolvedAudioSource: "",
+    resolvedSourceKind: "",
   },
   resourcePreload: {
     started: false,
@@ -757,6 +760,8 @@ function sanitizeStoredSettings(rawSettings = {}) {
   sanitized.narrationEnabled = typeof rawSettings.narrationEnabled === "boolean" ? rawSettings.narrationEnabled : defaults.narrationEnabled;
   sanitized.selectionAnimationEnabled = typeof rawSettings.selectionAnimationEnabled === "boolean" ? rawSettings.selectionAnimationEnabled : defaults.selectionAnimationEnabled;
   sanitized.autoResolveEnabled = typeof rawSettings.autoResolveEnabled === "boolean" ? rawSettings.autoResolveEnabled : defaults.autoResolveEnabled;
+  sanitized.introRandomEnabled = typeof rawSettings.introRandomEnabled === "boolean" ? rawSettings.introRandomEnabled : defaults.introRandomEnabled;
+  sanitized.introManualSetId = Math.round(clampNumber(rawSettings.introManualSetId, 1, 5, defaults.introManualSetId));
   sanitized.animationDuration = clampNumber(rawSettings.animationDuration, 0.6, 1.8, defaults.animationDuration);
   return sanitized;
 }
@@ -829,6 +834,9 @@ const animationDurationValue = $("#animation-duration-value");
 const narrationToggle = $("#narration-toggle");
 const selectionAnimationToggle = $("#selection-animation-toggle");
 const autoResolveToggle = $("#auto-resolve-toggle");
+const introRandomToggle = $("#intro-random-toggle");
+const introManualSelect = $("#intro-manual-select");
+const introSelectionStatus = $("#intro-selection-status");
 const masterVolumeRange = $("#master-volume-range");
 const musicVolumeRange = $("#music-volume-range");
 const sfxVolumeRange = $("#sfx-volume-range");
@@ -908,6 +916,7 @@ function updateOnlineStaticTexts() {
   if (joinNameInput) joinNameInput.placeholder = t('join_name_placeholder');
   setText('#join-name-confirm', 'enter_room');
   setText('#join-name-cancel', 'cancel');
+  updateOnlineServiceNoticeLanguage();
 }
 
 function updateCreditsPanel() {
@@ -998,6 +1007,13 @@ function applyLanguage(lang = currentLanguage(), options = {}) {
   setText('[data-panel="creditos"] .subconfig-heading span','credits'); setText('[data-panel="creditos"] .subconfig-heading strong','voices'); setText('.credits-line strong','system_voice'); updateCreditsPanel();
   setText('[data-panel="configuracion"] .subconfig-heading span','config'); setText('[data-panel="configuracion"] .subconfig-heading strong','game_settings');
   [['turn_time','turn_time_desc'],['animation_duration','animation_duration_desc'],['narration_toggle','narration_toggle_desc'],['selection_animation','selection_animation_desc'],['auto_resolve','auto_resolve_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="configuracion"] .subconfig-row, [data-panel="configuracion"] .toggle-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
+  setText('.intro-settings-heading span','intro_settings_small');
+  setText('.intro-settings-heading strong','intro_settings_title');
+  setText('.intro-random-row .subconfig-copy span','intro_random_selection');
+  setText('.intro-random-row .subconfig-copy small','intro_random_selection_desc');
+  setText('.intro-manual-copy span','intro_manual_selection');
+  setText('.intro-manual-copy small','intro_manual_selection_desc');
+  updateIntroSelectionSettingsUI();
   updateOnlineStaticTexts();
   setText('#local-config-title','local_config_title');
   setText('#local-config-modal .join-name-copy','local_config_copy');
@@ -1027,21 +1043,6 @@ function applyLanguage(lang = currentLanguage(), options = {}) {
   if (document.querySelector('.draft-screen.active')) renderAll();
   if (document.querySelector('.map-screen.active')) renderMapGrid();
 }
-
-/*
-  AJUSTE DIRECTO DE LA BOX DEL PNG FULL EN DRAFT
-  ------------------------------------------------
-  Cambia estos valores si quieres que la caja central sea más grande o más chica.
-
-  stageWidth: ancho total del área donde viven los PNG full.
-  stageHeight: altura total del área donde viven los PNG full.
-  singleBoxWidth: ancho de la caja cuando se muestra 1 personaje.
-  doubleBoxWidth: ancho de cada caja cuando se muestran 2 personajes.
-  doubleGap: separación entre los 2 personajes cuando el turno permite 2 picks.
-  statusBottom: posición vertical del panel FASE/TEAM, menor = más abajo, mayor = más arriba.
-
-  Nota: los PNG quedan por detrás del HUD, laterales, panel de fase y selector inferior.
-*/
 const DRAFT_FULLBODY_BOX_CONFIG = {
   stageWidth: 1080,
   stageHeight: 585,
@@ -1211,7 +1212,7 @@ function serializeCharacterLayoutConfig() {
     },
     characters: orderedCharacters,
   };
-  return `/* Configuración generada desde DEVELOPMENT. */\nwindow.CHARACTER_LAYOUT_CONFIG = ${JSON.stringify(payload, null, 2)};\n`;
+  return `window.CHARACTER_LAYOUT_CONFIG = ${JSON.stringify(payload, null, 2)};\n`;
 }
 
 function updateDevSaveStatus(message, isError = false) {
@@ -1384,7 +1385,6 @@ function setAudioElementSourceWithFallback(audio, sources, startIndex = 0) {
   try {
     audio.load();
   } catch (_) {
-    // Algunos navegadores no necesitan load() manual para Audio().
   }
 }
 
@@ -1441,7 +1441,6 @@ function channelVolume(channel = "sfx") {
   if (channel === "music") channelValue = settings.musicVolume ?? 1;
   if (channel === "narration") channelValue = settings.narrationVolume ?? 1;
   if (channel === "characterVoice") channelValue = settings.characterVoiceVolume ?? 1;
-  // Compatibilidad con versiones anteriores: si algo llama "voice", usa narración.
   if (channel === "voice") channelValue = settings.characterVoiceVolume ?? 1;
 
   return clamp01(master * clamp01(channelValue));
@@ -1463,8 +1462,6 @@ function unlockMediaPlayback(force = false) {
 
   try {
     const audio = new Audio(MEDIA_UNLOCK_SILENCE);
-    // No se marca como muted: algunos navegadores solo desbloquean Audio()
-    // si el primer play viene de una interacción real y no está muteado.
     audio.muted = false;
     audio.volume = 0;
     audio.preload = "auto";
@@ -1522,6 +1519,8 @@ function makeImage(srcList, className, altText) {
 const RESOURCE_PRELOAD_MIN_VISIBLE_MS = 720;
 const RESOURCE_PRELOAD_ITEM_TIMEOUT_MS = 5200;
 const RESOURCE_PRELOAD_CONCURRENCY = 6;
+const RESOURCE_PRELOAD_BACKGROUND_CONCURRENCY = 2;
+const RESOURCE_PRELOAD_SECONDARY_CONCURRENCY = 2;
 
 function uniqueResourceGroups(groups) {
   const seen = new Set();
@@ -1545,7 +1544,6 @@ function resourcePreloadGroups({ secondary = false } = {}) {
   if (!secondary) {
     add("video/background.mp4", "Video de fondo", "video");
     add(INTRO_ASSETS?.loadingVideo, "Pantalla de carga", "video");
-    add(INTRO_ASSETS?.menuVideo, "Video del menú", "video");
     add(INTRO_ASSETS?.overlayLogo, "Overlay del menú", "video");
 
     [
@@ -1674,7 +1672,6 @@ function preloadVideoCandidate(url) {
 function fetchResourceCandidate(url) {
   return fetchWithTimeout(url).then(async response => {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    // Consumir el body ayuda a que GitHub Pages / el navegador dejen el recurso en caché.
     try { await response.blob(); } catch (_) {}
     return url;
   });
@@ -1695,13 +1692,12 @@ async function preloadFirstAvailable(group) {
       await preloadOneCandidate(source, group.type);
       return { ok: true, source };
     } catch (_) {
-      // Prueba el siguiente candidato, por ejemplo .ogg -> .mp3 -> .mp4.
     }
   }
   return { ok: false, source: sources[0] || "" };
 }
 
-async function runResourcePreloadQueue(groups, onProgress) {
+async function runResourcePreloadQueue(groups, onProgress, concurrency = RESOURCE_PRELOAD_CONCURRENCY) {
   const list = uniqueResourceGroups(groups);
   if (!list.length) return;
   let done = 0;
@@ -1716,20 +1712,47 @@ async function runResourcePreloadQueue(groups, onProgress) {
     }
   };
 
-  await Promise.all(Array.from({ length: Math.min(RESOURCE_PRELOAD_CONCURRENCY, list.length) }, worker));
+  const workerCount = Math.max(1, Math.min(Number(concurrency) || 1, list.length));
+  await Promise.all(Array.from({ length: workerCount }, worker));
 }
 
 function scheduleSecondaryResourcePreload() {
   if (state.resourcePreload.secondaryStarted) return;
   state.resourcePreload.secondaryStarted = true;
+  const queue = () => {
+    runResourcePreloadQueue(
+      resourcePreloadGroups({ secondary: true }),
+      null,
+      RESOURCE_PRELOAD_SECONDARY_CONCURRENCY
+    ).catch(() => {});
+  };
   window.setTimeout(() => {
-    runResourcePreloadQueue(resourcePreloadGroups({ secondary: true })).catch(() => {});
-  }, 900);
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(queue, { timeout: 3500 });
+    } else {
+      queue();
+    }
+  }, 1400);
 }
 
-function preloadCriticalResources({ showOverlay = true } = {}) {
+function scheduleGeneralSilentPrecache() {
+  if (state.resourcePreload.started || state.resourcePreload.completed) return state.resourcePreload.promise || Promise.resolve();
+  const queue = () => preloadCriticalResources({
+    showOverlay: false,
+    concurrency: RESOURCE_PRELOAD_BACKGROUND_CONCURRENCY,
+    scheduleSecondary: false,
+  });
+  if (typeof window.requestIdleCallback === "function") {
+    return new Promise(resolve => {
+      window.requestIdleCallback(() => queue().finally(resolve), { timeout: 1500 });
+    });
+  }
+  return new Promise(resolve => window.setTimeout(() => queue().finally(resolve), 320));
+}
+
+function preloadCriticalResources({ showOverlay = true, concurrency = RESOURCE_PRELOAD_CONCURRENCY, scheduleSecondary = true } = {}) {
   if (state.resourcePreload.completed) {
-    scheduleSecondaryResourcePreload();
+    if (scheduleSecondary) scheduleSecondaryResourcePreload();
     return Promise.resolve();
   }
   if (state.resourcePreload.promise) return state.resourcePreload.promise;
@@ -1746,7 +1769,7 @@ function preloadCriticalResources({ showOverlay = true } = {}) {
     const progress = total ? (done / total) * 100 : 100;
     state.resourcePreload.progress = progress;
     if (overlay) updateResourcePreloadOverlay(progress, t("preload_resource_ready", { resource: group?.label || t("resource") }));
-  }).catch(error => {
+  }, concurrency).catch(error => {
     console.warn("Precarga de recursos incompleta; se continuará igualmente.", error);
   }).then(async () => {
     const elapsed = performance.now() - startedAt;
@@ -1757,7 +1780,7 @@ function preloadCriticalResources({ showOverlay = true } = {}) {
       overlay.classList.add("is-done");
       window.setTimeout(() => overlay.classList.add("hidden"), 280);
     }
-    scheduleSecondaryResourcePreload();
+    if (scheduleSecondary) scheduleSecondaryResourcePreload();
   });
 
   return state.resourcePreload.promise;
@@ -1828,15 +1851,12 @@ async function resolveExistingAudioSource(src, mode = "normal") {
       const response = await fetch(source, { method: "HEAD", cache: "no-store" });
       if (response.ok) return source;
     } catch (_) {
-      // Si se abre localmente o el navegador bloquea HEAD, se usa el fallback normal.
     }
   }
   return sources[0];
 }
 
 async function playUiSound(src, volume = 1) {
-  // Importante: no hacemos fetch/HEAD antes de reproducir.
-  // Ese await puede consumir el gesto del usuario y Chrome/Opera bloquean el audio.
   unlockMediaPlayback(true);
   return audioPlayFromSourceList(uiAudioCandidates(src), volume, "sfx");
 }
@@ -1872,7 +1892,6 @@ function audioLoopStop(audio) {
     audio.src = "";
     audio.load?.();
   } catch (_) {
-    // El audio de roulette no es crítico.
   }
 }
 
@@ -1908,7 +1927,6 @@ function speakFallback(text, volume = 0.92) {
     utterance.volume = Math.max(0, Math.min(1, volume * channelVolume("narration")));
     window.speechSynthesis.speak(utterance);
   } catch (_) {
-    // La narración por voz no es crítica para el flujo.
   }
 }
 
@@ -1986,28 +2004,39 @@ function setupBackgroundVideo() {
 
   const playVideo = () => {
     applyVideoSettings();
-    if (!video.currentSrc && video.querySelector("source")) {
-      video.load();
-    }
+    if (!video.currentSrc && video.querySelector("source")) video.load();
     const promise = video.play();
     if (promise) promise.catch(() => {});
   };
 
-  const recoverFrozenVideo = (hard = false) => {
-    applyVideoSettings();
-    try {
-      if (Number.isFinite(video.duration) && video.duration > 1) {
-        const nextTime = Math.min(Math.max(0.05, (Number(video.currentTime) || 0) + 0.08), video.duration - 0.08);
-        video.currentTime = nextTime;
-      }
-    } catch (_) {}
+  let recoveryTimerId = null;
+  const clearScheduledRecovery = () => {
+    if (!recoveryTimerId) return;
+    clearTimeout(recoveryTimerId);
+    recoveryTimerId = null;
+  };
 
-    if (hard) {
+  const recoverFrozenVideo = (hard = false) => {
+    clearScheduledRecovery();
+    applyVideoSettings();
+    const hasMediaError = Boolean(video.error) || video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE;
+    if (hard && hasMediaError) {
       try { video.pause(); } catch (_) {}
       try { video.load(); } catch (_) {}
     }
-
     playVideo();
+  };
+
+  const scheduleRecovery = (delayMs = 2400, hard = false) => {
+    clearScheduledRecovery();
+    recoveryTimerId = window.setTimeout(() => {
+      recoveryTimerId = null;
+      if (document.hidden) return;
+      const lastUpdateAt = Number(video.dataset.lastTimeUpdateAt || 0);
+      const updateIsStale = lastUpdateAt > 0 && Date.now() - lastUpdateAt > 6500;
+      const needsRecovery = hard || video.paused || video.readyState < 2 || updateIsStale;
+      if (needsRecovery) recoverFrozenVideo(hard);
+    }, delayMs);
   };
 
   if (video.dataset.initialized === "true") {
@@ -2017,8 +2046,6 @@ function setupBackgroundVideo() {
   video.dataset.initialized = "true";
 
   video.addEventListener("loadedmetadata", () => {
-    // El video de fondo es local e independiente por cliente; no se sincroniza con Firebase.
-    // Un pequeño offset evita que todos los navegadores intenten reproducir exactamente el mismo frame.
     if (video.dataset.localOffsetApplied === "true") return;
     video.dataset.localOffsetApplied = "true";
     try {
@@ -2035,8 +2062,8 @@ function setupBackgroundVideo() {
     playVideo();
   });
   video.addEventListener("playing", () => {
+    clearScheduledRecovery();
     video.dataset.stallTicks = "0";
-    video.dataset.hardRecoveries = "0";
     document.body.classList.add("video-ready");
     document.body.classList.remove("video-error");
   });
@@ -2044,21 +2071,21 @@ function setupBackgroundVideo() {
     video.dataset.lastTimeUpdateAt = String(Date.now());
   });
   video.addEventListener("canplay", playVideo);
-  video.addEventListener("waiting", () => setTimeout(() => recoverFrozenVideo(false), 350));
-  video.addEventListener("stalled", () => setTimeout(() => recoverFrozenVideo(false), 350));
-  video.addEventListener("suspend", () => setTimeout(() => recoverFrozenVideo(false), 500));
+  video.addEventListener("waiting", () => scheduleRecovery(2400, false));
+  video.addEventListener("stalled", () => scheduleRecovery(2800, false));
+  video.addEventListener("suspend", () => scheduleRecovery(3200, false));
   video.addEventListener("error", () => {
     document.body.classList.add("video-error");
-    setTimeout(() => recoverFrozenVideo(true), 900);
+    scheduleRecovery(1200, true);
   });
 
   document.addEventListener("pointerdown", playVideo, { passive: true });
   document.addEventListener("keydown", playVideo);
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) recoverFrozenVideo(false);
+    if (!document.hidden) scheduleRecovery(450, false);
   });
-  window.addEventListener("focus", () => recoverFrozenVideo(false));
-  window.addEventListener("pageshow", () => recoverFrozenVideo(false));
+  window.addEventListener("focus", () => scheduleRecovery(450, false));
+  window.addEventListener("pageshow", () => scheduleRecovery(450, false));
 
   if (video.dataset.watchdog !== "true") {
     video.dataset.watchdog = "true";
@@ -2069,27 +2096,28 @@ function setupBackgroundVideo() {
       const previous = Number(video.dataset.lastTime || -1);
       const stallTicks = Number(video.dataset.stallTicks || 0);
       const lastUpdateAt = Number(video.dataset.lastTimeUpdateAt || 0);
-      const timeUpdateIsOld = lastUpdateAt && Date.now() - lastUpdateAt > 2800;
-      const seemsFrozen = !video.paused && video.readyState >= 2 && Math.abs(current - previous) < 0.025;
+      const timeUpdateIsOld = lastUpdateAt > 0 && Date.now() - lastUpdateAt > 6500;
+      const seemsFrozen = !video.paused && video.readyState >= 2 && Math.abs(current - previous) < 0.02 && timeUpdateIsOld;
       video.dataset.lastTime = String(current);
-      const nextStallTicks = (seemsFrozen || timeUpdateIsOld || video.paused || video.readyState < 2) ? stallTicks + 1 : 0;
-      video.dataset.stallTicks = String(nextStallTicks);
-      if (nextStallTicks >= 2) {
-        video.dataset.stallTicks = "0";
-        const hardRecoveries = Number(video.dataset.hardRecoveries || 0) + 1;
-        video.dataset.hardRecoveries = String(hardRecoveries);
-        recoverFrozenVideo(hardRecoveries % 3 === 0);
-      } else if (video.paused) {
+
+      if (video.paused) {
         playVideo();
+        video.dataset.stallTicks = "0";
+        return;
       }
-    }, 1200);
+
+      const nextStallTicks = (seemsFrozen || video.readyState < 2) ? stallTicks + 1 : 0;
+      video.dataset.stallTicks = String(nextStallTicks);
+      if (nextStallTicks >= 3) {
+        video.dataset.stallTicks = "0";
+        scheduleRecovery(250, Boolean(video.error));
+      }
+    }, 2000);
   }
 
   applyVideoSettings();
-  video.load();
   playVideo();
 }
-
 
 function setupInputs() {
   setupA.innerHTML = "";
@@ -2405,6 +2433,97 @@ function activateSetupTab(tabName) {
   }
 }
 
+const DRAFT_ACTION_ANIMATION_PROFILE = Object.freeze({
+  ban: Object.freeze({ manual: 880, automatic: 760 }),
+  pick: Object.freeze({ manual: 820, automatic: 720 }),
+});
+
+function draftAnimationScale() {
+  return clampNumber(state.settings.animationDuration, 0.6, 1.8, 1.6);
+}
+
+function confirmedActionAnimationDuration(type, isAuto = false) {
+  const profile = DRAFT_ACTION_ANIMATION_PROFILE[type] || DRAFT_ACTION_ANIMATION_PROFILE.pick;
+  const base = isAuto ? profile.automatic : profile.manual;
+  return Math.max(360, Math.round(base * draftAnimationScale()));
+}
+
+function syncDraftAnimationTiming() {
+  const rootStyle = document.documentElement.style;
+  rootStyle.setProperty("--rpmods-ban-confirm-duration", `${confirmedActionAnimationDuration("ban")}ms`);
+  rootStyle.setProperty("--rpmods-pick-confirm-duration", `${confirmedActionAnimationDuration("pick")}ms`);
+  rootStyle.setProperty("--rpmods-slot-confirm-duration", `${confirmedActionAnimationDuration("pick")}ms`);
+}
+
+function resetIntroSelectionRuntime() {
+  state.intro.selectedSet = null;
+  state.intro.selectedSetIndex = -1;
+  state.intro.resolvedSetId = null;
+  state.intro.resolvedVideoSource = "";
+  state.intro.resolvedAudioSource = "";
+  state.intro.resolvedSourceKind = "";
+}
+
+function introMenuSetName(setId) {
+  const numericId = Math.round(clampNumber(setId, 1, INTRO_MENU_SETS.length, 1));
+  return INTRO_MENU_SETS.find(item => item.id === numericId)?.name || `INTRO ${String(numericId).padStart(2, "0")}`;
+}
+
+function populateIntroManualSelect() {
+  if (!introManualSelect) return;
+  const currentValue = String(Math.round(clampNumber(introManualSelect.value || state.settings.introManualSetId, 1, INTRO_MENU_SETS.length, 1)));
+  const fragment = document.createDocumentFragment();
+  INTRO_MENU_SETS.forEach(item => {
+    const option = document.createElement("option");
+    option.value = String(item.id);
+    option.textContent = item.name;
+    option.title = item.name;
+    fragment.appendChild(option);
+  });
+  introManualSelect.replaceChildren(fragment);
+  introManualSelect.value = currentValue;
+}
+
+function updateIntroSelectionSettingsUI() {
+  const randomEnabled = state.settings.introRandomEnabled !== false;
+  const manualId = Math.round(clampNumber(state.settings.introManualSetId, 1, 5, 1));
+  if (introRandomToggle) introRandomToggle.checked = randomEnabled;
+  if (introManualSelect) {
+    introManualSelect.value = String(manualId);
+    introManualSelect.disabled = randomEnabled;
+    introManualSelect.setAttribute("aria-disabled", String(randomEnabled));
+  }
+  const panel = document.getElementById("intro-settings-panel");
+  panel?.classList.toggle("is-random", randomEnabled);
+  panel?.classList.toggle("is-manual", !randomEnabled);
+  if (introSelectionStatus) {
+    introSelectionStatus.textContent = randomEnabled
+      ? t("intro_mode_random_status")
+      : t("intro_mode_manual_status", { name: introMenuSetName(manualId) });
+  }
+}
+
+function setupIntroSelectionControls() {
+  populateIntroManualSelect();
+  updateIntroSelectionSettingsUI();
+  if (introRandomToggle) {
+    introRandomToggle.addEventListener("change", () => {
+      state.settings.introRandomEnabled = introRandomToggle.checked;
+      resetIntroSelectionRuntime();
+      updateIntroSelectionSettingsUI();
+      scheduleSettingsSave();
+    });
+  }
+  if (introManualSelect) {
+    introManualSelect.addEventListener("change", () => {
+      state.settings.introManualSetId = Math.round(clampNumber(introManualSelect.value, 1, 5, 1));
+      resetIntroSelectionRuntime();
+      updateIntroSelectionSettingsUI();
+      scheduleSettingsSave();
+    });
+  }
+}
+
 function setupConfigControls() {
   settingsRestoring = true;
   applyTurnDuration(state.turnDuration, false);
@@ -2416,8 +2535,6 @@ function setupConfigControls() {
   }
   if (turnTimeMinus) turnTimeMinus.addEventListener("click", () => applyTurnDuration(state.turnDuration - 1));
   if (turnTimePlus) turnTimePlus.addEventListener("click", () => applyTurnDuration(state.turnDuration + 1));
-
-  // Valores iniciales: se restauran desde localStorage si existen; si no, usa defaults.
   const percentValue = (key, fallback) => String(Math.round(clamp01(state.settings[key] ?? fallback) * 100));
   if (masterVolumeRange) masterVolumeRange.value = percentValue("masterVolume", 1);
   if (musicVolumeRange) musicVolumeRange.value = percentValue("musicVolume", 0.4);
@@ -2457,6 +2574,7 @@ function setupConfigControls() {
     const raw = Math.max(60, Math.min(180, Number(animationDurationRange?.value) || 100));
     state.settings.animationDuration = raw / 100;
     if (animationDurationValue) animationDurationValue.textContent = `${state.settings.animationDuration.toFixed(2)}x`;
+    syncDraftAnimationTiming();
     scheduleSettingsSave();
   };
   if (animationDurationRange) {
@@ -2487,6 +2605,8 @@ function setupConfigControls() {
     });
   }
 
+  setupIntroSelectionControls();
+
   document.querySelectorAll(".setup-top-tab").forEach(button => {
     if (button.disabled) return;
     button.addEventListener("click", () => activateSetupTab(button.dataset.tab));
@@ -2497,9 +2617,53 @@ function setupConfigControls() {
 }
 
 
+const INTRO_MENU_SETS = [
+  {
+    id: 1,
+    name: "Strinova Season 9 (26sp3)",
+    video: "media/intro-menu/intro-01/video.mp4",
+    audio: "media/intro-menu/intro-01/music.mp3",
+    legacyVideo: "video/introV/Intro_menu.mp4",
+    legacyAudio: "audio/music_intro.mp3",
+  },
+  {
+    id: 2,
+    name: "Strinova Season 6 (Michelle Skin)",
+    video: "media/intro-menu/intro-02/video.mp4",
+    audio: "media/intro-menu/intro-02/music.mp3",
+    legacyVideo: "video/introV/Intro_menu_2.mp4",
+    legacyAudio: "audio/music_intro_2.mp3",
+  },
+  {
+    id: 3,
+    name: "Strinova Season 7 (p2)",
+    video: "media/intro-menu/intro-03/video.mp4",
+    audio: "media/intro-menu/intro-03/music.mp3",
+    legacyVideo: "video/introV/Intro_menu_3.mp4",
+    legacyAudio: "audio/music_intro_3.mp3",
+  },
+  {
+    id: 4,
+    name: "Strinova Season 7",
+    video: "media/intro-menu/intro-04/video.mp4",
+    audio: "media/intro-menu/intro-04/music.mp3",
+    legacyVideo: "video/introV/Intro_menu_4.mp4",
+    legacyAudio: "audio/music_intro_4.mp3",
+  },
+  {
+    id: 5,
+    name: "Kanami [Be Shining] - Strinova",
+    video: "media/intro-menu/intro-05/video.mp4",
+    audio: "media/intro-menu/intro-05/music.mp3",
+    legacyVideo: "video/introV/Intro_menu_5.mp4",
+    legacyAudio: "audio/music_intro_5.mp3",
+  },
+];
+
+const INTRO_LAST_SET_STORAGE_KEY = "rpmods_last_intro_set_v1";
+const INTRO_PAIR_PRELOAD_TIMEOUT_MS = 9000;
+
 const INTRO_ASSETS = {
-  // GitHub Pages es sensible a mayúsculas/minúsculas.
-  // Se prueban varias variantes para evitar que logo.mp4 se salte si el archivo fue subido como Logo.mp4.
   logoVideo: [
     "video/introV/logo.mp4",
     "video/introV/Logo.mp4",
@@ -2511,9 +2675,7 @@ const INTRO_ASSETS = {
     "logo_audio.mp3",
   ],
   overlayLogo: "video/overlays/logo_loop.webm",
-  menuVideo: "video/introV/Intro_menu.mp4",
   loadingVideo: "video/introV/Loading.mp4",
-  introMusic: "audio/music_intro.mp3",
   finishSound: "audio/finish_menu.mp3",
   voices: [
     "audio/intro/Celestia_intro.ogg",
@@ -2523,6 +2685,33 @@ const INTRO_ASSETS = {
     "audio/intro/Mara_intro.ogg",
   ],
 };
+
+function chooseIntroMenuSet() {
+  if (state.intro.selectedSet) return state.intro.selectedSet;
+
+  const randomEnabled = state.settings.introRandomEnabled !== false;
+  let selected = null;
+
+  if (!randomEnabled) {
+    const manualId = Math.round(clampNumber(state.settings.introManualSetId, 1, INTRO_MENU_SETS.length, 1));
+    selected = INTRO_MENU_SETS.find(item => item.id === manualId) || INTRO_MENU_SETS[0];
+  } else {
+    let previousId = 0;
+    try { previousId = Number(window.localStorage?.getItem(INTRO_LAST_SET_STORAGE_KEY) || 0); } catch (_) {}
+    const candidates = INTRO_MENU_SETS.filter(item => item.id !== previousId);
+    const pool = candidates.length ? candidates : INTRO_MENU_SETS;
+    selected = pool[Math.floor(Math.random() * pool.length)] || INTRO_MENU_SETS[0];
+  }
+
+  state.intro.selectedSet = selected;
+  state.intro.selectedSetIndex = Math.max(0, INTRO_MENU_SETS.indexOf(selected));
+  try { window.localStorage?.setItem(INTRO_LAST_SET_STORAGE_KEY, String(selected.id)); } catch (_) {}
+  return selected;
+}
+
+function currentIntroMenuSet() {
+  return state.intro.selectedSet || chooseIntroMenuSet();
+}
 
 function waitMs(ms) {
   return new Promise(resolve => window.setTimeout(resolve, ms));
@@ -2538,7 +2727,16 @@ function createIntroOverlay() {
   overlay.setAttribute("aria-label", t("intro_aria"));
 
   const video = document.createElement("video");
-  video.className = "intro-video";
+  video.className = "intro-video intro-primary-video";
+
+  const menuVideo = document.createElement("video");
+  menuVideo.className = "intro-video intro-menu-video";
+  menuVideo.playsInline = true;
+  menuVideo.muted = true;
+  menuVideo.loop = true;
+  menuVideo.preload = "auto";
+  menuVideo.setAttribute("playsinline", "");
+  menuVideo.setAttribute("webkit-playsinline", "");
 
   const logoOverlay = document.createElement("video");
   logoOverlay.id = "intro-logo-loop-overlay";
@@ -2574,6 +2772,7 @@ function createIntroOverlay() {
   fullscreenHint.textContent = t("intro_fullscreen_hint");
 
   overlay.appendChild(video);
+  overlay.appendChild(menuVideo);
   overlay.appendChild(logoOverlay);
   overlay.appendChild(black);
   overlay.appendChild(prompt);
@@ -2586,7 +2785,309 @@ function createIntroOverlay() {
 
 function introVideoElement() {
   const overlay = createIntroOverlay();
-  return overlay.querySelector(".intro-video");
+  return overlay.querySelector(".intro-primary-video") || overlay.querySelector(".intro-video");
+}
+
+function introMenuVideoElement() {
+  const overlay = createIntroOverlay();
+  return overlay.querySelector(".intro-menu-video");
+}
+
+function absoluteMediaUrl(source) {
+  try { return new URL(String(source || ""), document.baseURI).href; }
+  catch (_) { return String(source || ""); }
+}
+
+function mediaElementUsesSource(element, source) {
+  if (!element || !source) return false;
+  const active = element.currentSrc || element.src || "";
+  return absoluteMediaUrl(active) === absoluteMediaUrl(source);
+}
+
+function inspectMediaSource(element, timeoutMs = INTRO_PAIR_PRELOAD_TIMEOUT_MS) {
+  return new Promise(resolve => {
+    if (!element) {
+      resolve({ valid: false, ready: false, reason: "missing-element" });
+      return;
+    }
+    if (element.error) {
+      resolve({ valid: false, ready: false, reason: "media-error" });
+      return;
+    }
+    if (element.readyState >= HTMLMediaElement.HAVE_METADATA) {
+      resolve({ valid: true, ready: element.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA, reason: "metadata" });
+      return;
+    }
+
+    let settled = false;
+    const finish = result => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timer);
+      element.removeEventListener("loadedmetadata", onMetadata);
+      element.removeEventListener("durationchange", onMetadata);
+      element.removeEventListener("loadeddata", onReady);
+      element.removeEventListener("canplay", onReady);
+      element.removeEventListener("canplaythrough", onReady);
+      element.removeEventListener("error", onError);
+      resolve(result);
+    };
+    const onMetadata = () => finish({ valid: true, ready: element.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA, reason: "metadata" });
+    const onReady = () => finish({ valid: true, ready: true, reason: "ready" });
+    const onError = () => finish({ valid: false, ready: false, reason: "media-error" });
+    const timer = window.setTimeout(() => {
+      if (element.error) {
+        finish({ valid: false, ready: false, reason: "media-error" });
+      } else {
+        finish({ valid: null, ready: element.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA, reason: "still-loading" });
+      }
+    }, timeoutMs);
+
+    element.addEventListener("loadedmetadata", onMetadata, { once: true });
+    element.addEventListener("durationchange", onMetadata, { once: true });
+    element.addEventListener("loadeddata", onReady, { once: true });
+    element.addEventListener("canplay", onReady, { once: true });
+    element.addEventListener("canplaythrough", onReady, { once: true });
+    element.addEventListener("error", onError, { once: true });
+  });
+}
+
+function introSetCandidatePairs(set) {
+  if (!set) return [];
+  const candidates = [
+    { video: set.video, audio: set.audio, source: "dedicated" },
+    { video: set.legacyVideo, audio: set.legacyAudio, source: "legacy" },
+  ];
+  const seen = new Set();
+  return candidates.filter(pair => {
+    if (!pair.video || !pair.audio) return false;
+    const key = `${absoluteMediaUrl(pair.video)}|${absoluteMediaUrl(pair.audio)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function resolvedIntroPair(set = currentIntroMenuSet()) {
+  if (
+    state.intro.resolvedSetId === set?.id &&
+    state.intro.resolvedVideoSource &&
+    state.intro.resolvedAudioSource
+  ) {
+    return {
+      video: state.intro.resolvedVideoSource,
+      audio: state.intro.resolvedAudioSource,
+      source: state.intro.resolvedSourceKind || "dedicated",
+    };
+  }
+  return introSetCandidatePairs(set)[0] || { video: set?.video || "", audio: set?.audio || "", source: "dedicated" };
+}
+
+function rememberResolvedIntroPair(set, pair) {
+  state.intro.resolvedSetId = set?.id ?? null;
+  state.intro.resolvedVideoSource = pair?.video || "";
+  state.intro.resolvedAudioSource = pair?.audio || "";
+  state.intro.resolvedSourceKind = pair?.source || "dedicated";
+}
+
+async function loadSelectedIntroPair(set = currentIntroMenuSet(), preferredPair = null) {
+  const menuVideo = introMenuVideoElement();
+  if (!menuVideo) return { valid: false, video: null, audio: null };
+
+  const baseCandidates = introSetCandidatePairs(set);
+  const candidates = preferredPair
+    ? [preferredPair, ...baseCandidates.filter(pair =>
+        absoluteMediaUrl(pair.video) !== absoluteMediaUrl(preferredPair.video) ||
+        absoluteMediaUrl(pair.audio) !== absoluteMediaUrl(preferredPair.audio)
+      )]
+    : baseCandidates;
+  let lastResult = { valid: false, video: null, audio: null };
+
+  for (const pair of candidates) {
+    try {
+      menuVideo.pause();
+      menuVideo.loop = true;
+      menuVideo.muted = true;
+      menuVideo.volume = 0;
+      if (!mediaElementUsesSource(menuVideo, pair.video)) {
+        menuVideo.src = pair.video;
+        menuVideo.load?.();
+      }
+    } catch (_) {}
+
+    let audio = state.intro.musicAudio;
+    if (!audio || !mediaElementUsesSource(audio, pair.audio)) {
+      try { audio?.pause?.(); } catch (_) {}
+      audio = new Audio(pair.audio);
+      audio.preload = "auto";
+      audio.loop = true;
+      audio.volume = 0;
+      state.intro.musicAudio = audio;
+      keepTransientAudioReference(audio);
+      try { audio.load?.(); } catch (_) {}
+    }
+
+    const [videoStatus, audioStatus] = await Promise.all([
+      inspectMediaSource(menuVideo),
+      inspectMediaSource(audio),
+    ]);
+
+    lastResult = {
+      valid: videoStatus.valid !== false && audioStatus.valid !== false,
+      video: videoStatus,
+      audio: audioStatus,
+      pair,
+    };
+
+    if (lastResult.valid) {
+      rememberResolvedIntroPair(set, pair);
+      state.intro.menuVideoReady = Boolean(videoStatus.ready);
+      state.intro.menuAudioReady = Boolean(audioStatus.ready);
+      state.intro.selectedPairStatus = { video: videoStatus, audio: audioStatus, source: pair.source };
+      return lastResult;
+    }
+  }
+
+  state.intro.menuVideoReady = false;
+  state.intro.menuAudioReady = false;
+  state.intro.selectedPairStatus = {
+    video: lastResult.video,
+    audio: lastResult.audio,
+    source: lastResult.pair?.source || "unavailable",
+  };
+  return lastResult;
+}
+
+async function beginSilentIntroPrecache() {
+  if (state.intro.silentPrecachePromise) return state.intro.silentPrecachePromise;
+  state.intro.silentPrecacheStarted = true;
+  const selected = chooseIntroMenuSet();
+
+  state.intro.silentPrecachePromise = Promise.all([
+    loadSelectedIntroPair(selected),
+    preloadFirstAvailable({ sources: INTRO_ASSETS.logoVideo, type: "video" }),
+    preloadFirstAvailable({ sources: INTRO_ASSETS.logoAudio, type: "audio" }),
+    preloadFirstAvailable({ sources: [INTRO_ASSETS.overlayLogo], type: "video" }),
+    preloadFirstAvailable({ sources: [INTRO_ASSETS.loadingVideo], type: "video" }),
+  ]).then(async results => {
+    const selectedPair = results[0];
+    if (selectedPair?.valid === false && selected.id !== INTRO_MENU_SETS[0].id) {
+      state.intro.selectedSet = INTRO_MENU_SETS[0];
+      state.intro.selectedSetIndex = 0;
+      await loadSelectedIntroPair(INTRO_MENU_SETS[0]);
+    }
+    void scheduleGeneralSilentPrecache();
+    scheduleAlternativeIntroPrecache();
+    return true;
+  }).catch(() => {
+    void scheduleGeneralSilentPrecache();
+    scheduleAlternativeIntroPrecache();
+    return false;
+  });
+
+  return state.intro.silentPrecachePromise;
+}
+
+function scheduleAlternativeIntroPrecache() {
+  if (state.intro.alternativesPrecacheStarted) return state.intro.alternativesPrecachePromise;
+  state.intro.alternativesPrecacheStarted = true;
+  const selected = currentIntroMenuSet();
+  const alternatives = INTRO_MENU_SETS.filter(item => item.id !== selected.id);
+  const task = async () => {
+    for (const set of alternatives) {
+      await preloadFirstAvailable({ sources: [set.audio, set.legacyAudio].filter(Boolean), type: "audio" });
+      await preloadFirstAvailable({ sources: [set.video, set.legacyVideo].filter(Boolean), type: "video" });
+      await waitMs(120);
+    }
+  };
+  state.intro.alternativesPrecachePromise = new Promise(resolve => {
+    const queueWhenIdle = () => {
+      const run = () => task().catch(() => {}).then(resolve);
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(run, { timeout: 3200 });
+      } else {
+        window.setTimeout(run, 900);
+      }
+    };
+    window.setTimeout(queueWhenIdle, 9000);
+  });
+  return state.intro.alternativesPrecachePromise;
+}
+
+async function activateDefaultIntroPairAfterError() {
+  const current = currentIntroMenuSet();
+  const currentCandidates = introSetCandidatePairs(current);
+  const active = resolvedIntroPair(current);
+  const activeIndex = currentCandidates.findIndex(pair =>
+    absoluteMediaUrl(pair.video) === absoluteMediaUrl(active.video) &&
+    absoluteMediaUrl(pair.audio) === absoluteMediaUrl(active.audio)
+  );
+
+  for (const pair of currentCandidates.slice(Math.max(0, activeIndex + 1))) {
+    rememberResolvedIntroPair(current, pair);
+    const result = await loadSelectedIntroPair(current, pair);
+    if (result?.valid) return current;
+  }
+
+  const fallback = INTRO_MENU_SETS[0];
+  state.intro.selectedSet = fallback;
+  state.intro.selectedSetIndex = 0;
+  state.intro.resolvedSetId = null;
+  await loadSelectedIntroPair(fallback);
+  return fallback;
+}
+
+async function playSelectedIntroMenuVideo() {
+  const video = introMenuVideoElement();
+  if (!video) return "missing";
+  let set = currentIntroMenuSet();
+  let pair = resolvedIntroPair(set);
+  if (!mediaElementUsesSource(video, pair.video)) {
+    video.src = pair.video;
+    video.load?.();
+  }
+  video.loop = true;
+  video.muted = true;
+  video.volume = 0;
+  try { video.currentTime = 0; } catch (_) {}
+
+  try {
+    await video.play();
+    return "playing";
+  } catch (error) {
+    if (video.error) {
+      set = await activateDefaultIntroPairAfterError();
+      pair = resolvedIntroPair(set);
+      playIntroMusic();
+      if (!mediaElementUsesSource(video, pair.video)) {
+        video.src = pair.video;
+        video.load?.();
+      }
+      try { video.currentTime = 0; } catch (_) {}
+      try {
+        await video.play();
+        return "fallback";
+      } catch (_) {}
+    }
+
+    const resume = () => video.play().catch(() => {});
+    window.addEventListener("pointerdown", resume, { once: true });
+    window.addEventListener("keydown", resume, { once: true });
+    return "blocked";
+  }
+}
+
+function stopSelectedIntroMenuVideo(clearSource = false) {
+  const video = introMenuVideoElement();
+  if (!video) return;
+  try {
+    video.pause();
+    video.currentTime = 0;
+    if (clearSource) {
+      video.removeAttribute("src");
+      video.load?.();
+    }
+  } catch (_) {}
 }
 
 function playIntroVideo(src, { loop = false, muted = true, startAt = 0, requireGestureOnBlock = false } = {}) {
@@ -2641,8 +3142,6 @@ function playIntroVideo(src, { loop = false, muted = true, startAt = 0, requireG
       video.muted = muted;
       video.volume = muted ? 0 : 1;
       video.play().catch(() => {
-        // Último fallback: si el navegador aún bloquea el sonido del logo,
-        // reproduce el video sin audio para no congelar la intro.
         if (!muted) {
           video.muted = true;
           video.volume = 0;
@@ -2667,11 +3166,6 @@ function playIntroVideo(src, { loop = false, muted = true, startAt = 0, requireG
 
     const playPromise = video.play();
     if (playPromise?.catch) playPromise.catch(() => {
-      // IMPORTANTE:
-      // Los navegadores suelen bloquear audio automático al cargar/refrescar.
-      // No mostramos el texto durante el logo, pero dejamos el logo corriendo
-      // y preparamos un desbloqueo invisible: si el usuario hace click/tecla
-      // mientras el logo está en pantalla, el video se reinicia con sonido.
       if (!muted) {
         const tryUnlockLogoAudio = () => {
           if (resolved || video.src.indexOf(src) === -1) return;
@@ -2693,9 +3187,6 @@ function playIntroVideo(src, { loop = false, muted = true, startAt = 0, requireG
         });
         return;
       }
-
-      // Si el autoplay del navegador bloquea un video muteado,
-      // continuamos para no dejar la pantalla congelada.
       if (!loop) window.setTimeout(() => done("blocked"), 900);
     });
   });
@@ -2709,7 +3200,6 @@ async function resolveFirstExistingSource(sources) {
       const response = await fetch(source, { method: "HEAD", cache: "no-store" });
       if (response.ok) return source;
     } catch (_) {
-      // En local o algunos hosts HEAD puede fallar; se usa el primer candidato.
       break;
     }
   }
@@ -2739,12 +3229,6 @@ function createLogoIntroAudioElement() {
   keepTransientAudioReference(audio);
   return audio;
 }
-
-/*
-  Se llama directamente dentro del click en ACEPTAR.
-  Esto desbloquea el audio en Chrome/Edge porque ocurre durante una interacción real.
-  Luego, al terminar el aviso F11, se reinicia el mismo elemento y se reproduce junto al logo.
-*/
 function primeLogoIntroAudio() {
   if (state.intro.logoAudioPrimed) return;
   stopLogoIntroAudio(false);
@@ -2767,7 +3251,6 @@ function primeLogoIntroAudio() {
         } catch (_) {}
       }, 90);
     }).catch(() => {
-      // Si falla, se mantiene el elemento cargado y se reintenta al reproducir el logo.
       try { audio.volume = 1; } catch (_) {}
     });
   }
@@ -2790,8 +3273,6 @@ async function playLogoIntroAudio() {
   const playPromise = audio.play();
   if (playPromise?.catch) {
     playPromise.catch(() => {
-      // Último reintento silencioso. Si el navegador lo bloquea aquí,
-      // normalmente significa que el prime no ocurrió dentro del click.
       audio.play().catch(() => {});
     });
   }
@@ -2814,14 +3295,20 @@ function stopLogoIntroAudio(clearSource = true) {
 }
 
 function playIntroMusic() {
-  stopIntroMusic(false);
-
-  const audio = new Audio(INTRO_ASSETS.introMusic);
+  const set = currentIntroMenuSet();
+  const pair = resolvedIntroPair(set);
+  let audio = state.intro.musicAudio;
+  if (!audio || !mediaElementUsesSource(audio, pair.audio)) {
+    try { audio?.pause?.(); } catch (_) {}
+    audio = new Audio(pair.audio);
+    audio.preload = "auto";
+    audio.loop = true;
+    state.intro.musicAudio = audio;
+    keepTransientAudioReference(audio);
+  }
   audio.loop = true;
   audio.preload = "auto";
   audio.volume = Math.max(0, Math.min(1, 0.62 * channelVolume("music")));
-  state.intro.musicAudio = audio;
-  keepTransientAudioReference(audio);
 
   const resumeIntroMusic = () => {
     if (!state.intro?.musicAudio || state.intro.musicAudio !== audio) return;
@@ -2835,8 +3322,6 @@ function playIntroMusic() {
 
   audio.addEventListener("playing", cleanupResume, { once: true });
   audio.play().catch(() => {
-    // Al refrescar con F5 algunos navegadores bloquean audio sin gesto.
-    // Se reintenta en el primer click/tecla del usuario.
     window.addEventListener("pointerdown", resumeIntroMusic, { once: true });
     window.addEventListener("keydown", resumeIntroMusic, { once: true });
   });
@@ -2918,11 +3403,6 @@ function createIntroVoiceAudioElement() {
   keepTransientAudioReference(audio);
   return audio;
 }
-
-/*
-  Se ejecuta dentro del click de ACEPTAR para que el navegador permita
-  reproducir esta voz más adelante, cuando empiece Intro_menu.mp4.
-*/
 function primeRandomIntroVoiceAudio() {
   if (state.intro.introVoicePrimed) return;
 
@@ -2980,15 +3460,11 @@ function playRandomIntroVoice() {
   const playPromise = audio.play();
   if (playPromise?.catch) {
     playPromise.catch(() => {
-      // Reintento corto. Si el audio primed no pudo dispararse,
-      // se usa el sistema normal como fallback.
       window.setTimeout(() => {
         audio.play().catch(() => audioPlay(source, 1, "characterVoice"));
       }, 90);
     });
   }
-
-  // Si por timing el play() no dispara "playing", se fuerza un fallback.
   window.setTimeout(() => {
     if (actuallyStarted) return;
     if (!audio.paused && audio.currentTime > 0) return;
@@ -3004,6 +3480,7 @@ function showIntroPrompt(show = true) {
 async function runLoadingIntroVideo() {
   const overlay = createIntroOverlay();
   const video = introVideoElement();
+  stopSelectedIntroMenuVideo(false);
 
   overlay.classList.remove("intro-menu-phase", "intro-logo-phase", "intro-black-phase");
   overlay.classList.add("intro-loading-phase");
@@ -3053,6 +3530,7 @@ function finishIntroSequence() {
     video.removeAttribute("src");
     video.load?.();
   } catch (_) {}
+  stopSelectedIntroMenuVideo(true);
 
   overlay.classList.add("intro-exit");
   document.getElementById("intro-logo-loop-overlay")?.remove();
@@ -3080,7 +3558,11 @@ async function continueIntroFromMenu() {
   audioPlay(INTRO_ASSETS.finishSound, 1, "sfx");
   const fadePromise = fadeOutIntroMusic(1700);
 
-  const preloadPromise = preloadCriticalResources({ showOverlay: true });
+  const preloadPromise = preloadCriticalResources({
+    showOverlay: false,
+    concurrency: RESOURCE_PRELOAD_BACKGROUND_CONCURRENCY,
+    scheduleSecondary: false,
+  });
   await runLoadingIntroVideo();
   await Promise.all([fadePromise, preloadPromise]);
   finishIntroSequence();
@@ -3105,6 +3587,7 @@ function waitForIntroAccept() {
     const onAccept = () => {
       acceptButton?.removeEventListener("click", onAccept);
       window.removeEventListener("keydown", onKey);
+      void beginSilentIntroPrecache();
       primeLogoIntroAudio();
       primeRandomIntroVoiceAudio();
       resolve();
@@ -3130,6 +3613,7 @@ async function runIntroConsentGate() {
     video.removeAttribute("src");
     video.load?.();
   } catch (_) {}
+  stopSelectedIntroMenuVideo(false);
 
   overlay.classList.remove(
     "intro-logo-phase",
@@ -3177,10 +3661,7 @@ async function startIntroSequence() {
   const video = introVideoElement();
 
   await runIntroConsentGate();
-
-  // V3.1 hotfix: la precarga crítica aparece una sola vez justo después del aviso F11,
-  // antes de mostrar el menú/intro principal. Así sonidos, videos e imágenes llegan listos antes del lobby.
-  await preloadCriticalResources({ showOverlay: true });
+  await beginSilentIntroPrecache();
 
   overlay.classList.remove("intro-exit", "intro-menu-phase", "intro-loading-phase", "intro-can-continue", "intro-audio-unlock");
   overlay.classList.add("intro-logo-phase");
@@ -3210,7 +3691,7 @@ async function startIntroSequence() {
   overlay.classList.add("intro-menu-phase");
   showIntroPrompt(true);
 
-  playIntroVideo(INTRO_ASSETS.menuVideo, { loop: true, muted: true });
+  void playSelectedIntroMenuVideo();
   window.setTimeout(playRandomIntroVoice, 90);
 
   const clickHandler = () => {
@@ -3317,15 +3798,11 @@ function playNextMusicCandidate() {
 
   const playlist = currentMusicPlaylist();
   if (!playlist.length) return;
-
-  // Si fallan todas las extensiones del track actual, probamos otro track de la lista.
   state.musicErrorCount += 1;
   if (state.musicErrorCount < playlist.length) {
     playNextTrack();
     return;
   }
-
-  // Evita que la música muera para siempre: reinicia el contador después de un pequeño descanso.
   setTimeout(() => {
     state.musicErrorCount = 0;
     if (state.musicEnabled) startMusic(state.musicMode);
@@ -3337,7 +3814,6 @@ function restartCurrentMusicLoop() {
   try {
     state.musicAudio.currentTime = 0;
   } catch (_) {
-    // Algunos navegadores no permiten mover currentTime hasta cargar metadatos.
   }
   state.musicAudio.loop = true;
   state.musicAudio.play().catch(() => {});
@@ -3543,60 +4019,109 @@ function renderSlots() {
   renderTeamSlots("B", $("#team-b-slots"));
 }
 
+function createPlayerSlotElement(team, index) {
+  const slot = document.createElement("article");
+  slot.className = `player-slot team-${team.toLowerCase()} slot-empty`;
+  slot.dataset.slotIndex = String(index);
+
+  const portrait = document.createElement("div");
+  portrait.className = "slot-portrait";
+
+  const details = document.createElement("div");
+  details.className = "slot-details";
+
+  const playerName = document.createElement("p");
+  playerName.className = "slot-name";
+
+  const characterName = document.createElement("p");
+  characterName.className = "slot-character";
+
+  details.appendChild(playerName);
+  details.appendChild(characterName);
+
+  if (team === "B") {
+    slot.appendChild(details);
+    slot.appendChild(portrait);
+  } else {
+    slot.appendChild(portrait);
+    slot.appendChild(details);
+  }
+
+  return slot;
+}
+
+function ensurePlayerSlotElements(team, container, count) {
+  if (!container) return [];
+  while (container.children.length > count) container.lastElementChild?.remove();
+  while (container.children.length < count) {
+    container.appendChild(createPlayerSlotElement(team, container.children.length));
+  }
+  return Array.from(container.children);
+}
+
+function updatePlayerSlotPortrait(portrait, character, previewCharacter) {
+  const visualCharacter = character || previewCharacter || null;
+  const visualKey = visualCharacter ? `${character ? "pick" : "preview"}:${visualCharacter.name}` : "empty";
+  if (portrait.dataset.visualKey === visualKey) return;
+
+  portrait.dataset.visualKey = visualKey;
+  portrait.replaceChildren();
+
+  if (visualCharacter) {
+    portrait.appendChild(makeImage([thumbPath(visualCharacter.name), legacyPath(visualCharacter.name)], "", visualCharacter.name));
+    return;
+  }
+
+  const placeholder = document.createElement("span");
+  placeholder.className = "slot-placeholder";
+  placeholder.textContent = "?";
+  portrait.appendChild(placeholder);
+}
+
+function updatePlayerSlotElement(slot, team, index, turn) {
+  const pick = state.picks[team][index] || null;
+  const isActivePickSlot = turn?.type === "pick" && turn.team === team && index === state.picks[team].length;
+  const previewPick = isActivePickSlot ? currentRoulettePreviewCharacter(turn) : null;
+  const hasPreview = Boolean(!pick && previewPick);
+
+  slot.dataset.slotIndex = String(index);
+  slot.dataset.state = pick ? "filled" : hasPreview ? "preview" : isActivePickSlot ? "active" : "empty";
+  slot.classList.toggle("slot-filled", Boolean(pick));
+  slot.classList.toggle("slot-empty", !pick && !hasPreview);
+  slot.classList.toggle("slot-preview", hasPreview);
+  slot.classList.toggle("active-turn", isActivePickSlot);
+  slot.classList.toggle("roulette-preview-slot", hasPreview);
+
+  const flashKey = pick && state.flashPick === pick.name ? `${state.draftSessionId}:${state.turnIndex}:${pick.name}` : "";
+  if (flashKey && slot.dataset.flashKey !== flashKey) {
+    slot.classList.remove("pick-flash");
+    void slot.offsetWidth;
+    slot.classList.add("pick-flash");
+    slot.dataset.flashKey = flashKey;
+  } else if (!flashKey) {
+    slot.classList.remove("pick-flash");
+    delete slot.dataset.flashKey;
+  }
+
+  const portrait = slot.querySelector(".slot-portrait");
+  const playerName = slot.querySelector(".slot-name");
+  const characterName = slot.querySelector(".slot-character");
+
+  updatePlayerSlotPortrait(portrait, pick, previewPick);
+  playerName.textContent = state.players[team][index] || `PLAYER ${index + 1}`;
+  characterName.textContent = pick
+    ? `${pick.name} · ${factions[pick.faction].label}`
+    : previewPick
+      ? `${previewPick.name} · ${factions[previewPick.faction].label}`
+      : t("not_selected");
+
+  slot.setAttribute("aria-label", `${playerName.textContent}: ${characterName.textContent}`);
+}
+
 function renderTeamSlots(team, container) {
   const turn = currentTurn();
-  container.innerHTML = "";
-
-  const teamSize = activeTeamSize();
-  for (let i = 0; i < teamSize; i += 1) {
-    const pick = state.picks[team][i];
-    const slot = document.createElement("article");
-    slot.className = "player-slot";
-
-    const isActivePickSlot = turn?.type === "pick" && turn.team === team && i === state.picks[team].length;
-    const previewPick = isActivePickSlot ? currentRoulettePreviewCharacter(turn) : null;
-    if (isActivePickSlot) slot.classList.add("active-turn");
-    if (previewPick) slot.classList.add("roulette-preview-slot");
-    if (pick && state.flashPick === pick.name) slot.classList.add("pick-flash");
-
-    const portrait = document.createElement("div");
-    portrait.className = "slot-portrait";
-    if (pick) {
-      portrait.appendChild(makeImage([thumbPath(pick.name), legacyPath(pick.name)], "", pick.name));
-    } else if (previewPick) {
-      portrait.appendChild(makeImage([thumbPath(previewPick.name), legacyPath(previewPick.name)], "", previewPick.name));
-    } else {
-      const placeholder = document.createElement("span");
-      placeholder.className = "slot-placeholder";
-      placeholder.textContent = "?";
-      portrait.appendChild(placeholder);
-    }
-
-    const details = document.createElement("div");
-    details.className = "slot-details";
-    const playerName = document.createElement("p");
-    playerName.className = "slot-name";
-    playerName.textContent = state.players[team][i];
-    const characterName = document.createElement("p");
-    characterName.className = "slot-character";
-    characterName.textContent = pick
-      ? `${pick.name} · ${factions[pick.faction].label}`
-      : previewPick
-        ? `${previewPick.name} · ${factions[previewPick.faction].label}`
-        : t("not_selected");
-    details.appendChild(playerName);
-    details.appendChild(characterName);
-
-    if (team === "B") {
-      slot.appendChild(details);
-      slot.appendChild(portrait);
-    } else {
-      slot.appendChild(portrait);
-      slot.appendChild(details);
-    }
-
-    container.appendChild(slot);
-  }
+  const slots = ensurePlayerSlotElements(team, container, activeTeamSize());
+  slots.forEach((slot, index) => updatePlayerSlotElement(slot, team, index, turn));
 }
 
 function renderBans() {
@@ -3696,8 +4221,6 @@ function createCharacterMenuCard(character, turn) {
   card.appendChild(slash);
   const triggerPreselect = (eventSource = "hover") => {
     if (state.roulette.active || state.locked) return;
-    // Si el usuario ya fijó un personaje con click, no permitir cambiar
-    // ni por hover ni por click hasta presionar la X.
     if (state.preselectLocked) return;
     preselectCharacter(character, { source: eventSource });
   };
@@ -3707,13 +4230,7 @@ function createCharacterMenuCard(character, turn) {
   card.addEventListener("click", () => {
     if (state.roulette.active || state.locked || !canControlCurrentTurn()) return;
     if (!isCharacterAvailable(character)) return;
-
-    // Si ya hay un personaje fijado, el click en otros iconos queda bloqueado.
-    // Para cambiar, primero se debe presionar la X roja.
     if (state.preselectLocked) return;
-
-    // En PC: si estaba en hover sobre este personaje, el click solo lo fija.
-    // En móvil/touch: el click preselecciona y fija a la vez.
     const isTouchLike = window.matchMedia && window.matchMedia("(hover: none)").matches;
     if (!state.selected || state.selected.name !== character.name) {
       preselectCharacter(character, { source: isTouchLike ? "touch" : "click" });
@@ -3721,8 +4238,14 @@ function createCharacterMenuCard(character, turn) {
 
     state.preselectLocked = true;
     audioPlay(sounds.select, 0.72, "sfx");
-    pushOnlineDraftState({ reason: "lock-preselection" });
-    renderAll();
+    if (currentRoomCode) {
+      pushOnlineDraftPatch({
+        selected: serializeCharacterForOnline(state.selected),
+        preselectLocked: true,
+        actionEvent: createOnlineActionEvent("preselect", currentTurn()?.team || null, state.selected, { source: "locked-click" }),
+      });
+    }
+    renderCharacterSelectionLight();
   });
   return card;
 }
@@ -3989,8 +4512,13 @@ function clearPreselection() {
   state.selected = null;
   state.preselectLocked = false;
   audioPlay(sounds.select, 0.52, "sfx");
-  pushOnlineDraftState({ reason: "clear-preselection" });
-  renderAll();
+  if (currentRoomCode) {
+    pushOnlineDraftPatch({
+      selected: serializeCharacterForOnline(null),
+      preselectLocked: false,
+    });
+  }
+  renderCharacterSelectionLight();
 }
 
 function renderSelected() {
@@ -4256,8 +4784,64 @@ function renderAll(options = {}) {
   renderSelected();
 }
 
-function renderDraftStateLight() {
-  renderAll({ skipGrid: true });
+function updateCharacterCardStates() {
+  const turn = currentTurn();
+  const selectedName = state.selected?.name || null;
+  const bannedSet = new Set(bannedNames());
+  const pickedTeams = new Map();
+  state.picks.A.forEach(character => pickedTeams.set(character.name, "A"));
+  state.picks.B.forEach(character => pickedTeams.set(character.name, "B"));
+
+  document.querySelectorAll(".character-card").forEach(card => {
+    const character = characters.find(item => item.name === card.dataset.name);
+    if (!character) return;
+    const pickedTeam = pickedTeams.get(character.name) || null;
+    const isSelected = selectedName === character.name;
+
+    card.classList.toggle("disabled", !isCharacterAvailable(character, turn));
+    card.classList.toggle("banned", bannedSet.has(character.name));
+    card.classList.toggle("picked", Boolean(pickedTeam));
+    card.classList.toggle("pick-flash", state.flashPick === character.name);
+    card.classList.toggle("ban-flash", state.flashBan === character.name);
+    card.classList.toggle("roulette-highlight", state.roulette.active && state.roulette.highlightedName === character.name);
+    card.classList.toggle("roulette-winner", Boolean(state.roulette.finalName) && state.roulette.finalName === character.name);
+    card.classList.toggle("selected", isSelected);
+    card.classList.remove("selected-team-a", "selected-team-b", "picked-team-a", "picked-team-b", "preselect-locked");
+
+    if (pickedTeam) card.classList.add(`picked-team-${pickedTeam.toLowerCase()}`);
+    if (isSelected) {
+      card.classList.add(`selected-${currentTeamClass(turn)}`);
+      if (state.preselectLocked) card.classList.add("preselect-locked");
+    }
+  });
+}
+
+function renderDraftStateLight(options = {}) {
+  renderTurnInfo();
+  renderCaptainTurnBanner();
+  renderStageCharacters();
+  updateCharacterCardStates();
+  if (options.refreshPreviewPanels) {
+    renderSlots();
+    renderBans();
+  }
+  renderSelected();
+}
+
+function renderCharacterSelectionLight() {
+  updateCharacterCardStates();
+  renderStageCharacters();
+  renderSelected();
+}
+
+function renderConfirmedActionState() {
+  renderTurnInfo();
+  renderSlots();
+  renderBans();
+  renderCaptainTurnBanner();
+  renderStageCharacters();
+  updateCharacterCardStates();
+  renderSelected();
 }
 
 function preselectCharacter(character, options = {}) {
@@ -4275,11 +4859,7 @@ function preselectCharacter(character, options = {}) {
 
   const hoverVolume = source === "hover" ? 0.45 : 0.7;
   audioPlay(sounds.select, hoverVolume, "sfx");
-  const actionEvent = currentRoomCode
-    ? createOnlineActionEvent("preselect", currentTurn()?.team || null, character, { source })
-    : null;
-  pushOnlineDraftState({ reason: "preselection", actionEvent });
-  renderAll();
+  renderCharacterSelectionLight();
 }
 
 function updateTimerDisplay(seconds) {
@@ -4482,8 +5062,8 @@ function updateCharacterRoulettePreview(character) {
   state.roulette.previewCharacter = character || null;
   updateCharacterRouletteClasses();
   renderStageCharacters();
-  renderSlots();
-  renderBans();
+  if (currentTurn()?.type === "pick") renderSlots();
+  else renderBans();
   renderSelected();
 }
 
@@ -4496,7 +5076,306 @@ function getRealtimeDatabase() {
 }
 
 function onlineUnavailableMessage() {
-  return "Firebase no está disponible. Revisa tu conexión o abre la app con internet para usar el modo online.";
+  return t("service_unavailable_body");
+}
+
+let appNoticeSequence = 0;
+const appNoticeTimers = new WeakMap();
+
+function noticeTitleForType(type = "info") {
+  const key = {
+    error: "notice_error_title",
+    warning: "notice_attention_title",
+    success: "notice_success_title",
+    info: "notice_info_title",
+  }[type] || "notice_info_title";
+  return t(key);
+}
+
+function removeAppNotice(notice, immediate = false) {
+  if (!notice) return;
+  const timer = appNoticeTimers.get(notice);
+  if (timer) window.clearTimeout(timer);
+  appNoticeTimers.delete(notice);
+  if (immediate) {
+    notice.remove();
+    return;
+  }
+  notice.classList.add("is-leaving");
+  window.setTimeout(() => notice.remove(), 280);
+}
+
+function showAppNotice(message, options = {}) {
+  const stack = document.getElementById("app-notification-stack");
+  if (!stack) {
+    console.warn(String(message || ""));
+    return null;
+  }
+
+  const type = ["error", "warning", "success", "info"].includes(options.type) ? options.type : "info";
+  const notice = document.createElement("article");
+  notice.className = `app-notification is-${type}`;
+  notice.dataset.noticeId = String(++appNoticeSequence);
+  notice.setAttribute("role", type === "error" ? "alert" : "status");
+
+  const icon = document.createElement("span");
+  icon.className = "app-notification-icon";
+  icon.setAttribute("aria-hidden", "true");
+  icon.textContent = type === "success" ? "✓" : type === "warning" ? "!" : type === "error" ? "×" : "i";
+
+  const copy = document.createElement("div");
+  copy.className = "app-notification-copy";
+  const title = document.createElement("strong");
+  title.textContent = String(options.title || noticeTitleForType(type));
+  const body = document.createElement("p");
+  body.textContent = String(message || "");
+  copy.append(title, body);
+
+  const close = document.createElement("button");
+  close.className = "app-notification-close";
+  close.type = "button";
+  close.setAttribute("aria-label", t("notice_close"));
+  close.textContent = "×";
+  close.addEventListener("click", () => removeAppNotice(notice));
+
+  notice.append(icon, copy, close);
+  stack.prepend(notice);
+
+  while (stack.children.length > 4) removeAppNotice(stack.lastElementChild, true);
+
+  const duration = Number(options.duration);
+  const timeout = Number.isFinite(duration) ? duration : type === "error" ? 6200 : 4800;
+  if (timeout > 0) {
+    const timer = window.setTimeout(() => removeAppNotice(notice), timeout);
+    appNoticeTimers.set(notice, timer);
+  }
+
+  return notice;
+}
+
+let pendingOnlineServiceAction = null;
+let onlineServiceConnectionCheck = null;
+let onlineServiceGateBusy = false;
+let onlineServiceNoticeHideTimer = null;
+
+function setOnlineActionButtonsBusy(busy) {
+  ["create-room", "join-room", "join-name-confirm"].forEach(id => {
+    const button = document.getElementById(id);
+    if (!button) return;
+    button.disabled = Boolean(busy);
+    button.setAttribute("aria-busy", busy ? "true" : "false");
+  });
+}
+
+function updateOnlineServiceNoticeLanguage() {
+  const notice = document.getElementById("online-service-notice");
+  if (!notice) return;
+  const stateName = notice.dataset.state || "unavailable";
+  const title = document.getElementById("online-service-title");
+  const message = document.getElementById("online-service-message");
+  const kicker = document.getElementById("online-service-kicker");
+  const retry = document.getElementById("online-service-retry");
+  const dismiss = document.getElementById("online-service-dismiss");
+
+  if (kicker) kicker.textContent = t("service_status_kicker");
+  if (dismiss) {
+    dismiss.textContent = t("service_dismiss");
+    dismiss.disabled = stateName === "checking";
+  }
+
+  if (stateName === "connected") {
+    if (title) title.textContent = t("service_restored_title");
+    if (message) message.textContent = t("service_restored_body");
+    if (retry) {
+      retry.textContent = t("service_connected_action");
+      retry.disabled = true;
+    }
+  } else if (stateName === "checking") {
+    if (title) title.textContent = t("service_retrying_title");
+    if (message) message.textContent = t("service_retrying_body");
+    if (retry) {
+      retry.textContent = t("service_retrying");
+      retry.disabled = true;
+    }
+  } else {
+    if (title) title.textContent = t("service_unavailable_title");
+    if (message) message.textContent = onlineUnavailableMessage();
+    if (retry) {
+      retry.textContent = t("service_reconnect");
+      retry.disabled = false;
+    }
+  }
+}
+
+function setOnlineServiceNoticeState(stateName, options = {}) {
+  const notice = document.getElementById("online-service-notice");
+  if (!notice) {
+    if (stateName === "unavailable") showAppNotice(onlineUnavailableMessage(), { type: "error", duration: 0 });
+    return;
+  }
+
+  if (onlineServiceNoticeHideTimer) {
+    window.clearTimeout(onlineServiceNoticeHideTimer);
+    onlineServiceNoticeHideTimer = null;
+  }
+
+  notice.dataset.state = stateName;
+  notice.classList.remove("hidden", "is-hiding", "is-connected", "is-checking", "is-retrying", "notice-replay");
+  notice.classList.toggle("is-connected", stateName === "connected");
+  notice.classList.toggle("is-checking", stateName === "checking");
+  if (options.replay !== false) {
+    void notice.offsetWidth;
+    notice.classList.add("notice-replay");
+    window.setTimeout(() => notice.classList.remove("notice-replay"), 560);
+  }
+  updateOnlineServiceNoticeLanguage();
+}
+
+function showOnlineServiceNotice() {
+  setOnlineServiceNoticeState("unavailable");
+}
+
+function hideOnlineServiceNotice(options = {}) {
+  const notice = document.getElementById("online-service-notice");
+  if (options.clearPending !== false) pendingOnlineServiceAction = null;
+  if (!notice || notice.classList.contains("hidden")) return;
+  notice.classList.add("is-hiding");
+  onlineServiceNoticeHideTimer = window.setTimeout(() => {
+    notice.classList.add("hidden");
+    notice.classList.remove("is-hiding", "is-connected", "is-checking", "is-retrying", "notice-replay");
+    notice.dataset.state = "unavailable";
+    onlineServiceNoticeHideTimer = null;
+  }, 280);
+}
+
+function waitForOnlineServiceConnection(database, timeoutMs = 5200) {
+  return new Promise(resolve => {
+    let finished = false;
+    const connectedRef = database?.ref?.(".info/connected");
+    if (!connectedRef) {
+      resolve(false);
+      return;
+    }
+
+    const finish = value => {
+      if (finished) return;
+      finished = true;
+      window.clearTimeout(timeoutId);
+      try { connectedRef.off("value", handleValue); } catch (_) {}
+      resolve(Boolean(value));
+    };
+    const handleValue = snapshot => {
+      if (snapshot?.val?.() === true) finish(true);
+    };
+    const timeoutId = window.setTimeout(() => finish(false), Math.max(1200, Number(timeoutMs) || 5200));
+
+    try {
+      connectedRef.on("value", handleValue, () => finish(false));
+    } catch (_) {
+      finish(false);
+    }
+  });
+}
+
+async function verifyOnlineServiceConnection(options = {}) {
+  if (onlineServiceConnectionCheck) return onlineServiceConnectionCheck;
+
+  onlineServiceConnectionCheck = (async () => {
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return false;
+
+    try {
+      if (!getRealtimeDatabase() && typeof window.initRpmodsServices === "function") {
+        window.initRpmodsServices();
+      }
+    } catch (error) {
+      console.warn("RPmods Services no pudo inicializarse durante la comprobación.", error);
+    }
+
+    const database = getRealtimeDatabase();
+    if (!database) return false;
+
+    try {
+      if (typeof database.goOnline === "function") database.goOnline();
+    } catch (_) {}
+
+    return waitForOnlineServiceConnection(database, options.timeoutMs);
+  })();
+
+  try {
+    return await onlineServiceConnectionCheck;
+  } finally {
+    onlineServiceConnectionCheck = null;
+  }
+}
+
+async function checkOnlineServiceAndContinue(action = null, options = {}) {
+  if (typeof action === "function") {
+    pendingOnlineServiceAction = {
+      action,
+      source: String(options.source || "online-action"),
+    };
+  }
+
+  if (onlineServiceGateBusy) return false;
+  onlineServiceGateBusy = true;
+  setOnlineActionButtonsBusy(true);
+  setOnlineServiceNoticeState("checking");
+
+  const startedAt = performance.now();
+  const connected = await verifyOnlineServiceConnection({ timeoutMs: options.timeoutMs || 5200 });
+  const elapsed = performance.now() - startedAt;
+  if (elapsed < 520) await new Promise(resolve => window.setTimeout(resolve, 520 - elapsed));
+
+  if (!connected) {
+    setOnlineServiceNoticeState("unavailable", { replay: false });
+    onlineServiceGateBusy = false;
+    setOnlineActionButtonsBusy(false);
+    return false;
+  }
+
+  setOnlineServiceNoticeState("connected", { replay: false });
+  const pending = pendingOnlineServiceAction;
+  pendingOnlineServiceAction = null;
+  onlineServiceGateBusy = false;
+  setOnlineActionButtonsBusy(false);
+
+  await new Promise(resolve => window.setTimeout(resolve, 240));
+  try {
+    if (pending?.action) await pending.action();
+  } catch (error) {
+    console.error("La acción online no pudo completarse después de verificar RPmods Services.", error);
+    const stillConnected = await verifyOnlineServiceConnection({ timeoutMs: 1800 });
+    if (!stillConnected) {
+      pendingOnlineServiceAction = pending;
+      setOnlineServiceNoticeState("unavailable");
+      return false;
+    }
+    showAppNotice(t("service_action_failed"), { type: "error" });
+    return false;
+  }
+
+  onlineServiceNoticeHideTimer = window.setTimeout(() => hideOnlineServiceNotice({ clearPending: false }), 1050);
+  return true;
+}
+
+async function retryOnlineServiceConnection() {
+  const retryButton = document.getElementById("online-service-retry");
+  if (retryButton?.disabled || onlineServiceGateBusy) return;
+  const connected = await checkOnlineServiceAndContinue(null, { source: "reconnect" });
+  if (!connected) {
+    const notice = document.getElementById("online-service-notice");
+    if (notice) {
+      notice.classList.remove("retry-failed");
+      void notice.offsetWidth;
+      notice.classList.add("retry-failed");
+      window.setTimeout(() => notice.classList.remove("retry-failed"), 520);
+    }
+  }
+}
+
+function setupAppNotificationUI() {
+  document.getElementById("online-service-retry")?.addEventListener("click", retryOnlineServiceConnection);
+  document.getElementById("online-service-dismiss")?.addEventListener("click", () => hideOnlineServiceNotice({ clearPending: true }));
 }
 
 function roomRefFor(roomCode) {
@@ -4529,7 +5408,7 @@ function serializeCharacterListForOnline(list = []) {
 }
 
 function serializeCharacterForOnline(character) {
-  return character ? character.name : null;
+  return character ? character.name : "";
 }
 
 function serializePickBatchSelectionsForOnline(batchSelections = {}) {
@@ -4653,20 +5532,76 @@ function handleOnlineAudioEvent(event) {
   playOnlineAudioEvent(event);
 }
 
+async function playOnlineCharacterRouletteSequence(event) {
+  const sequence = Array.isArray(event?.sequence) ? event.sequence.map(characterFromOnlineValue).filter(Boolean) : [];
+  if (!sequence.length) return;
+  const delays = Array.isArray(event.delays) ? event.delays.map(value => Math.max(40, Number(value) || 0)) : [];
+  const playbackId = event.id;
+  onlineRemoteRoulettePlaybackId = playbackId;
+  state.roulette.active = true;
+  state.locked = true;
+
+  let elapsed = 0;
+  for (let index = 0; index < sequence.length; index += 1) {
+    const stepDelay = delays[index] || 90;
+    const targetAt = Number(event.startedAt || onlineNow()) + elapsed;
+    elapsed += stepDelay;
+    if (onlineNow() >= targetAt + stepDelay && index < sequence.length - 1) continue;
+    const waitMs = Math.max(0, targetAt - onlineNow());
+    if (waitMs) await delay(waitMs);
+    if (onlineRemoteRoulettePlaybackId !== playbackId) return;
+    const character = sequence[index];
+    state.roulette.highlightedName = character.name;
+    updateCharacterRoulettePreview(character);
+    audioPlay(sounds.roulette, 0.82, "sfx");
+  }
+}
+
+async function playOnlineMapRouletteSequence(event) {
+  const sequence = Array.isArray(event?.sequence) ? event.sequence.map(mapFromOnlineValue).filter(Boolean) : [];
+  if (!sequence.length) return;
+  const delays = Array.isArray(event.delays) ? event.delays.map(value => Math.max(40, Number(value) || 0)) : [];
+  const playbackId = event.id;
+  onlineRemoteMapPlaybackId = playbackId;
+  state.mapRoulette.active = true;
+
+  let elapsed = 0;
+  for (let index = 0; index < sequence.length; index += 1) {
+    const stepDelay = delays[index] || 90;
+    const targetAt = Number(event.startedAt || onlineNow()) + elapsed;
+    elapsed += stepDelay;
+    if (onlineNow() >= targetAt + stepDelay && index < sequence.length - 1) continue;
+    const waitMs = Math.max(0, targetAt - onlineNow());
+    if (waitMs) await delay(waitMs);
+    if (onlineRemoteMapPlaybackId !== playbackId) return;
+    state.mapRoulette.highlightedId = sequence[index].id;
+    updateMapRouletteClasses();
+    audioPlay(sounds.mapRoulette || sounds.roulette, 0.82, "sfx");
+  }
+}
+
 function handleOnlineRouletteEvent(event) {
   if (!event?.id || event.id === onlineLastRouletteEventId) return;
   onlineLastRouletteEventId = event.id;
   if (event.byClientId === onlineClientId()) return;
-  if (event.type === "rouletteTick") audioPlay(sounds.roulette, 0.82, "sfx");
-  else if (event.type === "rouletteSelected") audioPlay(sounds.select, 0.7, "sfx");
+  if (event.type === "rouletteSequence") {
+    void playOnlineCharacterRouletteSequence(event);
+  } else if (event.type === "rouletteSelected") {
+    onlineRemoteRoulettePlaybackId = null;
+    audioPlay(sounds.select, 0.7, "sfx");
+  }
 }
 
 function handleOnlineMapEvent(event) {
   if (!event?.id || event.id === onlineLastMapEventId) return;
   onlineLastMapEventId = event.id;
   if (event.byClientId === onlineClientId()) return;
-  if (event.type === "mapTick") audioPlay(sounds.mapRoulette || sounds.roulette, 0.82, "sfx");
-  else if (event.type === "mapSelected") audioPlay(sounds.confirm, 0.86, "sfx");
+  if (event.type === "mapSequence") {
+    void playOnlineMapRouletteSequence(event);
+  } else if (event.type === "mapSelected") {
+    onlineRemoteMapPlaybackId = null;
+    audioPlay(sounds.confirm, 0.86, "sfx");
+  }
 }
 
 function roomPlayersPayload() {
@@ -4809,7 +5744,23 @@ function pushOnlineDraftState(extra = {}) {
   const roomRef = roomRefFor(currentRoomCode);
   if (!roomRef) return;
   roomRef.child("draftState").update(currentOnlineDraftPayload(extra)).catch(error => {
-    console.warn("No se pudo sincronizar el estado online.", error);
+    console.warn("RPmods Services no pudo sincronizar el estado online.", error);
+  });
+}
+
+function pushOnlineDraftPatch(patch = {}) {
+  if (suppressOnlinePush || !currentRoomCode) return;
+  if (!state.draftActive && !patch.phase && !patch.force) return;
+  const roomRef = roomRefFor(currentRoomCode);
+  if (!roomRef) return;
+
+  const payload = Object.fromEntries(
+    Object.entries(patch).filter(([key, value]) => key !== "force" && value !== undefined),
+  );
+  payload.updatedAt = onlineNow();
+
+  roomRef.child("draftState").update(payload).catch(error => {
+    console.warn("RPmods Services no pudo sincronizar la actualización online.", error);
   });
 }
 
@@ -5174,7 +6125,7 @@ async function assignAdvancedSlot(team, slotKey, clientId) {
     await roomRef.update(updates);
   } catch (error) {
     console.warn("No se pudo asignar el slot avanzado.", error);
-    alert("No se pudo asignar el jugador. Intenta de nuevo.");
+    showAppNotice("No se pudo asignar el jugador. Intenta de nuevo.", { type: "error" });
   }
 }
 
@@ -5274,9 +6225,10 @@ function testingBotApplyPreselection(character, botClientId, source = "testing-b
 
   state.selected = character;
   state.preselectLocked = false;
-  renderAll();
-  pushOnlineDraftState({
-    reason: source,
+  renderCharacterSelectionLight();
+  pushOnlineDraftPatch({
+    selected: serializeCharacterForOnline(character),
+    preselectLocked: false,
     actionEvent: createOnlineActionEvent("preselect", turn.team, character, { source, botClientId }),
   });
   return true;
@@ -5457,7 +6409,7 @@ async function updateHostOnlineName(name) {
     await roomRef.update(updates);
   } catch (error) {
     console.warn("No se pudo actualizar el nombre del líder.", error);
-    alert(t("host_name_error"));
+    showAppNotice(t("host_name_error"), { type: "error" });
   }
 }
 
@@ -5601,7 +6553,7 @@ async function fillClassicTestingBots() {
     await roomRef.update(updates);
   } catch (error) {
     console.warn("No se pudieron crear bots clásicos.", error);
-    alert(t("testing_bots_error"));
+    showAppNotice(t("testing_bots_error"), { type: "error" });
   }
 }
 
@@ -5654,7 +6606,7 @@ async function fillAdvancedTestingBots() {
     await roomRef.update(updates);
   } catch (error) {
     console.warn("No se pudieron crear bots avanzados.", error);
-    alert(t("testing_bots_error"));
+    showAppNotice(t("testing_bots_error"), { type: "error" });
   }
 }
 
@@ -5713,7 +6665,7 @@ async function removeTestingBots() {
     await roomRef.update(updates);
   } catch (error) {
     console.warn("No se pudieron quitar bots.", error);
-    alert(t("testing_bots_error"));
+    showAppNotice(t("testing_bots_error"), { type: "error" });
   }
 }
 
@@ -5998,8 +6950,8 @@ function syncDraftStateFromRoom(data = {}) {
   }
 
   if (draftScreenActive) {
-    if (remoteTurnChanged || remoteSessionChanged || picksBansChanged || !characterGrid?.children?.length) renderAll();
-    else renderDraftStateLight();
+    if (!characterGrid?.children?.length) renderAll();
+    else renderDraftStateLight({ refreshPreviewPanels: remoteTurnChanged || remoteSessionChanged || picksBansChanged });
   }
   if (document.querySelector(".map-screen.active")) {
     renderMapGrid();
@@ -6065,21 +7017,28 @@ function startOnlineDraftFromRoom(data = {}) {
 
 function updateDraftUI(data = {}) {
   onlineLatestRoomData = data || {};
-  updateRoomLobby(data);
-  renderOnlineReadyCheck(data);
-  maybeAdvanceOnlineReadyCheck(data);
   if (data.closed) {
     handleRoomClosed(currentRoomCode);
     return;
   }
-  if (data.started) startOnlineDraftFromRoom(data);
-  else syncDraftStateFromRoom(data);
+
+  if (data.started) {
+    const readyOverlay = document.getElementById("online-ready-overlay");
+    if (readyOverlay && !readyOverlay.classList.contains("hidden")) renderOnlineReadyCheck(data);
+    startOnlineDraftFromRoom(data);
+    return;
+  }
+
+  updateRoomLobby(data);
+  renderOnlineReadyCheck(data);
+  maybeAdvanceOnlineReadyCheck(data);
+  syncDraftStateFromRoom(data);
 }
 
 function listenRoomChanges(roomCode) {
   const roomRef = roomRefFor(roomCode);
   if (!roomRef) {
-    alert(onlineUnavailableMessage());
+    showOnlineServiceNotice();
     return;
   }
 
@@ -6097,7 +7056,7 @@ function listenRoomChanges(roomCode) {
     }
     updateDraftUI(data);
   }, (error) => {
-    console.error("No se pudo escuchar la sala online.", error);
+    console.error("RPmods Services no pudo escuchar la sala online.", error);
   });
 }
 
@@ -6120,8 +7079,6 @@ function clearOnlineSession() {
 }
 
 function clearPassiveOnlineSessionOnBoot() {
-  // Limpieza local solamente. No consulta ni escribe Firebase.
-  // Evita que sesiones antiguas de host/lobby queden listas para reactivarse accidentalmente.
   try {
     const saved = JSON.parse(localStorage.getItem(ONLINE_SESSION_STORAGE_KEY) || "null");
     if (!saved?.roomCode) return;
@@ -6227,11 +7184,12 @@ function blankOnlineDraftState(startPayload = {}) {
 }
 
 async function createOnlineRoom() {
+  return checkOnlineServiceAndContinue(performCreateOnlineRoom, { source: "create-room" });
+}
+
+async function performCreateOnlineRoom() {
   const database = getRealtimeDatabase();
-  if (!database) {
-    alert(onlineUnavailableMessage());
-    return;
-  }
+  if (!database) throw new Error("RPmods Services unavailable after connection check");
   startOnlineClockSync();
 
   readPlayers();
@@ -6278,7 +7236,7 @@ function showJoinNameModal(roomCode) {
   const preview = document.getElementById("join-room-code-preview");
   const input = document.getElementById("join-player-name");
   if (!pendingJoinRoomCode) {
-    alert(t("enter_room_code_alert"));
+    showAppNotice(t("enter_room_code_alert"), { type: "warning" });
     return;
   }
   if (preview) preview.textContent = pendingJoinRoomCode;
@@ -6306,27 +7264,33 @@ async function joinOnlineRoom(options = {}) {
   const roomCode = normalizeRoomCode(options.roomCode || pendingJoinRoomCode || input?.value);
   const hasProvidedName = Object.prototype.hasOwnProperty.call(options, "nameOverride");
   const playerName = String(hasProvidedName ? options.nameOverride : "").trim();
-  if (!roomCode) return alert("Ingresa un código de sala");
 
-  // Primer click en UNIRSE: solo abre la interfaz de nombre.
-  // La conexión real a Firebase empieza recién al confirmar el nombre.
-  if (!hasProvidedName) {
-    showJoinNameModal(roomCode);
+  if (!roomCode) {
+    showAppNotice(t("enter_room_code_alert"), { type: "warning" });
+    input?.focus();
     return;
+  }
+
+  if (!hasProvidedName) {
+    return checkOnlineServiceAndContinue(() => showJoinNameModal(roomCode), { source: "open-join-form" });
   }
 
   if (!playerName) {
     showJoinNameModal(roomCode);
-    alert("Ingresa tu nombre para que el líder pueda asignarte como capitán.");
+    showAppNotice(t("join_name_required"), { type: "warning" });
     nameInput?.focus();
     return;
   }
 
+  return checkOnlineServiceAndContinue(
+    () => performJoinOnlineRoom({ roomCode, playerName }),
+    { source: "join-room" },
+  );
+}
+
+async function performJoinOnlineRoom({ roomCode, playerName }) {
   const database = getRealtimeDatabase();
-  if (!database) {
-    alert(onlineUnavailableMessage());
-    return;
-  }
+  if (!database) throw new Error("RPmods Services unavailable after connection check");
   startOnlineClockSync();
 
   try { localStorage.setItem(ONLINE_PLAYER_NAME_STORAGE_KEY, playerName); } catch (_) {}
@@ -6336,20 +7300,20 @@ async function joinOnlineRoom(options = {}) {
   const snapshot = await roomRef.get();
 
   if (!snapshot.exists()) {
-    alert("La sala no existe");
+    showAppNotice(t("room_not_found"), { type: "error" });
     return;
   }
 
   const roomData = snapshot.val() || {};
   if (roomData.closed) {
-    alert("La sala ya fue cerrada");
+    showAppNotice(t("room_already_closed"), { type: "warning" });
     return;
   }
 
   const clientId = onlineClientId();
   const alreadyInRoom = Boolean(roomData.participants?.[clientId]);
   if (roomData.started && !alreadyInRoom) {
-    alert("El draft ya fue iniciado. Solo pueden reconectar los usuarios que ya estaban en la sala.");
+    showAppNotice(t("room_draft_already_started"), { type: "warning", duration: 7000 });
     return;
   }
 
@@ -6384,37 +7348,52 @@ async function runCharacterRoulette(validCharacters) {
   state.roulette.highlightedName = null;
   state.roulette.previewCharacter = null;
   state.locked = true;
-
-  // Evita el “tick” visual: durante la ruleta ya no se re-renderiza todo el draft.
-  // Solo se actualizan clases del grid existente para que las imágenes no se recarguen ni salten.
   updateCharacterRouletteClasses();
 
   const totalSteps = 28 + Math.floor(Math.random() * 9);
-  let selected = randomFrom(valid);
-  for (let step = 0; step < totalSteps; step += 1) {
-    selected = randomFrom(valid);
+  const sequence = Array.from({ length: totalSteps }, () => randomFrom(valid));
+  const delays = sequence.map((_, step) => weightedRandomDelay(step, totalSteps));
+  const startedAt = onlineNow();
+  let selected = sequence[sequence.length - 1];
+
+  if (currentRoomCode) {
+    pushOnlineDraftPatch({
+      phase: "draft",
+      locked: true,
+      roulette: serializeRouletteForOnline(state.roulette),
+      rouletteEvent: {
+        id: `rouletteSequence_${startedAt}_${Math.random().toString(36).slice(2, 7)}`,
+        type: "rouletteSequence",
+        sequence: sequence.map(character => character.name),
+        delays,
+        startedAt,
+        byClientId: onlineClientId(),
+      },
+    });
+  }
+
+  for (let step = 0; step < sequence.length; step += 1) {
+    selected = sequence[step];
     state.roulette.highlightedName = selected.name;
     audioPlay(sounds.roulette, 0.82, "sfx");
     updateCharacterRoulettePreview(selected);
-    if (currentRoomCode) pushOnlineDraftState({
-      phase: "draft",
-      rouletteEvent: { id: `rouletteTick_${onlineNow()}_${step}_${selected.name}`, type: "rouletteTick", character: selected.name, byClientId: onlineClientId() },
-    });
-    await delay(weightedRandomDelay(step, totalSteps));
+    await delay(delays[step]);
     if (!isDraftSessionActive(sessionId)) return null;
   }
-
-  if (!isDraftSessionActive(sessionId)) return null;
-  audioPlay(sounds.select, 0.7, "sfx");
 
   state.roulette.highlightedName = selected.name;
   state.roulette.finalName = selected.name;
   state.selected = selected;
   updateCharacterRoulettePreview(selected);
-  if (currentRoomCode) pushOnlineDraftState({
-    phase: "draft",
-    rouletteEvent: { id: `rouletteSelected_${onlineNow()}_${selected.name}`, type: "rouletteSelected", character: selected.name, byClientId: onlineClientId() },
-  });
+  if (currentRoomCode) {
+    pushOnlineDraftPatch({
+      phase: "draft",
+      selected: serializeCharacterForOnline(selected),
+      locked: true,
+      roulette: serializeRouletteForOnline(state.roulette),
+      rouletteEvent: { id: `rouletteSelected_${onlineNow()}_${selected.name}`, type: "rouletteSelected", character: selected.name, byClientId: onlineClientId() },
+    });
+  }
   await delay(520);
   if (!isDraftSessionActive(sessionId)) return null;
 
@@ -6432,9 +7411,6 @@ async function autoResolveTurn(options = {}) {
   const allowOnlineSystem = Boolean(options.onlineSystem);
   if (!isDraftSessionActive(sessionId) || state.locked || state.roulette.active || (!allowOnlineSystem && !canControlCurrentTurn())) return;
   const valid = getValidCharacters();
-
-  // Primero se reproduce la línea "Tiempo agotado".
-  // Después de 2 segundos empieza la ruleta visual + audio roulette.
   state.locked = true;
   pushOnlineDraftState({ phase: "draft", audioEvent: createOnlineAudioEvent("randomStart") });
   playNarration(systemDraftVoiceLines.random_start.src, systemDraftVoiceLines.random_start.text, 0.9);
@@ -6498,7 +7474,7 @@ function confirmTurn(isAuto = false, options = {}) {
   timerCore.classList.remove("timer-warning");
 
   const confirmedCharacter = state.selected;
-  let wait = isAuto ? 650 : 520;
+  let wait = 360;
   let actionEvent = null;
 
   if (turn.type === "ban") {
@@ -6508,7 +7484,7 @@ function confirmTurn(isAuto = false, options = {}) {
     actionEvent = createOnlineActionEvent("ban", turn.team, confirmedCharacter, { isAuto });
     audioPlay(sounds.ban, 0.86, "sfx");
     playCharacterVoice(confirmedCharacter, "ban");
-    wait = isAuto ? 1350 : 1500;
+    wait = confirmedActionAnimationDuration("ban", isAuto) + 150;
   } else {
     state.picks[turn.team].push(confirmedCharacter);
     state.flashPick = confirmedCharacter.name;
@@ -6516,15 +7492,15 @@ function confirmTurn(isAuto = false, options = {}) {
     state.pickBatchSelections[turn.groupId].push(confirmedCharacter);
     if (state.settings.selectionAnimationEnabled) {
       state.pickAnimation = { character: confirmedCharacter, team: turn.team };
+      wait = confirmedActionAnimationDuration("pick", isAuto) + 150;
     }
     actionEvent = createOnlineActionEvent("pick", turn.team, confirmedCharacter, { isAuto });
     audioPlay(sounds.confirm, 0.86, "sfx");
     playCharacterVoice(confirmedCharacter, "pick");
-    wait = isAuto ? 1250 : 1400;
   }
 
-  wait = Math.round(wait * (state.settings.animationDuration || 1));
-  renderAll();
+  syncDraftAnimationTiming();
+  renderConfirmedActionState();
   pushOnlineDraftState({ actionEvent, phase: "draft" });
 
   scheduleDraftTimeout(() => {
@@ -6569,11 +7545,6 @@ function turnVoiceKey(turn) {
 
   if (turn.type === "ban") {
     const banIndex = (Number.isFinite(Number(turn.banIndex)) ? Number(turn.banIndex) : 0);
-    // Orden solicitado:
-    // Bloqueo 1: TEAM A => team_a_ban
-    // Bloqueo 2: TEAM B => team_b_ban
-    // Bloqueo 3: TEAM A => team_a_ban_scissors
-    // Bloqueo 4: TEAM B => team_b_ban_scissors
     return banIndex >= 2 ? "ban_scissors" : "ban";
   }
 
@@ -6624,8 +7595,6 @@ function turnNarrationText(turn) {
 function playTurnNarration(turn) {
   if (!turn) return;
   const voiceLine = turnNarrationVoiceLine(turn);
-  // Si hay voz grabada se reproduce desde archivos locales; si la voz elegida es lectura de bot,
-  // el navegador lee el texto traducido del turno.
   playNarration(voiceLine?.src, voiceLine?.text || "", 0.88);
 }
 
@@ -6635,7 +7604,8 @@ function startTurn(options = {}) {
   state.preselectLocked = false;
   state.locked = false;
   document.body.classList.remove("overlay-lock", "phase-announcing");
-  renderAll();
+  if (characterGrid?.children?.length) renderDraftStateLight({ refreshPreviewPanels: true });
+  else renderAll();
   if (!options.skipNarration) playTurnNarration(currentTurn());
   resetTimer();
   scheduleTestingBotTurn();
@@ -6715,9 +7685,6 @@ async function startDraft() {
 
   setStartDraftLoading(true);
   await playUiSound(sounds.startDraft, 1);
-
-  // Mantiene el menú visible unos segundos para que el efecto de sonido se escuche
-  // y la transición no se sienta brusca.
   await delay(5000);
 
   resetDraftStateBeforeStart();
@@ -6864,14 +7831,9 @@ async function cancelDraft() {
 
   if (state.returningToConfig) return;
   state.returningToConfig = true;
-
-  // Cierre real del sistema draft:
-  // cancela timers, ruletas, overlays, callbacks pendientes y audios de narración/personajes.
   abortDraftRuntime();
 
   await playUiSound(sounds.backConfig, 1);
-
-  // Pequeña espera para que el sonido de volver no se corte con el cambio de pantalla.
   await waitForUiSoundAndContinue(420);
 
   activateSetupTab("menu");
@@ -6950,9 +7912,6 @@ function onlineMapAutoKey() {
 }
 
 function canAutoRunOnlineMapRoulette() {
-  // La ruleta de mapa es del sistema, no una acción manual del capitán.
-  // Cualquier cliente de la sala puede reclamarla con transacción para evitar
-  // que se quede esperando si el host/navegador queda en pausa.
   return Boolean(currentRoomCode && (currentRole === "host" || currentRole === "player") && state.onlinePhase === "map" && !state.selectedMap && !state.mapRoulette.active);
 }
 
@@ -6996,36 +7955,49 @@ async function runMapRoulette(options = {}) {
   state.mapRoulette.active = true;
   state.mapRoulette.finalId = null;
   state.mapRoulette.highlightedId = null;
-
-  // Evita el tick visual de mapas: no se reconstruye el grid en cada paso.
-  // Solo se cambia la clase del mapa resaltado.
   updateMapRouletteClasses();
 
   const totalSteps = 24 + Math.floor(Math.random() * 8);
-  let selected = randomFrom(maps);
-  for (let step = 0; step < totalSteps; step += 1) {
-    selected = randomFrom(maps);
+  const sequence = Array.from({ length: totalSteps }, () => randomFrom(maps));
+  const delays = sequence.map((_, step) => weightedRandomDelay(step, totalSteps));
+  const startedAt = onlineNow();
+  let selected = sequence[sequence.length - 1];
+
+  if (currentRoomCode) {
+    pushOnlineDraftPatch({
+      phase: "map",
+      mapRoulette: serializeMapRouletteForOnline(state.mapRoulette),
+      mapEvent: {
+        id: `mapSequence_${startedAt}_${Math.random().toString(36).slice(2, 7)}`,
+        type: "mapSequence",
+        sequence: sequence.map(map => map.id),
+        delays,
+        startedAt,
+        byClientId: onlineClientId(),
+      },
+    });
+  }
+
+  for (let step = 0; step < sequence.length; step += 1) {
+    selected = sequence[step];
     state.mapRoulette.highlightedId = selected.id;
     audioPlay(sounds.mapRoulette || sounds.roulette, 0.82, "sfx");
     updateMapRouletteClasses();
-    if (currentRoomCode) pushOnlineDraftState({
-      phase: "map",
-      mapEvent: { id: `mapTick_${onlineNow()}_${step}_${selected.id}`, type: "mapTick", mapId: selected.id, byClientId: onlineClientId() },
-    });
-    await delay(weightedRandomDelay(step, totalSteps));
+    await delay(delays[step]);
     if (!isDraftSessionActive(sessionId)) return;
   }
-
-  if (!isDraftSessionActive(sessionId)) return;
-  audioPlay(sounds.confirm, 0.86, "sfx");
 
   state.selectedMap = selected;
   state.mapRoulette.highlightedId = selected.id;
   state.mapRoulette.finalId = selected.id;
-  pushOnlineDraftState({
-    phase: "map",
-    mapEvent: { id: `mapSelected_${onlineNow()}_${selected.id}`, type: "mapSelected", mapId: selected.id, byClientId: onlineClientId() },
-  });
+  if (currentRoomCode) {
+    pushOnlineDraftPatch({
+      phase: "map",
+      selectedMap: { id: selected.id, name: selected.name },
+      mapRoulette: serializeMapRouletteForOnline(state.mapRoulette),
+      mapEvent: { id: `mapSelected_${onlineNow()}_${selected.id}`, type: "mapSelected", mapId: selected.id, byClientId: onlineClientId() },
+    });
+  }
   updateMapRouletteClasses();
   updateSelectedMapCopy();
   await delay(980);
@@ -7202,6 +8174,7 @@ function init() {
   resizeGameRoot();
   window.addEventListener("resize", resizeGameRoot);
   setupInputs();
+  setupAppNotificationUI();
   setupRoomPlayerInputs();
   setupConfigControls();
   applyLanguage(state.settings.language);
@@ -7225,10 +8198,6 @@ function init() {
   setupOnlineControls();
   setupLocalConfigControls();
   clearPassiveOnlineSessionOnBoot();
-  // v3.1.4: No restaurar sesiones online automáticamente al cargar la página.
-  // Evita que solo abrir la web escriba presencia o reactive salas antiguas en Firebase.
-  // La reconexión debe hacerse de forma explícita usando el código de sala.
-  // setTimeout(() => { void tryRestoreOnlineSession(); }, 850);
   randomizeMapButton?.addEventListener("click", () => {
     if (!isDraftSessionActive() || !canControlMapSelection()) return;
     playNarration(systemDraftVoiceLines.map_selector_voice.src, systemDraftVoiceLines.map_selector_voice.text, 0.92);
@@ -7333,7 +8302,7 @@ async function assignOnlineCaptain(team, clientId) {
     await roomRef.update(updates);
   } catch (error) {
     console.warn("No se pudo asignar el capitán online.", error);
-    alert("No se pudo asignar el capitán. Intenta de nuevo.");
+    showAppNotice(t("captain_assign_error"), { type: "error" });
   }
 }
 
@@ -7681,7 +8650,7 @@ async function markCurrentPlayerReady() {
     audioPlay(sounds.startDraft, 0.94, "sfx");
   } catch (error) {
     console.warn("No se pudo marcar listo.", error);
-    alert(t("ready_check_error"));
+    showAppNotice(t("ready_check_error"), { type: "error" });
   }
 }
 
@@ -7941,7 +8910,7 @@ function maybeAdvanceOnlineReadyCheck(data = {}) {
       } catch (error) {
         console.error(error);
         onlineReadyStartKey = null;
-        alert(t("online_start_error"));
+        showAppNotice(t("online_start_error"), { type: "error" });
       }
     }, delayMs);
   }
@@ -8010,7 +8979,7 @@ function setupOnlineControls() {
       copy.textContent = t("copied");
       setTimeout(() => { copy.textContent = t("copy_code"); }, 1200);
     } catch (_) {
-      alert(`Código de sala: ${currentRoomCode}`);
+      showAppNotice(`${t("online_room_code")}: ${currentRoomCode}`, { type: "info", duration: 9000 });
     }
   });
 
@@ -8035,7 +9004,7 @@ function setupOnlineControls() {
       if (!currentRoomCode || currentRole !== "host") return;
       const roomRef = roomRefFor(currentRoomCode);
       if (!roomRef) {
-        alert(onlineUnavailableMessage());
+        showOnlineServiceNotice();
         return;
       }
       try {
@@ -8047,10 +9016,10 @@ function setupOnlineControls() {
       } catch (error) {
         onlineStartBtn.disabled = false;
         console.error(error);
-        if (error?.message === "advanced_slots_missing") alert(t("ready_check_missing_players"));
-        else if (error?.message === "captains_missing") alert(t("lobby_alert_assign_captains"));
-        else if (error?.message === "captains_unavailable") alert(t("lobby_alert_missing_captains"));
-        else alert(t("online_start_error"));
+        if (error?.message === "advanced_slots_missing") showAppNotice(t("ready_check_missing_players"), { type: "warning" });
+        else if (error?.message === "captains_missing") showAppNotice(t("lobby_alert_assign_captains"), { type: "warning" });
+        else if (error?.message === "captains_unavailable") showAppNotice(t("lobby_alert_missing_captains"), { type: "warning" });
+        else showAppNotice(t("online_start_error"), { type: "error" });
       }
     });
   }
@@ -8125,10 +9094,11 @@ function handleRoomClosed(roomCode, options = {}) {
   if (roomCode && currentRoomCode && roomCode !== currentRoomCode) return;
   try {
     if (onlineRoomListenerCode) roomRefFor(onlineRoomListenerCode)?.off("value");
-    if (onlineRoomDeletionListenerCode) roomRefFor(onlineRoomDeletionListenerCode)?.off("value");
+    onlineRoomDeletionRef?.off("value");
   } catch (_) {}
   onlineRoomListenerCode = null;
   onlineRoomDeletionListenerCode = null;
+  onlineRoomDeletionRef = null;
   onlineLatestRoomData = null;
   testingBotTurnKey = null;
   onlineSummaryIntroShownKey = null;
@@ -8158,16 +9128,18 @@ function handleRoomClosed(roomCode, options = {}) {
   activateSetupTab("menu");
   switchScreen(setupScreen);
   startMusic("menu");
-  if (!options.silent) alert("El líder de la sala ha cerrado la sala.");
+  if (!options.silent) showAppNotice(t("room_closed_by_host"), { type: "warning", duration: 7000 });
 }
 
 function watchRoomDeletion(roomCode) {
   const roomRef = roomRefFor(roomCode);
   if (!roomRef || onlineRoomDeletionListenerCode === roomCode) return;
-  if (onlineRoomDeletionListenerCode) roomRefFor(onlineRoomDeletionListenerCode)?.off("value");
+  try { onlineRoomDeletionRef?.off("value"); } catch (_) {}
   onlineRoomDeletionListenerCode = roomCode;
-  roomRef.on("value", (snap) => {
-    if (!snap.exists() && currentRoomCode === roomCode) handleRoomClosed(roomCode);
+  const closedRef = roomRef.child("closed");
+  onlineRoomDeletionRef = closedRef;
+  closedRef.on("value", (snapshot) => {
+    if (currentRoomCode === roomCode && snapshot.val() === true) handleRoomClosed(roomCode);
   });
 }
 

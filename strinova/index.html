@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STRINOVA Draft System v3.2.14 by RPmods</title>
+  <title>STRINOVA Draft System v3.2.23 by RPmods</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -29,7 +29,7 @@
   <main id="setup-screen" class="screen setup-screen active">
     <section class="setup-shell settings-surface">
       <header class="settings-topbar">
-        <div class="settings-brand">STRINOVA Draft System v3.2.14 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.2.23 by RPmods</div>
         <nav class="settings-tabs">
           <button type="button" class="settings-tab setup-top-tab is-active" data-tab="menu">MENÚ</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="volumen">VOLUMEN</button>
@@ -53,7 +53,7 @@
 
       <header class="setup-top">
         <p class="eyebrow">Sistema competitivo</p>
-        <h1>STRINOVA Draft System v3.2.14 by RPmods</h1>
+        <h1>STRINOVA Draft System v3.2.23 by RPmods</h1>
         <p>Configura nombres, tamaño de partida y fase de bloqueos antes de iniciar.</p>
       </header>
 
@@ -101,6 +101,8 @@
                 <input id="room-input" class="room-input" type="text" placeholder="Código de sala (ej: K4N8XQ)" />
                 <button id="join-room" class="primary-button online-menu-button">UNIRSE A SALA</button>
               </div>
+
+
             </section>
 
             <section class="setup-panel" data-panel="volumen">
@@ -347,15 +349,15 @@
                   <li>v3.0 — Se añadió portugués, sistema de narración por idioma, lectura de bot para idiomas sin voces grabadas, historial completo y soporte visual para más mapas.</li>
                   <li>v3.1 — Se añadió mini lobby de configuración local, tamaños 2v2/3v3/4v4/5v5, opción para saltar la fase de bloqueos y sincronización de esta configuración en salas online clásicas.</li>
                   <li>v3.1 Hotfix — Se desbloqueó la selección de Modo avanzado para 2v2/3v3/4v4/5v5, se hizo el video de fondo independiente por usuario y la precarga crítica ahora aparece justo después del aviso F11.</li>
-                  <li>v3.1.2 HOTFIX (Security) — Se rotó la Firebase Web API Key usada en GitHub Pages, se retiró la clave anterior expuesta y se reforzó la documentación de seguridad para uso público.</li>
+                  <li>v3.1.2 HOTFIX (Security) — Se rotó la RPmods Services Web API Key usada en GitHub Pages, se retiró la clave anterior expuesta y se reforzó la documentación de seguridad para uso público.</li>
                   <li>v3.1.3 HOTFIX (UI) — Se corrigieron los selectores desplegables con fondo/texto inconsistente en Idioma, Audio de narración y mini-lobby online; además se homogeneizó el estilo visual de los controles del lobby de crear sala.</li>
-                  <li>v3.1.4 HOTFIX (Online Presence) — Se desactivó la restauración automática silenciosa de salas online al abrir la web para evitar escrituras en Firebase solo por cargar la página; la reconexión queda como acción explícita mediante código de sala.</li>
-                  <li>v3.1.5 HOTFIX (Env Config) — Se movió la configuración web de Firebase a un archivo generado desde variables de entorno/Repository Secrets para GitHub Pages; se retiró la API key directa del código fuente público.</li>
-                  <li>v3.1.6 HOTFIX (GitHub Pages Env Path) — Se corrigió el paquete para GitHub Pages con la estructura correcta: workflow en la raíz del repositorio y generación automática de <code>strinova/js/firebase-env.js</code>.</li>
+                  <li>v3.1.4 HOTFIX (Online Presence) — Se desactivó la restauración automática silenciosa de salas online al abrir la web para evitar escrituras en RPmods Services solo por cargar la página; la reconexión queda como acción explícita mediante código de sala.</li>
+                  <li>v3.1.5 HOTFIX (Env Config) — Se movió la configuración web de RPmods Services a un archivo generado desde variables de entorno/Repository Secrets para GitHub Pages; se retiró la API key directa del código fuente público.</li>
+                  <li>v3.1.6 HOTFIX (GitHub Pages Env Path) — Se corrigió el paquete para GitHub Pages con la estructura correcta: workflow en la raíz del repositorio y generación automática del archivo de entorno de RPmods Services.</li>
                   <li>v3.2.0 Modo Avanzado — Se añadió asignación avanzada por jugador para 2v2, 3v3, 4v4 y 5v5; el líder puede jugar o quedar como espectador, los nombres se rellenan desde usuarios conectados, los bans avanzados se reparten entre capitán/subcapitán y los picks son individuales.</li>
                   <li>v3.2.1 Hotfix (Advanced Voice/Text) — Se corrigieron los textos del modo avanzado para distinguir entre tu turno y el turno de tu equipo; se añadieron claves de voz para las nuevas líneas de bloqueo/selección de laminantes y soporte i18n para los idiomas disponibles.</li>
                   <li>v3.2.2 Testing Bots — Se añadió un apartado de Testing Bots para que el host pueda rellenar capitanes o slots vacantes con bots; los bots pueden bloquear y seleccionar automáticamente en modo clásico y avanzado para facilitar pruebas online.</li>
-                  <li>v3.2.3 Hotfix (Testing Bots) — Se corrigió el fallo al rellenar slots vacantes con bots en modo avanzado; ahora el guardado de slots evita conflictos de rutas en Firebase Realtime Database.</li>
+                  <li>v3.2.3 Hotfix (Testing Bots) — Se corrigió el fallo al rellenar slots vacantes con bots en modo avanzado; ahora el guardado de slots evita conflictos de rutas en RPmods Services.</li>
                   <li>v3.2.4 Hotfix (Online Finish + Host Name) — Se restauró el anuncio/voz online de finalización del draft usando <code>voice_finish_draft</code> y se añadió un apartado para que el líder/host pueda escribir su nombre antes de asignarse como capitán o jugador.</li>
                   <li>v3.2.5 Hotfix (Bot Thinking Delay) — Los bots ahora simulan mejor un turno real: tardan entre 3 y 6 segundos, hacen varias preselecciones aleatorias de laminantes válidos y luego confirman el bloqueo o la selección.</li>
                   <li>v3.2.6 Ready Check + Visual Turn UI — Se redujo y reubicó el cuadro de turno online, se ocultó el panel antiguo detrás del aviso, se añadió sistema de listo antes del draft con cajas por jugador, transición con <code>Loading.mp4</code> y bots con nombres aleatorios desde <code>player_names_config.js</code>.</li>
@@ -367,6 +369,15 @@
                   <li>v3.2.12 Hotfix (Equal Action Buttons) — Se igualó el ancho real de BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA, se fijó la columna de acciones y se movió la caja de personaje para que el panel inferior se vea alineado.</li>
                   <li>v3.2.13 Hotfix (Deep Equal Buttons) — Se corrigió a profundidad el ancho real de BANEAR/SELECCIONAR y SELECCIÓN ALEATORIA anulando reglas antiguas heredadas; también se redujo el tamaño del botón/texto de espera en el ready check.</li>
                   <li>v3.2.14 Hotfix (Selected Button + Map Voice) — Se corrigió que BANEAR/SELECCIONAR se ensanchara al seleccionar personaje usando reglas más específicas para el estado visible/.ban; también se corrigió la voz de selección de mapa para que no se reproduzca dos veces.</li>
+                  <li>v3.2.15 Update (Online Sync + Animation Performance + RPmods Services) — Se redujeron las escrituras y reconstrucciones del modo online, las ruletas ahora se reproducen desde una sola secuencia sincronizada, se eliminó el listener duplicado de sala, se suavizó la recuperación del video de fondo y se consolidaron las animaciones de bloqueo/selección para reducir filtros y renderizados innecesarios. Las referencias visibles del servicio online ahora usan el nombre RPmods Services.</li>
+                  <li>v3.2.16 Update (Modern Draft Animations) — Se modernizaron las confirmaciones de BAN y selección con impactos visuales diferenciados, barridos de luz y transiciones optimizadas; las casillas de jugadores ahora conservan su DOM, muestran estados vacío/activo/previsualización/seleccionado y reproducen una revelación moderna del retrato y los datos sin reiniciar la animación con cada sincronización.</li>
+                  <li>v3.2.17 Update (Integrated Online Notices) — Se reemplazaron los cuadros nativos del navegador por avisos integrados en la interfaz. La indisponibilidad de RPmods Services ahora aparece como una tarjeta animada junto a los controles online, con reintento y cierre; los demás errores y mensajes usan notificaciones no bloqueantes dentro de la página.</li>
+                  <li>v3.2.18 Update (Online Connection Gate) — Antes de crear una sala, abrir el formulario de acceso o confirmar una unión, la aplicación muestra “Comprobando conexión a RPmods Services”, verifica el estado real del servicio y solo continúa si hay conexión. Si falla, conserva la acción pendiente y muestra RECONECTAR para reanudarla automáticamente.</li>
+                  <li>v3.2.19 Update (Silent Multi-Intro Precache) — Se añadieron cinco parejas sincronizadas de video y música para la intro. Al aceptar el aviso principal se elige una pareja sin repetir la anterior, se precarga silenciosamente con prioridad alta y se mantiene preparada en memoria; las demás parejas se almacenan gradualmente en caché cuando el navegador está libre.</li>
+                  <li>v3.2.20 Hotfix (Multi-Intro Selection) — Se corrigió el fallback que confundía una precarga lenta con un archivo inválido. Las intros 2–5 ahora mantienen su selección mientras cargan y solo vuelven a la intro original cuando el MP4 o MP3 genera un error real.</li>
+                  <li>v3.2.21 Update (Dedicated Intro Media Structure) — Las cinco parejas de intro ahora se organizan en carpetas independientes dentro de <code>media/intro-menu/intro-01</code> hasta <code>intro-05</code>. Cada carpeta contiene <code>video.mp4</code> y <code>music.mp3</code>; las rutas antiguas permanecen como fallback temporal para facilitar la migración.</li>
+                  <li>v3.2.22 Update (Intro Selection Settings) — Se añadió un apartado en Configuración para activar la selección aleatoria de las cinco intros o desactivarla y elegir manualmente un conjunto. La preferencia se guarda localmente y utiliza el mismo sistema de precarga silenciosa.</li>
+                  <li>v3.2.23 Update (Named Intro Sets) — Los cinco conjuntos de intro ahora muestran sus nombres reales en Configuración y en el estado del modo manual, manteniendo intactas sus rutas, parejas de video/música y precarga silenciosa.</li>
                 </ul>
               </div>
             </section>
@@ -443,6 +454,39 @@
                 </div>
                 <input id="auto-resolve-toggle" class="toggle-input" type="checkbox" checked />
               </label>
+
+              <section id="intro-settings-panel" class="intro-settings-panel is-random" aria-labelledby="intro-settings-title">
+                <div class="subconfig-heading intro-settings-heading">
+                  <span>Intro del menú</span>
+                  <strong id="intro-settings-title">Selección de conjunto</strong>
+                </div>
+
+                <label class="toggle-row intro-random-row">
+                  <div class="subconfig-copy">
+                    <span>Selección aleatoria</span>
+                    <small>Elige una intro distinta y evita repetir la anterior</small>
+                  </div>
+                  <input id="intro-random-toggle" class="toggle-input" type="checkbox" checked />
+                </label>
+
+                <label class="intro-manual-row" for="intro-manual-select">
+                  <div class="subconfig-copy intro-manual-copy">
+                    <span>Conjunto manual</span>
+                    <small>Disponible cuando la selección aleatoria está desactivada</small>
+                  </div>
+                  <select id="intro-manual-select" class="language-select intro-manual-select" disabled>
+                    <option value="1">Strinova Season 9 (26sp3)</option>
+                    <option value="2">Strinova Season 6 (Michelle Skin)</option>
+                    <option value="3">Strinova Season 7 (p2)</option>
+                    <option value="4">Strinova Season 7</option>
+                    <option value="5">Kanami [Be Shining] - Strinova</option>
+                  </select>
+                </label>
+
+                <div id="intro-selection-status" class="intro-selection-status" role="status" aria-live="polite">
+                  Modo aleatorio activo. La pareja se elegirá al iniciar la aplicación.
+                </div>
+              </section>
             </section>
           </div>
         </div>
@@ -714,7 +758,7 @@
   <main id="map-screen" class="screen map-screen">
     <section class="map-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.2.14 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.2.23 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab is-active">SELECCIÓN DE MAPA</span>
         </nav>
@@ -745,7 +789,7 @@
   <main id="summary-screen" class="screen summary-screen">
     <section class="summary-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.2.14 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.2.23 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab">BÁSICO</span>
           <span class="settings-tab">EQUIPOS</span>
@@ -805,6 +849,24 @@
 
   </div>
   </div>
+  <section id="online-service-notice" class="online-service-notice hidden" role="status" aria-live="polite" aria-atomic="true" data-state="unavailable">
+    <div class="online-service-signal" aria-hidden="true">
+      <span class="online-service-signal-core"></span>
+      <span class="online-service-signal-ring ring-one"></span>
+      <span class="online-service-signal-ring ring-two"></span>
+    </div>
+    <div class="online-service-copy">
+      <span id="online-service-kicker" class="online-service-kicker">ESTADO DEL SERVICIO</span>
+      <strong id="online-service-title">RPmods Services no está disponible</strong>
+      <p id="online-service-message">Revisa tu conexión o abre la aplicación con internet para utilizar el modo online.</p>
+    </div>
+    <div class="online-service-actions">
+      <button id="online-service-retry" class="online-service-action retry" type="button">RECONECTAR</button>
+      <button id="online-service-dismiss" class="online-service-action dismiss" type="button">CERRAR</button>
+    </div>
+  </section>
+
+  <div id="app-notification-stack" class="app-notification-stack" aria-live="polite" aria-relevant="additions removals" aria-atomic="false"></div>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="js/firebase-env.js"></script>

@@ -1,15 +1,3 @@
-/*
-  Configuración de mapas para la fase posterior al draft.
-
-  Para agregar tus mapas:
-  1. Coloca las imágenes en: img/maps/
-  2. Edita nombre e imagen aquí.
-  3. Se recomienda PNG/JPG/WebP en formato 16:9, por ejemplo 640x360.
-
-  Ejemplo:
-  { name: "Área 88", image: "img/maps/area_88.png" }
-*/
-
 window.MAP_CONFIG = {
   maps: [
     { name: "Area 88", image: "img/maps/map_1.png" },

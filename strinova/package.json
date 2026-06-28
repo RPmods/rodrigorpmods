@@ -1,7 +1,7 @@
 {
   "name": "draft-simulator",
-  "version": "1.2.0",
-  "description": "Draft competitivo con interfaz estilo videojuego, fondo animado, voces y resumen visual",
+  "version": "3.2.23",
+  "description": "STRINOVA Draft System con nombres personalizados para cinco intros vinculadas, precarga silenciosa, RPmods Services y animaciones modernas",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
