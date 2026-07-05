@@ -1,7 +1,7 @@
 {
   "name": "draft-simulator",
-  "version": "3.2.23",
-  "description": "STRINOVA Draft System con nombres personalizados para cinco intros vinculadas, precarga silenciosa, RPmods Services y animaciones modernas",
+  "version": "3.2.24",
+  "description": "STRINOVA Draft System con precarga silenciosa optimizada, video online desacoplado, bots de testing más estables, RPmods Services y animaciones modernas",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
