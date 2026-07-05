@@ -56,8 +56,8 @@ jobs:
               print("Missing required GitHub repository secrets: " + ", ".join(missing), file=sys.stderr)
               sys.exit(1)
 
-          # Root layout: index.html, css/, js/, img/, audio/, video/ live at repository root.
-          target_dir = pathlib.Path("js")
+          # Subfolder layout: index.html, css/, js/, img/, audio/, video/ live inside ./strinova/.
+          target_dir = pathlib.Path("strinova/js")
           target_dir.mkdir(parents=True, exist_ok=True)
 
           config = {
@@ -87,7 +87,7 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           name: strinova-pages
-          path: .
+          path: strinova
 
       - name: Deploy to GitHub Pages
         id: deployment
