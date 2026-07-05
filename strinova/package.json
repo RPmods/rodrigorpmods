@@ -1,7 +1,7 @@
 {
   "name": "draft-simulator",
-  "version": "3.2.26",
-  "description": "STRINOVA Draft System hotfix estable: restaura modo online, draft local y navegación sin tocar assets privados",
+  "version": "3.2.27",
+  "description": "STRINOVA Draft System hotfix: los bots esperan a que termine el anuncio de fase antes de preseleccionar o confirmar",
   "main": "main.js",
   "scripts": {
     "start": "electron .",

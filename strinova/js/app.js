@@ -3877,6 +3877,8 @@ function toggleMusic() {
 }
 
 function showPhaseOverlay(text, voiceSrc, subtitle, callback) {
+  clearTestingBotTurnTimer();
+  testingBotTurnKey = null;
   const overlay = $("#phase-overlay");
   const title = $("#phase-title");
   const subtitleElement = $("#phase-subtitle");
@@ -6219,8 +6221,49 @@ function testingBotPreselectDelayMs() {
   return 520 + Math.round(Math.random() * 680);
 }
 
+function testingBotTurnPlayableDelayMs() {
+  if (!currentRoomCode || currentRole !== "host" || !state.draftActive || state.onlinePhase !== "draft") return -1;
+  const turn = currentTurn();
+  if (!turn || state.turnIndex >= activeTurnCount()) return -1;
+  if (state.locked || state.roulette.active) return -1;
+
+  const now = onlineNow();
+  const turnStartedAt = Number(state.turnStartedAt || 0);
+  if (turnStartedAt && now < turnStartedAt) {
+    return Math.max(180, Math.min(8000, turnStartedAt - now + 220));
+  }
+
+  if (state.turnDeadlineAt && Number(state.turnDeadlineAt) <= now) return -1;
+  if (document.body.classList.contains("phase-announcing") || document.body.classList.contains("overlay-lock")) {
+    return 260;
+  }
+
+  return 0;
+}
+
+function isTestingBotTurnPlayable() {
+  return testingBotTurnPlayableDelayMs() === 0;
+}
+
+function testingBotWaitUntilPlayable(turnKey) {
+  const delayMs = testingBotTurnPlayableDelayMs();
+  if (delayMs < 0) return false;
+  if (delayMs === 0) return true;
+
+  const waitKey = `${turnKey}:wait`;
+  if (testingBotTurnKey === waitKey) return false;
+  testingBotTurnKey = waitKey;
+  clearTestingBotTurnTimer();
+  testingBotTimerId = setTimeout(() => {
+    testingBotTurnKey = null;
+    scheduleTestingBotTurn();
+  }, delayMs);
+  return false;
+}
+
 function testingBotApplyPreselection(character, botClientId, source = "testing-bot-thinking") {
   const turn = currentTurn();
+  if (!isTestingBotTurnPlayable()) return false;
   if (!character || !turn || !isCharacterAvailable(character, turn)) return false;
 
   state.selected = character;
@@ -6259,7 +6302,7 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
 
     const turn = currentTurn();
     const activeBot = botClientIdForCurrentTurn(latestData, turn);
-    if (!turn || activeBot !== botClientId || state.locked || state.roulette.active) return;
+    if (!turn || activeBot !== botClientId || !isTestingBotTurnPlayable()) return;
 
     const startedAt = Date.now();
     const thinkingDuration = testingBotThinkingDurationMs();
@@ -6268,7 +6311,11 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
       if (!isDraftSessionActive()) return;
       const current = currentTurn();
       const stillBot = botClientIdForCurrentTurn(onlineLatestRoomData || {}, current);
-      if (!current || stillBot !== botClientId || state.locked || state.roulette.active) return;
+      if (!current || stillBot !== botClientId || !isTestingBotTurnPlayable()) {
+        testingBotTurnKey = null;
+        scheduleTestingBotTurn();
+        return;
+      }
 
       const elapsed = Date.now() - startedAt;
       const character = testingBotPickCharacter(current);
@@ -6283,7 +6330,7 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
           if (!isDraftSessionActive()) return;
           const finalTurn = currentTurn();
           const finalBot = botClientIdForCurrentTurn(onlineLatestRoomData || {}, finalTurn);
-          if (!finalTurn || finalBot !== botClientId || state.locked || state.roulette.active) return;
+          if (!finalTurn || finalBot !== botClientId || !isTestingBotTurnPlayable()) return;
 
           if (!state.selected || !isCharacterAvailable(state.selected, finalTurn)) {
             const fallback = testingBotPickCharacter(finalTurn);
@@ -6308,12 +6355,14 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
 function scheduleTestingBotTurn() {
   if (!currentRoomCode || currentRole !== "host" || !state.draftActive || state.onlinePhase !== "draft") return;
   const turn = currentTurn();
-  if (!turn || state.locked || state.roulette.active || state.turnIndex >= activeTurnCount()) return;
+  if (!turn || state.turnIndex >= activeTurnCount()) return;
 
   const botClientId = botClientIdForCurrentTurn(onlineLatestRoomData || {}, turn);
   if (!botClientId) return;
 
-  const turnKey = `${currentRoomCode}:${state.draftSessionId}:${state.turnIndex}:${state.turnDeadlineAt || 0}:${botClientId}`;
+  const turnKey = `${currentRoomCode}:${state.draftSessionId}:${state.turnIndex}:${state.turnStartedAt || 0}:${state.turnDeadlineAt || 0}:${botClientId}`;
+  if (!testingBotWaitUntilPlayable(turnKey)) return;
+
   if (testingBotTurnKey === turnKey) return;
   testingBotTurnKey = turnKey;
   clearTestingBotTurnTimer();

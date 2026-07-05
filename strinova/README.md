@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.26 by RPmods
+# STRINOVA Draft System v3.2.27 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -337,4 +337,11 @@ Los nombres están centralizados en `INTRO_MENU_SETS`. No se modificaron las rut
 - Se restauró `js/app.js` desde la base estable v3.2.23 para recuperar el modo online, el inicio del draft local y los botones de retorno/cancelación.
 - Se mantiene la estructura original de rutas para `img/`, `audio/`, `video/`, `media/` y `js/firebase-env.js`.
 - Este parche no debe reemplazar recursos privados ni carpetas pesadas; solo corrige código y metadatos visibles.
-- Se actualizó Updates / Historial a v3.2.26.
+- Se actualizó Updates / Historial a v3.2.27.
+
+## v3.2.27 Hotfix Bot Phase Guard
+
+- Se corrigió la lógica de Testing Bots para que no empiecen a preseleccionar durante el anuncio de transición entre la fase de bloqueos y la fase de selección.
+- Los bots ahora respetan `turnStartedAt`, `turnDeadlineAt`, `phase-announcing`, `overlay-lock` y el estado `locked` antes de pensar, preseleccionar o confirmar.
+- Se limpia cualquier temporizador pendiente de bot al abrir un anuncio de fase para evitar acciones atrasadas durante la transición.
+- Se actualizó Updates / Historial a v3.2.27.
