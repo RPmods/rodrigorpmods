@@ -1,4 +1,4 @@
-name: Deploy STRINOVA Draft System to GitHub Pages
+name: Deploy STRINOVA to GitHub Pages
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}strinova/
     runs-on: ubuntu-latest
 
     steps:
@@ -56,7 +56,6 @@ jobs:
               print("Missing required GitHub repository secrets: " + ", ".join(missing), file=sys.stderr)
               sys.exit(1)
 
-          # Subfolder layout: index.html, css/, js/, img/, audio/, video/ live inside ./strinova/.
           target_dir = pathlib.Path("strinova/js")
           target_dir.mkdir(parents=True, exist_ok=True)
 
@@ -80,6 +79,26 @@ jobs:
           print(f"Generated {output}")
           PY
 
+      - name: Build Pages publish folder
+        run: |
+          rm -rf _site
+          mkdir -p _site
+          cp -a strinova _site/strinova
+          cat > _site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="utf-8">
+              <meta http-equiv="refresh" content="0; url=./strinova/">
+              <title>STRINOVA</title>
+              <script>location.replace('./strinova/');</script>
+            </head>
+            <body>
+              <a href="./strinova/">Open STRINOVA</a>
+            </body>
+          </html>
+          HTML
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
@@ -87,7 +106,7 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           name: strinova-pages
-          path: strinova
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
