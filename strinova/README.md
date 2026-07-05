@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.23 by RPmods
+# STRINOVA Draft System v3.2.24 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -330,3 +330,14 @@ Los conjuntos muestran estos nombres en Configuración:
 5. `Kanami [Be Shining] - Strinova`
 
 Los nombres están centralizados en `INTRO_MENU_SETS`. No se modificaron las rutas, el modo aleatorio, la selección manual ni la asociación de cada `video.mp4` con su `music.mp3`.
+
+
+## v3.2.24 Update Silent Precache + Bot Stability
+
+- Se añadió memoria interna de recursos precargados para evitar cargar repetidamente la misma imagen, audio o video durante una sesión.
+- La precarga de imágenes ahora intenta decodificar con `Image.decode()` para reducir tirones al mostrar personajes y mapas.
+- Las intros alternativas usan precarga ligera de metadatos de video para no competir con el video principal ni con el draft activo.
+- En draft online, la recuperación del video de fondo es más suave y evita recargar el MP4 salvo error real de medio.
+- Se corrigió el inicio online para evitar doble `startTurn()`, doble narración o doble programación de bots al comenzar una sala.
+- Los bots de testing ahora puntúan personajes por rol, slot, repetición de rol y balance de facción antes de elegir.
+- Las preselecciones de bots reducen escrituras intermedias en RPmods Services y publican principalmente la decisión final para no saturar la sincronización.

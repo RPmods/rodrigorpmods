@@ -1521,6 +1521,28 @@ const RESOURCE_PRELOAD_ITEM_TIMEOUT_MS = 5200;
 const RESOURCE_PRELOAD_CONCURRENCY = 6;
 const RESOURCE_PRELOAD_BACKGROUND_CONCURRENCY = 2;
 const RESOURCE_PRELOAD_SECONDARY_CONCURRENCY = 2;
+const RESOURCE_PRELOAD_VIDEO_METADATA_TIMEOUT_MS = 2800;
+const warmedResourceSources = new Set();
+const inflightResourcePreloads = new Map();
+const PRELOAD_DEBUG_ENABLED = (() => {
+  try {
+    return new URLSearchParams(window.location.search || "").has("debugPreload");
+  } catch (_) {
+    return false;
+  }
+})();
+
+function debugPreloadLog(...args) {
+  if (PRELOAD_DEBUG_ENABLED) console.debug("[SilentPrecache]", ...args);
+}
+
+function resourceCacheKey(url, type = "generic") {
+  return `${type}:${url}`;
+}
+
+function isOnlineDraftPerformanceMode() {
+  return Boolean(currentRoomCode && state.draftActive && state.onlinePhase === "draft");
+}
 
 function uniqueResourceGroups(groups) {
   const seen = new Set();
@@ -1620,9 +1642,19 @@ function preloadImageCandidate(url) {
       img.onload = null;
       img.onerror = null;
     };
-    img.onload = () => { cleanup(); resolve(url); };
+    const finish = async () => {
+      try {
+        if (typeof img.decode === "function") await img.decode();
+      } catch (_) {
+        // La imagen ya cargó; decode puede fallar en algunos navegadores con caché o formatos antiguos.
+      }
+      cleanup();
+      resolve(url);
+    };
+    img.onload = () => { void finish(); };
     img.onerror = () => { cleanup(); reject(new Error("image error")); };
     img.decoding = "async";
+    img.loading = "eager";
     img.src = url;
   });
 }
@@ -1647,20 +1679,27 @@ function preloadAudioCandidate(url) {
   });
 }
 
-function preloadVideoCandidate(url) {
+function preloadVideoCandidate(url, options = {}) {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
-    const timer = window.setTimeout(() => { cleanup(); reject(new Error("video timeout")); }, RESOURCE_PRELOAD_ITEM_TIMEOUT_MS);
+    const lightMode = options.light === true || options.preload === "metadata";
+    const timeoutMs = lightMode ? RESOURCE_PRELOAD_VIDEO_METADATA_TIMEOUT_MS : RESOURCE_PRELOAD_ITEM_TIMEOUT_MS;
+    const timer = window.setTimeout(() => { cleanup(); reject(new Error("video timeout")); }, timeoutMs);
     const cleanup = () => {
       window.clearTimeout(timer);
+      video.onloadedmetadata = null;
       video.onloadeddata = null;
       video.oncanplay = null;
       video.onerror = null;
       try { video.pause(); video.removeAttribute("src"); video.load?.(); } catch (_) {}
     };
-    video.preload = "auto";
+    video.preload = lightMode ? "metadata" : "auto";
     video.muted = true;
+    video.defaultMuted = true;
     video.playsInline = true;
+    video.onloadedmetadata = () => {
+      if (lightMode) { cleanup(); resolve(url); }
+    };
     video.onloadeddata = () => { cleanup(); resolve(url); };
     video.oncanplay = () => { cleanup(); resolve(url); };
     video.onerror = () => { cleanup(); reject(new Error("video error")); };
@@ -1677,19 +1716,41 @@ function fetchResourceCandidate(url) {
   });
 }
 
-function preloadOneCandidate(url, type = "generic") {
+function preloadOneCandidate(url, type = "generic", options = {}) {
   if (!url) return Promise.reject(new Error("empty resource"));
-  if (type === "image") return preloadImageCandidate(url).catch(() => fetchResourceCandidate(url));
-  if (type === "audio") return preloadAudioCandidate(url).catch(() => fetchResourceCandidate(url));
-  if (type === "video") return preloadVideoCandidate(url).catch(() => fetchResourceCandidate(url));
-  return fetchResourceCandidate(url);
+  const key = resourceCacheKey(url, type);
+  if (warmedResourceSources.has(key)) return Promise.resolve(url);
+  if (inflightResourcePreloads.has(key)) return inflightResourcePreloads.get(key);
+
+  const run = (() => {
+    if (type === "image") return preloadImageCandidate(url).catch(() => fetchResourceCandidate(url));
+    if (type === "audio") return preloadAudioCandidate(url).catch(() => fetchResourceCandidate(url));
+    if (type === "video") {
+      const videoPreload = preloadVideoCandidate(url, options);
+      return options.light ? videoPreload : videoPreload.catch(() => fetchResourceCandidate(url));
+    }
+    return fetchResourceCandidate(url);
+  })().then(result => {
+    warmedResourceSources.add(key);
+    debugPreloadLog("ready", type, url);
+    return result;
+  }).finally(() => {
+    inflightResourcePreloads.delete(key);
+  });
+
+  inflightResourcePreloads.set(key, run);
+  return run;
 }
 
 async function preloadFirstAvailable(group) {
   const sources = group?.sources || [];
+  const options = {
+    light: group?.light === true,
+    preload: group?.preload,
+  };
   for (const source of sources) {
     try {
-      await preloadOneCandidate(source, group.type);
+      await preloadOneCandidate(source, group.type, options);
       return { ok: true, source };
     } catch (_) {
     }
@@ -1720,11 +1781,17 @@ function scheduleSecondaryResourcePreload() {
   if (state.resourcePreload.secondaryStarted) return;
   state.resourcePreload.secondaryStarted = true;
   const queue = () => {
-    runResourcePreloadQueue(
+    const run = () => runResourcePreloadQueue(
       resourcePreloadGroups({ secondary: true }),
       null,
-      RESOURCE_PRELOAD_SECONDARY_CONCURRENCY
+      isOnlineDraftPerformanceMode() ? 1 : RESOURCE_PRELOAD_SECONDARY_CONCURRENCY
     ).catch(() => {});
+
+    if (isOnlineDraftPerformanceMode()) {
+      window.setTimeout(run, 2500);
+      return;
+    }
+    run();
   };
   window.setTimeout(() => {
     if (typeof window.requestIdleCallback === "function") {
@@ -2020,7 +2087,8 @@ function setupBackgroundVideo() {
     clearScheduledRecovery();
     applyVideoSettings();
     const hasMediaError = Boolean(video.error) || video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE;
-    if (hard && hasMediaError) {
+    const softOnlineDraftMode = isOnlineDraftPerformanceMode();
+    if (hard && hasMediaError && !softOnlineDraftMode) {
       try { video.pause(); } catch (_) {}
       try { video.load(); } catch (_) {}
     }
@@ -2071,9 +2139,9 @@ function setupBackgroundVideo() {
     video.dataset.lastTimeUpdateAt = String(Date.now());
   });
   video.addEventListener("canplay", playVideo);
-  video.addEventListener("waiting", () => scheduleRecovery(2400, false));
-  video.addEventListener("stalled", () => scheduleRecovery(2800, false));
-  video.addEventListener("suspend", () => scheduleRecovery(3200, false));
+  video.addEventListener("waiting", () => { if (!isOnlineDraftPerformanceMode()) scheduleRecovery(2400, false); });
+  video.addEventListener("stalled", () => { if (!isOnlineDraftPerformanceMode()) scheduleRecovery(2800, false); });
+  video.addEventListener("suspend", () => { if (!isOnlineDraftPerformanceMode()) scheduleRecovery(3200, false); });
   video.addEventListener("error", () => {
     document.body.classList.add("video-error");
     scheduleRecovery(1200, true);
@@ -2102,6 +2170,11 @@ function setupBackgroundVideo() {
 
       if (video.paused) {
         playVideo();
+        video.dataset.stallTicks = "0";
+        return;
+      }
+
+      if (isOnlineDraftPerformanceMode()) {
         video.dataset.stallTicks = "0";
         return;
       }
@@ -2996,8 +3069,8 @@ function scheduleAlternativeIntroPrecache() {
   const task = async () => {
     for (const set of alternatives) {
       await preloadFirstAvailable({ sources: [set.audio, set.legacyAudio].filter(Boolean), type: "audio" });
-      await preloadFirstAvailable({ sources: [set.video, set.legacyVideo].filter(Boolean), type: "video" });
-      await waitMs(120);
+      await preloadFirstAvailable({ sources: [set.video, set.legacyVideo].filter(Boolean), type: "video", light: true, preload: "metadata" });
+      await waitMs(isOnlineDraftPerformanceMode() ? 420 : 160);
     }
   };
   state.intro.alternativesPrecachePromise = new Promise(resolve => {
@@ -6184,6 +6257,61 @@ function botClientIdForCurrentTurn(data = onlineLatestRoomData || {}, turn = cur
   return isTestingBotParticipant(participant) ? clientId : null;
 }
 
+const TESTING_BOT_ROLE_PRIORITY_BY_SLOT = {
+  captain: ["Vanguardia", "Centinela", "Controlador", "Soporte", "Duelista"],
+  subcaptain: ["Controlador", "Soporte", "Centinela", "Vanguardia", "Duelista"],
+  player3: ["Duelista", "Vanguardia", "Controlador", "Centinela", "Soporte"],
+  player4: ["Soporte", "Controlador", "Centinela", "Vanguardia", "Duelista"],
+  player5: ["Duelista", "Centinela", "Soporte", "Controlador", "Vanguardia"],
+};
+
+function testingBotRawRole(character) {
+  return roles?.[character?.name] || "Sin rol";
+}
+
+function testingBotCharacterScore(character, turn = currentTurn()) {
+  if (!character || !turn) return -Infinity;
+  const ownPicks = state.picks?.[turn.team] || [];
+  const enemyTeam = turn.team === "A" ? "B" : "A";
+  const enemyPicks = state.picks?.[enemyTeam] || [];
+  const role = testingBotRawRole(character);
+  let score = Math.random() * 8;
+
+  if (turn.type === "pick") {
+    const ownRoles = ownPicks.map(testingBotRawRole);
+    const repeatedRoleCount = ownRoles.filter(item => item === role).length;
+    const ownFactionCount = ownPicks.filter(item => item.faction === character.faction).length;
+    const priority = TESTING_BOT_ROLE_PRIORITY_BY_SLOT[turn.slotKey || "captain"] || TESTING_BOT_ROLE_PRIORITY_BY_SLOT.captain;
+    const priorityIndex = priority.indexOf(role);
+
+    if (repeatedRoleCount === 0) score += 46;
+    else score -= repeatedRoleCount * 24;
+
+    if (priorityIndex >= 0) score += 20 - (priorityIndex * 4);
+    score -= ownFactionCount * 7;
+
+    if (ownPicks.length >= 3 && !ownRoles.includes("Soporte") && role === "Soporte") score += 18;
+    if (ownPicks.length >= 3 && !ownRoles.includes("Controlador") && role === "Controlador") score += 14;
+  } else {
+    const enemyRoles = enemyPicks.map(testingBotRawRole);
+    const utilityRole = role === "Soporte" || role === "Controlador" || role === "Centinela";
+    if (utilityRole) score += 9;
+    if (!enemyRoles.includes(role)) score += 5;
+  }
+
+  return score;
+}
+
+function chooseWeightedTestingBotCharacter(candidates, turn = currentTurn()) {
+  if (!candidates?.length) return null;
+  const ranked = [...candidates]
+    .map(character => ({ character, score: testingBotCharacterScore(character, turn) }))
+    .sort((a, b) => b.score - a.score);
+  const poolSize = Math.min(3, ranked.length);
+  const pool = ranked.slice(0, poolSize);
+  return pool[Math.floor(Math.random() * pool.length)]?.character || ranked[0]?.character || null;
+}
+
 function testingBotPickCharacter(turn = currentTurn()) {
   if (!turn) return null;
   const allowedFactions = turn.type === "pick"
@@ -6195,13 +6323,7 @@ function testingBotPickCharacter(turn = currentTurn()) {
   });
   if (!available.length) return null;
 
-  if (turn.type === "pick") {
-    const teamRoles = state.picks[turn.team].map(character => roleOf(character.name));
-    const balanced = available.filter(character => !teamRoles.includes(roleOf(character.name)));
-    if (balanced.length) return balanced[Math.floor(Math.random() * balanced.length)];
-  }
-
-  return available[Math.floor(Math.random() * available.length)];
+  return chooseWeightedTestingBotCharacter(available, turn);
 }
 
 function clearTestingBotTurnTimer() {
@@ -6219,6 +6341,15 @@ function testingBotPreselectDelayMs() {
   return 520 + Math.round(Math.random() * 680);
 }
 
+function shouldPublishTestingBotPreselection(source = "") {
+  if (String(source).includes("final")) return true;
+  const now = Date.now();
+  const lastAt = Number(state.lastTestingBotPreselectAt || 0);
+  if (now - lastAt < 1350) return false;
+  state.lastTestingBotPreselectAt = now;
+  return !isOnlineDraftPerformanceMode();
+}
+
 function testingBotApplyPreselection(character, botClientId, source = "testing-bot-thinking") {
   const turn = currentTurn();
   if (!character || !turn || !isCharacterAvailable(character, turn)) return false;
@@ -6226,11 +6357,13 @@ function testingBotApplyPreselection(character, botClientId, source = "testing-b
   state.selected = character;
   state.preselectLocked = false;
   renderCharacterSelectionLight();
-  pushOnlineDraftPatch({
-    selected: serializeCharacterForOnline(character),
-    preselectLocked: false,
-    actionEvent: createOnlineActionEvent("preselect", turn.team, character, { source, botClientId }),
-  });
+  if (shouldPublishTestingBotPreselection(source)) {
+    pushOnlineDraftPatch({
+      selected: serializeCharacterForOnline(character),
+      preselectLocked: false,
+      actionEvent: createOnlineActionEvent("preselect", turn.team, character, { source, botClientId }),
+    });
+  }
   return true;
 }
 
@@ -6291,6 +6424,7 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
             state.selected = fallback;
           }
 
+          testingBotApplyPreselection(state.selected, botClientId, "testing-bot-final-preselect");
           confirmTurn(true, { onlineSystem: true, testingBot: true });
         }, 280 + Math.round(Math.random() * 320));
         return;
@@ -6316,6 +6450,7 @@ function scheduleTestingBotTurn() {
   const turnKey = `${currentRoomCode}:${state.draftSessionId}:${state.turnIndex}:${state.turnDeadlineAt || 0}:${botClientId}`;
   if (testingBotTurnKey === turnKey) return;
   testingBotTurnKey = turnKey;
+  state.lastTestingBotPreselectAt = 0;
   clearTestingBotTurnTimer();
 
   const delayMs = 350 + Math.round(Math.random() * 650);
@@ -7001,455 +7136,21 @@ function startOnlineDraftFromRoom(data = {}) {
 
   switchScreen(draftScreen);
   const startedRecently = onlineNow() - Number(data.startedAt || 0) < 4500 && Number(data.draftState?.turnIndex || 0) === 0;
-  if (startedRecently) {
-    const initialTurn = currentTurn();
-    const isBanPhase = initialTurn?.type === "ban";
+  const activeTurn = currentTurn();
+  const justEnteredPickPhase = activeBanTurnCount() > 0 && state.turnIndex === activeBanTurnCount() && activeTurn?.type === "pick";
+
+  if (startedRecently || justEnteredPickPhase) {
+    const isBanPhase = activeTurn?.type === "ban";
     showPhaseOverlay(
       isBanPhase ? t("phase_ban") : t("phase_pick"),
       isBanPhase ? systemDraftVoiceLines.voice_ban_phase.src : systemDraftVoiceLines.voice_pick_phase.src,
       isBanPhase ? systemDraftVoiceLines.voice_ban_phase.text : systemDraftVoiceLines.voice_pick_phase.text,
       startTurn,
     );
-  } else {
-    startTurn({ skipNarration: true });
-  }
-}
-
-function updateDraftUI(data = {}) {
-  onlineLatestRoomData = data || {};
-  if (data.closed) {
-    handleRoomClosed(currentRoomCode);
     return;
   }
 
-  if (data.started) {
-    const readyOverlay = document.getElementById("online-ready-overlay");
-    if (readyOverlay && !readyOverlay.classList.contains("hidden")) renderOnlineReadyCheck(data);
-    startOnlineDraftFromRoom(data);
-    return;
-  }
-
-  updateRoomLobby(data);
-  renderOnlineReadyCheck(data);
-  maybeAdvanceOnlineReadyCheck(data);
-  syncDraftStateFromRoom(data);
-}
-
-function listenRoomChanges(roomCode) {
-  const roomRef = roomRefFor(roomCode);
-  if (!roomRef) {
-    showOnlineServiceNotice();
-    return;
-  }
-
-  if (onlineRoomListenerCode === roomCode) return;
-  if (onlineRoomListenerCode) {
-    roomRefFor(onlineRoomListenerCode)?.off("value");
-  }
-  onlineRoomListenerCode = roomCode;
-
-  roomRef.on("value", (snapshot) => {
-    const data = snapshot.val();
-    if (!data) {
-      handleRoomClosed(roomCode);
-      return;
-    }
-    updateDraftUI(data);
-  }, (error) => {
-    console.error("RPmods Services no pudo escuchar la sala online.", error);
-  });
-}
-
-function saveOnlineSession() {
-  try {
-    if (!currentRoomCode || !currentRole) return;
-    localStorage.setItem(ONLINE_SESSION_STORAGE_KEY, JSON.stringify({
-      roomCode: currentRoomCode,
-      role: currentRole,
-      playerTeam,
-      playerName: currentOnlinePlayerName,
-      clientId: onlineClientId(),
-      savedAt: onlineNow(),
-    }));
-  } catch (_) {}
-}
-
-function clearOnlineSession() {
-  try { localStorage.removeItem(ONLINE_SESSION_STORAGE_KEY); } catch (_) {}
-}
-
-function clearPassiveOnlineSessionOnBoot() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(ONLINE_SESSION_STORAGE_KEY) || "null");
-    if (!saved?.roomCode) return;
-    const age = onlineNow() - Number(saved.savedAt || 0);
-    const maxPassiveAge = 1000 * 60 * 60 * 12;
-    if (saved.role === "host" || age > maxPassiveAge) {
-      localStorage.removeItem(ONLINE_SESSION_STORAGE_KEY);
-    }
-  } catch (_) {}
-}
-
-function setRoomCodeDisplay(roomCode, hide = true) {
-  const codeDisplay = document.getElementById("room-code-display");
-  const toggle = document.getElementById("toggle-room-code");
-  if (!codeDisplay) return;
-  codeDisplay.dataset.hidden = hide ? "1" : "0";
-  codeDisplay.textContent = hide ? "••••••" : (roomCode || "----");
-  if (toggle) toggle.textContent = hide ? t("show_code") : t("hide_code");
-}
-
-function setRoomRoleDisplay(text) {
-  const roleDisplay = document.getElementById("room-role-display");
-  if (roleDisplay) roleDisplay.textContent = text;
-}
-
-function rolePathForCurrentClient() {
-  if (currentRole === "host") return "host";
-  if (currentRole === "player") return `participants/${onlineClientId()}`;
-  return null;
-}
-
-function setupPresenceForCurrentRoom() {
-  const roomRef = roomRefFor(currentRoomCode);
-  const path = rolePathForCurrentClient();
-  if (!roomRef || !path) return;
-  const seatRef = roomRef.child(path);
-  const payload = { connected: true, clientId: onlineClientId(), lastSeen: onlineNow() };
-  if (currentRole === "player" && currentOnlinePlayerName) payload.name = currentOnlinePlayerName;
-  if (currentRole === "host" && currentOnlinePlayerName) payload.name = currentOnlinePlayerName;
-  if (currentRole === "host" && !payload.name) payload.name = "Líder / Host";
-  seatRef.update(payload).catch(() => {});
-  try {
-    seatRef.child("connected").onDisconnect().set(false);
-    seatRef.child("lastSeen").onDisconnect().set(onlineNow());
-  } catch (_) {}
-}
-
-function attachCurrentRoom(roomCode, role, team = null) {
-  startOnlineClockSync();
-  currentRoomCode = roomCode;
-  currentRole = role;
-  playerTeam = team;
-  onlineStartedForRoom = null;
-  setRoomCodeDisplay(roomCode, true);
-  if (role === "host") setRoomRoleDisplay(t("leader_spectator"));
-  else if (team === "teamA") setRoomRoleDisplay(`${t("role_captain_attackers")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
-  else if (team === "teamB") setRoomRoleDisplay(`${t("role_captain_defenders")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
-  else setRoomRoleDisplay(`${t("role_in_room_waiting")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
-  saveOnlineSession();
-  setupPresenceForCurrentRoom();
-  switchScreen(roomScreen);
-  showHostControls(role === "host");
-  updateOnlineBodyClasses();
-  listenRoomChanges(roomCode);
-  watchRoomDeletion(roomCode);
-}
-
-function canClaimSeat(seat) {
-  if (!seat) return true;
-  if (seat.clientId && seat.clientId === onlineClientId()) return true;
-  return seat.connected === false;
-}
-
-function blankOnlineDraftState(startPayload = {}) {
-  return {
-    phase: "lobby",
-    draftSessionId: state.draftSessionId,
-    turnIndex: 0,
-    turnDuration: state.turnDuration,
-    turnStartedAt: null,
-    turnDeadlineAt: null,
-    draftConfig: currentDraftConfig(),
-    players: roomPlayersPayload(),
-    slots: state.onlineSlots || emptyAdvancedSlots(activeTeamSize()),
-    picks: { A: [], B: [] },
-    bans: { A: [], B: [] },
-    pickBatchSelections: {},
-    selected: null,
-    preselectLocked: false,
-    locked: false,
-    flashBan: null,
-    flashPick: null,
-    banAnimation: null,
-    pickAnimation: null,
-    roulette: { active: false, highlightedName: null, finalName: null, previewCharacter: null },
-    phaseEvent: null,
-    captainAssignments: { A: null, B: null },
-    selectedMap: null,
-    mapRoulette: { active: false, highlightedId: null, finalId: null },
-    updatedAt: onlineNow(),
-    ...startPayload,
-  };
-}
-
-async function createOnlineRoom() {
-  return checkOnlineServiceAndContinue(performCreateOnlineRoom, { source: "create-room" });
-}
-
-async function performCreateOnlineRoom() {
-  const database = getRealtimeDatabase();
-  if (!database) throw new Error("RPmods Services unavailable after connection check");
-  startOnlineClockSync();
-
-  readPlayers();
-  try {
-    const storedHostName = String(localStorage.getItem(ONLINE_PLAYER_NAME_STORAGE_KEY) || "").trim();
-    currentOnlinePlayerName = sanitizeOnlineDisplayName(currentOnlinePlayerName || storedHostName || "Líder / Host");
-  } catch (_) {
-    currentOnlinePlayerName = sanitizeOnlineDisplayName(currentOnlinePlayerName || "Líder / Host");
-  }
-
-  const roomCode = generateRoomCode();
-  const roomRef = database.ref("rooms/" + roomCode);
-  state.onlinePhase = "lobby";
-
-  const initialConfig = currentDraftConfig();
-  state.onlineSlots = emptyAdvancedSlots(initialConfig.teamSize);
-  await roomRef.set({
-    createdAt: onlineNow(),
-    updatedAt: onlineNow(),
-    started: false,
-    closed: false,
-    turnDuration: state.turnDuration,
-    draftConfig: initialConfig,
-    players: initialConfig.mode === "advanced" ? playersPayloadFromAdvancedSlots(state.onlineSlots, initialConfig) : roomPlayersPayload(),
-    host: { connected: true, clientId: onlineClientId(), name: currentOnlinePlayerName || "Líder / Host", role: "LÍDER_ESPECTADOR", lastSeen: onlineNow() },
-    participants: {},
-    captainAssignments: { A: null, B: null },
-    slots: state.onlineSlots,
-    teamA: null,
-    teamB: null,
-    draftState: blankOnlineDraftState({ slots: state.onlineSlots }),
-  });
-
-  attachCurrentRoom(roomCode, "host", null);
-}
-
-function normalizeRoomCode(value) {
-  return String(value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
-}
-
-function showJoinNameModal(roomCode) {
-  pendingJoinRoomCode = normalizeRoomCode(roomCode);
-  const modal = document.getElementById("join-name-modal");
-  const preview = document.getElementById("join-room-code-preview");
-  const input = document.getElementById("join-player-name");
-  if (!pendingJoinRoomCode) {
-    showAppNotice(t("enter_room_code_alert"), { type: "warning" });
-    return;
-  }
-  if (preview) preview.textContent = pendingJoinRoomCode;
-  if (input && !input.value) {
-    try { input.value = localStorage.getItem(ONLINE_PLAYER_NAME_STORAGE_KEY) || ""; } catch (_) {}
-  }
-  if (modal) {
-    modal.classList.remove("hidden");
-    modal.setAttribute("aria-hidden", "false");
-  }
-  window.setTimeout(() => input?.focus(), 40);
-}
-
-function hideJoinNameModal() {
-  const modal = document.getElementById("join-name-modal");
-  if (modal) {
-    modal.classList.add("hidden");
-    modal.setAttribute("aria-hidden", "true");
-  }
-}
-
-async function joinOnlineRoom(options = {}) {
-  const input = document.getElementById("room-input");
-  const nameInput = document.getElementById("join-player-name");
-  const roomCode = normalizeRoomCode(options.roomCode || pendingJoinRoomCode || input?.value);
-  const hasProvidedName = Object.prototype.hasOwnProperty.call(options, "nameOverride");
-  const playerName = String(hasProvidedName ? options.nameOverride : "").trim();
-
-  if (!roomCode) {
-    showAppNotice(t("enter_room_code_alert"), { type: "warning" });
-    input?.focus();
-    return;
-  }
-
-  if (!hasProvidedName) {
-    return checkOnlineServiceAndContinue(() => showJoinNameModal(roomCode), { source: "open-join-form" });
-  }
-
-  if (!playerName) {
-    showJoinNameModal(roomCode);
-    showAppNotice(t("join_name_required"), { type: "warning" });
-    nameInput?.focus();
-    return;
-  }
-
-  return checkOnlineServiceAndContinue(
-    () => performJoinOnlineRoom({ roomCode, playerName }),
-    { source: "join-room" },
-  );
-}
-
-async function performJoinOnlineRoom({ roomCode, playerName }) {
-  const database = getRealtimeDatabase();
-  if (!database) throw new Error("RPmods Services unavailable after connection check");
-  startOnlineClockSync();
-
-  try { localStorage.setItem(ONLINE_PLAYER_NAME_STORAGE_KEY, playerName); } catch (_) {}
-  currentOnlinePlayerName = playerName;
-
-  const roomRef = database.ref("rooms/" + roomCode);
-  const snapshot = await roomRef.get();
-
-  if (!snapshot.exists()) {
-    showAppNotice(t("room_not_found"), { type: "error" });
-    return;
-  }
-
-  const roomData = snapshot.val() || {};
-  if (roomData.closed) {
-    showAppNotice(t("room_already_closed"), { type: "warning" });
-    return;
-  }
-
-  const clientId = onlineClientId();
-  const alreadyInRoom = Boolean(roomData.participants?.[clientId]);
-  if (roomData.started && !alreadyInRoom) {
-    showAppNotice(t("room_draft_already_started"), { type: "warning", duration: 7000 });
-    return;
-  }
-
-  await roomRef.child(`participants/${clientId}`).update({
-    name: playerName,
-    connected: true,
-    clientId,
-    role: "PARTICIPANTE",
-    joinedAt: roomData.participants?.[clientId]?.joinedAt || onlineNow(),
-    lastSeen: onlineNow(),
-  });
-
-  const assignments = captainAssignmentsFromRoom(roomData);
-  let assignedTeam = null;
-  if (assignments.A === clientId) assignedTeam = "teamA";
-  else if (assignments.B === clientId) assignedTeam = "teamB";
-
-  hideJoinNameModal();
-  pendingJoinRoomCode = null;
-  attachCurrentRoom(roomCode, "player", assignedTeam);
-}
-
-async function runCharacterRoulette(validCharacters) {
-  const sessionId = state.draftSessionId;
-  if (!isDraftSessionActive(sessionId)) return null;
-
-  const valid = validCharacters.filter(Boolean);
-  if (!valid.length) return null;
-
-  state.roulette.active = true;
-  state.roulette.finalName = null;
-  state.roulette.highlightedName = null;
-  state.roulette.previewCharacter = null;
-  state.locked = true;
-  updateCharacterRouletteClasses();
-
-  const totalSteps = 28 + Math.floor(Math.random() * 9);
-  const sequence = Array.from({ length: totalSteps }, () => randomFrom(valid));
-  const delays = sequence.map((_, step) => weightedRandomDelay(step, totalSteps));
-  const startedAt = onlineNow();
-  let selected = sequence[sequence.length - 1];
-
-  if (currentRoomCode) {
-    pushOnlineDraftPatch({
-      phase: "draft",
-      locked: true,
-      roulette: serializeRouletteForOnline(state.roulette),
-      rouletteEvent: {
-        id: `rouletteSequence_${startedAt}_${Math.random().toString(36).slice(2, 7)}`,
-        type: "rouletteSequence",
-        sequence: sequence.map(character => character.name),
-        delays,
-        startedAt,
-        byClientId: onlineClientId(),
-      },
-    });
-  }
-
-  for (let step = 0; step < sequence.length; step += 1) {
-    selected = sequence[step];
-    state.roulette.highlightedName = selected.name;
-    audioPlay(sounds.roulette, 0.82, "sfx");
-    updateCharacterRoulettePreview(selected);
-    await delay(delays[step]);
-    if (!isDraftSessionActive(sessionId)) return null;
-  }
-
-  state.roulette.highlightedName = selected.name;
-  state.roulette.finalName = selected.name;
-  state.selected = selected;
-  updateCharacterRoulettePreview(selected);
-  if (currentRoomCode) {
-    pushOnlineDraftPatch({
-      phase: "draft",
-      selected: serializeCharacterForOnline(selected),
-      locked: true,
-      roulette: serializeRouletteForOnline(state.roulette),
-      rouletteEvent: { id: `rouletteSelected_${onlineNow()}_${selected.name}`, type: "rouletteSelected", character: selected.name, byClientId: onlineClientId() },
-    });
-  }
-  await delay(520);
-  if (!isDraftSessionActive(sessionId)) return null;
-
-  state.roulette.active = false;
-  clearCharacterRouletteVisuals();
-  renderStageCharacters();
-  renderSlots();
-  renderBans();
-  renderSelected();
-  return selected;
-}
-
-async function autoResolveTurn(options = {}) {
-  const sessionId = state.draftSessionId;
-  const allowOnlineSystem = Boolean(options.onlineSystem);
-  if (!isDraftSessionActive(sessionId) || state.locked || state.roulette.active || (!allowOnlineSystem && !canControlCurrentTurn())) return;
-  const valid = getValidCharacters();
-  state.locked = true;
-  pushOnlineDraftState({ phase: "draft", audioEvent: createOnlineAudioEvent("randomStart") });
-  playNarration(systemDraftVoiceLines.random_start.src, systemDraftVoiceLines.random_start.text, 0.9);
-  await delay(2000);
-  if (!isDraftSessionActive(sessionId)) return;
-
-  const selected = await runCharacterRoulette(valid);
-  if (!isDraftSessionActive(sessionId)) return;
-  if (!selected) {
-    state.turnIndex += 1;
-    state.locked = false;
-    startTurn();
-    return;
-  }
-
-  state.locked = false;
-  state.selected = selected;
-  confirmTurn(true, { onlineSystem: allowOnlineSystem });
-}
-
-function proceedAfterTurn() {
-  if (!isDraftSessionActive()) return;
-  if (state.turnIndex >= activeTurnCount()) {
-    startMapSelection();
-    return;
-  }
-
-  const nextTurn = currentTurn();
-  const justEnteredPickPhase = activeBanTurnCount() > 0 && state.turnIndex === activeBanTurnCount();
-  if (justEnteredPickPhase && nextTurn.type === "pick") {
-    showPhaseOverlay(
-      t("phase_pick"),
-      systemDraftVoiceLines.voice_pick_phase.src,
-      systemDraftVoiceLines.voice_pick_phase.text,
-      startTurn,
-    );
-  } else {
-    startTurn();
-  }
+  startTurn({ skipNarration: true });
 }
 
 function phaseOverlayDurationMs() {
