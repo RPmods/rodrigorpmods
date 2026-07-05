@@ -7153,6 +7153,53 @@ function startOnlineDraftFromRoom(data = {}) {
   startTurn({ skipNarration: true });
 }
 
+
+function updateDraftUI(data = {}) {
+  onlineLatestRoomData = data || {};
+  if (data.closed) {
+    handleRoomClosed(currentRoomCode);
+    return;
+  }
+
+  if (data.started) {
+    const readyOverlay = document.getElementById("online-ready-overlay");
+    if (readyOverlay && !readyOverlay.classList.contains("hidden")) renderOnlineReadyCheck(data);
+    startOnlineDraftFromRoom(data);
+    return;
+  }
+
+  updateRoomLobby(data);
+  renderOnlineReadyCheck(data);
+  maybeAdvanceOnlineReadyCheck(data);
+  syncDraftStateFromRoom(data);
+}
+
+function listenRoomChanges(roomCode) {
+  const roomRef = roomRefFor(roomCode);
+  if (!roomRef) {
+    showOnlineServiceNotice();
+    return;
+  }
+
+  if (onlineRoomListenerCode === roomCode) return;
+  if (onlineRoomListenerCode) {
+    roomRefFor(onlineRoomListenerCode)?.off("value");
+  }
+  onlineRoomListenerCode = roomCode;
+
+  roomRef.on("value", (snapshot) => {
+    const data = snapshot.val();
+    if (!data) {
+      handleRoomClosed(roomCode);
+      return;
+    }
+    updateDraftUI(data);
+  }, (error) => {
+    console.error("RPmods Services no pudo escuchar la sala online.", error);
+  });
+}
+
+
 function phaseOverlayDurationMs() {
   return Math.round(2200 + (state.settings.animationDuration * 1000));
 }

@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.24 by RPmods
+# STRINOVA Draft System v3.2.25 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -341,3 +341,11 @@ Los nombres están centralizados en `INTRO_MENU_SETS`. No se modificaron las rut
 - Se corrigió el inicio online para evitar doble `startTurn()`, doble narración o doble programación de bots al comenzar una sala.
 - Los bots de testing ahora puntúan personajes por rol, slot, repetición de rol y balance de facción antes de elegir.
 - Las preselecciones de bots reducen escrituras intermedias en RPmods Services y publican principalmente la decisión final para no saturar la sincronización.
+
+
+## v3.2.25 Hotfix Online Listener Restore
+
+- Se restauraron `updateDraftUI()` y `listenRoomChanges()` dentro de `js/app.js`.
+- Corrige que el modo online no abra salas después de la build v3.2.24.
+- No cambia rutas de assets, Firebase ni estructura de carpetas.
+- Aplicar como parche encima del proyecto real, sin borrar `img/`, `audio/`, `video/`, `media/` ni `js/firebase-env.js`.
