@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.25 by RPmods
+# STRINOVA Draft System v3.2.26 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -332,20 +332,9 @@ Los conjuntos muestran estos nombres en Configuración:
 Los nombres están centralizados en `INTRO_MENU_SETS`. No se modificaron las rutas, el modo aleatorio, la selección manual ni la asociación de cada `video.mp4` con su `music.mp3`.
 
 
-## v3.2.24 Update Silent Precache + Bot Stability
+## v3.2.26 Hotfix Stable Flow Restore
 
-- Se añadió memoria interna de recursos precargados para evitar cargar repetidamente la misma imagen, audio o video durante una sesión.
-- La precarga de imágenes ahora intenta decodificar con `Image.decode()` para reducir tirones al mostrar personajes y mapas.
-- Las intros alternativas usan precarga ligera de metadatos de video para no competir con el video principal ni con el draft activo.
-- En draft online, la recuperación del video de fondo es más suave y evita recargar el MP4 salvo error real de medio.
-- Se corrigió el inicio online para evitar doble `startTurn()`, doble narración o doble programación de bots al comenzar una sala.
-- Los bots de testing ahora puntúan personajes por rol, slot, repetición de rol y balance de facción antes de elegir.
-- Las preselecciones de bots reducen escrituras intermedias en RPmods Services y publican principalmente la decisión final para no saturar la sincronización.
-
-
-## v3.2.25 Hotfix Online Listener Restore
-
-- Se restauraron `updateDraftUI()` y `listenRoomChanges()` dentro de `js/app.js`.
-- Corrige que el modo online no abra salas después de la build v3.2.24.
-- No cambia rutas de assets, Firebase ni estructura de carpetas.
-- Aplicar como parche encima del proyecto real, sin borrar `img/`, `audio/`, `video/`, `media/` ni `js/firebase-env.js`.
+- Se restauró `js/app.js` desde la base estable v3.2.23 para recuperar el modo online, el inicio del draft local y los botones de retorno/cancelación.
+- Se mantiene la estructura original de rutas para `img/`, `audio/`, `video/`, `media/` y `js/firebase-env.js`.
+- Este parche no debe reemplazar recursos privados ni carpetas pesadas; solo corrige código y metadatos visibles.
+- Se actualizó Updates / Historial a v3.2.26.

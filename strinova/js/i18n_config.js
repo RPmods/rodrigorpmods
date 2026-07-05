@@ -18,7 +18,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORIAL",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.2.25 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.26 by RPmods",
       "notice_error_title": "Ocurrió un problema",
       "notice_attention_title": "Atención",
       "notice_success_title": "Operación completada",
@@ -377,8 +377,7 @@ window.I18N_CONFIG = {
       "update_37": "v3.2.21 Update (Dedicated Intro Media Structure) — Las cinco parejas de intro ahora están organizadas en carpetas independientes dentro de media/intro-menu/intro-01 hasta intro-05. Cada carpeta contiene video.mp4 y music.mp3, y las rutas anteriores se mantienen como fallback temporal durante la migración.",
       "update_38": "v3.2.22 Update (Intro Selection Settings) — Se añadió un apartado en Configuración para activar la selección aleatoria de las cinco intros o desactivarla y elegir manualmente un conjunto. La preferencia se guarda localmente y utiliza el mismo sistema de precarga silenciosa.",
       "update_39": "v3.2.23 Update (Named Intro Sets) — Los cinco conjuntos de intro ahora muestran sus nombres reales en Configuración y en el estado del modo manual, sin cambiar sus rutas ni la asociación entre video y música.",
-      "update_40": "v3.2.24 Update (Silent Precache + Bot Stability) — Se optimizó la caché silenciosa de imágenes, audio y videos; el video de fondo del draft online queda desacoplado de la sincronización, se eliminó el doble arranque de turnos online y los bots ahora seleccionan con lógica por roles sin saturar RPmods Services.",
-      "update_41": "v3.2.25 Hotfix (Online Listener Restore) — Se restauraron las funciones de escucha y actualización del modo online que impedían abrir salas después de la build v3.2.24; no modifica rutas de assets ni Firebase."
+      "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — Se restauró la base funcional estable del modo online, el inicio del draft local y los botones de retorno/cancelación. También se retiraron los cambios experimentales que podían cortar listeners, flujo de turnos y navegación."
     },
     "en": {
       "tab_menu": "MENU",
@@ -389,7 +388,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORY",
       "tab_credits": "CREDITS",
       "setup_eyebrow": "Competitive system",
-      "setup_title": "STRINOVA Draft System v3.2.25 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.26 by RPmods",
       "notice_error_title": "Something went wrong",
       "notice_attention_title": "Attention",
       "notice_success_title": "Completed",
@@ -715,8 +714,7 @@ window.I18N_CONFIG = {
       "update_37": "v3.2.21 Update (Dedicated Intro Media Structure) — The five intro pairs are now organized in separate folders from media/intro-menu/intro-01 through intro-05. Each folder contains video.mp4 and music.mp3, while the previous paths remain available as a temporary migration fallback.",
       "update_38": "v3.2.22 Update (Intro Selection Settings) — A Configuration section now enables random selection among the five intros or manual selection of a specific set. The preference is stored locally and uses the same silent precache system.",
       "update_39": "v3.2.23 Update (Named Intro Sets) — The five intro sets now display their actual names in Configuration and in the manual-mode status, without changing media paths or video/music pairings.",
-      "update_40": "v3.2.24 Update (Silent Precache + Bot Stability) — Silent caching for images, audio and videos was optimized; the online draft background video is detached from synchronization, double online turn startup was removed, and bots now choose with role-based logic without saturating RPmods Services.",
-      "update_41": "v3.2.25 Hotfix (Online Listener Restore) — Restored the online room listener and draft UI update functions that prevented online rooms from opening after v3.2.24; asset paths and Firebase settings are unchanged."
+      "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — Restored the stable online flow, local draft start, and back/cancel buttons. Experimental changes that could interrupt listeners, turn flow, and navigation were removed."
     },
     "ja": {
       "tab_menu": "メニュー",
@@ -727,7 +725,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新履歴",
       "tab_credits": "クレジット",
       "setup_eyebrow": "競技システム",
-      "setup_title": "STRINOVA Draft System v3.2.25 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.26 by RPmods",
       "notice_error_title": "問題が発生しました",
       "notice_attention_title": "注意",
       "notice_success_title": "完了",
@@ -1051,8 +1049,7 @@ window.I18N_CONFIG = {
       "update_37": "v3.2.21 Update (Dedicated Intro Media Structure) — 5つのイントロセットを media/intro-menu/intro-01 から intro-05 までの個別フォルダーに整理しました。各フォルダーには video.mp4 と music.mp3 を配置し、移行期間中は旧パスも一時的なフォールバックとして利用できます。",
       "update_38": "v3.2.22 Update (Intro Selection Settings) — 設定に、5つのイントロからランダム選択する機能と、無効時に特定セットを手動選択する機能を追加しました。設定はローカルに保存され、同じサイレントプリキャッシュを使用します。",
       "update_39": "v3.2.23 Update (Named Intro Sets) — 5つのイントロセットが設定画面と手動モードの状態表示で正式名称を表示するようになりました。メディアパスと動画・音楽の組み合わせは変更していません。",
-      "update_40": "v3.2.24 Update (Silent Precache + Bot Stability) — 画像・音声・動画のサイレントキャッシュを最適化しました。オンライン Draft の背景動画は同期から切り離され、オンラインターンの二重開始を修正し、ボットは RPmods Services を圧迫せずロールベースで選択します。",
-      "update_41": "v3.2.25 Hotfix (Online Listener Restore) — v3.2.24 後にオンラインルームが開かない問題を修正するため、ルーム監視と Draft UI 更新関数を復元しました。アセットのパスと Firebase 設定は変更していません。"
+      "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — Foi restaurada a base funcional estável do modo online, o início do draft local e os botões de voltar/cancelar. Mudanças experimentais que podiam interromper listeners, fluxo de turnos e navegação foram removidas."
     },
     "ru": {
       "tab_menu": "МЕНЮ",
@@ -1063,7 +1060,7 @@ window.I18N_CONFIG = {
       "tab_updates": "ОБНОВЛЕНИЯ",
       "tab_credits": "АВТОРЫ",
       "setup_eyebrow": "Соревновательная система",
-      "setup_title": "STRINOVA Draft System v3.2.25 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.26 by RPmods",
       "notice_error_title": "Произошла ошибка",
       "notice_attention_title": "Внимание",
       "notice_success_title": "Готово",
@@ -1387,8 +1384,7 @@ window.I18N_CONFIG = {
       "update_37": "v3.2.21 Update (Dedicated Intro Media Structure) — Пять пар вступлений теперь размещаются в отдельных папках media/intro-menu/intro-01 — intro-05. В каждой папке находятся video.mp4 и music.mp3, а старые пути временно сохранены как резервный вариант для миграции.",
       "update_38": "v3.2.22 Update (Intro Selection Settings) — В настройках добавлен случайный выбор одной из пяти заставок и ручной выбор набора при отключении случайного режима. Настройка сохраняется локально и использует ту же скрытую предварительную загрузку.",
       "update_39": "v3.2.23 Update (Named Intro Sets) — Пять наборов вступления теперь отображают настоящие названия в настройках и статусе ручного режима без изменения путей к файлам и пар видео/музыки.",
-      "update_40": "v3.2.24 Update (Silent Precache + Bot Stability) — Оптимизирован тихий кэш изображений, аудио и видео; фоновое видео онлайн-драфта отделено от синхронизации, устранён двойной запуск хода, а боты выбирают по ролям без перегрузки RPmods Services.",
-      "update_41": "v3.2.25 Hotfix (Online Listener Restore) — Восстановлены функции прослушивания онлайн-комнаты и обновления интерфейса Draft, из-за отсутствия которых онлайн-комнаты не открывались после v3.2.24; пути к ресурсам и Firebase не изменены."
+      "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — オンラインの安定した流れ、ローカルDraft開始、戻る/キャンセルボタンを復旧しました。リスナー、ターン進行、ナビゲーションを壊す可能性がある実験的変更を取り除きました。"
     },
     "zh": {
       "tab_menu": "菜单",
@@ -1399,7 +1395,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新记录",
       "tab_credits": "制作名单",
       "setup_eyebrow": "竞技系统",
-      "setup_title": "STRINOVA Draft System v3.2.25 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.26 by RPmods",
       "notice_error_title": "出现问题",
       "notice_attention_title": "注意",
       "notice_success_title": "操作完成",
@@ -1723,8 +1719,7 @@ window.I18N_CONFIG = {
       "update_37": "v3.2.21 Update (Dedicated Intro Media Structure) — 五组开场视频与音乐现在分别整理在 media/intro-menu/intro-01 到 intro-05 文件夹中。每个文件夹包含 video.mp4 和 music.mp3，迁移期间仍保留旧路径作为临时回退。",
       "update_38": "v3.2.22 Update (Intro Selection Settings) — 配置中新增了五组开场的随机选择开关；关闭后可手动选择指定组合。偏好会保存在本地，并继续使用相同的静默预缓存系统。",
       "update_39": "v3.2.23 Update (Named Intro Sets) — 五组开场现在会在配置界面和手动模式状态中显示正式名称，媒体路径及视频与音乐的配对保持不变。",
-      "update_40": "v3.2.24 Update (Silent Precache + Bot Stability) — 已优化图片、音频和视频的静默缓存；在线 Draft 背景视频与同步完全解耦，修复在线回合重复启动，机器人现在按角色逻辑选择且不会压垮 RPmods Services。",
-      "update_41": "v3.2.25 Hotfix (Online Listener Restore) — 恢复了在线房间监听和 Draft UI 更新函数，修复 v3.2.24 后在线房间无法打开的问题；不更改资源路径和 Firebase 设置。"
+      "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — Восстановлена стабильная работа онлайн-режима, запуск локального драфта и кнопки возврата/отмены. Экспериментальные изменения, которые могли ломать listeners, ход turn flow и навигацию, удалены."
     },
     "pt": {
       "tab_menu": "MENU",
@@ -1735,7 +1730,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTÓRICO",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.2.25 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.2.26 by RPmods",
       "notice_error_title": "Ocorreu um problema",
       "notice_attention_title": "Atenção",
       "notice_success_title": "Concluído",
@@ -2059,8 +2054,7 @@ window.I18N_CONFIG = {
       "update_37": "v3.2.21 Update (Dedicated Intro Media Structure) — Os cinco pares de introdução agora ficam organizados em pastas independentes de media/intro-menu/intro-01 até intro-05. Cada pasta contém video.mp4 e music.mp3, enquanto os caminhos antigos continuam disponíveis temporariamente como fallback de migração.",
       "update_38": "v3.2.22 Update (Intro Selection Settings) — A Configuração agora permite ativar a seleção aleatória entre as cinco intros ou desativá-la para escolher um conjunto manualmente. A preferência é salva localmente e usa o mesmo sistema de precache silencioso.",
       "update_39": "v3.2.23 Update (Named Intro Sets) — Os cinco conjuntos de introdução agora exibem seus nomes reais na Configuração e no status do modo manual, sem alterar os caminhos ou os pares de vídeo e música.",
-      "update_40": "v3.2.24 Update (Silent Precache + Bot Stability) — O cache silencioso de imagens, áudio e vídeos foi otimizado; o vídeo de fundo do draft online fica desacoplado da sincronização, o duplo início de turnos online foi removido e os bots agora escolhem por lógica de funções sem saturar o RPmods Services.",
-      "update_41": "v3.2.25 Hotfix (Online Listener Restore) — Foram restauradas as funções de escuta da sala online e atualização da UI do Draft que impediam abrir salas após a v3.2.24; caminhos de assets e Firebase não foram alterados."
+      "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — 已恢复稳定的在线流程、本地 Draft 启动以及返回/取消按钮。移除了可能中断监听器、回合流程和导航的实验性改动。"
     }
   }
 };
