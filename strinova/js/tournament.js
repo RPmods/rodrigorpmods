@@ -264,24 +264,38 @@
 
   function syncTournamentSurfaceState() {
     const shell = document.querySelector('.setup-shell');
-    const isTournament = !!shell && shell.classList.contains('view-tournament');
+    const activeTopTab = document.querySelector('.setup-top-tab.is-active, .settings-tab.is-active');
+    const tournamentPanel = document.querySelector('[data-panel="tournament"]');
+    const isTournament = Boolean(
+      (shell && shell.classList.contains('view-tournament')) ||
+      (activeTopTab && activeTopTab.dataset && activeTopTab.dataset.tab === 'tournament') ||
+      (tournamentPanel && tournamentPanel.classList.contains('is-active'))
+    );
+
     document.documentElement.classList.toggle('tournament-surface-active', isTournament);
     document.body.classList.toggle('tournament-surface-active', isTournament);
+
     const screen = document.getElementById('setup-screen');
     if (screen) screen.classList.toggle('tournament-surface-active', isTournament);
+    if (shell) shell.classList.toggle('view-tournament', isTournament);
   }
 
   function watchTournamentSurfaceState() {
     const shell = document.querySelector('.setup-shell');
-    syncTournamentSurfaceState();
-    if (!shell) return;
-    const observer = new MutationObserver(syncTournamentSurfaceState);
-    observer.observe(shell, { attributes: true, attributeFilter: ['class'] });
+    const screen = document.getElementById('setup-screen');
+    const observer = new MutationObserver(() => requestAnimationFrame(syncTournamentSurfaceState));
+    if (shell) observer.observe(shell, { attributes: true, attributeFilter: ['class'] });
+    if (screen) observer.observe(screen, { attributes: true, childList: true, subtree: true });
+
     document.addEventListener('click', event => {
-      if (event.target && event.target.closest && event.target.closest('[data-tab]')) {
+      if (event.target && event.target.closest && event.target.closest('[data-tab], [data-tournament-view]')) {
         requestAnimationFrame(syncTournamentSurfaceState);
+        setTimeout(syncTournamentSurfaceState, 80);
       }
     }, true);
+
+    window.addEventListener('resize', syncTournamentSurfaceState, { passive: true });
+    syncTournamentSurfaceState();
   }
 
   function initTournamentHub() {
