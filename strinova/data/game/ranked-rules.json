@@ -1,0 +1,35 @@
+{
+  "id": "ranked_demolition",
+  "name": "Ranked Demolition",
+  "teamSize": 5,
+  "unlockLevel": 10,
+  "roundsToWin": 9,
+  "normalRounds": 16,
+  "sideSwapAfterRounds": 8,
+  "overtime": {
+    "triggerScore": "8-8",
+    "roundsPerOvertime": 2,
+    "maxRounds": 6
+  },
+  "sideRestrictions": {
+    "attack": {
+      "allowedFactions": [
+        "The Scissors",
+        "Urbino"
+      ]
+    },
+    "defense": {
+      "allowedFactions": [
+        "PUS",
+        "Urbino"
+      ]
+    }
+  },
+  "bomb": {
+    "plantSeconds": 4,
+    "explodeSeconds": 50,
+    "defuseSeconds": 10,
+    "explosionRadiusMeters": 20,
+    "defusingRadiusMeters": 1
+  }
+}

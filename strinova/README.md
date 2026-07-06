@@ -345,3 +345,18 @@ Los nombres están centralizados en `INTRO_MENU_SETS`. No se modificaron las rut
 - Los bots ahora respetan `turnStartedAt`, `turnDeadlineAt`, `phase-announcing`, `overlay-lock` y el estado `locked` antes de pensar, preseleccionar o confirmar.
 - Se limpia cualquier temporizador pendiente de bot al abrir un anuncio de fase para evitar acciones atrasadas durante la transición.
 - Se actualizó Updates / Historial a v3.2.27.
+
+
+## v3.3.0 Gantigun Cup 2026 Tournament Hub Base
+
+- Se añadió la primera extensión visual de torneo sin reemplazar el Draft System.
+- Nuevo apartado `TORNEO` en el menú principal.
+- Se agregó el equipo `YO4HVNS` con capitán, sub-capitán, titulares y suplentes pendientes.
+- Se añadieron datos locales en `data/tournament/` y `data/game/`.
+- Se integraron iconos de rangos en `img/ranks/`.
+- Las estadísticas muestran aviso de que no se actualizan en tiempo real y la fecha/hora de última actualización manual.
+- El map pool del torneo queda personalizado y puede incluir todos los mapas, aunque algunos no estén en ranked oficial.
+- Se retiró el botón visible `Development · No disp.` del menú superior.
+- Se añadió `Configuración → Ajustar HUD` con guía de zoom y opción de zona segura visual.
+
+Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/` conservando tus recursos privados: `img/characters/`, `audio/`, `video/`, `media/` y `js/firebase-env.js`.

@@ -1,0 +1,64 @@
+{
+  "ranks": [
+    {
+      "id": "unranked",
+      "name": "Unranked",
+      "icon": "img/ranks/rank_unranked.png",
+      "order": 0
+    },
+    {
+      "id": "substance",
+      "name": "Substance",
+      "icon": "img/ranks/rank_substance.png",
+      "order": 1
+    },
+    {
+      "id": "molecule",
+      "name": "Molecule",
+      "icon": "img/ranks/rank_molecule.png",
+      "order": 2
+    },
+    {
+      "id": "atom",
+      "name": "Atom",
+      "icon": "img/ranks/rank_atom.png",
+      "order": 3
+    },
+    {
+      "id": "proton",
+      "name": "Proton",
+      "icon": "img/ranks/rank_proton.png",
+      "order": 4
+    },
+    {
+      "id": "neutron",
+      "name": "Neutron",
+      "icon": "img/ranks/rank_neutron.png",
+      "order": 5
+    },
+    {
+      "id": "electron",
+      "name": "Electron",
+      "icon": "img/ranks/rank_electron.png",
+      "order": 6
+    },
+    {
+      "id": "quark",
+      "name": "Quark",
+      "icon": "img/ranks/rank_quark.png",
+      "order": 7
+    },
+    {
+      "id": "superstring",
+      "name": "Superstring",
+      "icon": "img/ranks/rank_superstring.png",
+      "order": 8
+    },
+    {
+      "id": "singularity",
+      "name": "Singularity",
+      "icon": "img/ranks/rank_singularity.png",
+      "order": 9
+    }
+  ]
+}

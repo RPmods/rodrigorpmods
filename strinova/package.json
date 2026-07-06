@@ -1,7 +1,7 @@
 {
   "name": "draft-simulator",
-  "version": "3.2.27",
-  "description": "STRINOVA Draft System hotfix: los bots esperan a que termine el anuncio de fase antes de preseleccionar o confirmar",
+  "version": "3.3.0",
+  "description": "STRINOVA Draft System + Gantigun Cup 2026 Tournament Hub base con datos locales de equipo, jugadores e iconos de rango",
   "main": "main.js",
   "scripts": {
     "start": "electron .",

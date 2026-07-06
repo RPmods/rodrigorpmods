@@ -1,0 +1,24 @@
+{
+  "teams": [
+    {
+      "id": "team_yo4hvns",
+      "name": "YO4HVNS",
+      "tag": "YO4",
+      "captainId": "player_brial",
+      "subCaptainId": "player_ichitose02",
+      "status": "confirmed",
+      "players": [
+        "player_brial",
+        "player_ichitose02",
+        "player_itszerone",
+        "player_xlixusx",
+        "player_gantigunttv"
+      ],
+      "substitutes": [
+        "sub_yo4hvns_1",
+        "sub_yo4hvns_2"
+      ],
+      "notes": "Datos iniciales cargados manualmente para Gantigun Cup 2026."
+    }
+  ]
+}

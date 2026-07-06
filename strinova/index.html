@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STRINOVA Draft System v3.2.27 by RPmods</title>
+  <title>STRINOVA Draft System v3.3.0 by RPmods</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -18,6 +18,13 @@
     <div class="scanlines"></div>
   </div>
 
+  <div id="hud-safe-area-overlay" class="hud-safe-area-overlay hidden" aria-hidden="true">
+    <div class="hud-safe-frame">
+      <span class="hud-safe-label hud-safe-label-top">ZONA SEGURA HUD</span>
+      <span class="hud-safe-label hud-safe-label-bottom">Usa Ctrl + / Ctrl - o F11 si algo queda fuera del encuadre</span>
+    </div>
+  </div>
+
   <div id="phase-overlay" class="phase-overlay hidden">
     <div class="phase-panel">
       <span id="phase-kicker" class="phase-kicker">DRAFT</span>
@@ -29,12 +36,12 @@
   <main id="setup-screen" class="screen setup-screen active">
     <section class="setup-shell settings-surface">
       <header class="settings-topbar">
-        <div class="settings-brand">STRINOVA Draft System v3.2.27 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.3.0 by RPmods</div>
         <nav class="settings-tabs">
           <button type="button" class="settings-tab setup-top-tab is-active" data-tab="menu">MENÚ</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="volumen">VOLUMEN</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="configuracion">CONFIGURACIÓN</button>
-          <button type="button" class="settings-tab setup-top-tab is-unavailable" data-tab="development" disabled title="Development no disponible. Edita js/character_layout_config.js manualmente.">DEVELOPMENT · NO DISP.</button>
+          <button type="button" class="settings-tab setup-top-tab" data-tab="tournament">TORNEO</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="random">RANDOM SELECTOR</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="idioma">IDIOMA</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="updates">UPDATES/HISTORIAL</button>
@@ -53,7 +60,7 @@
 
       <header class="setup-top">
         <p class="eyebrow">Sistema competitivo</p>
-        <h1>STRINOVA Draft System v3.2.27 by RPmods</h1>
+        <h1>STRINOVA Draft System v3.3.0 by RPmods</h1>
         <p>Configura nombres, tamaño de partida y fase de bloqueos antes de iniciar.</p>
       </header>
 
@@ -103,6 +110,94 @@
               </div>
 
 
+            </section>
+
+            <section class="setup-panel tournament-panel" data-panel="tournament">
+              <div id="tournament-root" class="tournament-root" data-view="summary">
+                <div class="tournament-hero-card">
+                  <div class="tournament-title-block">
+                    <span class="tournament-kicker">Extensión del Draft System</span>
+                    <h2 id="tournament-title">GANTIGUN CUP 2026</h2>
+                    <p id="tournament-subtitle">STRINOVA Tournament Hub</p>
+                  </div>
+                  <div class="tournament-status-card">
+                    <span>Estado</span>
+                    <strong id="tournament-status">Preparación</strong>
+                  </div>
+                </div>
+
+                <div class="tournament-notice-card">
+                  <strong>Estadísticas no actualizadas en tiempo real</strong>
+                  <span id="tournament-last-updated">Última actualización: pendiente</span>
+                </div>
+
+                <div class="tournament-view-tabs" role="tablist" aria-label="Secciones del torneo">
+                  <button type="button" class="tournament-view-tab is-active" data-tournament-view="summary">RESUMEN</button>
+                  <button type="button" class="tournament-view-tab" data-tournament-view="team">EQUIPO</button>
+                  <button type="button" class="tournament-view-tab" data-tournament-view="players">JUGADORES</button>
+                  <button type="button" class="tournament-view-tab" data-tournament-view="maps">MAPAS</button>
+                  <button type="button" class="tournament-view-tab" data-tournament-view="rules">REGLAS</button>
+                </div>
+
+                <div class="tournament-view tournament-view-summary is-active" data-tournament-panel="summary">
+                  <div class="tournament-summary-grid">
+                    <article class="tournament-info-tile">
+                      <span>Organizador</span>
+                      <strong id="tournament-organizer">Gantigun</strong>
+                    </article>
+                    <article class="tournament-info-tile">
+                      <span>Modo base</span>
+                      <strong>Ranked Demolition</strong>
+                    </article>
+                    <article class="tournament-info-tile">
+                      <span>Draft</span>
+                      <strong>Sistema externo RPmods</strong>
+                    </article>
+                    <article class="tournament-info-tile">
+                      <span>Map pool</span>
+                      <strong>Personalizado</strong>
+                    </article>
+                  </div>
+                  <div id="tournament-featured-team" class="tournament-featured-team"></div>
+                </div>
+
+                <div class="tournament-view" data-tournament-panel="team">
+                  <div id="tournament-team-grid" class="tournament-team-grid"></div>
+                </div>
+
+                <div class="tournament-view" data-tournament-panel="players">
+                  <div class="tournament-player-layout">
+                    <div id="tournament-player-list" class="tournament-player-list"></div>
+                    <aside id="tournament-player-detail" class="tournament-player-detail"></aside>
+                  </div>
+                </div>
+
+                <div class="tournament-view" data-tournament-panel="maps">
+                  <div class="tournament-map-note">El torneo puede usar todos los mapas disponibles. El estado ranked oficial solo se muestra como referencia informativa.</div>
+                  <div id="tournament-map-grid" class="tournament-map-grid"></div>
+                </div>
+
+                <div class="tournament-view" data-tournament-panel="rules">
+                  <div class="tournament-rules-grid">
+                    <article>
+                      <span>Victoria de mapa</span>
+                      <strong>Primer equipo en ganar 9 rondas</strong>
+                    </article>
+                    <article>
+                      <span>Cambio de lado</span>
+                      <strong>Después de las primeras 8 rondas</strong>
+                    </article>
+                    <article>
+                      <span>Overtime</span>
+                      <strong>Si el marcador queda 8-8</strong>
+                    </article>
+                    <article>
+                      <span>Restricciones</span>
+                      <strong>PUS defensa · Scissors ataque · Urbino ambos lados</strong>
+                    </article>
+                  </div>
+                </div>
+              </div>
             </section>
 
             <section class="setup-panel" data-panel="volumen">
@@ -380,6 +475,7 @@
                   <li>v3.2.23 Update (Named Intro Sets) — Los cinco conjuntos de intro ahora muestran sus nombres reales en Configuración y en el estado del modo manual, manteniendo intactas sus rutas, parejas de video/música y precarga silenciosa.</li>
                   <li>v3.2.26 Hotfix (Stable Flow Restore) — Se restauró la base funcional estable del modo online, el inicio del draft local y los botones de retorno/cancelación. También se retiraron los cambios experimentales que podían cortar listeners, flujo de turnos y navegación.</li>
                   <li>v3.2.27 Hotfix (Bot Phase Guard) — Se corrigió la lógica de Testing Bots para que no puedan preseleccionar ni confirmar durante la transición de bloqueos a selección. Ahora esperan a que termine el anuncio de fase y a que el turno esté realmente activo.</li>
+                  <li>v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Se añadió la primera extensión del torneo con datos locales de equipos/jugadores, perfiles con rangos e iconos, aviso de estadísticas no en tiempo real, map pool personalizado y apartado Ajustar HUD en Configuración.</li>
                 </ul>
               </div>
             </section>
@@ -456,6 +552,29 @@
                 </div>
                 <input id="auto-resolve-toggle" class="toggle-input" type="checkbox" checked />
               </label>
+
+              <section class="hud-settings-panel" aria-labelledby="hud-settings-title">
+                <div class="subconfig-heading hud-settings-heading">
+                  <span>HUD</span>
+                  <strong id="hud-settings-title">Ajustar HUD</strong>
+                </div>
+                <div class="hud-help-card">
+                  <p>El tamaño del HUD se ajusta con el zoom del navegador para no alterar el flujo del draft.</p>
+                  <div class="hud-shortcuts-grid">
+                    <span><b>Ctrl + +</b> Aumentar</span>
+                    <span><b>Ctrl + -</b> Reducir</span>
+                    <span><b>Ctrl + 0</b> Restablecer</span>
+                    <span><b>F11</b> Pantalla completa</span>
+                  </div>
+                </div>
+                <label class="toggle-row hud-safe-area-row">
+                  <div class="subconfig-copy">
+                    <span>Mostrar zona segura del HUD</span>
+                    <small>Dibuja una guía visual durante el draft. No cambia tamaños ni posiciones.</small>
+                  </div>
+                  <input id="hud-safe-area-toggle" class="toggle-input" type="checkbox" />
+                </label>
+              </section>
 
               <section id="intro-settings-panel" class="intro-settings-panel is-random" aria-labelledby="intro-settings-title">
                 <div class="subconfig-heading intro-settings-heading">
@@ -760,7 +879,7 @@
   <main id="map-screen" class="screen map-screen">
     <section class="map-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.2.27 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.3.0 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab is-active">SELECCIÓN DE MAPA</span>
         </nav>
@@ -791,7 +910,7 @@
   <main id="summary-screen" class="screen summary-screen">
     <section class="summary-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.2.27 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.3.0 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab">BÁSICO</span>
           <span class="settings-tab">EQUIPOS</span>
@@ -878,6 +997,8 @@
   <script src="js/map_config.js"></script>
   <script src="js/player_names_config.js"></script>
   <script src="js/i18n_config.js"></script>
+  <script src="js/tournament_data.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/tournament.js"></script>
 </body>
 </html>

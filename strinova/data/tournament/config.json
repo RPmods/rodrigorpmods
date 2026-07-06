@@ -1,0 +1,14 @@
+{
+  "id": "gantigun_cup_2026",
+  "name": "Gantigun Cup 2026",
+  "subtitle": "STRINOVA Tournament Hub",
+  "organizer": "Gantigun",
+  "status": "Preparación",
+  "draftCore": "STRINOVA Draft System",
+  "statsMeta": {
+    "isRealtime": false,
+    "lastUpdated": "2026-07-05T18:37:00-05:00",
+    "display": "05/07/2026 · 18:37 UTC-5",
+    "source": "Datos manuales / capturas de perfil"
+  }
+}

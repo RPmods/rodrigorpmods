@@ -18,7 +18,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORIAL",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.2.27 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.3.0 by RPmods",
       "notice_error_title": "Ocurrió un problema",
       "notice_attention_title": "Atención",
       "notice_success_title": "Operación completada",
@@ -378,7 +378,9 @@ window.I18N_CONFIG = {
       "update_38": "v3.2.22 Update (Intro Selection Settings) — Se añadió un apartado en Configuración para activar la selección aleatoria de las cinco intros o desactivarla y elegir manualmente un conjunto. La preferencia se guarda localmente y utiliza el mismo sistema de precarga silenciosa.",
       "update_39": "v3.2.23 Update (Named Intro Sets) — Los cinco conjuntos de intro ahora muestran sus nombres reales en Configuración y en el estado del modo manual, sin cambiar sus rutas ni la asociación entre video y música.",
       "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — Se restauró la base funcional estable del modo online, el inicio del draft local y los botones de retorno/cancelación. También se retiraron los cambios experimentales que podían cortar listeners, flujo de turnos y navegación.",
-      "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Se corrigió la lógica de Testing Bots para que no puedan preseleccionar ni confirmar durante la transición de bloqueos a selección. Ahora esperan a que termine el anuncio de fase y a que el turno esté realmente activo."
+      "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Se corrigió la lógica de Testing Bots para que no puedan preseleccionar ni confirmar durante la transición de bloqueos a selección. Ahora esperan a que termine el anuncio de fase y a que el turno esté realmente activo.",
+      "tab_tournament": "TORNEO",
+      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Se añadió la primera extensión del torneo con datos locales de equipos/jugadores, perfiles con rangos e iconos, aviso de estadísticas no en tiempo real, map pool personalizado y apartado Ajustar HUD en Configuración."
     },
     "en": {
       "tab_menu": "MENU",
@@ -389,7 +391,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORY",
       "tab_credits": "CREDITS",
       "setup_eyebrow": "Competitive system",
-      "setup_title": "STRINOVA Draft System v3.2.27 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.3.0 by RPmods",
       "notice_error_title": "Something went wrong",
       "notice_attention_title": "Attention",
       "notice_success_title": "Completed",
@@ -716,7 +718,9 @@ window.I18N_CONFIG = {
       "update_38": "v3.2.22 Update (Intro Selection Settings) — A Configuration section now enables random selection among the five intros or manual selection of a specific set. The preference is stored locally and uses the same silent precache system.",
       "update_39": "v3.2.23 Update (Named Intro Sets) — The five intro sets now display their actual names in Configuration and in the manual-mode status, without changing media paths or video/music pairings.",
       "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — Restored the stable online flow, local draft start, and back/cancel buttons. Experimental changes that could interrupt listeners, turn flow, and navigation were removed.",
-      "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Testing Bots now wait until the phase announcement is finished before preselecting or confirming. They no longer act during the ban-to-pick transition."
+      "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Testing Bots now wait until the phase announcement is finished before preselecting or confirming. They no longer act during the ban-to-pick transition.",
+      "tab_tournament": "TOURNAMENT",
+      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Added the first tournament extension with local team/player data, rank icons, player profile cards, non-realtime statistics notice, custom map pool, and Adjust HUD under Settings."
     },
     "ja": {
       "tab_menu": "メニュー",
@@ -727,7 +731,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新履歴",
       "tab_credits": "クレジット",
       "setup_eyebrow": "競技システム",
-      "setup_title": "STRINOVA Draft System v3.2.27 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.3.0 by RPmods",
       "notice_error_title": "問題が発生しました",
       "notice_attention_title": "注意",
       "notice_success_title": "完了",
@@ -1052,7 +1056,9 @@ window.I18N_CONFIG = {
       "update_38": "v3.2.22 Update (Intro Selection Settings) — 設定に、5つのイントロからランダム選択する機能と、無効時に特定セットを手動選択する機能を追加しました。設定はローカルに保存され、同じサイレントプリキャッシュを使用します。",
       "update_39": "v3.2.23 Update (Named Intro Sets) — 5つのイントロセットが設定画面と手動モードの状態表示で正式名称を表示するようになりました。メディアパスと動画・音楽の組み合わせは変更していません。",
       "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — Foi restaurada a base funcional estável do modo online, o início do draft local e os botões de voltar/cancelar. Mudanças experimentais que podiam interromper listeners, fluxo de turnos e navegação foram removidas.",
-      "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Os Testing Bots agora esperam o anúncio de fase terminar antes de pré-selecionar ou confirmar. Eles não agem mais durante a transição de bloqueio para seleção."
+      "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Os Testing Bots agora esperam o anúncio de fase terminar antes de pré-selecionar ou confirmar. Eles não agem mais durante a transição de bloqueio para seleção.",
+      "tab_tournament": "大会",
+      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — ローカルのチーム/プレイヤーデータ、ランクアイコン、プロフィール、リアルタイムではない統計の通知、カスタムマッププール、HUD調整を追加しました。"
     },
     "ru": {
       "tab_menu": "МЕНЮ",
@@ -1063,7 +1069,7 @@ window.I18N_CONFIG = {
       "tab_updates": "ОБНОВЛЕНИЯ",
       "tab_credits": "АВТОРЫ",
       "setup_eyebrow": "Соревновательная система",
-      "setup_title": "STRINOVA Draft System v3.2.27 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.3.0 by RPmods",
       "notice_error_title": "Произошла ошибка",
       "notice_attention_title": "Внимание",
       "notice_success_title": "Готово",
@@ -1388,7 +1394,9 @@ window.I18N_CONFIG = {
       "update_38": "v3.2.22 Update (Intro Selection Settings) — В настройках добавлен случайный выбор одной из пяти заставок и ручной выбор набора при отключении случайного режима. Настройка сохраняется локально и использует ту же скрытую предварительную загрузку.",
       "update_39": "v3.2.23 Update (Named Intro Sets) — Пять наборов вступления теперь отображают настоящие названия в настройках и статусе ручного режима без изменения путей к файлам и пар видео/музыки.",
       "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — オンラインの安定した流れ、ローカルDraft開始、戻る/キャンセルボタンを復旧しました。リスナー、ターン進行、ナビゲーションを壊す可能性がある実験的変更を取り除きました。",
-      "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Testing Bots がフェーズ告知中に事前選択や確定を行わないよう修正しました。ブロックから選択への遷移が終わってから行動します。"
+      "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Testing Bots がフェーズ告知中に事前選択や確定を行わないよう修正しました。ブロックから選択への遷移が終わってから行動します。",
+      "tab_tournament": "ТУРНИР",
+      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Добавлено первое расширение турнира: локальные данные команд/игроков, иконки рангов, профили, предупреждение о не realtime статистике, пользовательский пул карт и настройка HUD."
     },
     "zh": {
       "tab_menu": "菜单",
@@ -1399,7 +1407,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新记录",
       "tab_credits": "制作名单",
       "setup_eyebrow": "竞技系统",
-      "setup_title": "STRINOVA Draft System v3.2.27 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.3.0 by RPmods",
       "notice_error_title": "出现问题",
       "notice_attention_title": "注意",
       "notice_success_title": "操作完成",
@@ -1724,7 +1732,9 @@ window.I18N_CONFIG = {
       "update_38": "v3.2.22 Update (Intro Selection Settings) — 配置中新增了五组开场的随机选择开关；关闭后可手动选择指定组合。偏好会保存在本地，并继续使用相同的静默预缓存系统。",
       "update_39": "v3.2.23 Update (Named Intro Sets) — 五组开场现在会在配置界面和手动模式状态中显示正式名称，媒体路径及视频与音乐的配对保持不变。",
       "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — Восстановлена стабильная работа онлайн-режима, запуск локального драфта и кнопки возврата/отмены. Экспериментальные изменения, которые могли ломать listeners, ход turn flow и навигацию, удалены.",
-      "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Testing Bots теперь ждут окончания объявления фазы перед предварительным выбором или подтверждением. Они больше не действуют во время перехода от ban к pick."
+      "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Testing Bots теперь ждут окончания объявления фазы перед предварительным выбором или подтверждением. Они больше не действуют во время перехода от ban к pick.",
+      "tab_tournament": "赛事",
+      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — 新增赛事扩展：本地队伍/玩家数据、段位图标、个人资料、非实时统计提示、自定义地图池，以及设置中的 HUD 调整。"
     },
     "pt": {
       "tab_menu": "MENU",
@@ -1735,7 +1745,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTÓRICO",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.2.27 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.3.0 by RPmods",
       "notice_error_title": "Ocorreu um problema",
       "notice_attention_title": "Atenção",
       "notice_success_title": "Concluído",
@@ -2060,7 +2070,9 @@ window.I18N_CONFIG = {
       "update_38": "v3.2.22 Update (Intro Selection Settings) — A Configuração agora permite ativar a seleção aleatória entre as cinco intros ou desativá-la para escolher um conjunto manualmente. A preferência é salva localmente e usa o mesmo sistema de precache silencioso.",
       "update_39": "v3.2.23 Update (Named Intro Sets) — Os cinco conjuntos de introdução agora exibem seus nomes reais na Configuração e no status do modo manual, sem alterar os caminhos ou os pares de vídeo e música.",
       "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — 已恢复稳定的在线流程、本地 Draft 启动以及返回/取消按钮。移除了可能中断监听器、回合流程和导航的实验性改动。",
-      "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Testing Bots 现在会等阶段播报结束后再预选或确认，不会在禁用阶段切换到选择阶段时提前行动。"
+      "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Testing Bots 现在会等阶段播报结束后再预选或确认，不会在禁用阶段切换到选择阶段时提前行动。",
+      "tab_tournament": "TORNEIO",
+      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Adicionada a primeira extensão de torneio com dados locais de equipes/jogadores, ícones de ranque, perfis, aviso de estatísticas não em tempo real, map pool personalizado e Ajustar HUD em Configuração."
     }
   }
 };

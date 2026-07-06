@@ -1,0 +1,36 @@
+{
+  "characters": [
+    {
+      "id": "maddelena",
+      "name": "Maddelena",
+      "faction": "Urbino",
+      "draftName": "Maddelena"
+    },
+    {
+      "id": "fuchsia",
+      "name": "Fuchsia",
+      "displayName": "Fucsia",
+      "faction": "Urbino",
+      "draftName": "Fuchsia"
+    },
+    {
+      "id": "chiyo",
+      "name": "Chiyo",
+      "faction": "PUS",
+      "draftName": "Chiyo"
+    },
+    {
+      "id": "galatea",
+      "name": "Galatea",
+      "faction": "Urbino",
+      "draftName": "Galatea"
+    },
+    {
+      "id": "yvette",
+      "name": "Yvette",
+      "displayName": "Ivette",
+      "faction": "PUS",
+      "draftName": "Yvette"
+    }
+  ]
+}

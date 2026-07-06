@@ -1,0 +1,178 @@
+{
+  "maps": [
+    {
+      "id": "area_88",
+      "name": "Area 88",
+      "rankedOfficial": true,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "base_404",
+      "name": "Base 404",
+      "rankedOfficial": true,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "cauchy_street",
+      "name": "Cauchy Street",
+      "rankedOfficial": true,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "lebrun_city",
+      "name": "Lebrun City",
+      "rankedOfficial": true,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "ocarnus",
+      "name": "Ocarnus",
+      "rankedOfficial": true,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "space_lab",
+      "name": "Space Lab",
+      "rankedOfficial": true,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "windy_town",
+      "name": "Windy Town",
+      "rankedOfficial": true,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "port_euler",
+      "name": "Port Euler",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "cosmite",
+      "name": "Cosmite",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "district_arcadia",
+      "name": "District Arcadia",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "no_2_depot",
+      "name": "No.2 Depot",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "blossom_dojo",
+      "name": "Blossom Dojo",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "pier_town",
+      "name": "Pier Town",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "power_plant",
+      "name": "Power Plant",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "departure_zone",
+      "name": "Departure Zone",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "jaksaa_factory",
+      "name": "Jaksaa Factory",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "snowveil_district",
+      "name": "Snowveil District",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "tyve_oasis",
+      "name": "Tyve Oasis",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "eury_cave",
+      "name": "Eury Cave",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "lava_factory",
+      "name": "Lava Factory",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "ghannak",
+      "name": "Ghannak",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "loch_district",
+      "name": "Loch District",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "polar_research_institute",
+      "name": "Polar Research Institute",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "euler_night_harbor",
+      "name": "Euler Night Harbor",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "crimson_wasteland",
+      "name": "Crimson Wasteland",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "abyssal_frontier",
+      "name": "Abyssal Frontier",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "dirac_mine",
+      "name": "Dirac Mine",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "wright_campus",
+      "name": "Wright Campus",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    },
+    {
+      "id": "range",
+      "name": "Range",
+      "rankedOfficial": false,
+      "tournamentEnabled": true
+    }
+  ]
+}

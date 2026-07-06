@@ -1,0 +1,102 @@
+{
+  "players": [
+    {
+      "id": "player_brial",
+      "nickname": "Brialブリッグス",
+      "gameId": "7924676",
+      "teamId": "team_yo4hvns",
+      "role": "Capitán",
+      "currentRank": "Quarck V",
+      "currentRankId": "quark",
+      "peakRank": "Quarck II",
+      "peakRankId": "quark",
+      "mainCharacter": "Maddelena",
+      "mainCharacterId": "Maddelena",
+      "status": "inscrito"
+    },
+    {
+      "id": "player_ichitose02",
+      "nickname": "iChitose02",
+      "gameId": "4306291",
+      "teamId": "team_yo4hvns",
+      "role": "Sub-capitán",
+      "currentRank": "Electron I",
+      "currentRankId": "electron",
+      "peakRank": "Quarck V",
+      "peakRankId": "quark",
+      "mainCharacter": "Fucsia",
+      "mainCharacterId": "Fuchsia",
+      "status": "inscrito"
+    },
+    {
+      "id": "player_itszerone",
+      "nickname": "itsZerOne",
+      "gameId": "2215585",
+      "teamId": "team_yo4hvns",
+      "role": "Miembro 3",
+      "currentRank": "Electron II",
+      "currentRankId": "electron",
+      "peakRank": "Electron I",
+      "peakRankId": "electron",
+      "mainCharacter": "Chiyo",
+      "mainCharacterId": "Chiyo",
+      "status": "inscrito"
+    },
+    {
+      "id": "player_xlixusx",
+      "nickname": "XLixusX",
+      "gameId": "8156127",
+      "teamId": "team_yo4hvns",
+      "role": "Miembro 4",
+      "currentRank": "Laminante",
+      "currentRankId": "superstring",
+      "peakRank": "Laminante",
+      "peakRankId": "superstring",
+      "mainCharacter": "Galatea",
+      "mainCharacterId": "Galatea",
+      "status": "inscrito"
+    },
+    {
+      "id": "player_gantigunttv",
+      "nickname": "GantigunTTV",
+      "gameId": "3361355",
+      "teamId": "team_yo4hvns",
+      "role": "Miembro 5",
+      "currentRank": "Electron IV",
+      "currentRankId": "electron",
+      "peakRank": "Electron II",
+      "peakRankId": "electron",
+      "mainCharacter": "Ivette",
+      "mainCharacterId": "Yvette",
+      "status": "inscrito"
+    },
+    {
+      "id": "sub_yo4hvns_1",
+      "nickname": "- sin inscripción -",
+      "gameId": null,
+      "teamId": "team_yo4hvns",
+      "role": "Suplente 1",
+      "currentRank": "Sin inscripción",
+      "currentRankId": "unranked",
+      "peakRank": "Sin inscripción",
+      "peakRankId": "unranked",
+      "mainCharacter": "Sin inscripción",
+      "mainCharacterId": null,
+      "status": "empty"
+    },
+    {
+      "id": "sub_yo4hvns_2",
+      "nickname": "- sin inscripción -",
+      "gameId": null,
+      "teamId": "team_yo4hvns",
+      "role": "Suplente 2",
+      "currentRank": "Sin inscripción",
+      "currentRankId": "unranked",
+      "peakRank": "Sin inscripción",
+      "peakRankId": "unranked",
+      "mainCharacter": "Sin inscripción",
+      "mainCharacterId": null,
+      "status": "empty"
+    }
+  ]
+}

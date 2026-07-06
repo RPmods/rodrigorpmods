@@ -991,7 +991,7 @@ function applyLanguage(lang = currentLanguage(), options = {}) {
   setText('.versus-core','vs'); setText('.menu-panel-copy p','setup_copy'); updateSetupRulesText();
   setText('.player-name-mode-panel .subconfig-heading span','names_heading_small'); setText('.player-name-mode-panel .subconfig-heading strong','names_heading'); setText('#manual-player-names','manual_mode'); setText('#random-player-names','random_names'); setText('#start-draft','setup_start_local');
   const highlights=document.querySelectorAll('.menu-panel-highlights span'); if(highlights[0])highlights[0].textContent=t('highlight_1'); if(highlights[1])highlights[1].textContent=t('highlight_2'); if(highlights[2])highlights[2].textContent=t('highlight_3');
-  document.querySelectorAll('.setup-top-tab').forEach(button=>{ const key={menu:'tab_menu',volumen:'tab_volume',configuracion:'tab_config',random:'tab_random',idioma:'tab_language',updates:'tab_updates',creditos:'tab_credits'}[button.dataset.tab]; if(key) button.textContent=t(key); });
+  document.querySelectorAll('.setup-top-tab').forEach(button=>{ const key={menu:'tab_menu',tournament:'tab_tournament',volumen:'tab_volume',configuracion:'tab_config',random:'tab_random',idioma:'tab_language',updates:'tab_updates',creditos:'tab_credits'}[button.dataset.tab]; if(key) button.textContent=t(key); });
   setText('[data-panel="volumen"] .subconfig-heading span','sound'); setText('[data-panel="volumen"] .subconfig-heading strong','volume');
   [['master_volume','master_volume_desc'],['music_volume','music_volume_desc'],['sfx_volume','sfx_volume_desc'],['narration_volume','narration_volume_desc'],['character_voice_volume','character_voice_volume_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="volumen"] .volume-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
   setText('[data-panel="idioma"] .subconfig-heading span','language'); setText('[data-panel="idioma"] .subconfig-heading strong','interface_text');
@@ -2428,7 +2428,7 @@ function activateSetupTab(tabName) {
     panel.classList.toggle("is-active", panel.dataset.panel === tabName);
   });
   if (setupShell) {
-    setupShell.classList.remove("view-menu", "view-volumen", "view-configuracion", "view-development", "view-random", "view-idioma", "view-creditos", "view-updates");
+    setupShell.classList.remove("view-menu", "view-tournament", "view-volumen", "view-configuracion", "view-development", "view-random", "view-idioma", "view-creditos", "view-updates");
     setupShell.classList.add(`view-${tabName}`);
   }
 }
