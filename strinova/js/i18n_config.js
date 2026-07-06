@@ -18,7 +18,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORIAL",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.3.3 by RPmods",
+      "setup_title": "STRINOVA DRAFT SYSTEM",
       "notice_error_title": "Ocurrió un problema",
       "notice_attention_title": "Atención",
       "notice_success_title": "Operación completada",
@@ -383,7 +383,8 @@ window.I18N_CONFIG = {
       "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Se añadió la primera extensión del torneo con datos locales de equipos/jugadores, perfiles con rangos e iconos, aviso de estadísticas no en tiempo real, map pool personalizado y apartado Ajustar HUD en Configuración.",
       "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — Se movió TORNEO junto a MENÚ, se centró el Tournament Hub, se ocultaron los paneles de equipos del draft dentro de la vista de torneo, se mejoró la visualización tipo Strinova, se añadieron tres equipos de ejemplo con nombres de player_names_config.js y los jugadores ahora se ordenan por rango de mayor a menor.",
       "update_44": "v3.3.2 Hotfix (Tournament Wide Layout) — Se amplió el Tournament Hub para usar más espacio de pantalla, se retiraron Mapas y Reglas como pestañas principales, se reforzó el escalado responsivo y se mejoró la vista de Resumen, Equipos y Jugadores.",
-      "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Se corrigió el recorte vertical del Tournament Hub, se mejoró el desplazamiento con rueda del mouse, se rediseñaron tarjetas de equipos/jugadores para evitar nombres cortados y se modernizó la barra del menú principal sin tocar la lógica del draft."
+      "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Se corrigió el recorte vertical del Tournament Hub, se mejoró el desplazamiento con rueda del mouse, se rediseñaron tarjetas de equipos/jugadores para evitar nombres cortados y se modernizó la barra del menú principal sin tocar la lógica del draft.",
+      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Se modernizó visualmente el menú principal, se corrigieron detalles de la barra superior, se estabilizó el fondo del Tournament Hub al hacer scroll y se ampliaron las tarjetas para evitar nombres cortados. No se modificó la lógica del draft."
     },
     "en": {
       "tab_menu": "MENU",
@@ -394,7 +395,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORY",
       "tab_credits": "CREDITS",
       "setup_eyebrow": "Competitive system",
-      "setup_title": "STRINOVA Draft System v3.3.3 by RPmods",
+      "setup_title": "STRINOVA DRAFT SYSTEM",
       "notice_error_title": "Something went wrong",
       "notice_attention_title": "Attention",
       "notice_success_title": "Completed",
@@ -726,7 +727,8 @@ window.I18N_CONFIG = {
       "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Added the first tournament extension with local team/player data, rank icons, player profile cards, non-realtime statistics notice, custom map pool, and Adjust HUD under Settings.",
       "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — Moved TOURNAMENT next to MENU, centered the Tournament Hub, hid draft team panels inside the tournament view, improved the Strinova-like layout, added three example teams using names from player_names_config.js, and now sorts players from highest to lowest rank.",
       "update_44": "v3.3.2 Hotfix (Tournament Wide Layout) — Expanded the Tournament Hub to use more screen space, removed Maps and Rules as main tabs, reinforced responsive scaling, and improved Summary, Teams and Players views.",
-      "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Fixed Tournament Hub vertical clipping, improved mouse-wheel scrolling, redesigned team/player cards to avoid cut names, and modernized the main menu bar without touching draft logic."
+      "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Fixed Tournament Hub vertical clipping, improved mouse-wheel scrolling, redesigned team/player cards to avoid cut names, and modernized the main menu bar without touching draft logic.",
+      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Modernized the main menu visuals, fixed top navigation details, stabilized the Tournament Hub background while scrolling, and widened cards to prevent clipped names. Draft logic was not changed."
     },
     "ja": {
       "tab_menu": "メニュー",
@@ -737,7 +739,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新履歴",
       "tab_credits": "クレジット",
       "setup_eyebrow": "競技システム",
-      "setup_title": "STRINOVA Draft System v3.3.3 by RPmods",
+      "setup_title": "STRINOVA DRAFT SYSTEM",
       "notice_error_title": "問題が発生しました",
       "notice_attention_title": "注意",
       "notice_success_title": "完了",
@@ -1067,7 +1069,8 @@ window.I18N_CONFIG = {
       "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — ローカルのチーム/プレイヤーデータ、ランクアイコン、プロフィール、リアルタイムではない統計の通知、カスタムマッププール、HUD調整を追加しました。",
       "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — トーナメントタブをメニューの隣へ移動し、Tournament Hub を中央配置に修正しました。ドラフト用チームパネルをトーナメント画面では非表示にし、Strinova 風レイアウトを改善、player_names_config.js の名前からサンプルチームを追加し、プレイヤーをランク順に並べます。",
       "update_44": "v3.3.2 Hotfix (Tournament Wide Layout) — Tournament Hub の表示領域を拡大し、Maps と Rules をメインタブから外し、レスポンシブ表示を強化しました。",
-      "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Tournament Hub の縦方向の切れを修正し、スクロールとチーム/プレイヤーカードの表示を改善しました。"
+      "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Tournament Hub の縦方向の切れを修正し、スクロールとチーム/プレイヤーカードの表示を改善しました。",
+      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — メインメニューの見た目、上部ナビゲーション、Tournament Hub のスクロール時背景、カード幅を改善しました。Draft ロジックは変更していません。"
     },
     "ru": {
       "tab_menu": "МЕНЮ",
@@ -1078,7 +1081,7 @@ window.I18N_CONFIG = {
       "tab_updates": "ОБНОВЛЕНИЯ",
       "tab_credits": "АВТОРЫ",
       "setup_eyebrow": "Соревновательная система",
-      "setup_title": "STRINOVA Draft System v3.3.3 by RPmods",
+      "setup_title": "STRINOVA DRAFT SYSTEM",
       "notice_error_title": "Произошла ошибка",
       "notice_attention_title": "Внимание",
       "notice_success_title": "Готово",
@@ -1408,7 +1411,8 @@ window.I18N_CONFIG = {
       "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Добавлено первое расширение турнира: локальные данные команд/игроков, иконки рангов, профили, предупреждение о не realtime статистике, пользовательский пул карт и настройка HUD.",
       "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — Вкладка турнира перемещена рядом с меню, Tournament Hub центрирован, панели команд драфта скрыты в виде турнира, визуальный стиль улучшен, добавлены три примерные команды из player_names_config.js, игроки сортируются по рангу сверху вниз.",
       "update_44": "v3.3.2 Hotfix (Tournament Wide Layout) — Tournament Hub расширен, вкладки Maps и Rules убраны из главного вида, а адаптивная верстка усилена.",
-      "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Исправлены обрезание Tournament Hub, прокрутка колесом мыши и карточки команд/игроков без изменения логики драфта."
+      "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Исправлены обрезание Tournament Hub, прокрутка колесом мыши и карточки команд/игроков без изменения логики драфта.",
+      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Обновлен внешний вид главного меню, исправлены детали верхней навигации, стабилизирован фон Tournament Hub при прокрутке и расширены карточки. Логика драфта не изменялась."
     },
     "zh": {
       "tab_menu": "菜单",
@@ -1419,7 +1423,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新记录",
       "tab_credits": "制作名单",
       "setup_eyebrow": "竞技系统",
-      "setup_title": "STRINOVA Draft System v3.3.3 by RPmods",
+      "setup_title": "STRINOVA DRAFT SYSTEM",
       "notice_error_title": "出现问题",
       "notice_attention_title": "注意",
       "notice_success_title": "操作完成",
@@ -1749,7 +1753,8 @@ window.I18N_CONFIG = {
       "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — 新增赛事扩展：本地队伍/玩家数据、段位图标、个人资料、非实时统计提示、自定义地图池，以及设置中的 HUD 调整。",
       "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — 将赛事入口移动到菜单旁边，居中 Tournament Hub，在赛事视图中隐藏 draft 队伍面板，优化 Strinova 风格界面，使用 player_names_config.js 中的名称新增 3 支示例队伍，并按段位从高到低排序玩家。",
       "update_44": "v3.3.2 Hotfix (Tournament Wide Layout) — 扩大 Tournament Hub 的显示区域，移除 Maps 和 Rules 主标签，并强化响应式布局。",
-      "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — 修复 Tournament Hub 垂直裁切，改进鼠标滚轮滚动，并优化队伍/玩家卡片显示，未改动 Draft 逻辑。"
+      "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — 修复 Tournament Hub 垂直裁切，改进鼠标滚轮滚动，并优化队伍/玩家卡片显示，未改动 Draft 逻辑。",
+      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — 优化主菜单视觉、顶部导航细节、Tournament Hub 滚动时的背景稳定性，并加宽卡片避免名称被截断。未改动 Draft 逻辑。"
     },
     "pt": {
       "tab_menu": "MENU",
@@ -1760,7 +1765,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTÓRICO",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.3.3 by RPmods",
+      "setup_title": "STRINOVA DRAFT SYSTEM",
       "notice_error_title": "Ocorreu um problema",
       "notice_attention_title": "Atenção",
       "notice_success_title": "Concluído",
@@ -2090,7 +2095,8 @@ window.I18N_CONFIG = {
       "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Adicionada a primeira extensão de torneio com dados locais de equipes/jogadores, ícones de ranque, perfis, aviso de estatísticas não em tempo real, map pool personalizado e Ajustar HUD em Configuração.",
       "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — TORNEIO foi movido para perto do MENU, o hub foi centralizado, os painéis de equipe do draft foram ocultados na vista de torneio, o visual foi refinado, três equipes de exemplo foram adicionadas com nomes de player_names_config.js e os jogadores agora são ordenados do maior para o menor rank.",
       "update_44": "v3.3.2 Hotfix (Tournament Wide Layout) — O Tournament Hub foi ampliado para usar mais espaço da tela, Mapas e Regras foram removidos como abas principais e o layout responsivo foi reforçado.",
-      "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Corrigido o corte vertical do Tournament Hub, melhorada a rolagem com o mouse e redesenhados os cards de equipes/jogadores sem alterar a lógica do draft."
+      "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Corrigido o corte vertical do Tournament Hub, melhorada a rolagem com o mouse e redesenhados os cards de equipes/jogadores sem alterar a lógica do draft.",
+      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Modernizado o visual do menu principal, corrigidos detalhes da navegação superior, estabilizado o fundo do Tournament Hub durante a rolagem e ampliados os cards para evitar nomes cortados. A lógica do draft não foi alterada."
     }
   }
 };

@@ -16247,3 +16247,421 @@ html body .stage-characters .fullbody-card.banishing.turn-ban .fullbody-frame im
     grid-template-columns: 1fr;
   }
 }
+
+/* v3.3.4 — Menu + Tournament Background Polish
+   Scope: setup menu + tournament surfaces only. Draft phase screen and draft logic are not changed. */
+
+/* Top navigation: remove old small triangle artifacts and use cleaner Strinova-like tabs. */
+.setup-screen .settings-topbar {
+  height: 58px !important;
+  min-height: 58px !important;
+  padding: 0 22px !important;
+  background:
+    linear-gradient(90deg, rgba(20,24,30,.99) 0%, rgba(38,44,53,.99) 46%, rgba(20,24,30,.99) 100%) !important;
+  border-bottom: 1px solid rgba(255,255,255,.10) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.20), inset 0 -1px 0 rgba(255,255,255,.05) !important;
+  overflow: visible !important;
+}
+
+.setup-screen .settings-brand {
+  flex: 0 0 360px !important;
+  max-width: 360px !important;
+  font-size: .74rem !important;
+  letter-spacing: .045em !important;
+}
+
+.setup-screen .settings-tabs {
+  height: 58px !important;
+  gap: 4px !important;
+  align-items: stretch !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scrollbar-width: none !important;
+  mask-image: none !important;
+}
+.setup-screen .settings-tabs::-webkit-scrollbar { display: none !important; }
+
+.setup-screen .settings-tab,
+.setup-screen .setup-top-tab,
+.setup-screen .setup-top-tab[data-tab="random"],
+.setup-screen .setup-top-tab[data-tab="development"],
+.setup-screen .setup-top-tab[data-tab="creditos"],
+.setup-screen .setup-top-tab[data-tab="idioma"],
+.setup-screen .setup-top-tab[data-tab="updates"] {
+  height: 58px !important;
+  min-height: 58px !important;
+  min-width: 116px !important;
+  max-width: none !important;
+  padding: 0 18px !important;
+  color: rgba(238,242,248,.66) !important;
+  background: transparent !important;
+  border: 0 !important;
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%) !important;
+  box-shadow: inset 0 -2px 0 rgba(255,255,255,.035) !important;
+  font-size: .70rem !important;
+  font-weight: 1000 !important;
+  letter-spacing: .085em !important;
+  text-transform: uppercase !important;
+}
+
+.setup-screen .settings-tab::before,
+.setup-screen .setup-top-tab::before,
+.setup-screen .settings-tab::after,
+.setup-screen .setup-top-tab::after {
+  display: none !important;
+  content: none !important;
+}
+
+.setup-screen .settings-tab:hover,
+.setup-screen .setup-top-tab:hover {
+  color: #fff !important;
+  background: rgba(255,255,255,.055) !important;
+}
+
+.setup-screen .settings-tab.is-active,
+.setup-screen .setup-top-tab.is-active {
+  min-width: 142px !important;
+  padding: 0 24px !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, #aa2131 0%, #d73545 58%, #f05260 100%) !important;
+  box-shadow:
+    inset 0 -4px 0 rgba(255,255,255,.13),
+    0 12px 24px rgba(199,39,55,.23) !important;
+  filter: none !important;
+}
+
+/* Menu view: keep the original layout, but make the presentation closer to the tournament hub. */
+.setup-shell.view-menu .setup-top {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 330px) !important;
+  align-items: stretch !important;
+  gap: 0 !important;
+  min-height: 168px !important;
+  margin: 0 0 18px !important;
+  padding: 0 !important;
+  text-align: left !important;
+  background:
+    linear-gradient(90deg, rgba(32,37,45,.96), rgba(76,85,97,.86)),
+    radial-gradient(circle at 62% 50%, rgba(255,255,255,.13), transparent 34%) !important;
+  border: 1px solid rgba(255,255,255,.13) !important;
+  box-shadow: 0 18px 48px rgba(20,24,30,.13), inset 0 1px 0 rgba(255,255,255,.09) !important;
+  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% calc(100% - 22px), calc(100% - 22px) 100%, 22px 100%, 0 calc(100% - 22px)) !important;
+  overflow: hidden !important;
+}
+
+.setup-shell.view-menu .setup-top::before,
+.setup-shell.view-menu .setup-top::after {
+  display: none !important;
+  content: none !important;
+}
+
+.setup-shell.view-menu .setup-top .eyebrow,
+.setup-shell.view-menu .setup-top h1,
+.setup-shell.view-menu .setup-top p {
+  display: block !important;
+  visibility: visible !important;
+  grid-column: 1 !important;
+  position: relative !important;
+  z-index: 2 !important;
+  margin-left: 30px !important;
+  max-width: 980px !important;
+}
+
+.setup-shell.view-menu .setup-top .eyebrow {
+  align-self: end !important;
+  margin-top: 24px !important;
+  margin-bottom: 6px !important;
+  color: #ffd84d !important;
+  font-size: .74rem !important;
+  font-weight: 1000 !important;
+  letter-spacing: .16em !important;
+  text-transform: uppercase !important;
+}
+
+.setup-shell.view-menu .setup-top h1 {
+  align-self: center !important;
+  color: #f7f9fc !important;
+  font-size: clamp(3.2rem, 4.3vw, 5.8rem) !important;
+  line-height: .88 !important;
+  letter-spacing: -.055em !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 2px 12px rgba(0,0,0,.25) !important;
+}
+
+.setup-shell.view-menu .setup-top p:not(.eyebrow) {
+  align-self: start !important;
+  margin-top: 8px !important;
+  color: rgba(246,248,252,.80) !important;
+  font-size: clamp(.78rem, .86vw, 1.0rem) !important;
+  font-weight: 900 !important;
+  letter-spacing: .025em !important;
+  text-transform: uppercase !important;
+}
+
+.setup-shell.view-menu .setup-top > *:last-child::after {
+  content: "DRAFT EXTERNO";
+  position: absolute;
+  right: -360px;
+  top: -104px;
+  width: 330px;
+  height: 168px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(135deg, rgba(174,35,50,.96), rgba(219,57,72,.90));
+  font-size: 1.06rem;
+  font-weight: 1000;
+  letter-spacing: .08em;
+  text-align: center;
+  text-transform: uppercase;
+  clip-path: polygon(18px 0, 100% 0, 100% 100%, 0 100%, 0 18px);
+}
+
+.setup-shell.view-menu .setup-teams {
+  margin-top: 0 !important;
+  min-height: 610px !important;
+  grid-template-columns: minmax(520px, 1fr) 340px minmax(520px, 1fr) !important;
+  gap: 22px !important;
+}
+
+.setup-shell.view-menu .setup-team,
+.setup-shell.view-menu .setup-center-card {
+  min-height: 610px !important;
+  background: linear-gradient(180deg, rgba(246,248,252,.15), rgba(208,216,226,.10)) !important;
+  border: 1px solid rgba(59,68,82,.16) !important;
+  box-shadow: inset 0 0 42px rgba(255,255,255,.08) !important;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%) !important;
+}
+
+.setup-shell.view-menu .setup-team-heading {
+  background: transparent !important;
+}
+
+.setup-shell.view-menu .setup-player-row .player-input,
+.setup-shell.view-menu .player-input {
+  background: linear-gradient(90deg, rgba(58,65,78,.94), rgba(83,91,104,.92)) !important;
+  border-bottom: 3px solid #df3445 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+
+.setup-shell.view-menu .setup-center-card {
+  background: linear-gradient(180deg, rgba(241,244,249,.22), rgba(199,207,218,.16)) !important;
+}
+
+.setup-shell.view-menu .versus-core {
+  color: #333a45 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.45) !important;
+}
+
+.setup-shell.view-menu .setup-rules,
+.setup-shell.view-menu .menu-panel-copy,
+.setup-shell.view-menu .menu-panel-highlights span,
+.setup-shell.view-menu .player-name-mode-panel {
+  border: 1px solid rgba(72,82,96,.18) !important;
+  background: rgba(255,255,255,.18) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18) !important;
+}
+
+.setup-shell.view-menu .primary-button,
+.setup-shell.view-menu .secondary-button {
+  clip-path: polygon(14px 0, 100% 0, calc(100% - 10px) 100%, 0 100%) !important;
+}
+
+/* Tournament full-page background: prevent the background video from appearing when scrolling below the hub. */
+body.tournament-surface-active {
+  background:
+    linear-gradient(180deg, rgba(239,243,248,1), rgba(215,222,232,1)) fixed !important;
+  overflow-x: hidden !important;
+}
+
+body.tournament-surface-active #viewport,
+body.tournament-surface-active #game-root {
+  min-height: 100vh !important;
+  height: auto !important;
+  overflow: visible !important;
+  background:
+    linear-gradient(180deg, rgba(239,243,248,1), rgba(215,222,232,1)) !important;
+}
+
+body.tournament-surface-active .background-layer .bg-video {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+body.tournament-surface-active .background-layer .bg-tint,
+body.tournament-surface-active .background-layer .scanlines {
+  opacity: 0 !important;
+}
+
+body.tournament-surface-active .background-layer .bg-fallback {
+  opacity: 1 !important;
+  background:
+    linear-gradient(rgba(80, 96, 124, 0.105) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 96, 124, 0.105) 1px, transparent 1px),
+    linear-gradient(180deg, #eff3f8 0%, #d7dee8 100%) !important;
+  background-size: 160px 160px, 160px 160px, auto !important;
+}
+
+body.tournament-surface-active .setup-screen.active {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+  background:
+    linear-gradient(rgba(80, 96, 124, 0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 96, 124, 0.10) 1px, transparent 1px),
+    linear-gradient(180deg, #eff3f8 0%, #d7dee8 100%) !important;
+  background-size: 160px 160px, 160px 160px, auto !important;
+}
+
+body.tournament-surface-active .setup-shell.view-tournament.settings-surface,
+body.tournament-surface-active .setup-screen .setup-shell.view-tournament {
+  width: min(1840px, calc(100vw - 36px)) !important;
+  margin: 0 auto !important;
+  padding: 78px 18px 56px !important;
+  background: transparent !important;
+}
+
+body.tournament-surface-active .setup-shell.view-tournament.settings-surface::before {
+  display: none !important;
+}
+
+body.tournament-surface-active .tournament-root {
+  max-width: 100% !important;
+  background:
+    linear-gradient(135deg, rgba(31,36,44,.94), rgba(76,86,100,.72)),
+    linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px) !important;
+  background-size: auto, 120px 120px, 120px 120px !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  box-shadow: 0 22px 70px rgba(20,24,30,.18), inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+
+body.tournament-surface-active .tournament-root::before {
+  display: none !important;
+}
+
+/* Better readable cards: more vertical scroll, less horizontal compression. */
+.tournament-roster-list {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 12px !important;
+}
+
+@media (min-width: 1500px) {
+  .tournament-roster-list {
+    grid-template-columns: repeat(3, minmax(280px, 1fr)) !important;
+  }
+}
+
+.tournament-roster-member {
+  min-height: 134px !important;
+  padding: 12px 13px !important;
+}
+
+.tournament-member-name {
+  font-size: clamp(1rem, .95vw, 1.16rem) !important;
+  line-height: 1.12 !important;
+  letter-spacing: .01em !important;
+}
+
+.tournament-member-ranks {
+  grid-template-columns: repeat(2, minmax(118px, 1fr)) !important;
+}
+
+.tournament-team-card {
+  grid-template-columns: clamp(230px, 18vw, 310px) minmax(0, 1fr) !important;
+  padding: 18px !important;
+}
+
+.tournament-team-emblem {
+  min-height: 250px !important;
+}
+
+.tournament-team-heading-row h3 {
+  font-size: clamp(1.85rem, 2vw, 2.7rem) !important;
+}
+
+.tournament-view-tabs {
+  gap: 8px !important;
+}
+
+.tournament-view-tab {
+  min-height: 46px !important;
+  font-size: .86rem !important;
+}
+
+.tournament-player-detail {
+  align-self: start !important;
+}
+
+@media (max-width: 1320px) {
+  .setup-shell.view-menu .setup-top {
+    grid-template-columns: 1fr !important;
+    min-height: 150px !important;
+  }
+  .setup-shell.view-menu .setup-top > *:last-child::after {
+    display: none !important;
+  }
+  .setup-shell.view-menu .setup-teams {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+  }
+  .setup-shell.view-menu .setup-team,
+  .setup-shell.view-menu .setup-center-card {
+    min-height: auto !important;
+  }
+  .tournament-team-card {
+    grid-template-columns: 1fr !important;
+  }
+  .tournament-team-emblem {
+    min-height: 150px !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  .setup-screen .settings-brand {
+    flex: 0 0 280px !important;
+    max-width: 280px !important;
+  }
+  .setup-screen .settings-tab,
+  .setup-screen .setup-top-tab,
+  .setup-screen .setup-top-tab[data-tab="random"],
+  .setup-screen .setup-top-tab[data-tab="development"],
+  .setup-screen .setup-top-tab[data-tab="creditos"],
+  .setup-screen .setup-top-tab[data-tab="idioma"],
+  .setup-screen .setup-top-tab[data-tab="updates"] {
+    min-width: 102px !important;
+    padding: 0 12px !important;
+    font-size: .62rem !important;
+  }
+}
+
+/* v3.3.4 final menu hero correction: use the hero pseudo panel itself, not child pseudo content. */
+.setup-shell.view-menu .setup-top > *:last-child::after {
+  display: none !important;
+  content: none !important;
+}
+.setup-shell.view-menu .setup-top::after {
+  content: "DRAFT\A SYSTEM" !important;
+  display: grid !important;
+  white-space: pre-line !important;
+  grid-column: 2 !important;
+  grid-row: 1 / 4 !important;
+  place-items: center !important;
+  height: 100% !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, rgba(174,35,50,.97), rgba(219,57,72,.92)) !important;
+  font-size: clamp(1.0rem, 1.3vw, 1.55rem) !important;
+  font-weight: 1000 !important;
+  line-height: 1.08 !important;
+  letter-spacing: .08em !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  clip-path: polygon(18px 0, 100% 0, 100% 100%, 0 100%, 0 18px) !important;
+}
+@media (max-width: 1320px) {
+  .setup-shell.view-menu .setup-top::after {
+    display: none !important;
+    content: none !important;
+  }
+}

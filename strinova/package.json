@@ -1,7 +1,7 @@
 {
   "name": "draft-simulator",
-  "version": "3.3.3",
-  "description": "STRINOVA Draft System + Gantigun Cup 2026 Tournament Hub con layout corregido, equipos de ejemplo y orden por rango",
+  "version": "3.3.4",
+  "description": "STRINOVA Draft System + Gantigun Cup 2026 Tournament Hub con menú modernizado, torneo con fondo fijo y scroll visual estable",
   "main": "main.js",
   "scripts": {
     "start": "electron .",

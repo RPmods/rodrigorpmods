@@ -261,6 +261,28 @@
     apply();
   }
 
+
+  function syncTournamentSurfaceState() {
+    const shell = document.querySelector('.setup-shell');
+    const isTournament = !!shell && shell.classList.contains('view-tournament');
+    document.body.classList.toggle('tournament-surface-active', isTournament);
+    const screen = document.getElementById('setup-screen');
+    if (screen) screen.classList.toggle('tournament-surface-active', isTournament);
+  }
+
+  function watchTournamentSurfaceState() {
+    const shell = document.querySelector('.setup-shell');
+    syncTournamentSurfaceState();
+    if (!shell) return;
+    const observer = new MutationObserver(syncTournamentSurfaceState);
+    observer.observe(shell, { attributes: true, attributeFilter: ['class'] });
+    document.addEventListener('click', event => {
+      if (event.target && event.target.closest && event.target.closest('[data-tab]')) {
+        requestAnimationFrame(syncTournamentSurfaceState);
+      }
+    }, true);
+  }
+
   function initTournamentHub() {
     const root = $("#tournament-root");
     if (!root) return;
@@ -285,6 +307,7 @@
     setupTournamentTabs();
     setupPlayerRows();
     setupHudSafeArea();
+    watchTournamentSurfaceState();
   }
 
   if (document.readyState === "loading") {

@@ -388,3 +388,12 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Refuerza el panel de jugadores con scroll estable y perfil destacado sin tapar contenido.
 - Moderniza la barra superior del menú principal con estilo más cercano al Tournament Hub.
 - No modifica la lógica del draft ni `js/app.js`.
+
+## v3.3.4 Menu + Tournament Background Polish Hotfix
+
+- Se modernizó el diseño del menú principal sin tocar la lógica del draft.
+- Se corrigieron detalles visuales de la barra superior y se retiraron marcadores triangulares que podían verse como bugs.
+- Se estabilizó el fondo del Tournament Hub para que al bajar con la rueda del mouse no aparezca el video de fondo detrás.
+- Se ampliaron tarjetas y filas de jugadores/equipos para reducir nombres cortados.
+- El Tournament Hub mantiene desplazamiento natural de página, pero con fondo fijo propio.
+- No se modificó `js/app.js`, Firebase, assets, videos, audios ni el workflow de deploy.
