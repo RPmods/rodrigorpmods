@@ -18,7 +18,67 @@
         "sub_yo4hvns_1",
         "sub_yo4hvns_2"
       ],
-      "notes": "Datos iniciales cargados manualmente para Gantigun Cup 2026."
+      "notes": "Equipo registrado manualmente con información entregada por el organizador."
+    },
+    {
+      "id": "team_crimson_byte",
+      "name": "Crimson Byte",
+      "tag": "CRB",
+      "captainId": "player_nrdarckcore",
+      "subCaptainId": "player_ttvkeeylongas",
+      "status": "demo",
+      "players": [
+        "player_nrdarckcore",
+        "player_ttvkeeylongas",
+        "player_pauwu",
+        "player_geanct",
+        "player_annacchi"
+      ],
+      "substitutes": [
+        "sub_crimson_1",
+        "sub_crimson_2"
+      ],
+      "notes": "Equipo de ejemplo creado con nombres existentes de player_names_config.js."
+    },
+    {
+      "id": "team_nova_rift",
+      "name": "Nova Rift",
+      "tag": "NVR",
+      "captainId": "player_andercito007",
+      "subCaptainId": "player_sant1ago23",
+      "status": "demo",
+      "players": [
+        "player_andercito007",
+        "player_sant1ago23",
+        "player_avega",
+        "player_shadowroot",
+        "player_emikoai"
+      ],
+      "substitutes": [
+        "sub_nova_1",
+        "sub_nova_2"
+      ],
+      "notes": "Equipo de ejemplo creado con nombres existentes de player_names_config.js."
+    },
+    {
+      "id": "team_arc_light",
+      "name": "Arc Light",
+      "tag": "ARC",
+      "captainId": "player_pr1m",
+      "subCaptainId": "player_wizzsv",
+      "status": "demo",
+      "players": [
+        "player_pr1m",
+        "player_wizzsv",
+        "player_pacifyai",
+        "player_fersaqui",
+        "player_nash03"
+      ],
+      "substitutes": [
+        "sub_arc_1",
+        "sub_arc_2"
+      ],
+      "notes": "Equipo de ejemplo creado con nombres existentes de player_names_config.js."
     }
   ]
 }

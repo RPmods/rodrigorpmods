@@ -5,6 +5,8 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
+  const DIVISION_SCORE = { "V": 1, "IV": 2, "III": 3, "II": 4, "I": 5 };
+
   function esc(value) {
     return String(value ?? "").replace(/[&<>'"]/g, ch => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
@@ -20,18 +22,59 @@
     return rank ? rank.icon : "";
   }
 
+  function rankBaseScore(id) {
+    const rank = rankById(id);
+    return rank ? Number(rank.order || 0) * 100 : 0;
+  }
+
+  function rankDivisionScore(label) {
+    const roman = String(label || "").trim().split(/\s+/).pop();
+    return DIVISION_SCORE[roman] || 0;
+  }
+
+  function playerRankScore(player) {
+    if (!player || player.status === "empty") return -999;
+    return rankBaseScore(player.currentRankId) + rankDivisionScore(player.currentRank);
+  }
+
+  function sortPlayersByRank(players) {
+    return [...players].sort((a, b) => {
+      const score = playerRankScore(b) - playerRankScore(a);
+      if (score) return score;
+      return String(a.nickname || "").localeCompare(String(b.nickname || ""), "es");
+    });
+  }
+
   function playerById(id) {
     return (data.players || []).find(player => player.id === id) || null;
   }
 
-  function teamPlayers(team) {
-    const ids = [...(team.players || []), ...(team.substitutes || [])];
-    return ids.map(playerById).filter(Boolean);
+  function teamById(id) {
+    return (data.teams || []).find(team => team.id === id) || null;
+  }
+
+  function teamName(id) {
+    const team = teamById(id);
+    return team ? team.name : "Sin equipo";
+  }
+
+  function teamPlayers(team, includeSubs = true) {
+    const ids = includeSubs ? [...(team.players || []), ...(team.substitutes || [])] : [...(team.players || [])];
+    const roster = ids.map(playerById).filter(Boolean);
+    const active = sortPlayersByRank(roster.filter(player => player.status !== "empty"));
+    const empty = roster.filter(player => player.status === "empty");
+    return [...active, ...empty];
   }
 
   function characterThumb(player) {
     if (!player?.mainCharacterId) return "";
     return `img/characters/thumbs/${String(player.mainCharacterId).replaceAll(" ", "_")}.png`;
+  }
+
+  function statusLabel(value) {
+    if (value === "confirmed") return "Confirmado";
+    if (value === "demo") return "Ejemplo";
+    return value || "Pendiente";
   }
 
   function renderRankCell(label, id) {
@@ -40,42 +83,63 @@
   }
 
   function renderTeamCard(team, compact = false) {
-    const roster = teamPlayers(team);
-    const rows = roster.map(player => `
-      <tr>
-        <td><span class="tournament-role-badge ${player.status === "empty" ? "empty" : ""}">${esc(player.role)}</span></td>
-        <td>${esc(player.nickname)}${player.gameId ? `<small> ID:${esc(player.gameId)}</small>` : ""}</td>
-        <td>${renderRankCell(player.currentRank, player.currentRankId)}</td>
-        <td>${renderRankCell(player.peakRank, player.peakRankId)}</td>
-        <td><span class="tournament-character-chip">${esc(player.mainCharacter)}</span></td>
-      </tr>`).join("");
+    const roster = teamPlayers(team, true);
+    const activePlayers = roster.filter(player => player.status !== "empty");
+    const rows = roster.map(player => {
+      const captainMark = player.id === team.captainId ? " is-captain" : player.id === team.subCaptainId ? " is-subcaptain" : "";
+      return `
+        <tr class="${player.status === "empty" ? "is-empty" : ""}${captainMark}">
+          <td><span class="tournament-role-badge ${player.status === "empty" ? "empty" : ""}">${esc(player.role)}</span></td>
+          <td><span class="player-name-strong">${esc(player.nickname)}</span>${player.gameId ? `<small>ID:${esc(player.gameId)}</small>` : ""}</td>
+          <td>${renderRankCell(player.currentRank, player.currentRankId)}</td>
+          <td>${renderRankCell(player.peakRank, player.peakRankId)}</td>
+          <td><span class="tournament-character-chip">${esc(player.mainCharacter)}</span></td>
+        </tr>`;
+    }).join("");
     return `
-      <article class="tournament-team-card">
-        <div class="tournament-team-emblem"><strong>${esc(team.tag || team.name)}</strong></div>
+      <article class="tournament-team-card ${compact ? "is-featured" : ""}">
+        <div class="tournament-team-emblem">
+          <span>${esc(team.tag || "TEAM")}</span>
+          <strong>${esc(team.name)}</strong>
+          <em>${esc(statusLabel(team.status))}</em>
+        </div>
         <div class="tournament-team-main">
-          <h3>${esc(team.name)}</h3>
+          <div class="tournament-team-heading-row">
+            <div>
+              <span class="tournament-section-kicker">Equipo registrado</span>
+              <h3>${esc(team.name)}</h3>
+            </div>
+            <span class="tournament-team-count">${activePlayers.length}/5 titulares</span>
+          </div>
           <div class="tournament-team-meta">
-            <span>Estado: <b>${esc(team.status || "pendiente")}</b></span>
-            <span>Titulares: <b>${(team.players || []).length}/5</b></span>
+            <span>Capitán: <b>${esc((playerById(team.captainId) || {}).nickname || "Pendiente")}</b></span>
+            <span>Sub-capitán: <b>${esc((playerById(team.subCaptainId) || {}).nickname || "Pendiente")}</b></span>
             <span>Suplentes: <b>${(team.substitutes || []).filter(id => (playerById(id) || {}).status !== "empty").length}/2</b></span>
           </div>
           <table class="tournament-roster-table">
             <thead><tr><th>Rol</th><th>Jugador</th><th>Rango actual</th><th>Rango máximo</th><th>Laminante</th></tr></thead>
             <tbody>${rows}</tbody>
           </table>
+          ${team.notes ? `<p class="tournament-team-note">${esc(team.notes)}</p>` : ""}
         </div>
       </article>`;
   }
 
+  function allActivePlayers() {
+    return sortPlayersByRank((data.players || []).filter(player => player.status !== "empty"));
+  }
+
   function renderPlayerRows() {
-    const players = (data.players || []).filter(player => player.status !== "empty");
+    const players = allActivePlayers();
     return `
       <table class="tournament-player-table">
-        <thead><tr><th>Jugador</th><th>Rol</th><th>Rango actual</th><th>Máximo</th><th>Laminante</th></tr></thead>
+        <thead><tr><th>#</th><th>Jugador</th><th>Equipo</th><th>Rol</th><th>Rango actual</th><th>Máximo</th><th>Laminante</th></tr></thead>
         <tbody>
           ${players.map((player, index) => `
             <tr class="tournament-player-row ${index === 0 ? "is-selected" : ""}" data-player-id="${esc(player.id)}">
-              <td>${esc(player.nickname)}<small> ID:${esc(player.gameId)}</small></td>
+              <td>${index + 1}</td>
+              <td><span class="player-name-strong">${esc(player.nickname)}</span>${player.gameId ? `<small>ID:${esc(player.gameId)}</small>` : ""}</td>
+              <td>${esc(teamName(player.teamId))}</td>
               <td>${esc(player.role)}</td>
               <td>${renderRankCell(player.currentRank, player.currentRankId)}</td>
               <td>${renderRankCell(player.peakRank, player.peakRankId)}</td>
@@ -91,14 +155,17 @@
     const icon = rankIcon(player.currentRankId);
     const thumb = characterThumb(player);
     detail.innerHTML = `
-      <h3>${esc(player.nickname)}</h3>
-      <p class="tournament-detail-id">ID:${esc(player.gameId || "Sin inscripción")}</p>
+      <div class="tournament-detail-header">
+        <span>Perfil destacado</span>
+        <h3>${esc(player.nickname)}</h3>
+        <p class="tournament-detail-id">ID:${esc(player.gameId || "Sin inscripción")}</p>
+      </div>
       <div class="rank-big">${icon ? `<img src="${esc(icon)}" alt="">` : ""}<strong>${esc(player.currentRank)}</strong></div>
       <div class="tournament-player-meta">
+        <div><span>Equipo</span><b>${esc(teamName(player.teamId))}</b></div>
         <div><span>Rol</span><b>${esc(player.role)}</b></div>
         <div><span>Rango máximo</span><b>${esc(player.peakRank)}</b></div>
         <div><span>Laminante frecuente</span><b>${esc(player.mainCharacter)}</b></div>
-        <div><span>Equipo</span><b>YO4HVNS</b></div>
       </div>
       ${thumb ? `<div class="tournament-character-preview"><img src="${esc(thumb)}" alt="${esc(player.mainCharacter)}" onerror="this.closest('.tournament-character-preview').remove()"><span>${esc(player.mainCharacter)}</span></div>` : ""}
       <p class="tournament-detail-note">Las estadísticas del perfil se cargarán manualmente. Esta ficha no consulta datos en tiempo real del juego.</p>`;
@@ -112,6 +179,27 @@
         <strong>${esc(map.name)}</strong>
         <span>${map.rankedOfficial ? "Ranked oficial + torneo" : "Habilitado para torneo"}</span>
       </article>`).join("");
+  }
+
+  function renderSummary() {
+    const featured = $("#tournament-featured-team");
+    const teams = data.teams || [];
+    if (!featured) return;
+    const teamCards = teams.slice(0, 4).map(team => `
+      <article class="tournament-mini-team" data-team-id="${esc(team.id)}">
+        <strong>${esc(team.tag || team.name)}</strong>
+        <span>${esc(team.name)}</span>
+        <em>${teamPlayers(team, false).filter(player => player.status !== "empty").length}/5</em>
+      </article>`).join("");
+    featured.innerHTML = `
+      <div class="tournament-summary-showcase">
+        <div class="tournament-showcase-main">
+          <span class="tournament-section-kicker">Equipos inscritos</span>
+          <h3>${teams.length} equipos cargados</h3>
+          <p>El torneo funciona como extensión del Draft System. Los datos son locales/manuales y pueden vincularse después a partidas, bracket y resultados.</p>
+        </div>
+        <div class="tournament-mini-team-grid">${teamCards}</div>
+      </div>`;
   }
 
   function setupTournamentTabs() {
@@ -152,20 +240,19 @@
     const root = $("#tournament-root");
     if (!root) return;
     const config = data.config || {};
-    const firstTeam = (data.teams || [])[0];
-    const firstPlayer = (data.players || []).find(player => player.status !== "empty");
+    const firstPlayer = allActivePlayers()[0];
     const setText = (selector, value) => { const node = $(selector); if (node) node.textContent = value; };
     setText("#tournament-title", config.name || "Gantigun Cup 2026");
-    setText("#tournament-subtitle", config.subtitle || "STRINOVA Tournament Hub");
+    setText("#tournament-subtitle", config.subtitle || "Tournament Hub externo");
     setText("#tournament-status", config.status || "Preparación");
     setText("#tournament-organizer", config.organizer || "Gantigun");
     setText("#tournament-last-updated", `Última actualización: ${config.statsMeta?.display || "pendiente"}`);
-    if (firstTeam) {
-      const featured = $("#tournament-featured-team");
-      const teamGrid = $("#tournament-team-grid");
-      if (featured) featured.innerHTML = renderTeamCard(firstTeam, true);
-      if (teamGrid) teamGrid.innerHTML = renderTeamCard(firstTeam, false);
-    }
+
+    renderSummary();
+
+    const teamGrid = $("#tournament-team-grid");
+    if (teamGrid) teamGrid.innerHTML = (data.teams || []).map(team => renderTeamCard(team, false)).join("");
+
     const list = $("#tournament-player-list");
     if (list) list.innerHTML = renderPlayerRows();
     renderPlayerDetail(firstPlayer);

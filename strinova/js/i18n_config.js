@@ -18,7 +18,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORIAL",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.3.0 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.3.1 by RPmods",
       "notice_error_title": "Ocurrió un problema",
       "notice_attention_title": "Atención",
       "notice_success_title": "Operación completada",
@@ -380,7 +380,8 @@ window.I18N_CONFIG = {
       "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — Se restauró la base funcional estable del modo online, el inicio del draft local y los botones de retorno/cancelación. También se retiraron los cambios experimentales que podían cortar listeners, flujo de turnos y navegación.",
       "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Se corrigió la lógica de Testing Bots para que no puedan preseleccionar ni confirmar durante la transición de bloqueos a selección. Ahora esperan a que termine el anuncio de fase y a que el turno esté realmente activo.",
       "tab_tournament": "TORNEO",
-      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Se añadió la primera extensión del torneo con datos locales de equipos/jugadores, perfiles con rangos e iconos, aviso de estadísticas no en tiempo real, map pool personalizado y apartado Ajustar HUD en Configuración."
+      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Se añadió la primera extensión del torneo con datos locales de equipos/jugadores, perfiles con rangos e iconos, aviso de estadísticas no en tiempo real, map pool personalizado y apartado Ajustar HUD en Configuración.",
+      "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — Se movió TORNEO junto a MENÚ, se centró el Tournament Hub, se ocultaron los paneles de equipos del draft dentro de la vista de torneo, se mejoró la visualización tipo Strinova, se añadieron tres equipos de ejemplo con nombres de player_names_config.js y los jugadores ahora se ordenan por rango de mayor a menor."
     },
     "en": {
       "tab_menu": "MENU",
@@ -391,7 +392,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTORY",
       "tab_credits": "CREDITS",
       "setup_eyebrow": "Competitive system",
-      "setup_title": "STRINOVA Draft System v3.3.0 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.3.1 by RPmods",
       "notice_error_title": "Something went wrong",
       "notice_attention_title": "Attention",
       "notice_success_title": "Completed",
@@ -720,7 +721,8 @@ window.I18N_CONFIG = {
       "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — Restored the stable online flow, local draft start, and back/cancel buttons. Experimental changes that could interrupt listeners, turn flow, and navigation were removed.",
       "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Testing Bots now wait until the phase announcement is finished before preselecting or confirming. They no longer act during the ban-to-pick transition.",
       "tab_tournament": "TOURNAMENT",
-      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Added the first tournament extension with local team/player data, rank icons, player profile cards, non-realtime statistics notice, custom map pool, and Adjust HUD under Settings."
+      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Added the first tournament extension with local team/player data, rank icons, player profile cards, non-realtime statistics notice, custom map pool, and Adjust HUD under Settings.",
+      "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — Moved TOURNAMENT next to MENU, centered the Tournament Hub, hid draft team panels inside the tournament view, improved the Strinova-like layout, added three example teams using names from player_names_config.js, and now sorts players from highest to lowest rank."
     },
     "ja": {
       "tab_menu": "メニュー",
@@ -731,7 +733,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新履歴",
       "tab_credits": "クレジット",
       "setup_eyebrow": "競技システム",
-      "setup_title": "STRINOVA Draft System v3.3.0 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.3.1 by RPmods",
       "notice_error_title": "問題が発生しました",
       "notice_attention_title": "注意",
       "notice_success_title": "完了",
@@ -1058,7 +1060,8 @@ window.I18N_CONFIG = {
       "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — Foi restaurada a base funcional estável do modo online, o início do draft local e os botões de voltar/cancelar. Mudanças experimentais que podiam interromper listeners, fluxo de turnos e navegação foram removidas.",
       "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Os Testing Bots agora esperam o anúncio de fase terminar antes de pré-selecionar ou confirmar. Eles não agem mais durante a transição de bloqueio para seleção.",
       "tab_tournament": "大会",
-      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — ローカルのチーム/プレイヤーデータ、ランクアイコン、プロフィール、リアルタイムではない統計の通知、カスタムマッププール、HUD調整を追加しました。"
+      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — ローカルのチーム/プレイヤーデータ、ランクアイコン、プロフィール、リアルタイムではない統計の通知、カスタムマッププール、HUD調整を追加しました。",
+      "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — トーナメントタブをメニューの隣へ移動し、Tournament Hub を中央配置に修正しました。ドラフト用チームパネルをトーナメント画面では非表示にし、Strinova 風レイアウトを改善、player_names_config.js の名前からサンプルチームを追加し、プレイヤーをランク順に並べます。"
     },
     "ru": {
       "tab_menu": "МЕНЮ",
@@ -1069,7 +1072,7 @@ window.I18N_CONFIG = {
       "tab_updates": "ОБНОВЛЕНИЯ",
       "tab_credits": "АВТОРЫ",
       "setup_eyebrow": "Соревновательная система",
-      "setup_title": "STRINOVA Draft System v3.3.0 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.3.1 by RPmods",
       "notice_error_title": "Произошла ошибка",
       "notice_attention_title": "Внимание",
       "notice_success_title": "Готово",
@@ -1396,7 +1399,8 @@ window.I18N_CONFIG = {
       "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — オンラインの安定した流れ、ローカルDraft開始、戻る/キャンセルボタンを復旧しました。リスナー、ターン進行、ナビゲーションを壊す可能性がある実験的変更を取り除きました。",
       "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Testing Bots がフェーズ告知中に事前選択や確定を行わないよう修正しました。ブロックから選択への遷移が終わってから行動します。",
       "tab_tournament": "ТУРНИР",
-      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Добавлено первое расширение турнира: локальные данные команд/игроков, иконки рангов, профили, предупреждение о не realtime статистике, пользовательский пул карт и настройка HUD."
+      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Добавлено первое расширение турнира: локальные данные команд/игроков, иконки рангов, профили, предупреждение о не realtime статистике, пользовательский пул карт и настройка HUD.",
+      "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — Вкладка турнира перемещена рядом с меню, Tournament Hub центрирован, панели команд драфта скрыты в виде турнира, визуальный стиль улучшен, добавлены три примерные команды из player_names_config.js, игроки сортируются по рангу сверху вниз."
     },
     "zh": {
       "tab_menu": "菜单",
@@ -1407,7 +1411,7 @@ window.I18N_CONFIG = {
       "tab_updates": "更新记录",
       "tab_credits": "制作名单",
       "setup_eyebrow": "竞技系统",
-      "setup_title": "STRINOVA Draft System v3.3.0 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.3.1 by RPmods",
       "notice_error_title": "出现问题",
       "notice_attention_title": "注意",
       "notice_success_title": "操作完成",
@@ -1734,7 +1738,8 @@ window.I18N_CONFIG = {
       "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — Восстановлена стабильная работа онлайн-режима, запуск локального драфта и кнопки возврата/отмены. Экспериментальные изменения, которые могли ломать listeners, ход turn flow и навигацию, удалены.",
       "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Testing Bots теперь ждут окончания объявления фазы перед предварительным выбором или подтверждением. Они больше не действуют во время перехода от ban к pick.",
       "tab_tournament": "赛事",
-      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — 新增赛事扩展：本地队伍/玩家数据、段位图标、个人资料、非实时统计提示、自定义地图池，以及设置中的 HUD 调整。"
+      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — 新增赛事扩展：本地队伍/玩家数据、段位图标、个人资料、非实时统计提示、自定义地图池，以及设置中的 HUD 调整。",
+      "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — 将赛事入口移动到菜单旁边，居中 Tournament Hub，在赛事视图中隐藏 draft 队伍面板，优化 Strinova 风格界面，使用 player_names_config.js 中的名称新增 3 支示例队伍，并按段位从高到低排序玩家。"
     },
     "pt": {
       "tab_menu": "MENU",
@@ -1745,7 +1750,7 @@ window.I18N_CONFIG = {
       "tab_updates": "UPDATES/HISTÓRICO",
       "tab_credits": "CRÉDITOS",
       "setup_eyebrow": "Sistema competitivo",
-      "setup_title": "STRINOVA Draft System v3.3.0 by RPmods",
+      "setup_title": "STRINOVA Draft System v3.3.1 by RPmods",
       "notice_error_title": "Ocorreu um problema",
       "notice_attention_title": "Atenção",
       "notice_success_title": "Concluído",
@@ -2072,7 +2077,8 @@ window.I18N_CONFIG = {
       "update_40": "v3.2.26 Hotfix (Stable Flow Restore) — 已恢复稳定的在线流程、本地 Draft 启动以及返回/取消按钮。移除了可能中断监听器、回合流程和导航的实验性改动。",
       "update_41": "v3.2.27 Hotfix (Bot Phase Guard) — Testing Bots 现在会等阶段播报结束后再预选或确认，不会在禁用阶段切换到选择阶段时提前行动。",
       "tab_tournament": "TORNEIO",
-      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Adicionada a primeira extensão de torneio com dados locais de equipes/jogadores, ícones de ranque, perfis, aviso de estatísticas não em tempo real, map pool personalizado e Ajustar HUD em Configuração."
+      "update_42": "v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Adicionada a primeira extensão de torneio com dados locais de equipes/jogadores, ícones de ranque, perfis, aviso de estatísticas não em tempo real, map pool personalizado e Ajustar HUD em Configuração.",
+      "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — TORNEIO foi movido para perto do MENU, o hub foi centralizado, os painéis de equipe do draft foram ocultados na vista de torneio, o visual foi refinado, três equipes de exemplo foram adicionadas com nomes de player_names_config.js e os jogadores agora são ordenados do maior para o menor rank."
     }
   }
 };

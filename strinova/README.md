@@ -360,3 +360,13 @@ Los nombres están centralizados en `INTRO_MENU_SETS`. No se modificaron las rut
 - Se añadió `Configuración → Ajustar HUD` con guía de zoom y opción de zona segura visual.
 
 Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/` conservando tus recursos privados: `img/characters/`, `audio/`, `video/`, `media/` y `js/firebase-env.js`.
+
+
+## v3.3.1 Tournament Layout + Teams Hotfix
+
+- Se movió el apartado TORNEO junto a MENÚ en la barra superior.
+- Se corrigió la vista de torneo para que no se superponga con los paneles del draft.
+- Se centró el Tournament Hub y se mejoró la escala para evitar cortes al cambiar tamaño o zoom.
+- Se añadieron tres equipos de ejemplo usando nombres existentes de `player_names_config.js`.
+- Los jugadores se ordenan por rango de mayor a menor; Laminante/Superstring queda por encima de Quark, Electron, etc.
+- Se mejoró la estética del Tournament Hub con tarjetas, paneles y tablas más cercanas al lenguaje visual de Strinova.

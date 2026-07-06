@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STRINOVA Draft System v3.3.0 by RPmods</title>
+  <title>STRINOVA Draft System v3.3.1 by RPmods</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -36,12 +36,12 @@
   <main id="setup-screen" class="screen setup-screen active">
     <section class="setup-shell settings-surface">
       <header class="settings-topbar">
-        <div class="settings-brand">STRINOVA Draft System v3.3.0 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.3.1 by RPmods</div>
         <nav class="settings-tabs">
           <button type="button" class="settings-tab setup-top-tab is-active" data-tab="menu">MENÚ</button>
+          <button type="button" class="settings-tab setup-top-tab" data-tab="tournament">TORNEO</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="volumen">VOLUMEN</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="configuracion">CONFIGURACIÓN</button>
-          <button type="button" class="settings-tab setup-top-tab" data-tab="tournament">TORNEO</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="random">RANDOM SELECTOR</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="idioma">IDIOMA</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="updates">UPDATES/HISTORIAL</button>
@@ -60,7 +60,7 @@
 
       <header class="setup-top">
         <p class="eyebrow">Sistema competitivo</p>
-        <h1>STRINOVA Draft System v3.3.0 by RPmods</h1>
+        <h1>STRINOVA Draft System v3.3.1 by RPmods</h1>
         <p>Configura nombres, tamaño de partida y fase de bloqueos antes de iniciar.</p>
       </header>
 
@@ -116,9 +116,9 @@
               <div id="tournament-root" class="tournament-root" data-view="summary">
                 <div class="tournament-hero-card">
                   <div class="tournament-title-block">
-                    <span class="tournament-kicker">Extensión del Draft System</span>
+                    <span class="tournament-kicker">GANTIGUN CUP · EXTENSIÓN DEL DRAFT SYSTEM</span>
                     <h2 id="tournament-title">GANTIGUN CUP 2026</h2>
-                    <p id="tournament-subtitle">STRINOVA Tournament Hub</p>
+                    <p id="tournament-subtitle">Tournament Hub externo para organización, equipos y perfiles</p>
                   </div>
                   <div class="tournament-status-card">
                     <span>Estado</span>
@@ -476,6 +476,7 @@
                   <li>v3.2.26 Hotfix (Stable Flow Restore) — Se restauró la base funcional estable del modo online, el inicio del draft local y los botones de retorno/cancelación. También se retiraron los cambios experimentales que podían cortar listeners, flujo de turnos y navegación.</li>
                   <li>v3.2.27 Hotfix (Bot Phase Guard) — Se corrigió la lógica de Testing Bots para que no puedan preseleccionar ni confirmar durante la transición de bloqueos a selección. Ahora esperan a que termine el anuncio de fase y a que el turno esté realmente activo.</li>
                   <li>v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Se añadió la primera extensión del torneo con datos locales de equipos/jugadores, perfiles con rangos e iconos, aviso de estadísticas no en tiempo real, map pool personalizado y apartado Ajustar HUD en Configuración.</li>
+                  <li>v3.3.1 Hotfix (Tournament Layout + Teams) — Se movió TORNEO junto a MENÚ, se centró el Tournament Hub, se ocultaron los paneles de equipos del draft dentro de la vista de torneo, se mejoró la visualización tipo Strinova, se añadieron tres equipos de ejemplo con nombres de <code>player_names_config.js</code> y se ordenan jugadores por rango de mayor a menor.</li>
                 </ul>
               </div>
             </section>
@@ -879,7 +880,7 @@
   <main id="map-screen" class="screen map-screen">
     <section class="map-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.3.0 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.3.1 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab is-active">SELECCIÓN DE MAPA</span>
         </nav>
@@ -910,7 +911,7 @@
   <main id="summary-screen" class="screen summary-screen">
     <section class="summary-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.3.0 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.3.1 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab">BÁSICO</span>
           <span class="settings-tab">EQUIPOS</span>
