@@ -406,10 +406,16 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - No modifica la lógica del draft ni los listeners online/locales.
 
 
-## v3.3.6 Verified Menu + Tournament Scroll Hotfix
+## v3.3.7 Verified Menu + Tournament Scroll Hotfix
 
 - Paquete regenerado con cambios verificables en `index.html`, `styles.css`, `tournament.js`, `i18n_config.js`, `package.json` y `README.md`.
 - Se reforzó el scroll real del apartado Torneo usando clase activa en `html`, `body`, `setup-screen` y `setup-shell`.
 - La barra superior del apartado Torneo conserva ancho estable y ya no debe cambiar al entrar o salir del tab.
 - El menú principal se reorganizó visualmente con un layout más limpio y moderno, sin tocar la lógica del draft ni `js/app.js`.
 - Se mantiene intacto el workflow, Firebase y las carpetas de recursos privados.
+
+## Hotfix v3.3.7 — Responsive Setup Layout
+
+- Se reestructuró el layout del menú y del Tournament Hub para salir del canvas fijo 1920x1080 mientras se está en la pantalla de configuración.
+- El menú y el torneo ahora usan scroll real del documento, mejor centrado y barra superior estable en pantalla completa y modo ventana.
+- Se mantuvo intacta la lógica del draft; este parche no modifica `js/app.js`.

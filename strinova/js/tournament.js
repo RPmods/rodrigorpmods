@@ -264,20 +264,30 @@
 
   function syncTournamentSurfaceState() {
     const shell = document.querySelector('.setup-shell');
+    const setupScreen = document.getElementById('setup-screen');
     const activeTopTab = document.querySelector('.setup-top-tab.is-active, .settings-tab.is-active');
     const tournamentPanel = document.querySelector('[data-panel="tournament"]');
+    const isSetupActive = Boolean(setupScreen && setupScreen.classList.contains('active'));
+    const activeTabName = activeTopTab && activeTopTab.dataset ? activeTopTab.dataset.tab : '';
     const isTournament = Boolean(
-      (shell && shell.classList.contains('view-tournament')) ||
-      (activeTopTab && activeTopTab.dataset && activeTopTab.dataset.tab === 'tournament') ||
-      (tournamentPanel && tournamentPanel.classList.contains('is-active'))
+      isSetupActive && (
+        (shell && shell.classList.contains('view-tournament')) ||
+        activeTabName === 'tournament' ||
+        (tournamentPanel && tournamentPanel.classList.contains('is-active'))
+      )
     );
+    const useResponsiveSetup = Boolean(isSetupActive);
 
+    document.documentElement.classList.toggle('setup-responsive-active', useResponsiveSetup);
+    document.body.classList.toggle('setup-responsive-active', useResponsiveSetup);
     document.documentElement.classList.toggle('tournament-surface-active', isTournament);
     document.body.classList.toggle('tournament-surface-active', isTournament);
 
-    const screen = document.getElementById('setup-screen');
-    if (screen) screen.classList.toggle('tournament-surface-active', isTournament);
-    if (shell) shell.classList.toggle('view-tournament', isTournament);
+    if (setupScreen) setupScreen.classList.toggle('tournament-surface-active', isTournament);
+    if (shell) {
+      shell.classList.toggle('view-tournament', isTournament);
+      shell.dataset.activeSetupTab = activeTabName || 'menu';
+    }
   }
 
   function watchTournamentSurfaceState() {

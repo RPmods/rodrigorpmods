@@ -386,7 +386,8 @@ window.I18N_CONFIG = {
       "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Se corrigió el recorte vertical del Tournament Hub, se mejoró el desplazamiento con rueda del mouse, se rediseñaron tarjetas de equipos/jugadores para evitar nombres cortados y se modernizó la barra del menú principal sin tocar la lógica del draft.",
       "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Se modernizó visualmente el menú principal, se corrigieron detalles de la barra superior, se estabilizó el fondo del Tournament Hub al hacer scroll y se ampliaron las tarjetas para evitar nombres cortados. No se modificó la lógica del draft.",
       "update_47": "v3.3.5 Hotfix (Menu Layout + Tournament Real Scroll) — Se reorganizó el menú principal, se estabilizó la barra superior del apartado Torneo y se corrigió el scroll real del Tournament Hub sin tocar la lógica del draft.",
-      "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — Paquete regenerado con cambios verificables, scroll real reforzado para Torneo, barra superior estable y menú principal reorganizado sin tocar la lógica del draft."
+      "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — Paquete regenerado con cambios verificables, scroll real reforzado para Torneo, barra superior estable y menú principal reorganizado sin tocar la lógica del draft.",
+      "update_49": "v3.3.7 Hotfix (Responsive Setup Layout) — Se reestructuró el menú y el Tournament Hub con layout responsivo real, barra superior estable, scroll de documento restaurado y mejor centrado en pantalla completa/ventana normal. No se modificó la lógica del draft."
     },
     "en": {
       "tab_menu": "MENU",
@@ -732,7 +733,8 @@ window.I18N_CONFIG = {
       "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Fixed Tournament Hub vertical clipping, improved mouse-wheel scrolling, redesigned team/player cards to avoid cut names, and modernized the main menu bar without touching draft logic.",
       "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Modernized the main menu visuals, fixed top navigation details, stabilized the Tournament Hub background while scrolling, and widened cards to prevent clipped names. Draft logic was not changed.",
       "update_47": "v3.3.5 Hotfix (Menu Layout + Tournament Real Scroll) — Reorganized the main menu, stabilized the Tournament top bar, and restored real mouse-wheel scrolling for the Tournament Hub without touching draft logic.",
-      "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — Regenerated package with verifiable changes, reinforced real Tournament scrolling, stabilized the top bar, and reorganized the main menu without touching draft logic."
+      "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — Regenerated package with verifiable changes, reinforced real Tournament scrolling, stabilized the top bar, and reorganized the main menu without touching draft logic.",
+      "update_49": "v3.3.7 Hotfix (Responsive Setup Layout) — Rebuilt the menu and Tournament Hub around a real responsive layout, stable top bar, restored document scrolling, and better centering in fullscreen/windowed mode. Draft logic was not changed."
     },
     "ja": {
       "tab_menu": "メニュー",
@@ -1076,7 +1078,8 @@ window.I18N_CONFIG = {
       "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Tournament Hub の縦方向の切れを修正し、スクロールとチーム/プレイヤーカードの表示を改善しました。",
       "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — メインメニューの見た目、上部ナビゲーション、Tournament Hub のスクロール時背景、カード幅を改善しました。Draft ロジックは変更していません。",
       "update_47": "v3.3.5 Hotfix (Menu Layout + Tournament Real Scroll) — メニュー配置、Tournament の上部バー、スクロール動作を改善しました。Draft ロジックは変更していません。",
-      "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — 検証可能な変更でパッケージを再生成し、Tournament のスクロールと上部バーを安定化しました。Draft ロジックは変更していません。"
+      "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — 検証可能な変更でパッケージを再生成し、Tournament のスクロールと上部バーを安定化しました。Draft ロジックは変更していません。",
+      "update_49": "v3.3.7 Hotfix (Responsive Setup Layout) — メニューと Tournament Hub をレスポンシブレイアウトに再構築し、上部バー、スクロール、中央配置を改善しました。Draft ロジックは変更していません。"
     },
     "ru": {
       "tab_menu": "МЕНЮ",
@@ -1420,7 +1423,8 @@ window.I18N_CONFIG = {
       "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Исправлены обрезание Tournament Hub, прокрутка колесом мыши и карточки команд/игроков без изменения логики драфта.",
       "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Обновлен внешний вид главного меню, исправлены детали верхней навигации, стабилизирован фон Tournament Hub при прокрутке и расширены карточки. Логика драфта не изменялась.",
       "update_47": "v3.3.5 Hotfix (Menu Layout + Tournament Real Scroll) — Переработано главное меню, стабилизирована верхняя панель Tournament и восстановлена прокрутка Tournament Hub без изменения логики драфта.",
-      "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — Пакет пересобран с проверяемыми изменениями, усилена прокрутка Tournament, стабилизирована верхняя панель и переработано главное меню без изменения логики драфта."
+      "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — Пакет пересобран с проверяемыми изменениями, усилена прокрутка Tournament, стабилизирована верхняя панель и переработано главное меню без изменения логики драфта.",
+      "update_49": "v3.3.7 Hotfix (Responsive Setup Layout) — Меню и Tournament Hub переведены на адаптивную компоновку, стабилизирована верхняя панель, восстановлена прокрутка страницы и улучшено центрирование. Логика draft не изменялась."
     },
     "zh": {
       "tab_menu": "菜单",
@@ -1764,7 +1768,8 @@ window.I18N_CONFIG = {
       "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — 修复 Tournament Hub 垂直裁切，改进鼠标滚轮滚动，并优化队伍/玩家卡片显示，未改动 Draft 逻辑。",
       "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — 优化主菜单视觉、顶部导航细节、Tournament Hub 滚动时的背景稳定性，并加宽卡片避免名称被截断。未改动 Draft 逻辑。",
       "update_47": "v3.3.5 Hotfix (Menu Layout + Tournament Real Scroll) — 重新整理主菜单，稳定 Tournament 顶部栏，并恢复 Tournament Hub 的真实滚轮滚动。未改动 Draft 逻辑。",
-      "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — 重新生成带有可验证更改的包，强化 Tournament 真实滚动，稳定顶部栏，并重新整理主菜单。未改动 Draft 逻辑。"
+      "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — 重新生成带有可验证更改的包，强化 Tournament 真实滚动，稳定顶部栏，并重新整理主菜单。未改动 Draft 逻辑。",
+      "update_49": "v3.3.7 Hotfix (Responsive Setup Layout) — 将菜单和 Tournament Hub 重构为真实响应式布局，稳定顶部栏，恢复页面滚动，并改善全屏/窗口模式下的居中。未改动 Draft 逻辑。"
     },
     "pt": {
       "tab_menu": "MENU",
@@ -2108,7 +2113,8 @@ window.I18N_CONFIG = {
       "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Corrigido o corte vertical do Tournament Hub, melhorada a rolagem com o mouse e redesenhados os cards de equipes/jogadores sem alterar a lógica do draft.",
       "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Modernizado o visual do menu principal, corrigidos detalhes da navegação superior, estabilizado o fundo do Tournament Hub durante a rolagem e ampliados os cards para evitar nomes cortados. A lógica do draft não foi alterada.",
       "update_47": "v3.3.5 Hotfix (Menu Layout + Tournament Real Scroll) — Reorganizado o menu principal, estabilizada a barra superior do Tournament e restaurada a rolagem real do Tournament Hub sem alterar a lógica do draft.",
-      "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — Pacote regenerado com alterações verificáveis, rolagem real reforçada no Tournament, barra superior estabilizada e menu principal reorganizado sem alterar a lógica do draft."
+      "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — Pacote regenerado com alterações verificáveis, rolagem real reforçada no Tournament, barra superior estabilizada e menu principal reorganizado sem alterar a lógica do draft.",
+      "update_49": "v3.3.7 Hotfix (Responsive Setup Layout) — Menu e Tournament Hub foram reestruturados com layout responsivo real, barra superior estável, rolagem de página restaurada e melhor centralização. A lógica do draft não foi alterada."
     }
   }
 };

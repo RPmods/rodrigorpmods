@@ -17424,3 +17424,641 @@ body.tournament-surface-active .background-layer .bg-fallback {
     font-size: clamp(2.2rem, 12vw, 3.2rem) !important;
   }
 }
+
+/* v3.3.7 — Responsive Setup Layout Rebuild
+   Scope: setup menu + tournament presentation only. The draft screen/flow is not modified. */
+
+html.setup-responsive-active,
+html.setup-responsive-active body,
+body.setup-responsive-active {
+  height: auto !important;
+  min-height: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  background:
+    linear-gradient(rgba(80, 96, 124, 0.095) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 96, 124, 0.095) 1px, transparent 1px),
+    linear-gradient(180deg, #f2f5f9 0%, #dbe3ee 100%) !important;
+  background-size: 160px 160px, 160px 160px, auto !important;
+  scrollbar-gutter: stable !important;
+}
+
+html.setup-responsive-active #viewport,
+body.setup-responsive-active #viewport,
+html.setup-responsive-active #game-root,
+body.setup-responsive-active #game-root {
+  position: relative !important;
+  inset: auto !important;
+  left: auto !important;
+  top: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+  transform: none !important;
+  transform-origin: top center !important;
+  background: transparent !important;
+}
+
+html.setup-responsive-active .screen,
+html.setup-responsive-active .setup-screen,
+body.setup-responsive-active .screen,
+body.setup-responsive-active .setup-screen {
+  position: relative !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+}
+
+html.setup-responsive-active .setup-screen.active,
+body.setup-responsive-active .setup-screen.active {
+  display: block !important;
+  padding: 28px 0 72px !important;
+}
+
+html.setup-responsive-active .background-layer,
+body.setup-responsive-active .background-layer {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  background:
+    linear-gradient(rgba(80, 96, 124, 0.095) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 96, 124, 0.095) 1px, transparent 1px),
+    linear-gradient(180deg, #f2f5f9 0%, #dbe3ee 100%) !important;
+  background-size: 160px 160px, 160px 160px, auto !important;
+}
+
+html.setup-responsive-active .background-layer .bg-video,
+body.setup-responsive-active .background-layer .bg-video,
+html.setup-responsive-active .background-layer .bg-tint,
+body.setup-responsive-active .background-layer .bg-tint,
+html.setup-responsive-active .background-layer .scanlines,
+body.setup-responsive-active .background-layer .scanlines {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+html.setup-responsive-active .background-layer .bg-fallback,
+body.setup-responsive-active .background-layer .bg-fallback {
+  opacity: 1 !important;
+  background:
+    radial-gradient(circle at 55% 0%, rgba(255,255,255,.80), transparent 34%),
+    linear-gradient(rgba(80, 96, 124, 0.095) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 96, 124, 0.095) 1px, transparent 1px),
+    linear-gradient(180deg, #f2f5f9 0%, #dbe3ee 100%) !important;
+  background-size: auto, 160px 160px, 160px 160px, auto !important;
+}
+
+html.setup-responsive-active .setup-shell.settings-surface,
+body.setup-responsive-active .setup-shell.settings-surface {
+  display: block !important;
+  width: min(1760px, calc(100vw - 72px)) !important;
+  min-width: 0 !important;
+  max-width: 1760px !important;
+  height: auto !important;
+  min-height: calc(100vh - 56px) !important;
+  max-height: none !important;
+  margin: 0 auto !important;
+  padding: 0 0 56px !important;
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  transform: none !important;
+}
+
+html.setup-responsive-active .setup-shell.settings-surface::before,
+body.setup-responsive-active .setup-shell.settings-surface::before {
+  display: none !important;
+  content: none !important;
+}
+
+html.setup-responsive-active .settings-topbar,
+body.setup-responsive-active .settings-topbar,
+html.tournament-surface-active .settings-topbar,
+body.tournament-surface-active .settings-topbar {
+  position: sticky !important;
+  top: 0 !important;
+  left: auto !important;
+  right: auto !important;
+  z-index: 10050 !important;
+  width: 100% !important;
+  height: 62px !important;
+  min-height: 62px !important;
+  display: grid !important;
+  grid-template-columns: minmax(220px, 360px) minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 18px !important;
+  margin: 0 0 18px !important;
+  padding: 0 24px !important;
+  overflow: visible !important;
+  background:
+    linear-gradient(90deg, rgba(18,22,28,.99) 0%, rgba(35,41,50,.99) 47%, rgba(18,22,28,.99) 100%) !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  box-shadow: 0 14px 36px rgba(16,20,26,.18), inset 0 -1px 0 rgba(255,255,255,.06) !important;
+  box-sizing: border-box !important;
+}
+
+html.setup-responsive-active .settings-brand,
+body.setup-responsive-active .settings-brand {
+  min-width: 0 !important;
+  max-width: none !important;
+  flex: none !important;
+  display: flex !important;
+  align-items: center !important;
+  color: #f6f8fb !important;
+  font-size: clamp(.62rem, .72vw, .78rem) !important;
+  font-weight: 1000 !important;
+  letter-spacing: .045em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+html.setup-responsive-active .settings-brand::before,
+body.setup-responsive-active .settings-brand::before {
+  content: "";
+  width: 4px;
+  height: 28px;
+  margin-right: 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ff4961, #bd2837);
+  box-shadow: 0 0 18px rgba(255,67,86,.42);
+  flex: 0 0 auto;
+}
+
+html.setup-responsive-active .settings-tabs,
+body.setup-responsive-active .settings-tabs {
+  min-width: 0 !important;
+  height: 62px !important;
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scrollbar-width: none !important;
+  mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%) !important;
+}
+html.setup-responsive-active .settings-tabs::-webkit-scrollbar,
+body.setup-responsive-active .settings-tabs::-webkit-scrollbar { display: none !important; }
+
+html.setup-responsive-active .settings-tab,
+html.setup-responsive-active .setup-top-tab,
+body.setup-responsive-active .settings-tab,
+body.setup-responsive-active .setup-top-tab {
+  position: relative !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 116px !important;
+  max-width: none !important;
+  height: 62px !important;
+  min-height: 62px !important;
+  padding: 0 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 0 !important;
+  color: rgba(238,242,248,.66) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  clip-path: polygon(13px 0, 100% 0, calc(100% - 13px) 100%, 0 100%) !important;
+  font-size: clamp(.60rem, .66vw, .72rem) !important;
+  font-weight: 1000 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+}
+
+html.setup-responsive-active .settings-tab::before,
+html.setup-responsive-active .settings-tab::after,
+html.setup-responsive-active .setup-top-tab::before,
+html.setup-responsive-active .setup-top-tab::after,
+body.setup-responsive-active .settings-tab::before,
+body.setup-responsive-active .settings-tab::after,
+body.setup-responsive-active .setup-top-tab::before,
+body.setup-responsive-active .setup-top-tab::after {
+  display: none !important;
+  content: none !important;
+}
+
+html.setup-responsive-active .settings-tab:hover,
+html.setup-responsive-active .setup-top-tab:hover,
+body.setup-responsive-active .settings-tab:hover,
+body.setup-responsive-active .setup-top-tab:hover {
+  color: #fff !important;
+  background: rgba(255,255,255,.055) !important;
+}
+
+html.setup-responsive-active .settings-tab.is-active,
+html.setup-responsive-active .setup-top-tab.is-active,
+body.setup-responsive-active .settings-tab.is-active,
+body.setup-responsive-active .setup-top-tab.is-active {
+  min-width: 144px !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, #a91f31 0%, #d83345 56%, #f05261 100%) !important;
+  box-shadow: 0 12px 28px rgba(199,39,55,.24), inset 0 -4px 0 rgba(255,255,255,.13) !important;
+}
+
+html.setup-responsive-active .settings-canvas,
+html.setup-responsive-active .settings-preview-pane,
+html.setup-responsive-active .settings-scroll-rail,
+body.setup-responsive-active .settings-canvas,
+body.setup-responsive-active .settings-preview-pane,
+body.setup-responsive-active .settings-scroll-rail {
+  display: none !important;
+}
+
+html.setup-responsive-active .setup-hero,
+body.setup-responsive-active .setup-hero {
+  opacity: .18 !important;
+  filter: grayscale(.12) drop-shadow(0 26px 32px rgba(50,60,75,.18)) !important;
+  z-index: 1 !important;
+}
+
+/* Menu dashboard rebuilt as a responsive document layout. */
+html.setup-responsive-active .setup-shell.view-menu .setup-top,
+body.setup-responsive-active .setup-shell.view-menu .setup-top {
+  position: relative !important;
+  z-index: 3 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) clamp(190px, 18vw, 310px) !important;
+  align-items: stretch !important;
+  min-height: clamp(138px, 17vh, 178px) !important;
+  margin: 0 0 22px !important;
+  padding: 24px 30px !important;
+  max-width: none !important;
+  text-align: left !important;
+  background:
+    linear-gradient(90deg, rgba(29,34,42,.98) 0%, rgba(58,67,80,.94) 69%, rgba(184,42,58,.94) 69%, rgba(214,54,70,.95) 100%) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  box-shadow: 0 16px 48px rgba(20,24,30,.14), inset 0 1px 0 rgba(255,255,255,.08) !important;
+  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% calc(100% - 24px), calc(100% - 24px) 100%, 24px 100%, 0 calc(100% - 24px)) !important;
+  overflow: hidden !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-top::before,
+body.setup-responsive-active .setup-shell.view-menu .setup-top::before {
+  content: "DRAFT" !important;
+  display: block !important;
+  position: absolute !important;
+  right: 25% !important;
+  top: -32px !important;
+  color: rgba(255,255,255,.055) !important;
+  font-size: clamp(5rem, 9vw, 10rem) !important;
+  font-weight: 1000 !important;
+  letter-spacing: -.075em !important;
+  z-index: 1 !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-top::after,
+body.setup-responsive-active .setup-shell.view-menu .setup-top::after {
+  content: "DRAFT\A SYSTEM" !important;
+  display: grid !important;
+  white-space: pre-line !important;
+  grid-column: 2 !important;
+  grid-row: 1 / 4 !important;
+  place-items: center !important;
+  align-self: stretch !important;
+  justify-self: stretch !important;
+  color: #fff !important;
+  border-left: 1px solid rgba(255,255,255,.18) !important;
+  font-size: clamp(1.05rem, 1.45vw, 1.8rem) !important;
+  font-weight: 1000 !important;
+  line-height: 1.05 !important;
+  letter-spacing: .08em !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  background: transparent !important;
+  clip-path: none !important;
+  z-index: 2 !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-top .eyebrow,
+html.setup-responsive-active .setup-shell.view-menu .setup-top h1,
+html.setup-responsive-active .setup-shell.view-menu .setup-top p:not(.eyebrow),
+body.setup-responsive-active .setup-shell.view-menu .setup-top .eyebrow,
+body.setup-responsive-active .setup-shell.view-menu .setup-top h1,
+body.setup-responsive-active .setup-shell.view-menu .setup-top p:not(.eyebrow) {
+  grid-column: 1 !important;
+  position: relative !important;
+  z-index: 2 !important;
+  max-width: min(1020px, 100%) !important;
+  margin-left: 0 !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-top .eyebrow,
+body.setup-responsive-active .setup-shell.view-menu .setup-top .eyebrow {
+  margin: 0 0 7px !important;
+  align-self: end !important;
+  color: #ffd84d !important;
+  font-size: clamp(.64rem, .74vw, .80rem) !important;
+  font-weight: 1000 !important;
+  letter-spacing: .16em !important;
+  text-transform: uppercase !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-top h1,
+body.setup-responsive-active .setup-shell.view-menu .setup-top h1 {
+  margin: 0 !important;
+  color: #f7f9fc !important;
+  font-size: clamp(3.0rem, 5.2vw, 6.2rem) !important;
+  line-height: .88 !important;
+  letter-spacing: -.060em !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 2px 14px rgba(0,0,0,.26) !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-top p:not(.eyebrow),
+body.setup-responsive-active .setup-shell.view-menu .setup-top p:not(.eyebrow) {
+  display: block !important;
+  margin: 8px 0 0 !important;
+  color: rgba(246,248,252,.82) !important;
+  font-size: clamp(.70rem, .82vw, .98rem) !important;
+  font-weight: 900 !important;
+  letter-spacing: .04em !important;
+  text-transform: uppercase !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-teams,
+body.setup-responsive-active .setup-shell.view-menu .setup-teams {
+  position: relative !important;
+  z-index: 3 !important;
+  display: grid !important;
+  grid-template-columns: minmax(410px, 1fr) clamp(320px, 24vw, 430px) minmax(410px, 1fr) !important;
+  gap: 24px !important;
+  align-items: stretch !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-team,
+html.setup-responsive-active .setup-shell.view-menu .setup-center-card,
+body.setup-responsive-active .setup-shell.view-menu .setup-team,
+body.setup-responsive-active .setup-shell.view-menu .setup-center-card {
+  min-height: clamp(540px, 66vh, 720px) !important;
+  height: auto !important;
+  border: 1px solid rgba(64,74,88,.18) !important;
+  background:
+    linear-gradient(180deg, rgba(248,250,253,.34), rgba(213,220,230,.20)),
+    linear-gradient(rgba(76,94,124,.075) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(76,94,124,.075) 1px, transparent 1px) !important;
+  background-size: auto, 96px 96px, 96px 96px !important;
+  box-shadow: inset 0 0 42px rgba(255,255,255,.08) !important;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%) !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-center-card,
+body.setup-responsive-active .setup-shell.view-menu .setup-center-card {
+  display: grid !important;
+  align-content: start !important;
+  gap: 16px !important;
+  padding: 28px 20px !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .versus-core,
+body.setup-responsive-active .setup-shell.view-menu .versus-core {
+  margin: 0 !important;
+  color: #303843 !important;
+  font-size: clamp(4.5rem, 6vw, 7.2rem) !important;
+  line-height: .82 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.45) !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-rules,
+html.setup-responsive-active .setup-shell.view-menu .menu-panel-copy,
+html.setup-responsive-active .setup-shell.view-menu .menu-panel-highlights span,
+html.setup-responsive-active .setup-shell.view-menu .player-name-mode-panel,
+body.setup-responsive-active .setup-shell.view-menu .setup-rules,
+body.setup-responsive-active .setup-shell.view-menu .menu-panel-copy,
+body.setup-responsive-active .setup-shell.view-menu .menu-panel-highlights span,
+body.setup-responsive-active .setup-shell.view-menu .player-name-mode-panel {
+  position: static !important;
+  width: 100% !important;
+  margin: 0 !important;
+  border: 1px solid rgba(72,82,96,.16) !important;
+  background: rgba(255,255,255,.22) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18) !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .player-name-mode-panel,
+body.setup-responsive-active .setup-shell.view-menu .player-name-mode-panel {
+  display: grid !important;
+  gap: 10px !important;
+  padding: 14px 16px !important;
+  border-left: 5px solid #df3445 !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .player-name-mode-actions,
+body.setup-responsive-active .setup-shell.view-menu .player-name-mode-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu #start-draft,
+html.setup-responsive-active .setup-shell.view-menu #create-room,
+html.setup-responsive-active .setup-shell.view-menu #join-room,
+body.setup-responsive-active .setup-shell.view-menu #start-draft,
+body.setup-responsive-active .setup-shell.view-menu #create-room,
+body.setup-responsive-active .setup-shell.view-menu #join-room {
+  min-height: 58px !important;
+  width: 100% !important;
+  background: linear-gradient(135deg, #202631, #2f3744) !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  border-bottom: 4px solid #df3445 !important;
+  box-shadow: none !important;
+  clip-path: polygon(14px 0, 100% 0, calc(100% - 10px) 100%, 0 100%) !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .room-join-box,
+body.setup-responsive-active .setup-shell.view-menu .room-join-box {
+  display: grid !important;
+  grid-template-columns: 94px minmax(0, 1fr) !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+  width: 100% !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .room-input,
+body.setup-responsive-active .setup-shell.view-menu .room-input {
+  min-width: 0 !important;
+  width: 100% !important;
+  text-align: center !important;
+}
+
+/* Tournament: keep the same topbar width/position as the menu and restore document scrolling. */
+html.setup-responsive-active .setup-shell.view-tournament.settings-surface,
+body.setup-responsive-active .setup-shell.view-tournament.settings-surface,
+html.tournament-surface-active .setup-shell.view-tournament.settings-surface,
+body.tournament-surface-active .setup-shell.view-tournament.settings-surface {
+  width: min(1760px, calc(100vw - 72px)) !important;
+  max-width: 1760px !important;
+  height: auto !important;
+  min-height: calc(100vh - 56px) !important;
+  max-height: none !important;
+  margin: 0 auto !important;
+  padding: 0 0 72px !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+html.setup-responsive-active .setup-shell.view-tournament .setup-top,
+html.setup-responsive-active .setup-shell.view-tournament .setup-teams,
+html.setup-responsive-active .setup-shell.view-tournament .setup-team,
+html.setup-responsive-active .setup-shell.view-tournament .setup-center-card,
+html.setup-responsive-active .setup-shell.view-tournament .setup-hero,
+body.setup-responsive-active .setup-shell.view-tournament .setup-top,
+body.setup-responsive-active .setup-shell.view-tournament .setup-teams,
+body.setup-responsive-active .setup-shell.view-tournament .setup-team,
+body.setup-responsive-active .setup-shell.view-tournament .setup-center-card,
+body.setup-responsive-active .setup-shell.view-tournament .setup-hero {
+  display: none !important;
+}
+
+html.setup-responsive-active .setup-shell.view-tournament .setup-panels,
+body.setup-responsive-active .setup-shell.view-tournament .setup-panels {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html.setup-responsive-active .setup-shell.view-tournament .setup-panel.tournament-panel,
+html.setup-responsive-active .setup-shell.view-tournament .setup-panel.tournament-panel.is-active,
+body.setup-responsive-active .setup-shell.view-tournament .setup-panel.tournament-panel,
+body.setup-responsive-active .setup-shell.view-tournament .setup-panel.tournament-panel.is-active {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+html.setup-responsive-active .tournament-root,
+body.setup-responsive-active .tournament-root {
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  margin: 0 auto 48px !important;
+}
+
+html.setup-responsive-active .tournament-root .tournament-view,
+body.setup-responsive-active .tournament-root .tournament-view {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+html.setup-responsive-active .tournament-hero-card,
+body.setup-responsive-active .tournament-hero-card {
+  min-height: clamp(150px, 18vh, 210px) !important;
+}
+
+html.setup-responsive-active .tournament-title-block h2,
+body.setup-responsive-active .tournament-title-block h2 {
+  font-size: clamp(3.6rem, 6vw, 6.8rem) !important;
+}
+
+html.setup-responsive-active .tournament-view-tabs,
+body.setup-responsive-active .tournament-view-tabs {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(150px, 250px)) !important;
+  gap: 8px !important;
+}
+
+@media (max-width: 1320px) {
+  html.setup-responsive-active .settings-topbar,
+  body.setup-responsive-active .settings-topbar {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    min-height: 62px !important;
+    gap: 0 !important;
+    padding: 0 18px 8px !important;
+  }
+  html.setup-responsive-active .settings-brand,
+  body.setup-responsive-active .settings-brand {
+    height: 42px !important;
+  }
+  html.setup-responsive-active .settings-tabs,
+  body.setup-responsive-active .settings-tabs {
+    justify-content: flex-start !important;
+  }
+  html.setup-responsive-active .setup-shell.settings-surface,
+  body.setup-responsive-active .setup-shell.settings-surface {
+    width: min(1000px, calc(100vw - 36px)) !important;
+  }
+  html.setup-responsive-active .setup-shell.view-menu .setup-top,
+  html.setup-responsive-active .setup-shell.view-menu .setup-teams,
+  body.setup-responsive-active .setup-shell.view-menu .setup-top,
+  body.setup-responsive-active .setup-shell.view-menu .setup-teams {
+    grid-template-columns: 1fr !important;
+  }
+  html.setup-responsive-active .setup-shell.view-menu .setup-top::after,
+  body.setup-responsive-active .setup-shell.view-menu .setup-top::after {
+    display: none !important;
+    content: none !important;
+  }
+  html.setup-responsive-active .setup-shell.view-menu .setup-team,
+  html.setup-responsive-active .setup-shell.view-menu .setup-center-card,
+  body.setup-responsive-active .setup-shell.view-menu .setup-team,
+  body.setup-responsive-active .setup-shell.view-menu .setup-center-card {
+    min-height: auto !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html.setup-responsive-active .setup-screen.active,
+  body.setup-responsive-active .setup-screen.active {
+    padding: 12px 0 48px !important;
+  }
+  html.setup-responsive-active .setup-shell.settings-surface,
+  body.setup-responsive-active .setup-shell.settings-surface {
+    width: calc(100vw - 16px) !important;
+  }
+  html.setup-responsive-active .settings-tab,
+  html.setup-responsive-active .setup-top-tab,
+  body.setup-responsive-active .settings-tab,
+  body.setup-responsive-active .setup-top-tab {
+    min-width: 104px !important;
+    padding: 0 14px !important;
+  }
+  html.setup-responsive-active .setup-shell.view-menu .setup-top h1,
+  body.setup-responsive-active .setup-shell.view-menu .setup-top h1 {
+    font-size: clamp(2.2rem, 12vw, 3.4rem) !important;
+  }
+  html.setup-responsive-active .setup-shell.view-menu .room-join-box,
+  html.setup-responsive-active .setup-shell.view-menu .player-name-mode-actions,
+  body.setup-responsive-active .setup-shell.view-menu .room-join-box,
+  body.setup-responsive-active .setup-shell.view-menu .player-name-mode-actions,
+  html.setup-responsive-active .tournament-view-tabs,
+  body.setup-responsive-active .tournament-view-tabs {
+    grid-template-columns: 1fr !important;
+  }
+  html.setup-responsive-active .tournament-title-block h2,
+  body.setup-responsive-active .tournament-title-block h2 {
+    font-size: clamp(2.2rem, 12vw, 3.6rem) !important;
+  }
+}
