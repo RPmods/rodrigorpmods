@@ -265,6 +265,7 @@
   function syncTournamentSurfaceState() {
     const shell = document.querySelector('.setup-shell');
     const isTournament = !!shell && shell.classList.contains('view-tournament');
+    document.documentElement.classList.toggle('tournament-surface-active', isTournament);
     document.body.classList.toggle('tournament-surface-active', isTournament);
     const screen = document.getElementById('setup-screen');
     if (screen) screen.classList.toggle('tournament-surface-active', isTournament);

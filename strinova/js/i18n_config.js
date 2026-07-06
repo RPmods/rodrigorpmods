@@ -384,7 +384,8 @@ window.I18N_CONFIG = {
       "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — Se movió TORNEO junto a MENÚ, se centró el Tournament Hub, se ocultaron los paneles de equipos del draft dentro de la vista de torneo, se mejoró la visualización tipo Strinova, se añadieron tres equipos de ejemplo con nombres de player_names_config.js y los jugadores ahora se ordenan por rango de mayor a menor.",
       "update_44": "v3.3.2 Hotfix (Tournament Wide Layout) — Se amplió el Tournament Hub para usar más espacio de pantalla, se retiraron Mapas y Reglas como pestañas principales, se reforzó el escalado responsivo y se mejoró la vista de Resumen, Equipos y Jugadores.",
       "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Se corrigió el recorte vertical del Tournament Hub, se mejoró el desplazamiento con rueda del mouse, se rediseñaron tarjetas de equipos/jugadores para evitar nombres cortados y se modernizó la barra del menú principal sin tocar la lógica del draft.",
-      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Se modernizó visualmente el menú principal, se corrigieron detalles de la barra superior, se estabilizó el fondo del Tournament Hub al hacer scroll y se ampliaron las tarjetas para evitar nombres cortados. No se modificó la lógica del draft."
+      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Se modernizó visualmente el menú principal, se corrigieron detalles de la barra superior, se estabilizó el fondo del Tournament Hub al hacer scroll y se ampliaron las tarjetas para evitar nombres cortados. No se modificó la lógica del draft.",
+      "update_47": "v3.3.5 Hotfix (Menu Layout + Tournament Real Scroll) — Se reorganizó el menú principal, se estabilizó la barra superior del apartado Torneo y se corrigió el scroll real del Tournament Hub sin tocar la lógica del draft."
     },
     "en": {
       "tab_menu": "MENU",
@@ -728,7 +729,8 @@ window.I18N_CONFIG = {
       "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — Moved TOURNAMENT next to MENU, centered the Tournament Hub, hid draft team panels inside the tournament view, improved the Strinova-like layout, added three example teams using names from player_names_config.js, and now sorts players from highest to lowest rank.",
       "update_44": "v3.3.2 Hotfix (Tournament Wide Layout) — Expanded the Tournament Hub to use more screen space, removed Maps and Rules as main tabs, reinforced responsive scaling, and improved Summary, Teams and Players views.",
       "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Fixed Tournament Hub vertical clipping, improved mouse-wheel scrolling, redesigned team/player cards to avoid cut names, and modernized the main menu bar without touching draft logic.",
-      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Modernized the main menu visuals, fixed top navigation details, stabilized the Tournament Hub background while scrolling, and widened cards to prevent clipped names. Draft logic was not changed."
+      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Modernized the main menu visuals, fixed top navigation details, stabilized the Tournament Hub background while scrolling, and widened cards to prevent clipped names. Draft logic was not changed.",
+      "update_47": "v3.3.5 Hotfix (Menu Layout + Tournament Real Scroll) — Reorganized the main menu, stabilized the Tournament top bar, and restored real mouse-wheel scrolling for the Tournament Hub without touching draft logic."
     },
     "ja": {
       "tab_menu": "メニュー",
@@ -1070,7 +1072,8 @@ window.I18N_CONFIG = {
       "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — トーナメントタブをメニューの隣へ移動し、Tournament Hub を中央配置に修正しました。ドラフト用チームパネルをトーナメント画面では非表示にし、Strinova 風レイアウトを改善、player_names_config.js の名前からサンプルチームを追加し、プレイヤーをランク順に並べます。",
       "update_44": "v3.3.2 Hotfix (Tournament Wide Layout) — Tournament Hub の表示領域を拡大し、Maps と Rules をメインタブから外し、レスポンシブ表示を強化しました。",
       "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Tournament Hub の縦方向の切れを修正し、スクロールとチーム/プレイヤーカードの表示を改善しました。",
-      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — メインメニューの見た目、上部ナビゲーション、Tournament Hub のスクロール時背景、カード幅を改善しました。Draft ロジックは変更していません。"
+      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — メインメニューの見た目、上部ナビゲーション、Tournament Hub のスクロール時背景、カード幅を改善しました。Draft ロジックは変更していません。",
+      "update_47": "v3.3.5 Hotfix (Menu Layout + Tournament Real Scroll) — メニュー配置、Tournament の上部バー、スクロール動作を改善しました。Draft ロジックは変更していません。"
     },
     "ru": {
       "tab_menu": "МЕНЮ",
@@ -1412,7 +1415,8 @@ window.I18N_CONFIG = {
       "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — Вкладка турнира перемещена рядом с меню, Tournament Hub центрирован, панели команд драфта скрыты в виде турнира, визуальный стиль улучшен, добавлены три примерные команды из player_names_config.js, игроки сортируются по рангу сверху вниз.",
       "update_44": "v3.3.2 Hotfix (Tournament Wide Layout) — Tournament Hub расширен, вкладки Maps и Rules убраны из главного вида, а адаптивная верстка усилена.",
       "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Исправлены обрезание Tournament Hub, прокрутка колесом мыши и карточки команд/игроков без изменения логики драфта.",
-      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Обновлен внешний вид главного меню, исправлены детали верхней навигации, стабилизирован фон Tournament Hub при прокрутке и расширены карточки. Логика драфта не изменялась."
+      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Обновлен внешний вид главного меню, исправлены детали верхней навигации, стабилизирован фон Tournament Hub при прокрутке и расширены карточки. Логика драфта не изменялась.",
+      "update_47": "v3.3.5 Hotfix (Menu Layout + Tournament Real Scroll) — Переработано главное меню, стабилизирована верхняя панель Tournament и восстановлена прокрутка Tournament Hub без изменения логики драфта."
     },
     "zh": {
       "tab_menu": "菜单",
@@ -1754,7 +1758,8 @@ window.I18N_CONFIG = {
       "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — 将赛事入口移动到菜单旁边，居中 Tournament Hub，在赛事视图中隐藏 draft 队伍面板，优化 Strinova 风格界面，使用 player_names_config.js 中的名称新增 3 支示例队伍，并按段位从高到低排序玩家。",
       "update_44": "v3.3.2 Hotfix (Tournament Wide Layout) — 扩大 Tournament Hub 的显示区域，移除 Maps 和 Rules 主标签，并强化响应式布局。",
       "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — 修复 Tournament Hub 垂直裁切，改进鼠标滚轮滚动，并优化队伍/玩家卡片显示，未改动 Draft 逻辑。",
-      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — 优化主菜单视觉、顶部导航细节、Tournament Hub 滚动时的背景稳定性，并加宽卡片避免名称被截断。未改动 Draft 逻辑。"
+      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — 优化主菜单视觉、顶部导航细节、Tournament Hub 滚动时的背景稳定性，并加宽卡片避免名称被截断。未改动 Draft 逻辑。",
+      "update_47": "v3.3.5 Hotfix (Menu Layout + Tournament Real Scroll) — 重新整理主菜单，稳定 Tournament 顶部栏，并恢复 Tournament Hub 的真实滚轮滚动。未改动 Draft 逻辑。"
     },
     "pt": {
       "tab_menu": "MENU",
@@ -2096,7 +2101,8 @@ window.I18N_CONFIG = {
       "update_43": "v3.3.1 Hotfix (Tournament Layout + Teams) — TORNEIO foi movido para perto do MENU, o hub foi centralizado, os painéis de equipe do draft foram ocultados na vista de torneio, o visual foi refinado, três equipes de exemplo foram adicionadas com nomes de player_names_config.js e os jogadores agora são ordenados do maior para o menor rank.",
       "update_44": "v3.3.2 Hotfix (Tournament Wide Layout) — O Tournament Hub foi ampliado para usar mais espaço da tela, Mapas e Regras foram removidos como abas principais e o layout responsivo foi reforçado.",
       "update_45": "v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Corrigido o corte vertical do Tournament Hub, melhorada a rolagem com o mouse e redesenhados os cards de equipes/jogadores sem alterar a lógica do draft.",
-      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Modernizado o visual do menu principal, corrigidos detalhes da navegação superior, estabilizado o fundo do Tournament Hub durante a rolagem e ampliados os cards para evitar nomes cortados. A lógica do draft não foi alterada."
+      "update_46": "v3.3.4 Hotfix (Menu + Tournament Background Polish) — Modernizado o visual do menu principal, corrigidos detalhes da navegação superior, estabilizado o fundo do Tournament Hub durante a rolagem e ampliados os cards para evitar nomes cortados. A lógica do draft não foi alterada.",
+      "update_47": "v3.3.5 Hotfix (Menu Layout + Tournament Real Scroll) — Reorganizado o menu principal, estabilizada a barra superior do Tournament e restaurada a rolagem real do Tournament Hub sem alterar a lógica do draft."
     }
   }
 };

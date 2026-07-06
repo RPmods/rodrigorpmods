@@ -16665,3 +16665,432 @@ body.tournament-surface-active .tournament-root::before {
     content: none !important;
   }
 }
+
+
+/* v3.3.5 — Menu Layout + Tournament Real Scroll
+   Scope: setup menu + tournament surfaces. Draft phase screen and draft logic are not changed. */
+
+/* True page scrolling for Tournament: bypass the fixed 1920x1080 viewport only while the tournament tab is active. */
+html.tournament-surface-active,
+html.tournament-surface-active body,
+body.tournament-surface-active {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  background:
+    linear-gradient(rgba(80, 96, 124, 0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 96, 124, 0.10) 1px, transparent 1px),
+    linear-gradient(180deg, #eff3f8 0%, #d7dee8 100%) !important;
+  background-size: 160px 160px, 160px 160px, auto !important;
+}
+
+html.tournament-surface-active #viewport,
+body.tournament-surface-active #viewport {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+html.tournament-surface-active #game-root,
+body.tournament-surface-active #game-root {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+  transform: none !important;
+  transform-origin: top center !important;
+  background: transparent !important;
+}
+
+html.tournament-surface-active .screen,
+html.tournament-surface-active .setup-screen,
+body.tournament-surface-active .screen,
+body.tournament-surface-active .setup-screen {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+}
+
+html.tournament-surface-active .setup-screen.active,
+body.tournament-surface-active .setup-screen.active {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  padding: 78px 0 58px !important;
+}
+
+html.tournament-surface-active .settings-topbar,
+body.tournament-surface-active .settings-topbar {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  width: 100vw !important;
+  z-index: 10000 !important;
+}
+
+html.tournament-surface-active .setup-shell.view-tournament.settings-surface,
+body.tournament-surface-active .setup-shell.view-tournament.settings-surface,
+html.tournament-surface-active .setup-screen .setup-shell.view-tournament,
+body.tournament-surface-active .setup-screen .setup-shell.view-tournament {
+  width: min(1760px, calc(100vw - 72px)) !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 auto !important;
+  padding: 0 0 46px !important;
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html.tournament-surface-active .background-layer,
+body.tournament-surface-active .background-layer {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+html.tournament-surface-active .background-layer .bg-video,
+body.tournament-surface-active .background-layer .bg-video,
+html.tournament-surface-active .background-layer .bg-tint,
+body.tournament-surface-active .background-layer .bg-tint,
+html.tournament-surface-active .background-layer .scanlines,
+body.tournament-surface-active .background-layer .scanlines {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+html.tournament-surface-active .background-layer .bg-fallback,
+body.tournament-surface-active .background-layer .bg-fallback {
+  opacity: 1 !important;
+  background:
+    linear-gradient(rgba(80, 96, 124, 0.105) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 96, 124, 0.105) 1px, transparent 1px),
+    linear-gradient(180deg, #eff3f8 0%, #d7dee8 100%) !important;
+  background-size: 160px 160px, 160px 160px, auto !important;
+}
+
+html.tournament-surface-active .tournament-root,
+body.tournament-surface-active .tournament-root {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: auto !important;
+  margin: 0 auto !important;
+  overflow: visible !important;
+}
+
+html.tournament-surface-active .tournament-view,
+body.tournament-surface-active .tournament-view {
+  max-height: none !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+/* Tournament top tabs/header: stay visually stable and never change the global topbar width. */
+html.tournament-surface-active .settings-tabs,
+body.tournament-surface-active .settings-tabs {
+  height: 58px !important;
+  align-items: stretch !important;
+}
+
+html.tournament-surface-active .settings-brand,
+body.tournament-surface-active .settings-brand {
+  flex: 0 0 360px !important;
+  max-width: 360px !important;
+}
+
+/* Main menu redesign: compact, organized, Strinova-like dashboard. */
+.setup-shell.view-menu.settings-surface {
+  width: min(1740px, calc(100vw - 44px)) !important;
+  height: min(990px, calc(100vh - 24px)) !important;
+  min-height: min(990px, calc(100vh - 24px)) !important;
+  padding: 74px 34px 28px !important;
+}
+
+.setup-shell.view-menu .setup-top {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 260px !important;
+  grid-template-rows: auto auto auto !important;
+  min-height: 128px !important;
+  margin: 0 0 18px !important;
+  padding: 20px 26px !important;
+  text-align: left !important;
+  color: #f7f9fc !important;
+  background:
+    linear-gradient(90deg, rgba(30,35,43,.98), rgba(75,84,96,.88) 68%, rgba(183,43,58,.92) 68% 100%),
+    repeating-linear-gradient(90deg, transparent 0 78px, rgba(255,255,255,.04) 79px, transparent 80px) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  box-shadow: 0 16px 42px rgba(20,24,30,.13), inset 0 1px 0 rgba(255,255,255,.08) !important;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 18px 100%, 0 calc(100% - 18px)) !important;
+}
+
+.setup-shell.view-menu .setup-top::before {
+  content: "DRAFT" !important;
+  position: absolute !important;
+  right: 210px !important;
+  top: -8px !important;
+  color: rgba(255,255,255,.055) !important;
+  font-size: clamp(4rem, 8vw, 8.2rem) !important;
+  font-weight: 1000 !important;
+  letter-spacing: -.07em !important;
+  display: block !important;
+}
+
+.setup-shell.view-menu .setup-top::after {
+  content: "DRAFT\A SYSTEM" !important;
+  display: grid !important;
+  white-space: pre-line !important;
+  grid-column: 2 !important;
+  grid-row: 1 / 4 !important;
+  place-items: center !important;
+  align-self: stretch !important;
+  color: #fff !important;
+  background: transparent !important;
+  font-size: clamp(1.05rem, 1.25vw, 1.42rem) !important;
+  font-weight: 1000 !important;
+  line-height: 1.06 !important;
+  letter-spacing: .10em !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  border-left: 1px solid rgba(255,255,255,.16) !important;
+  clip-path: none !important;
+}
+
+.setup-shell.view-menu .setup-top .eyebrow,
+.setup-shell.view-menu .setup-top h1,
+.setup-shell.view-menu .setup-top p:not(.eyebrow) {
+  grid-column: 1 !important;
+  margin-left: 0 !important;
+  max-width: 1120px !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.setup-shell.view-menu .setup-top .eyebrow {
+  margin: 0 0 8px !important;
+  align-self: end !important;
+  color: #ffd84d !important;
+  font-size: .72rem !important;
+  letter-spacing: .16em !important;
+}
+
+.setup-shell.view-menu .setup-top h1 {
+  margin: 0 !important;
+  align-self: center !important;
+  color: #f7f9fc !important;
+  font-size: clamp(2.7rem, 4.1vw, 5.1rem) !important;
+  line-height: .90 !important;
+  letter-spacing: -.055em !important;
+  text-shadow: 0 2px 12px rgba(0,0,0,.22) !important;
+}
+
+.setup-shell.view-menu .setup-top p:not(.eyebrow) {
+  margin: 8px 0 0 !important;
+  align-self: start !important;
+  color: rgba(246,248,252,.82) !important;
+  font-size: clamp(.74rem, .78vw, .96rem) !important;
+  font-weight: 900 !important;
+  letter-spacing: .04em !important;
+  text-transform: uppercase !important;
+}
+
+.setup-shell.view-menu .setup-teams {
+  grid-template-columns: minmax(0, 1fr) 380px minmax(0, 1fr) !important;
+  gap: 24px !important;
+  min-height: 710px !important;
+  margin-top: 0 !important;
+}
+
+.setup-shell.view-menu .setup-team,
+.setup-shell.view-menu .setup-center-card {
+  min-height: 710px !important;
+  background:
+    linear-gradient(180deg, rgba(248,250,253,.18), rgba(213,220,230,.10)),
+    linear-gradient(rgba(76,94,124,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(76,94,124,.08) 1px, transparent 1px) !important;
+  background-size: auto, 96px 96px, 96px 96px !important;
+  border: 1px solid rgba(64,74,88,.18) !important;
+  box-shadow: inset 0 0 42px rgba(255,255,255,.08) !important;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%) !important;
+}
+
+.setup-shell.view-menu .setup-team-heading {
+  padding: 18px 18px 0 !important;
+}
+
+.setup-shell.view-menu .setup-team-heading::before {
+  height: 34px !important;
+  background: linear-gradient(180deg, #ff4055, #b82435) !important;
+  box-shadow: 0 0 18px rgba(216,48,66,.25) !important;
+}
+
+.setup-shell.view-menu .setup-inputs {
+  margin-top: 22px !important;
+  gap: 14px !important;
+}
+
+.setup-shell.view-menu .setup-player-row {
+  min-height: 54px !important;
+}
+
+.setup-shell.view-menu .player-input {
+  min-height: 52px !important;
+  padding: 0 18px !important;
+  background: linear-gradient(90deg, rgba(58,65,78,.96), rgba(83,91,104,.93)) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  border-bottom: 3px solid #df3445 !important;
+  color: #fff !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+
+.setup-shell.view-menu .setup-center-card {
+  display: grid !important;
+  align-content: start !important;
+  gap: 16px !important;
+  padding: 26px 18px !important;
+  background: linear-gradient(180deg, rgba(247,249,253,.26), rgba(210,218,228,.14)) !important;
+}
+
+.setup-shell.view-menu .versus-core {
+  margin: 0 !important;
+  color: #303843 !important;
+  font-size: clamp(4.4rem, 5.8vw, 6.8rem) !important;
+  line-height: .82 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.45) !important;
+}
+
+.setup-shell.view-menu .setup-rules {
+  display: grid !important;
+  gap: 5px !important;
+  padding: 10px 12px !important;
+  text-align: center !important;
+  background: rgba(255,255,255,.22) !important;
+  border: 1px solid rgba(72,82,96,.18) !important;
+}
+
+.setup-shell.view-menu .menu-panel-copy {
+  padding: 20px 16px !important;
+  background: rgba(255,255,255,.16) !important;
+  border: 1px solid rgba(72,82,96,.18) !important;
+}
+
+.setup-shell.view-menu .menu-panel-copy p {
+  margin: 0 !important;
+  line-height: 1.45 !important;
+}
+
+.setup-shell.view-menu .menu-panel-highlights {
+  display: grid !important;
+  gap: 0 !important;
+  margin: 0 !important;
+}
+
+.setup-shell.view-menu .menu-panel-highlights span {
+  min-height: 35px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: rgba(255,255,255,.13) !important;
+  border: 1px solid rgba(72,82,96,.15) !important;
+  color: rgba(44,52,63,.78) !important;
+}
+
+.setup-shell.view-menu .player-name-mode-panel {
+  position: absolute !important;
+  left: 32px !important;
+  bottom: 52px !important;
+  width: min(410px, calc(100% - 64px)) !important;
+  padding: 12px 14px !important;
+  background: rgba(255,255,255,.24) !important;
+  border-left: 5px solid #df3445 !important;
+  z-index: 3 !important;
+}
+
+.setup-shell.view-menu .setup-team-b .player-name-mode-panel {
+  display: none !important;
+}
+
+.setup-shell.view-menu #start-draft,
+.setup-shell.view-menu #create-room,
+.setup-shell.view-menu .room-join-box {
+  width: 100% !important;
+}
+
+.setup-shell.view-menu #start-draft,
+.setup-shell.view-menu #create-room,
+.setup-shell.view-menu #join-room {
+  min-height: 58px !important;
+  background: linear-gradient(135deg, #202631, #2f3744) !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  border-bottom: 4px solid #df3445 !important;
+  box-shadow: none !important;
+}
+
+.setup-shell.view-menu .room-join-box {
+  display: grid !important;
+  grid-template-columns: 86px minmax(0, 1fr) !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+}
+
+.setup-shell.view-menu .room-input {
+  min-width: 0 !important;
+  text-align: center !important;
+}
+
+@media (max-width: 1320px) {
+  .setup-shell.view-menu.settings-surface {
+    height: auto !important;
+    min-height: calc(100vh - 24px) !important;
+  }
+  .setup-shell.view-menu .setup-top {
+    grid-template-columns: 1fr !important;
+  }
+  .setup-shell.view-menu .setup-top::after {
+    display: none !important;
+  }
+  .setup-shell.view-menu .setup-teams {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+  }
+  .setup-shell.view-menu .setup-team,
+  .setup-shell.view-menu .setup-center-card {
+    min-height: auto !important;
+  }
+  .setup-shell.view-menu .player-name-mode-panel {
+    position: static !important;
+    width: 100% !important;
+    margin-top: 14px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html.tournament-surface-active .setup-shell.view-tournament.settings-surface,
+  body.tournament-surface-active .setup-shell.view-tournament.settings-surface,
+  html.tournament-surface-active .setup-screen .setup-shell.view-tournament,
+  body.tournament-surface-active .setup-screen .setup-shell.view-tournament {
+    width: calc(100vw - 18px) !important;
+  }
+  .setup-shell.view-menu.settings-surface {
+    width: calc(100vw - 18px) !important;
+    padding-inline: 16px !important;
+  }
+  .setup-shell.view-menu .setup-top h1 {
+    font-size: clamp(2.2rem, 12vw, 3.2rem) !important;
+  }
+  .setup-shell.view-menu .room-join-box {
+    grid-template-columns: 1fr !important;
+  }
+}
