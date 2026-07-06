@@ -87,14 +87,20 @@
     const activePlayers = roster.filter(player => player.status !== "empty");
     const rows = roster.map(player => {
       const captainMark = player.id === team.captainId ? " is-captain" : player.id === team.subCaptainId ? " is-subcaptain" : "";
+      const stateClass = player.status === "empty" ? " is-empty" : "";
       return `
-        <tr class="${player.status === "empty" ? "is-empty" : ""}${captainMark}">
-          <td><span class="tournament-role-badge ${player.status === "empty" ? "empty" : ""}">${esc(player.role)}</span></td>
-          <td><span class="player-name-strong">${esc(player.nickname)}</span>${player.gameId ? `<small>ID:${esc(player.gameId)}</small>` : ""}</td>
-          <td>${renderRankCell(player.currentRank, player.currentRankId)}</td>
-          <td>${renderRankCell(player.peakRank, player.peakRankId)}</td>
-          <td><span class="tournament-character-chip">${esc(player.mainCharacter)}</span></td>
-        </tr>`;
+        <article class="tournament-roster-member${stateClass}${captainMark}">
+          <div class="tournament-member-topline">
+            <span class="tournament-role-badge ${player.status === "empty" ? "empty" : ""}">${esc(player.role)}</span>
+            <span class="tournament-member-character">${esc(player.mainCharacter)}</span>
+          </div>
+          <strong class="tournament-member-name">${esc(player.nickname)}</strong>
+          ${player.gameId ? `<small class="tournament-member-id">ID:${esc(player.gameId)}</small>` : `<small class="tournament-member-id">Sin inscripción</small>`}
+          <div class="tournament-member-ranks">
+            <div><span>Actual</span>${renderRankCell(player.currentRank, player.currentRankId)}</div>
+            <div><span>Máximo</span>${renderRankCell(player.peakRank, player.peakRankId)}</div>
+          </div>
+        </article>`;
     }).join("");
     return `
       <article class="tournament-team-card ${compact ? "is-featured" : ""}">
@@ -116,10 +122,7 @@
             <span>Sub-capitán: <b>${esc((playerById(team.subCaptainId) || {}).nickname || "Pendiente")}</b></span>
             <span>Suplentes: <b>${(team.substitutes || []).filter(id => (playerById(id) || {}).status !== "empty").length}/2</b></span>
           </div>
-          <table class="tournament-roster-table">
-            <thead><tr><th>Rol</th><th>Jugador</th><th>Rango actual</th><th>Rango máximo</th><th>Laminante</th></tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
+          <div class="tournament-roster-list">${rows}</div>
           ${team.notes ? `<p class="tournament-team-note">${esc(team.notes)}</p>` : ""}
         </div>
       </article>`;

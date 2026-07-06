@@ -15926,3 +15926,324 @@ html body .stage-characters .fullbody-card.banishing.turn-ban .fullbody-frame im
     min-width: 760px;
   }
 }
+
+/* v3.3.3 — Tournament scroll stability + menu UI polish
+   Scope: setup/tournament surfaces only. Draft screen logic/styles are not changed. */
+.setup-screen .settings-topbar {
+  background:
+    linear-gradient(90deg, #191d23 0%, #242a33 48%, #1b1f25 100%) !important;
+  border-bottom: 1px solid rgba(255,255,255,.08) !important;
+  box-shadow: 0 12px 34px rgba(0,0,0,.18), inset 0 -1px 0 rgba(255,255,255,.045) !important;
+}
+
+.setup-screen .settings-brand {
+  position: relative !important;
+  padding-left: 8px !important;
+  color: #f7f9fc !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.35) !important;
+}
+
+.setup-screen .settings-brand::before {
+  content: "" !important;
+  width: 4px !important;
+  height: 22px !important;
+  margin-right: 10px !important;
+  background: linear-gradient(180deg, #ff4255, #a72633) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 0 16px rgba(223,55,70,.55) !important;
+}
+
+.setup-screen .settings-tabs {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scrollbar-width: none !important;
+  mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%) !important;
+}
+
+.setup-screen .settings-tabs::-webkit-scrollbar { display: none !important; }
+
+.setup-screen .settings-tab,
+.setup-screen .setup-top-tab,
+.setup-screen .setup-top-tab[data-tab="random"],
+.setup-screen .setup-top-tab[data-tab="development"],
+.setup-screen .setup-top-tab[data-tab="creditos"],
+.setup-screen .setup-top-tab[data-tab="idioma"],
+.setup-screen .setup-top-tab[data-tab="updates"] {
+  min-width: 118px !important;
+  transition: color .18s ease, background .18s ease, filter .18s ease !important;
+}
+
+.setup-screen .settings-tab:hover,
+.setup-screen .setup-top-tab:hover {
+  color: #fff !important;
+  background: rgba(255,255,255,.045) !important;
+}
+
+.setup-screen .settings-tab.is-active,
+.setup-screen .setup-top-tab.is-active {
+  min-width: 156px !important;
+  background: linear-gradient(135deg, #bb2636 0%, #e33d4c 58%, #f05a64 100%) !important;
+  filter: drop-shadow(0 10px 18px rgba(196,40,54,.24)) !important;
+}
+
+/* Tournament must scroll with the page instead of being clipped inside a fixed shell. */
+.setup-shell.view-tournament.settings-surface,
+.setup-screen .setup-shell.view-tournament {
+  height: auto !important;
+  min-height: calc(100vh - 28px) !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 78px 28px 42px !important;
+}
+
+.setup-shell.view-tournament .setup-teams,
+.setup-shell.view-tournament .setup-center-card,
+.setup-shell.view-tournament .setup-panels,
+.setup-shell.view-tournament .setup-panel.is-active,
+.setup-shell.view-tournament .tournament-panel,
+.setup-shell.view-tournament #tournament-root {
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.setup-shell.view-tournament .setup-teams {
+  margin-top: 0 !important;
+}
+
+.tournament-root {
+  max-width: min(1720px, 100%) !important;
+  min-height: auto !important;
+  grid-template-rows: auto auto auto auto !important;
+}
+
+.tournament-root::before {
+  inset: -8px !important;
+  border-color: rgba(70,82,100,.16) !important;
+}
+
+.tournament-hero-card {
+  min-height: 128px !important;
+}
+
+.tournament-view {
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 20px !important;
+}
+
+.tournament-view.is-active {
+  display: block !important;
+}
+
+.tournament-view-tabs {
+  max-width: min(760px, 100%) !important;
+}
+
+/* Teams: one wide card per team, roster as responsive cards to avoid truncated names. */
+.tournament-team-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 18px !important;
+}
+
+.tournament-team-card {
+  grid-template-columns: clamp(210px, 16vw, 280px) minmax(0, 1fr) !important;
+  gap: 18px !important;
+  padding: 14px !important;
+  background: linear-gradient(135deg, rgba(33,38,45,.92), rgba(96,105,116,.66)) !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px)) !important;
+}
+
+.tournament-team-emblem {
+  min-height: 100% !important;
+  height: auto !important;
+}
+
+.tournament-team-main {
+  min-width: 0 !important;
+}
+
+.tournament-roster-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+  gap: 10px;
+}
+
+.tournament-roster-member {
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid rgba(255,255,255,.13);
+  background: linear-gradient(180deg, rgba(120,128,138,.42), rgba(70,78,88,.42));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  display: grid;
+  gap: 7px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+}
+
+.tournament-roster-member.is-captain,
+.tournament-roster-member.is-subcaptain {
+  background: linear-gradient(180deg, rgba(148,79,86,.56), rgba(84,74,78,.46));
+  border-color: rgba(255,211,77,.24);
+}
+
+.tournament-roster-member.is-empty {
+  opacity: .62;
+  background: rgba(76,84,94,.34);
+}
+
+.tournament-member-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tournament-member-character {
+  color: var(--t-gold);
+  font-size: .74rem;
+  font-weight: 1000;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.tournament-member-name {
+  color: var(--t-text);
+  font-size: clamp(.92rem, .92vw, 1.08rem);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.tournament-member-id {
+  color: rgba(255,255,255,.72);
+  font-size: .7rem;
+  font-weight: 900;
+}
+
+.tournament-member-ranks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.tournament-member-ranks > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  padding: 7px;
+  background: rgba(21,24,29,.22);
+}
+
+.tournament-member-ranks > div > span {
+  color: var(--t-muted);
+  font-size: .64rem;
+  font-weight: 1000;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.tournament-roster-member .tournament-rank-cell {
+  gap: 5px;
+  min-width: 0;
+  white-space: normal;
+}
+
+.tournament-roster-member .tournament-rank-icon {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+}
+
+.tournament-roster-member .tournament-rank-cell span {
+  overflow-wrap: anywhere;
+}
+
+/* Players: keep the detailed profile, but make the list scroll horizontally only when needed. */
+.tournament-player-layout {
+  grid-template-columns: minmax(0, 1fr) clamp(330px, 23vw, 410px) !important;
+  align-items: start !important;
+}
+
+.tournament-player-list {
+  min-width: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+}
+
+.tournament-player-table {
+  min-width: 980px !important;
+  table-layout: auto !important;
+}
+
+.tournament-player-table th,
+.tournament-player-table td {
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+.tournament-player-table .player-name-strong,
+.tournament-summary-table .player-name-strong {
+  max-width: none !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  word-break: break-word;
+}
+
+.tournament-player-detail {
+  top: 72px !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.tournament-character-preview img {
+  max-height: 220px !important;
+}
+
+@media (min-width: 1500px) {
+  .tournament-roster-list {
+    grid-template-columns: repeat(4, minmax(235px, 1fr));
+  }
+}
+
+@media (max-width: 1320px) {
+  .setup-shell.view-tournament.settings-surface,
+  .setup-screen .setup-shell.view-tournament {
+    padding: 74px 18px 34px !important;
+  }
+  .tournament-team-card,
+  .tournament-player-layout,
+  .tournament-summary-showcase {
+    grid-template-columns: 1fr !important;
+  }
+  .tournament-team-emblem {
+    min-height: 150px !important;
+  }
+  .tournament-player-detail {
+    position: static !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .setup-shell.view-tournament.settings-surface,
+  .setup-screen .setup-shell.view-tournament {
+    padding: 72px 10px 28px !important;
+  }
+  .tournament-title-block h2 {
+    font-size: clamp(2rem, 12vw, 3.2rem) !important;
+  }
+  .tournament-hero-card {
+    grid-template-columns: 1fr !important;
+  }
+  .tournament-roster-list {
+    grid-template-columns: 1fr;
+  }
+  .tournament-member-ranks {
+    grid-template-columns: 1fr;
+  }
+}

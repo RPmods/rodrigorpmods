@@ -379,3 +379,12 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Se reforzó el layout responsivo para evitar que tablas, perfiles o paneles se salgan al cambiar tamaño/zoom.
 - Se añadió una sección de jugadores destacados dentro de Resumen.
 - Se mantienen intactos el Draft System, Firebase, assets, videos, audios y workflow de deploy.
+
+
+## v3.3.3 Tournament Scroll + UI Polish Hotfix
+
+- Corrige el recorte vertical del Tournament Hub y permite desplazamiento natural con rueda del mouse.
+- Rediseña tarjetas de equipos para evitar nombres cortados y mejorar lectura en resoluciones variables.
+- Refuerza el panel de jugadores con scroll estable y perfil destacado sin tapar contenido.
+- Moderniza la barra superior del menú principal con estilo más cercano al Tournament Hub.
+- No modifica la lógica del draft ni `js/app.js`.
