@@ -185,20 +185,42 @@
     const featured = $("#tournament-featured-team");
     const teams = data.teams || [];
     if (!featured) return;
-    const teamCards = teams.slice(0, 4).map(team => `
-      <article class="tournament-mini-team" data-team-id="${esc(team.id)}">
-        <strong>${esc(team.tag || team.name)}</strong>
-        <span>${esc(team.name)}</span>
-        <em>${teamPlayers(team, false).filter(player => player.status !== "empty").length}/5</em>
-      </article>`).join("");
+    const players = allActivePlayers();
+    const teamCards = teams.slice(0, 6).map(team => {
+      const roster = teamPlayers(team, false).filter(player => player.status !== "empty");
+      const top = sortPlayersByRank(roster)[0];
+      return `
+        <article class="tournament-mini-team" data-team-id="${esc(team.id)}">
+          <strong>${esc(team.tag || team.name)}</strong>
+          <span>${esc(team.name)}</span>
+          <em>${roster.length}/5 · ${esc(top ? top.currentRank : "Sin rango")}</em>
+        </article>`;
+    }).join("");
+    const topRows = players.slice(0, 6).map((player, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td><span class="player-name-strong">${esc(player.nickname)}</span><small>${esc(teamName(player.teamId))}</small></td>
+        <td>${renderRankCell(player.currentRank, player.currentRankId)}</td>
+        <td>${esc(player.mainCharacter)}</td>
+      </tr>`).join("");
     featured.innerHTML = `
       <div class="tournament-summary-showcase">
         <div class="tournament-showcase-main">
-          <span class="tournament-section-kicker">Equipos inscritos</span>
-          <h3>${teams.length} equipos cargados</h3>
-          <p>El torneo funciona como extensión del Draft System. Los datos son locales/manuales y pueden vincularse después a partidas, bracket y resultados.</p>
+          <span class="tournament-section-kicker">Centro del torneo</span>
+          <h3>${teams.length} equipos · ${players.length} jugadores</h3>
+          <p>Gantigun Cup 2026 funciona como extensión del Draft System. La información se gestiona localmente y sirve para perfiles, equipos y preparación de partidas.</p>
         </div>
         <div class="tournament-mini-team-grid">${teamCards}</div>
+      </div>
+      <div class="tournament-summary-rank-strip">
+        <div class="tournament-strip-heading">
+          <span class="tournament-section-kicker">Jugadores destacados</span>
+          <strong>Ordenados por rango de mayor a menor</strong>
+        </div>
+        <table class="tournament-player-table tournament-summary-table">
+          <thead><tr><th>#</th><th>Jugador</th><th>Rango</th><th>Laminante</th></tr></thead>
+          <tbody>${topRows}</tbody>
+        </table>
       </div>`;
   }
 

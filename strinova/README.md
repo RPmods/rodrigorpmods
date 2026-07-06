@@ -370,3 +370,12 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Se añadieron tres equipos de ejemplo usando nombres existentes de `player_names_config.js`.
 - Los jugadores se ordenan por rango de mayor a menor; Laminante/Superstring queda por encima de Quark, Electron, etc.
 - Se mejoró la estética del Tournament Hub con tarjetas, paneles y tablas más cercanas al lenguaje visual de Strinova.
+
+
+## v3.3.2 Tournament Wide Layout Hotfix
+
+- Se amplió el Tournament Hub para aprovechar más espacio horizontal y vertical.
+- Se retiraron las pestañas Mapas y Reglas de la vista principal del torneo.
+- Se reforzó el layout responsivo para evitar que tablas, perfiles o paneles se salgan al cambiar tamaño/zoom.
+- Se añadió una sección de jugadores destacados dentro de Resumen.
+- Se mantienen intactos el Draft System, Firebase, assets, videos, audios y workflow de deploy.

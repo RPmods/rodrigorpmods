@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STRINOVA Draft System v3.3.1 by RPmods</title>
+  <title>STRINOVA Draft System v3.3.2 by RPmods</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -36,7 +36,7 @@
   <main id="setup-screen" class="screen setup-screen active">
     <section class="setup-shell settings-surface">
       <header class="settings-topbar">
-        <div class="settings-brand">STRINOVA Draft System v3.3.1 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.3.2 by RPmods</div>
         <nav class="settings-tabs">
           <button type="button" class="settings-tab setup-top-tab is-active" data-tab="menu">MENÚ</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="tournament">TORNEO</button>
@@ -60,7 +60,7 @@
 
       <header class="setup-top">
         <p class="eyebrow">Sistema competitivo</p>
-        <h1>STRINOVA Draft System v3.3.1 by RPmods</h1>
+        <h1>STRINOVA Draft System v3.3.2 by RPmods</h1>
         <p>Configura nombres, tamaño de partida y fase de bloqueos antes de iniciar.</p>
       </header>
 
@@ -133,10 +133,8 @@
 
                 <div class="tournament-view-tabs" role="tablist" aria-label="Secciones del torneo">
                   <button type="button" class="tournament-view-tab is-active" data-tournament-view="summary">RESUMEN</button>
-                  <button type="button" class="tournament-view-tab" data-tournament-view="team">EQUIPO</button>
+                  <button type="button" class="tournament-view-tab" data-tournament-view="team">EQUIPOS</button>
                   <button type="button" class="tournament-view-tab" data-tournament-view="players">JUGADORES</button>
-                  <button type="button" class="tournament-view-tab" data-tournament-view="maps">MAPAS</button>
-                  <button type="button" class="tournament-view-tab" data-tournament-view="rules">REGLAS</button>
                 </div>
 
                 <div class="tournament-view tournament-view-summary is-active" data-tournament-panel="summary">
@@ -154,8 +152,8 @@
                       <strong>Sistema externo RPmods</strong>
                     </article>
                     <article class="tournament-info-tile">
-                      <span>Map pool</span>
-                      <strong>Personalizado</strong>
+                      <span>Vista torneo</span>
+                      <strong>Equipos y jugadores</strong>
                     </article>
                   </div>
                   <div id="tournament-featured-team" class="tournament-featured-team"></div>
@@ -172,31 +170,6 @@
                   </div>
                 </div>
 
-                <div class="tournament-view" data-tournament-panel="maps">
-                  <div class="tournament-map-note">El torneo puede usar todos los mapas disponibles. El estado ranked oficial solo se muestra como referencia informativa.</div>
-                  <div id="tournament-map-grid" class="tournament-map-grid"></div>
-                </div>
-
-                <div class="tournament-view" data-tournament-panel="rules">
-                  <div class="tournament-rules-grid">
-                    <article>
-                      <span>Victoria de mapa</span>
-                      <strong>Primer equipo en ganar 9 rondas</strong>
-                    </article>
-                    <article>
-                      <span>Cambio de lado</span>
-                      <strong>Después de las primeras 8 rondas</strong>
-                    </article>
-                    <article>
-                      <span>Overtime</span>
-                      <strong>Si el marcador queda 8-8</strong>
-                    </article>
-                    <article>
-                      <span>Restricciones</span>
-                      <strong>PUS defensa · Scissors ataque · Urbino ambos lados</strong>
-                    </article>
-                  </div>
-                </div>
               </div>
             </section>
 
@@ -477,6 +450,7 @@
                   <li>v3.2.27 Hotfix (Bot Phase Guard) — Se corrigió la lógica de Testing Bots para que no puedan preseleccionar ni confirmar durante la transición de bloqueos a selección. Ahora esperan a que termine el anuncio de fase y a que el turno esté realmente activo.</li>
                   <li>v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Se añadió la primera extensión del torneo con datos locales de equipos/jugadores, perfiles con rangos e iconos, aviso de estadísticas no en tiempo real, map pool personalizado y apartado Ajustar HUD en Configuración.</li>
                   <li>v3.3.1 Hotfix (Tournament Layout + Teams) — Se movió TORNEO junto a MENÚ, se centró el Tournament Hub, se ocultaron los paneles de equipos del draft dentro de la vista de torneo, se mejoró la visualización tipo Strinova, se añadieron tres equipos de ejemplo con nombres de <code>player_names_config.js</code> y se ordenan jugadores por rango de mayor a menor.</li>
+                  <li>v3.3.2 Hotfix (Tournament Wide Layout) — Se amplió el Tournament Hub para usar más espacio de pantalla, se retiraron las pestañas innecesarias de Mapas y Reglas, se reforzó el escalado responsivo y se mejoró la visualización de Resumen, Equipos y Jugadores.</li>
                 </ul>
               </div>
             </section>
@@ -880,7 +854,7 @@
   <main id="map-screen" class="screen map-screen">
     <section class="map-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.3.1 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.3.2 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab is-active">SELECCIÓN DE MAPA</span>
         </nav>
@@ -911,7 +885,7 @@
   <main id="summary-screen" class="screen summary-screen">
     <section class="summary-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.3.1 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.3.2 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab">BÁSICO</span>
           <span class="settings-tab">EQUIPOS</span>
