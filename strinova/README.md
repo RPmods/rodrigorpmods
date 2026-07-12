@@ -419,3 +419,13 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Se reestructuró el layout del menú y del Tournament Hub para salir del canvas fijo 1920x1080 mientras se está en la pantalla de configuración.
 - El menú y el torneo ahora usan scroll real del documento, mejor centrado y barra superior estable en pantalla completa y modo ventana.
 - Se mantuvo intacta la lógica del draft; este parche no modifica `js/app.js`.
+
+
+## v3.3.8 UI Foundation — Menu & Tournament Rewrite
+
+- Reestructura visual de la pantalla de inicio para usar un layout responsivo real y más estable en pantalla completa o ventana normal.
+- La barra superior usa ancho estable, mantiene todos los apartados visibles y evita cambios bruscos entre Menú y Torneo.
+- El Tournament Hub vuelve a usar scroll natural de documento y deja de depender del panel central VS del draft.
+- Se corrige el duplicado accidental del panel de resumen del torneo en `index.html`.
+- Se incluye `js/tournament_data.js` dentro del parche para evitar referencias faltantes en instalaciones incompletas.
+- Se mantiene intacta la lógica del draft: este parche no modifica `js/app.js`.

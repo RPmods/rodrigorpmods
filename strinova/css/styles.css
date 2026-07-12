@@ -18062,3 +18062,798 @@ body.setup-responsive-active .tournament-view-tabs {
     font-size: clamp(2.2rem, 12vw, 3.6rem) !important;
   }
 }
+
+/* v3.3.8 — UI Foundation Rewrite
+   Scope: setup menu, settings navigation and Tournament Hub only.
+   Draft runtime screens keep their original fixed 1920x1080 behavior after leaving setup. */
+
+html.setup-responsive-active,
+html.setup-responsive-active body,
+body.setup-responsive-active {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  background:
+    linear-gradient(rgba(78, 94, 118, 0.075) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(78, 94, 118, 0.075) 1px, transparent 1px),
+    radial-gradient(circle at 52% 0%, rgba(255,255,255,0.92), transparent 34%),
+    linear-gradient(180deg, #f4f7fb 0%, #dbe4ee 100%) !important;
+  background-size: 156px 156px, 156px 156px, auto, auto !important;
+  scrollbar-gutter: stable both-edges !important;
+}
+
+html.setup-responsive-active #viewport,
+html.setup-responsive-active #game-root,
+body.setup-responsive-active #viewport,
+body.setup-responsive-active #game-root {
+  position: relative !important;
+  inset: auto !important;
+  left: auto !important;
+  top: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  max-height: none !important;
+  overflow: visible !important;
+  transform: none !important;
+  transform-origin: top center !important;
+  background: transparent !important;
+}
+
+html.setup-responsive-active .screen,
+html.setup-responsive-active .setup-screen,
+body.setup-responsive-active .screen,
+body.setup-responsive-active .setup-screen {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+html.setup-responsive-active .setup-screen.active,
+body.setup-responsive-active .setup-screen.active {
+  display: block !important;
+  padding: clamp(14px, 2vw, 28px) 0 clamp(54px, 7vh, 92px) !important;
+}
+
+html.setup-responsive-active .background-layer,
+body.setup-responsive-active .background-layer {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  overflow: hidden !important;
+  background:
+    linear-gradient(rgba(78, 94, 118, 0.075) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(78, 94, 118, 0.075) 1px, transparent 1px),
+    radial-gradient(circle at 52% 0%, rgba(255,255,255,0.92), transparent 34%),
+    linear-gradient(180deg, #f4f7fb 0%, #dbe4ee 100%) !important;
+  background-size: 156px 156px, 156px 156px, auto, auto !important;
+}
+
+html.setup-responsive-active .background-layer .bg-video,
+html.setup-responsive-active .background-layer .bg-tint,
+html.setup-responsive-active .background-layer .scanlines,
+body.setup-responsive-active .background-layer .bg-video,
+body.setup-responsive-active .background-layer .bg-tint,
+body.setup-responsive-active .background-layer .scanlines {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+html.setup-responsive-active .background-layer .bg-fallback,
+body.setup-responsive-active .background-layer .bg-fallback {
+  opacity: 1 !important;
+  background:
+    linear-gradient(rgba(78, 94, 118, 0.075) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(78, 94, 118, 0.075) 1px, transparent 1px),
+    radial-gradient(circle at 52% 0%, rgba(255,255,255,0.92), transparent 34%),
+    linear-gradient(180deg, #f4f7fb 0%, #dbe4ee 100%) !important;
+  background-size: 156px 156px, 156px 156px, auto, auto !important;
+}
+
+html.setup-responsive-active .setup-shell.settings-surface,
+body.setup-responsive-active .setup-shell.settings-surface {
+  position: relative !important;
+  z-index: 5 !important;
+  display: grid !important;
+  grid-template-rows: auto auto 1fr !important;
+  gap: clamp(14px, 1.5vw, 22px) !important;
+  width: min(1720px, calc(100vw - clamp(24px, 4vw, 92px))) !important;
+  min-width: 0 !important;
+  max-width: 1720px !important;
+  height: auto !important;
+  min-height: calc(100vh - clamp(28px, 4vw, 56px)) !important;
+  max-height: none !important;
+  margin: 0 auto !important;
+  padding: 0 0 clamp(32px, 5vh, 72px) !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  transform: none !important;
+}
+
+html.setup-responsive-active .setup-shell.settings-surface::before,
+body.setup-responsive-active .setup-shell.settings-surface::before,
+html.setup-responsive-active .settings-canvas,
+html.setup-responsive-active .settings-preview-pane,
+html.setup-responsive-active .settings-scroll-rail,
+body.setup-responsive-active .settings-canvas,
+body.setup-responsive-active .settings-preview-pane,
+body.setup-responsive-active .settings-scroll-rail {
+  display: none !important;
+  content: none !important;
+}
+
+/* Stable top navigation: all tabs remain visible and width no longer changes per page. */
+html.setup-responsive-active .settings-topbar,
+body.setup-responsive-active .settings-topbar,
+html.tournament-surface-active .settings-topbar,
+body.tournament-surface-active .settings-topbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 20000 !important;
+  display: grid !important;
+  grid-template-columns: minmax(220px, 330px) minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 58px !important;
+  margin: 0 !important;
+  padding: 0 clamp(10px, 1.2vw, 18px) !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  background: linear-gradient(180deg, rgba(31,35,42,0.995), rgba(24,27,33,0.995)) !important;
+  box-shadow: 0 16px 36px rgba(0,0,0,0.16) !important;
+  overflow: visible !important;
+}
+
+html.setup-responsive-active .settings-brand,
+body.setup-responsive-active .settings-brand {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+  height: 58px !important;
+  padding: 0 8px 0 18px !important;
+  color: #f6f8fb !important;
+  font-size: clamp(0.58rem, 0.72vw, 0.78rem) !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.035em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  flex: initial !important;
+}
+
+html.setup-responsive-active .settings-brand::before,
+body.setup-responsive-active .settings-brand::before {
+  content: "" !important;
+  width: 4px !important;
+  height: 28px !important;
+  margin-right: 12px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, #ff4c61, #bf2638) !important;
+  box-shadow: 0 0 18px rgba(255,67,86,.42) !important;
+  flex: 0 0 auto !important;
+}
+
+html.setup-responsive-active .settings-tabs,
+body.setup-responsive-active .settings-tabs {
+  display: grid !important;
+  grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  gap: 2px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 58px !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  mask-image: none !important;
+  scrollbar-width: auto !important;
+}
+
+html.setup-responsive-active .settings-tab,
+html.setup-responsive-active .setup-top-tab,
+body.setup-responsive-active .settings-tab,
+body.setup-responsive-active .setup-top-tab {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+  height: 58px !important;
+  min-height: 58px !important;
+  padding: 0 clamp(4px, 0.7vw, 12px) !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: rgba(238,242,248,.68) !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  font-size: clamp(0.50rem, 0.58vw, 0.68rem) !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.07em !important;
+  line-height: 1.05 !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  flex: initial !important;
+}
+
+html.setup-responsive-active .settings-tab::before,
+html.setup-responsive-active .settings-tab::after,
+html.setup-responsive-active .setup-top-tab::before,
+html.setup-responsive-active .setup-top-tab::after,
+body.setup-responsive-active .settings-tab::before,
+body.setup-responsive-active .settings-tab::after,
+body.setup-responsive-active .setup-top-tab::before,
+body.setup-responsive-active .setup-top-tab::after {
+  display: none !important;
+  content: none !important;
+}
+
+html.setup-responsive-active .settings-tab:hover,
+html.setup-responsive-active .setup-top-tab:hover,
+body.setup-responsive-active .settings-tab:hover,
+body.setup-responsive-active .setup-top-tab:hover {
+  color: #fff !important;
+  background: rgba(255,255,255,.055) !important;
+}
+
+html.setup-responsive-active .settings-tab.is-active,
+html.setup-responsive-active .setup-top-tab.is-active,
+body.setup-responsive-active .settings-tab.is-active,
+body.setup-responsive-active .setup-top-tab.is-active {
+  color: #fff !important;
+  background: linear-gradient(135deg, #b82436 0%, #d93445 56%, #ef4a59 100%) !important;
+  box-shadow: inset 0 -4px 0 rgba(255,255,255,.12), 0 12px 24px rgba(199,39,55,.20) !important;
+  clip-path: polygon(14px 0, 100% 0, calc(100% - 18px) 100%, 0 100%) !important;
+}
+
+/* Modern main menu: stacked team setup + action rail, not a giant stretched VS preview. */
+html.setup-responsive-active .setup-shell.view-menu .setup-top,
+body.setup-responsive-active .setup-shell.view-menu .setup-top {
+  position: relative !important;
+  z-index: 4 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) clamp(180px, 18vw, 300px) !important;
+  min-height: clamp(132px, 16vh, 190px) !important;
+  margin: 0 !important;
+  padding: clamp(20px, 2.5vw, 34px) clamp(22px, 3vw, 44px) !important;
+  overflow: hidden !important;
+  text-align: left !important;
+  border: 1px solid rgba(255,255,255,.15) !important;
+  background:
+    linear-gradient(90deg, rgba(30,35,43,.985) 0%, rgba(61,70,83,.94) 67%, rgba(183,42,59,.94) 67%, rgba(213,54,70,.96) 100%) !important;
+  box-shadow: 0 18px 50px rgba(20,24,30,.16), inset 0 1px 0 rgba(255,255,255,.08) !important;
+  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% calc(100% - 24px), calc(100% - 24px) 100%, 24px 100%, 0 calc(100% - 24px)) !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-top::before,
+body.setup-responsive-active .setup-shell.view-menu .setup-top::before {
+  content: "DRAFT" !important;
+  position: absolute !important;
+  right: 18% !important;
+  top: -22% !important;
+  z-index: 1 !important;
+  color: rgba(255,255,255,.055) !important;
+  font-size: clamp(5rem, 10vw, 11rem) !important;
+  font-weight: 1000 !important;
+  letter-spacing: -.075em !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-top::after,
+body.setup-responsive-active .setup-shell.view-menu .setup-top::after {
+  content: "DRAFT\A SYSTEM" !important;
+  display: grid !important;
+  grid-column: 2 !important;
+  grid-row: 1 / 4 !important;
+  place-items: center !important;
+  align-self: stretch !important;
+  justify-self: stretch !important;
+  color: #fff !important;
+  border-left: 1px solid rgba(255,255,255,.18) !important;
+  white-space: pre-line !important;
+  text-align: center !important;
+  font-size: clamp(1.15rem, 1.65vw, 2rem) !important;
+  font-weight: 1000 !important;
+  line-height: 1.02 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  z-index: 2 !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-top .eyebrow,
+html.setup-responsive-active .setup-shell.view-menu .setup-top h1,
+html.setup-responsive-active .setup-shell.view-menu .setup-top p:not(.eyebrow),
+body.setup-responsive-active .setup-shell.view-menu .setup-top .eyebrow,
+body.setup-responsive-active .setup-shell.view-menu .setup-top h1,
+body.setup-responsive-active .setup-shell.view-menu .setup-top p:not(.eyebrow) {
+  position: relative !important;
+  z-index: 2 !important;
+  grid-column: 1 !important;
+  display: block !important;
+  max-width: 1100px !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-top .eyebrow,
+body.setup-responsive-active .setup-shell.view-menu .setup-top .eyebrow {
+  margin: 0 0 8px !important;
+  color: #ffdc47 !important;
+  font-size: clamp(.60rem, .72vw, .82rem) !important;
+  font-weight: 1000 !important;
+  letter-spacing: .18em !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-top h1,
+body.setup-responsive-active .setup-shell.view-menu .setup-top h1 {
+  margin: 0 !important;
+  color: #f7f9fc !important;
+  font-size: clamp(2.8rem, 5.3vw, 6.4rem) !important;
+  line-height: .88 !important;
+  letter-spacing: -.062em !important;
+  text-shadow: 0 2px 14px rgba(0,0,0,.26) !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-top p:not(.eyebrow),
+body.setup-responsive-active .setup-shell.view-menu .setup-top p:not(.eyebrow) {
+  margin: 10px 0 0 !important;
+  color: rgba(246,248,252,.84) !important;
+  font-size: clamp(.70rem, .82vw, .98rem) !important;
+  font-weight: 900 !important;
+  letter-spacing: .04em !important;
+  text-transform: uppercase !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-teams,
+body.setup-responsive-active .setup-shell.view-menu .setup-teams {
+  position: relative !important;
+  z-index: 4 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 500px) !important;
+  grid-template-areas: "teamA actions" "teamB actions" !important;
+  gap: clamp(18px, 1.6vw, 26px) !important;
+  align-items: stretch !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-team-a,
+body.setup-responsive-active .setup-shell.view-menu .setup-team-a { grid-area: teamA !important; }
+html.setup-responsive-active .setup-shell.view-menu .setup-team-b,
+body.setup-responsive-active .setup-shell.view-menu .setup-team-b { grid-area: teamB !important; }
+html.setup-responsive-active .setup-shell.view-menu .setup-center-card,
+body.setup-responsive-active .setup-shell.view-menu .setup-center-card { grid-area: actions !important; }
+
+html.setup-responsive-active .setup-shell.view-menu .setup-team,
+body.setup-responsive-active .setup-shell.view-menu .setup-team {
+  position: relative !important;
+  min-height: 300px !important;
+  height: auto !important;
+  padding: clamp(18px, 1.7vw, 26px) !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(64,74,88,.18) !important;
+  background:
+    linear-gradient(180deg, rgba(248,250,253,.38), rgba(213,220,230,.23)),
+    linear-gradient(rgba(76,94,124,.075) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(76,94,124,.075) 1px, transparent 1px) !important;
+  background-size: auto, 92px 92px, 92px 92px !important;
+  box-shadow: inset 0 0 42px rgba(255,255,255,.10) !important;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%) !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-center-card,
+body.setup-responsive-active .setup-shell.view-menu .setup-center-card {
+  min-height: 0 !important;
+  height: auto !important;
+  padding: clamp(20px, 1.9vw, 30px) !important;
+  display: grid !important;
+  align-content: start !important;
+  gap: 16px !important;
+  border: 1px solid rgba(64,74,88,.18) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.34), rgba(216,223,233,.25)) !important;
+  box-shadow: inset 0 0 42px rgba(255,255,255,.12) !important;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%) !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .versus-core,
+body.setup-responsive-active .setup-shell.view-menu .versus-core {
+  margin: 0 0 4px !important;
+  font-size: 0 !important;
+  line-height: 1 !important;
+  text-align: left !important;
+}
+html.setup-responsive-active .setup-shell.view-menu .versus-core::before,
+body.setup-responsive-active .setup-shell.view-menu .versus-core::before {
+  content: "Preparación del draft" !important;
+  display: block !important;
+  color: #252d38 !important;
+  font-size: clamp(1.55rem, 2.0vw, 2.45rem) !important;
+  font-weight: 1000 !important;
+  letter-spacing: -.02em !important;
+  text-transform: uppercase !important;
+}
+html.setup-responsive-active .setup-shell.view-menu .versus-core::after,
+body.setup-responsive-active .setup-shell.view-menu .versus-core::after {
+  content: "Local, online y configuración rápida" !important;
+  display: block !important;
+  margin-top: 3px !important;
+  color: #697381 !important;
+  font-size: .72rem !important;
+  font-weight: 1000 !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-rules,
+html.setup-responsive-active .setup-shell.view-menu .menu-panel-copy,
+html.setup-responsive-active .setup-shell.view-menu .menu-panel-highlights span,
+html.setup-responsive-active .setup-shell.view-menu .player-name-mode-panel,
+body.setup-responsive-active .setup-shell.view-menu .setup-rules,
+body.setup-responsive-active .setup-shell.view-menu .menu-panel-copy,
+body.setup-responsive-active .setup-shell.view-menu .menu-panel-highlights span,
+body.setup-responsive-active .setup-shell.view-menu .player-name-mode-panel {
+  position: static !important;
+  width: 100% !important;
+  margin: 0 !important;
+  border: 1px solid rgba(72,82,96,.16) !important;
+  background: rgba(255,255,255,.26) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22) !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .setup-rules,
+body.setup-responsive-active .setup-shell.view-menu .setup-rules {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  padding: 0 !important;
+}
+html.setup-responsive-active .setup-shell.view-menu .setup-rules span,
+body.setup-responsive-active .setup-shell.view-menu .setup-rules span {
+  padding: 10px 8px !important;
+  text-align: center !important;
+  border-right: 1px solid rgba(72,82,96,.14) !important;
+}
+html.setup-responsive-active .setup-shell.view-menu .setup-rules span:last-child,
+body.setup-responsive-active .setup-shell.view-menu .setup-rules span:last-child { border-right: 0 !important; }
+
+html.setup-responsive-active .setup-shell.view-menu .menu-panel-copy,
+body.setup-responsive-active .setup-shell.view-menu .menu-panel-copy {
+  padding: 18px 20px !important;
+  color: #414b59 !important;
+  font-weight: 850 !important;
+  line-height: 1.42 !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .menu-panel-highlights,
+body.setup-responsive-active .setup-shell.view-menu .menu-panel-highlights {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+}
+html.setup-responsive-active .setup-shell.view-menu .menu-panel-highlights span,
+body.setup-responsive-active .setup-shell.view-menu .menu-panel-highlights span {
+  padding: 9px 12px !important;
+  color: #303844 !important;
+  font-size: .76rem !important;
+  font-weight: 1000 !important;
+  letter-spacing: .035em !important;
+  text-transform: uppercase !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu .player-name-mode-panel,
+body.setup-responsive-active .setup-shell.view-menu .player-name-mode-panel {
+  display: grid !important;
+  gap: 10px !important;
+  padding: 14px 16px !important;
+  border-left: 5px solid #df3445 !important;
+}
+html.setup-responsive-active .setup-shell.view-menu .player-name-mode-actions,
+body.setup-responsive-active .setup-shell.view-menu .player-name-mode-actions,
+html.setup-responsive-active .setup-shell.view-menu .room-join-box,
+body.setup-responsive-active .setup-shell.view-menu .room-join-box {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+html.setup-responsive-active .setup-shell.view-menu .room-input,
+body.setup-responsive-active .setup-shell.view-menu .room-input {
+  min-width: 0 !important;
+  width: 100% !important;
+  text-align: center !important;
+}
+
+html.setup-responsive-active .setup-shell.view-menu #start-draft,
+html.setup-responsive-active .setup-shell.view-menu #create-room,
+html.setup-responsive-active .setup-shell.view-menu #join-room,
+html.setup-responsive-active .setup-shell.view-menu .player-name-mode-actions .primary-button,
+html.setup-responsive-active .setup-shell.view-menu .player-name-mode-actions .secondary-button,
+body.setup-responsive-active .setup-shell.view-menu #start-draft,
+body.setup-responsive-active .setup-shell.view-menu #create-room,
+body.setup-responsive-active .setup-shell.view-menu #join-room,
+body.setup-responsive-active .setup-shell.view-menu .player-name-mode-actions .primary-button,
+body.setup-responsive-active .setup-shell.view-menu .player-name-mode-actions .secondary-button {
+  min-height: 54px !important;
+  width: 100% !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  border-bottom: 4px solid #df3445 !important;
+  background: linear-gradient(135deg, #202631, #313947) !important;
+  color: #fff !important;
+  box-shadow: 0 10px 20px rgba(31,36,45,.09) !important;
+  clip-path: polygon(14px 0, 100% 0, calc(100% - 10px) 100%, 0 100%) !important;
+}
+
+/* All non-menu setup pages use the same centered document surface. */
+html.setup-responsive-active .setup-shell:not(.view-menu) .setup-top,
+body.setup-responsive-active .setup-shell:not(.view-menu) .setup-top,
+html.setup-responsive-active .setup-shell:not(.view-menu) .setup-hero,
+body.setup-responsive-active .setup-shell:not(.view-menu) .setup-hero {
+  display: none !important;
+}
+
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-teams,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-teams {
+  display: block !important;
+  width: min(1180px, 100%) !important;
+  margin: 0 auto !important;
+  min-height: 0 !important;
+}
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-team,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .versus-core,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-rules,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .menu-panel-copy,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .menu-panel-highlights,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .player-name-mode-panel,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) #start-draft,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-team,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .versus-core,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-rules,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .menu-panel-copy,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .menu-panel-highlights,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .player-name-mode-panel,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) #start-draft {
+  display: none !important;
+}
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-center-card,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-center-card {
+  display: block !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  padding: clamp(22px, 2vw, 34px) !important;
+  margin: 0 auto !important;
+  border: 1px solid rgba(64,74,88,.16) !important;
+  background: rgba(255,255,255,.22) !important;
+  box-shadow: 0 16px 38px rgba(28,36,48,.08) !important;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%) !important;
+}
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-panels,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-panels,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-panel.is-active,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-panel.is-active {
+  display: grid !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+/* Tournament page: center card becomes a full-width content shell, scroll comes from the document. */
+html.setup-responsive-active .setup-shell.view-tournament,
+body.setup-responsive-active .setup-shell.view-tournament {
+  width: min(1720px, calc(100vw - clamp(24px, 4vw, 92px))) !important;
+  max-width: 1720px !important;
+}
+html.setup-responsive-active .setup-shell.view-tournament .setup-top,
+html.setup-responsive-active .setup-shell.view-tournament .setup-team,
+html.setup-responsive-active .setup-shell.view-tournament .setup-hero,
+html.setup-responsive-active .setup-shell.view-tournament .versus-core,
+html.setup-responsive-active .setup-shell.view-tournament .setup-rules,
+html.setup-responsive-active .setup-shell.view-tournament .menu-panel-copy,
+html.setup-responsive-active .setup-shell.view-tournament .menu-panel-highlights,
+html.setup-responsive-active .setup-shell.view-tournament .player-name-mode-panel,
+html.setup-responsive-active .setup-shell.view-tournament #start-draft,
+body.setup-responsive-active .setup-shell.view-tournament .setup-top,
+body.setup-responsive-active .setup-shell.view-tournament .setup-team,
+body.setup-responsive-active .setup-shell.view-tournament .setup-hero,
+body.setup-responsive-active .setup-shell.view-tournament .versus-core,
+body.setup-responsive-active .setup-shell.view-tournament .setup-rules,
+body.setup-responsive-active .setup-shell.view-tournament .menu-panel-copy,
+body.setup-responsive-active .setup-shell.view-tournament .menu-panel-highlights,
+body.setup-responsive-active .setup-shell.view-tournament .player-name-mode-panel,
+body.setup-responsive-active .setup-shell.view-tournament #start-draft {
+  display: none !important;
+}
+html.setup-responsive-active .setup-shell.view-tournament .setup-teams,
+body.setup-responsive-active .setup-shell.view-tournament .setup-teams {
+  display: block !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+}
+html.setup-responsive-active .setup-shell.view-tournament .setup-center-card,
+body.setup-responsive-active .setup-shell.view-tournament .setup-center-card {
+  display: block !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  overflow: visible !important;
+}
+html.setup-responsive-active .setup-shell.view-tournament .setup-panels,
+body.setup-responsive-active .setup-shell.view-tournament .setup-panels,
+html.setup-responsive-active .setup-shell.view-tournament .setup-panel.tournament-panel,
+html.setup-responsive-active .setup-shell.view-tournament .setup-panel.tournament-panel.is-active,
+body.setup-responsive-active .setup-shell.view-tournament .setup-panels,
+body.setup-responsive-active .setup-shell.view-tournament .setup-panel.tournament-panel,
+body.setup-responsive-active .setup-shell.view-tournament .setup-panel.tournament-panel.is-active {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+html.setup-responsive-active .tournament-root,
+body.setup-responsive-active .tournament-root {
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 auto clamp(36px, 6vh, 80px) !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  background: linear-gradient(180deg, rgba(55,64,77,.94), rgba(66,75,88,.91)) !important;
+  box-shadow: 0 24px 56px rgba(31,38,48,.18) !important;
+}
+html.setup-responsive-active .tournament-root .tournament-view,
+body.setup-responsive-active .tournament-root .tournament-view {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+html.setup-responsive-active .tournament-hero-card,
+body.setup-responsive-active .tournament-hero-card {
+  min-height: clamp(145px, 18vh, 220px) !important;
+  margin: 0 !important;
+}
+html.setup-responsive-active .tournament-title-block h2,
+body.setup-responsive-active .tournament-title-block h2 {
+  font-size: clamp(3.2rem, 5.8vw, 7rem) !important;
+  line-height: .86 !important;
+}
+html.setup-responsive-active .tournament-view-tabs,
+body.setup-responsive-active .tournament-view-tabs {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(150px, 250px)) !important;
+  gap: 8px !important;
+  padding: 10px 0 !important;
+}
+html.setup-responsive-active .tournament-team-grid,
+body.setup-responsive-active .tournament-team-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 22px !important;
+}
+html.setup-responsive-active .tournament-roster-list,
+body.setup-responsive-active .tournament-roster-list {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) !important;
+}
+html.setup-responsive-active .tournament-player-layout,
+body.setup-responsive-active .tournament-player-layout {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px) !important;
+  gap: 18px !important;
+  align-items: start !important;
+}
+
+/* Prevent stale/legacy development page from affecting layout. */
+html.setup-responsive-active .legacy-development-panel,
+body.setup-responsive-active .legacy-development-panel {
+  display: none !important;
+}
+
+@media (max-width: 1320px) {
+  html.setup-responsive-active .settings-topbar,
+  body.setup-responsive-active .settings-topbar {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    padding-bottom: 8px !important;
+  }
+  html.setup-responsive-active .settings-brand,
+  body.setup-responsive-active .settings-brand {
+    height: 42px !important;
+    justify-content: center !important;
+  }
+  html.setup-responsive-active .settings-tabs,
+  body.setup-responsive-active .settings-tabs {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    min-height: 92px !important;
+  }
+  html.setup-responsive-active .settings-tab,
+  html.setup-responsive-active .setup-top-tab,
+  body.setup-responsive-active .settings-tab,
+  body.setup-responsive-active .setup-top-tab {
+    height: 46px !important;
+    min-height: 46px !important;
+  }
+  html.setup-responsive-active .setup-shell.view-menu .setup-top,
+  body.setup-responsive-active .setup-shell.view-menu .setup-top,
+  html.setup-responsive-active .setup-shell.view-menu .setup-teams,
+  body.setup-responsive-active .setup-shell.view-menu .setup-teams,
+  html.setup-responsive-active .tournament-player-layout,
+  body.setup-responsive-active .tournament-player-layout {
+    grid-template-columns: 1fr !important;
+    grid-template-areas: none !important;
+  }
+  html.setup-responsive-active .setup-shell.view-menu .setup-top::after,
+  body.setup-responsive-active .setup-shell.view-menu .setup-top::after { display: none !important; }
+  html.setup-responsive-active .setup-shell.view-menu .setup-team-a,
+  html.setup-responsive-active .setup-shell.view-menu .setup-team-b,
+  html.setup-responsive-active .setup-shell.view-menu .setup-center-card,
+  body.setup-responsive-active .setup-shell.view-menu .setup-team-a,
+  body.setup-responsive-active .setup-shell.view-menu .setup-team-b,
+  body.setup-responsive-active .setup-shell.view-menu .setup-center-card { grid-area: auto !important; }
+}
+
+@media (max-width: 760px) {
+  html.setup-responsive-active .setup-screen.active,
+  body.setup-responsive-active .setup-screen.active { padding: 10px 0 48px !important; }
+  html.setup-responsive-active .setup-shell.settings-surface,
+  body.setup-responsive-active .setup-shell.settings-surface {
+    width: calc(100vw - 14px) !important;
+  }
+  html.setup-responsive-active .settings-tabs,
+  body.setup-responsive-active .settings-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    min-height: 184px !important;
+  }
+  html.setup-responsive-active .setup-shell.view-menu .setup-top h1,
+  body.setup-responsive-active .setup-shell.view-menu .setup-top h1,
+  html.setup-responsive-active .tournament-title-block h2,
+  body.setup-responsive-active .tournament-title-block h2 {
+    font-size: clamp(2.1rem, 12vw, 3.4rem) !important;
+  }
+  html.setup-responsive-active .setup-shell.view-menu .setup-rules,
+  html.setup-responsive-active .setup-shell.view-menu .player-name-mode-actions,
+  html.setup-responsive-active .setup-shell.view-menu .room-join-box,
+  html.setup-responsive-active .tournament-view-tabs,
+  body.setup-responsive-active .setup-shell.view-menu .setup-rules,
+  body.setup-responsive-active .setup-shell.view-menu .player-name-mode-actions,
+  body.setup-responsive-active .setup-shell.view-menu .room-join-box,
+  body.setup-responsive-active .tournament-view-tabs {
+    grid-template-columns: 1fr !important;
+  }
+}

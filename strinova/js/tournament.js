@@ -278,14 +278,22 @@
     );
     const useResponsiveSetup = Boolean(isSetupActive);
 
+    const isMenu = Boolean(isSetupActive && (activeTabName === 'menu' || (!activeTabName && shell && shell.classList.contains('view-menu'))));
+
     document.documentElement.classList.toggle('setup-responsive-active', useResponsiveSetup);
     document.body.classList.toggle('setup-responsive-active', useResponsiveSetup);
     document.documentElement.classList.toggle('tournament-surface-active', isTournament);
     document.body.classList.toggle('tournament-surface-active', isTournament);
+    document.documentElement.classList.toggle('menu-surface-active', isMenu);
+    document.body.classList.toggle('menu-surface-active', isMenu);
 
-    if (setupScreen) setupScreen.classList.toggle('tournament-surface-active', isTournament);
+    if (setupScreen) {
+      setupScreen.classList.toggle('tournament-surface-active', isTournament);
+      setupScreen.classList.toggle('menu-surface-active', isMenu);
+    }
     if (shell) {
       shell.classList.toggle('view-tournament', isTournament);
+      shell.classList.toggle('view-menu', isMenu);
       shell.dataset.activeSetupTab = activeTabName || 'menu';
     }
   }
@@ -298,9 +306,18 @@
     if (screen) observer.observe(screen, { attributes: true, childList: true, subtree: true });
 
     document.addEventListener('click', event => {
-      if (event.target && event.target.closest && event.target.closest('[data-tab], [data-tournament-view]')) {
+      const setupTab = event.target && event.target.closest ? event.target.closest('[data-tab]') : null;
+      const tournamentView = event.target && event.target.closest ? event.target.closest('[data-tournament-view]') : null;
+      if (setupTab || tournamentView) {
         requestAnimationFrame(syncTournamentSurfaceState);
         setTimeout(syncTournamentSurfaceState, 80);
+        if (setupTab) {
+          setTimeout(() => {
+            if (document.body.classList.contains('setup-responsive-active')) {
+              window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+            }
+          }, 120);
+        }
       }
     }, true);
 
