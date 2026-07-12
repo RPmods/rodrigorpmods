@@ -20229,7 +20229,7 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
 }
 
 
-/* RPmods v3.4.8 — Map reveal and selector gating */
+/* RPmods v3.4.9 — Map reveal and selector gating */
 .rp348-selector-hidden #character-grid {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -20317,4 +20317,22 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
 }
 .setup-shell.view-configuracion .intro-settings-panel {
   margin-bottom: 44px !important;
+}
+
+
+/* RPmods v3.4.9 — stronger active turn/slot UI recovery */
+.rp346-delegatable-slot {
+  cursor: pointer !important;
+  outline: 2px solid rgba(255, 221, 69, .92) !important;
+  outline-offset: -2px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset, 0 0 26px rgba(255, 221, 69, .22) !important;
+}
+.rp346-slot-menu {
+  z-index: 10080 !important;
+}
+body:not(.rp348-selector-hidden) #character-grid {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  filter: none !important;
 }
