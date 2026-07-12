@@ -20417,3 +20417,5 @@ body.rp3412-selector-visible #confirm-action {
 }
 
 /* RPmods v3.4.13 — anti-stall safety, no visual changes required */
+
+/* RPmods v3.4.14 — hard anti-stall keeps simultaneous groups moving without changing selector UI. */

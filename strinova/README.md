@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.4.13
+# STRINOVA Draft System v3.4.14
 
 Actualización: Draft Flow Core Rebuild.
 
@@ -532,3 +532,9 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Corrige atasco en selecciones restantes después de bloqueos.
 - Watchdog host completa slots simultáneos pendientes tras 00:00.
 - Refuerza bots sin cambiar el selector que ya funcionaba.
+
+
+## v3.4.14
+- Corrige atasco de picks dobles cuando un slot queda “esperando al compañero”.
+- El host completa solo el slot pendiente después del deadline.
+- No modifica la visibilidad del selector ni el menú de compañero que ya estaban funcionando.

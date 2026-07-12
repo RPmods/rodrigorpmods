@@ -1,4 +1,4 @@
-/* STRINOVA Draft System v3.4.13
+/* STRINOVA Draft System v3.4.14
  * Rebuilt flow controller: independent map phase, official 5v5 order,
  * simultaneous picks, private teammate requests and bot simulation.
  */
@@ -7,7 +7,7 @@
   if (window.__rpmodsDraftFlowV346Installed) return;
   window.__rpmodsDraftFlowV346Installed = true;
 
-  const VERSION = "3.4.13";
+  const VERSION = "3.4.14";
   const MAP_START_DELAY_MS = 900;
   const ASSIST_TIMEOUT_MS = 10000;
   const BOT_MIN_DELAY_MS = 850;
@@ -2978,6 +2978,200 @@
       state.locked = false;
       finalizeSimultaneousGroup(turn, true);
     }, 500);
+  }
+
+
+  /* ------------------------------------------------------------------
+   * v3.4.14 — definitive simultaneous group finalizer
+   * ---------------------------------------------------------------- */
+  function v3414TurnSlotKeys(turn = currentTurn()) {
+    return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
+  }
+
+  function v3414TurnIdentity(turn = currentTurn()) {
+    return `${currentRoomCode || "local"}:${state.draftSessionId}:${state.turnIndex}:${turn?.team || "-"}:${turn?.type || "-"}:${turn?.groupId || "-"}:${v3414TurnSlotKeys(turn).join("+")}`;
+  }
+
+  function v3414CharacterTaken(name) {
+    if (!name) return true;
+    const lower = String(name).toLowerCase();
+    const picked = [...(state.picks?.A || []), ...(state.picks?.B || [])].some(item => String(item?.name || item).toLowerCase() === lower);
+    const banned = [...(state.bans?.A || []), ...(state.bans?.B || [])].some(item => String(item?.name || item).toLowerCase() === lower);
+    return picked || banned;
+  }
+
+  function v3414FactionAllowed(character, turn = currentTurn()) {
+    if (!character || !turn) return false;
+    if (turn.type === "ban") return !turn.faction || character.faction === turn.faction;
+    try {
+      const allowed = getAllowedFactionKeysForPick(turn.team) || [];
+      return !allowed.length || allowed.includes(character.faction);
+    } catch (_) {
+      return true;
+    }
+  }
+
+  function v3414ReservedNames(exceptKey = "", turn = currentTurn()) {
+    const reserved = new Set();
+    const record = turn?.simultaneous ? simultaneousRecord(turn) : {};
+    Object.entries(record || {}).forEach(([slotKey, name]) => {
+      if (slotKey !== exceptKey && name) reserved.add(String(name));
+    });
+    Object.values(flow.assist?.requests || {}).forEach(item => { if (item?.characterName) reserved.add(String(item.characterName)); });
+    Object.values(flow.assist?.proposals || {}).forEach(item => { if (item?.characterName) reserved.add(String(item.characterName)); });
+    return reserved;
+  }
+
+  function v3414PickSafeCharacter(turn = currentTurn(), slotKey = "") {
+    const reserved = v3414ReservedNames(slotKey, turn);
+    let pool = characters.filter(character => {
+      if (!character?.name) return false;
+      if (v3414CharacterTaken(character.name)) return false;
+      if (reserved.has(character.name)) return false;
+      if (!v3414FactionAllowed(character, turn)) return false;
+      try { return isCharacterAvailable(character, turn); }
+      catch (_) { return true; }
+    });
+
+    // Fallback: if the strict wrapper rejects everything due to stale assist/reserved state,
+    // keep only hard constraints: not picked, not banned, valid faction.
+    if (!pool.length) {
+      pool = characters.filter(character => {
+        if (!character?.name) return false;
+        if (v3414CharacterTaken(character.name)) return false;
+        if (reserved.has(character.name)) return false;
+        return v3414FactionAllowed(character, turn);
+      });
+    }
+
+    if (!pool.length) return null;
+    if (turn?.type === "pick") {
+      const usedRoles = new Set((state.picks?.[turn.team] || []).map(character => roleOf(character.name)));
+      const priority = ["Soporte", "Controlador", "Vanguardia", "Centinela", "Duelista"];
+      const missing = priority.find(role => !usedRoles.has(role));
+      const rolePool = missing ? pool.filter(character => roleOf(character.name) === missing) : [];
+      if (rolePool.length) pool = rolePool;
+    }
+    return pool[Math.floor(Math.random() * pool.length)] || null;
+  }
+
+  function v3414PatchSimultaneous(turn = currentTurn()) {
+    if (!currentRoomCode || currentRole !== "host" || !turn?.simultaneous) return;
+    try {
+      pushOnlineDraftPatch({ force: true, phase: "draft", rp346Simultaneous: clone(flow.simultaneous, {}) });
+    } catch (error) {
+      console.warn("RPmods v3.4.14 no pudo sincronizar simultáneo.", error);
+    }
+  }
+
+  function v3414GroupAlreadyInPicks(turn = currentTurn()) {
+    if (!turn?.simultaneous) return false;
+    const names = v3414TurnSlotKeys(turn).map(slotKey => simultaneousRecord(turn)[slotKey]).filter(Boolean);
+    if (!names.length) return false;
+    const picked = new Set((state.picks?.[turn.team] || []).map(character => character.name));
+    return names.every(name => picked.has(name));
+  }
+
+  function v3414FinalizeGroupHard(turn = currentTurn(), reason = "hard-finalize") {
+    if (!turn?.simultaneous || !currentRoomCode || currentRole !== "host") return false;
+    if (state.turnIndex >= activeTurnCount()) return false;
+    const current = currentTurn();
+    if (!current || current.groupId !== turn.groupId || current.team !== turn.team || current.type !== turn.type) return false;
+    const key = `v3414:finalize:${v3414TurnIdentity(turn)}`;
+    if (flow.botKeys[key]) return false;
+
+    const record = simultaneousRecord(turn);
+    for (const slotKey of v3414TurnSlotKeys(turn)) {
+      if (record[slotKey]) continue;
+      const character = v3414PickSafeCharacter(turn, slotKey);
+      if (!character) {
+        console.warn("RPmods v3.4.14 no encontró personaje para slot simultáneo", slotKey, reason);
+        continue;
+      }
+      record[slotKey] = character.name;
+    }
+
+    const complete = v3414TurnSlotKeys(turn).every(slotKey => Boolean(record[slotKey]));
+    if (!complete) return false;
+    flow.botKeys[key] = true;
+
+    state.locked = false;
+    state.selected = null;
+    state.preselectLocked = false;
+    try { clearInterval(state.timerId); } catch (_) {}
+    v3414PatchSimultaneous(turn);
+
+    // Avoid duplicating the group if a late listener already committed it.
+    if (v3414GroupAlreadyInPicks(turn)) {
+      const previousStage = turnStage(turn);
+      state.turnIndex += 1;
+      prepareNextTurn(previousStage);
+      return true;
+    }
+
+    try {
+      return Boolean(finalizeSimultaneousGroup(turn, true));
+    } catch (error) {
+      console.warn("RPmods v3.4.14 finalizeSimultaneousGroup falló; usando avance manual.", error);
+      const names = v3414TurnSlotKeys(turn).map(slotKey => record[slotKey]).filter(Boolean);
+      const picks = names.map(name => characters.find(character => character.name === name)).filter(Boolean);
+      picks.forEach(character => state.picks[turn.team].push(character));
+      state.pickBatchSelections[turn.groupId] = picks;
+      const previousStage = turnStage(turn);
+      state.turnIndex += 1;
+      prepareNextTurn(previousStage);
+      return true;
+    }
+  }
+
+  function v3414ResolveSingleHard(turn = currentTurn(), reason = "single-hard") {
+    if (!turn || turn.simultaneous || !currentRoomCode || currentRole !== "host") return false;
+    const key = `v3414:single:${v3414TurnIdentity(turn)}:${Math.floor((onlineNow() - Number(state.turnDeadlineAt || 0)) / 1500)}`;
+    if (flow.botKeys[key]) return false;
+    const character = v3414PickSafeCharacter(turn, turn.slotKey);
+    if (!character) return false;
+    flow.botKeys[key] = true;
+    state.locked = false;
+    state.selected = character;
+    try { clearInterval(state.timerId); } catch (_) {}
+    confirmTurn(true, { onlineSystem: true, botSlotKey: turn.slotKey, reason });
+    return true;
+  }
+
+  function v3414MaybeRescueTurn(reason = "watchdog") {
+    if (!currentRoomCode || currentRole !== "host" || flow.phase !== "draft" || !state.draftActive || state.roulette.active) return false;
+    const turn = currentTurn();
+    if (!turn || !state.turnDeadlineAt) return false;
+    const lateBy = onlineNow() - Number(state.turnDeadlineAt || 0);
+    if (lateBy < 350) return false;
+
+    // This is the critical case from v3.4.13: one slot says "esperando al compañero".
+    if (turn.simultaneous) return v3414FinalizeGroupHard(turn, reason);
+    return v3414ResolveSingleHard(turn, reason);
+  }
+
+  const baseScheduleTestingBotTurnV3414 = scheduleTestingBotTurn;
+  scheduleTestingBotTurn = function scheduleTestingBotTurnV3414() {
+    try { baseScheduleTestingBotTurnV3414(); } catch (error) { console.warn("RPmods v3.4.14 base bot scheduler falló.", error); }
+    v3414MaybeRescueTurn("scheduler-rescue");
+  };
+
+  if (!window.__rpmodsV3414HardWatchdog) {
+    window.__rpmodsV3414HardWatchdog = window.setInterval(() => {
+      v3414MaybeRescueTurn("hard-watchdog");
+    }, 260);
+  }
+
+  // Remote sync can arrive with a complete simultaneous record but no turn advance.
+  if (!window.__rpmodsV3414CompleteRecordGuard) {
+    window.__rpmodsV3414CompleteRecordGuard = window.setInterval(() => {
+      if (!currentRoomCode || currentRole !== "host" || flow.phase !== "draft" || !state.draftActive) return;
+      const turn = currentTurn();
+      if (!turn?.simultaneous) return;
+      const record = simultaneousRecord(turn);
+      const complete = v3414TurnSlotKeys(turn).every(slotKey => Boolean(record[slotKey]));
+      if (complete) v3414FinalizeGroupHard(turn, "complete-record-guard");
+    }, 360);
   }
 
 
