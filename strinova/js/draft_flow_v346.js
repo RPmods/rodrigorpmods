@@ -1,4 +1,4 @@
-/* STRINOVA Draft System v3.4.11
+/* STRINOVA Draft System v3.4.12
  * Rebuilt flow controller: independent map phase, official 5v5 order,
  * simultaneous picks, private teammate requests and bot simulation.
  */
@@ -7,7 +7,7 @@
   if (window.__rpmodsDraftFlowV346Installed) return;
   window.__rpmodsDraftFlowV346Installed = true;
 
-  const VERSION = "3.4.11";
+  const VERSION = "3.4.12";
   const MAP_START_DELAY_MS = 900;
   const ASSIST_TIMEOUT_MS = 10000;
   const BOT_MIN_DELAY_MS = 850;
@@ -2574,6 +2574,272 @@
       v3411HostTurnWatchdog();
     }, 260);
   }
+
+
+
+
+  /* ------------------------------------------------------------------
+   * v3.4.12 — definitive turn owner resolver and slot action recovery
+   * ---------------------------------------------------------------- */
+  function v3412Norm(value) {
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function v3412TurnKeys(turn = currentTurn()) {
+    return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
+  }
+
+  function v3412AssignmentByClientOrName() {
+    if (!currentRoomCode || !isAdvancedDraftConfig()) return null;
+    const byClient = advancedAssignmentForClient(onlineClientId(), state.onlineSlots);
+    if (byClient?.team && byClient?.slotKey) return byClient;
+
+    // Host-created rooms can assign the host by display name instead of participant role.
+    const myName = v3412Norm(currentOnlinePlayerName);
+    if (!myName) return null;
+    for (const team of ["A", "B"]) {
+      for (const slotKey of advancedSlotsForTeamSize(activeTeamSize())) {
+        const slot = state.onlineSlots?.[team]?.[slotKey];
+        if (!slot) continue;
+        if (v3412Norm(slot.name) === myName) return { team, slotKey, slot };
+      }
+    }
+    return null;
+  }
+
+  function v3412IsOwnTurn(turn = currentTurn()) {
+    if (flow.phase !== "draft" || !state.draftActive || !turn) return false;
+    if (state.turnStartedAt && onlineNow() < Number(state.turnStartedAt)) return false;
+    if (!currentRoomCode) return true;
+
+    if (isAdvancedDraftConfig()) {
+      const own = v3412AssignmentByClientOrName();
+      if (!own || own.team !== turn.team) return false;
+      if (!v3412TurnKeys(turn).includes(own.slotKey)) return false;
+      if (turn.type === "pick" && turn.simultaneous && simultaneousRecord(turn)[own.slotKey]) return false;
+      return true;
+    }
+
+    return currentRole === "player" && currentOnlineTeamLetter() === turn.team;
+  }
+
+  function v3412ActiveSlotIsBot(turn = currentTurn()) {
+    if (!currentRoomCode || !turn || !isAdvancedDraftConfig()) return false;
+    return v3412TurnKeys(turn).some(slotKey => isTestingBotParticipant(state.onlineSlots?.[turn.team]?.[slotKey]));
+  }
+
+  function v3412CanShowSelector() {
+    if (flow.phase !== "draft" || !state.draftActive || state.locked || state.roulette.active) return false;
+    return Boolean(v3412IsOwnTurn() || canRequest() || flow.assistTarget);
+  }
+
+  canControlCurrentTurn = function canControlCurrentTurnV3412() {
+    return v3412IsOwnTurn();
+  };
+
+  canDelegate = function canDelegateV3412() {
+    const turn = currentTurn();
+    const own = v3412AssignmentByClientOrName();
+    if (!v3412IsOwnTurn(turn) || !isAdvancedDraftConfig() || !own) return false;
+    if (!turn || turn.type !== "pick" || own.team !== turn.team) return false;
+    const mode = currentDraftConfig().delegationMode;
+    if (mode === "none") return false;
+    if (mode === "all_members") return true;
+    if (mode === "captain_only") return own.slotKey === "captain";
+    return own.slotKey === "captain" || own.slotKey === "subcaptain";
+  };
+
+  shouldShowSelectorV348 = v3412CanShowSelector;
+
+  syncSelectorVisibilityV348 = function syncSelectorVisibilityV3412() {
+    const show = v3412CanShowSelector();
+    document.body.classList.toggle("rp348-selector-hidden", !show);
+    document.body.classList.toggle("rp3410-selector-force-visible", show);
+    document.body.classList.toggle("rp3411-selector-owned", show);
+    document.body.classList.toggle("rp3412-selector-visible", show);
+
+    const nodes = [characterGrid, document.getElementById("character-grid"), document.querySelector(".character-grid")].filter(Boolean);
+    nodes.forEach(node => {
+      node.setAttribute("aria-hidden", show ? "false" : "true");
+      node.style.opacity = show ? "1" : "0";
+      node.style.pointerEvents = show ? "auto" : "none";
+      node.style.transform = show ? "none" : "translateY(8px) scale(.985)";
+      node.style.filter = show ? "none" : "saturate(.65) brightness(.8)";
+      node.style.visibility = show ? "visible" : "hidden";
+      if (show) node.style.removeProperty("display");
+    });
+
+    document.querySelectorAll(".character-carousel, .faction-tabs").forEach(node => {
+      node.style.visibility = show ? "visible" : "hidden";
+      node.style.pointerEvents = show ? "auto" : "none";
+      if (show) node.style.removeProperty("display");
+    });
+
+    if (!show && !flow.assistTarget) {
+      state.selected = null;
+      state.preselectLocked = false;
+    }
+  };
+
+  function v3412TeamFromElement(element) {
+    if (element?.closest?.("#team-a-slots") || element?.classList?.contains("team-a")) return "A";
+    if (element?.closest?.("#team-b-slots") || element?.classList?.contains("team-b")) return "B";
+    return "";
+  }
+
+  function v3412SlotKeyFromElement(element) {
+    const raw = element?.dataset?.slotIndex;
+    const index = Number.isFinite(Number(raw)) ? Number(raw) : Array.from(element?.parentElement?.children || []).indexOf(element);
+    return advancedSlotsForTeamSize(activeTeamSize())[index] || null;
+  }
+
+  function v3412CanDelegateTo(team, slotKey) {
+    const turn = currentTurn();
+    if (!canDelegate() || !turn || turn.type !== "pick" || team !== turn.team || !slotKey) return false;
+    if (v3412TurnKeys(turn).includes(slotKey)) return false;
+    const slot = state.onlineSlots?.[team]?.[slotKey];
+    if (!slot?.clientId) return false;
+    return !state.picks?.[team]?.[advancedSlotIndex(slotKey)];
+  }
+
+  function v3412BindSlots() {
+    document.querySelectorAll("#team-a-slots .player-slot, #team-b-slots .player-slot, #team-a-slots > *, #team-b-slots > *").forEach(element => {
+      const team = v3412TeamFromElement(element);
+      const slotKey = v3412SlotKeyFromElement(element);
+      const valid = v3412CanDelegateTo(team, slotKey);
+      element.classList.toggle("rp346-delegatable-slot", valid);
+      element.classList.toggle("rp3412-delegatable-slot", valid);
+      if (valid) {
+        element.dataset.rp346TargetTeam = team;
+        element.dataset.rp346TargetSlot = slotKey;
+        element.title = "Elegir laminante para este compañero";
+      } else {
+        delete element.dataset.rp346TargetTeam;
+        delete element.dataset.rp346TargetSlot;
+        if (element.title === "Elegir laminante para este compañero") element.removeAttribute("title");
+      }
+    });
+  }
+
+  bindSlotMenus = function bindSlotMenusV3412() {
+    v3412BindSlots();
+  };
+
+  document.addEventListener("pointerdown", event => {
+    const element = event.target?.closest?.("#team-a-slots .player-slot, #team-b-slots .player-slot, #team-a-slots > *, #team-b-slots > *");
+    if (!element) return;
+    const team = v3412TeamFromElement(element);
+    const slotKey = v3412SlotKeyFromElement(element);
+    if (!v3412CanDelegateTo(team, slotKey)) return;
+    const slot = state.onlineSlots?.[team]?.[slotKey];
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    showSlotMenu(element, {
+      team,
+      slotKey,
+      clientId: slot.clientId,
+      name: slot.name || state.players?.[team]?.[advancedSlotIndex(slotKey)] || advancedSlotLabel(slotKey),
+      isBot: isTestingBotParticipant(slot),
+    });
+  }, true);
+
+  const baseRenderAssistUiV3412 = renderAssistUi;
+  renderAssistUi = function renderAssistUiV3412() {
+    cleanExpiredAssist();
+    updateRequestButton();
+    v3412BindSlots();
+    renderRequestBubbles();
+    renderProposalModal();
+    syncSelectorVisibilityV348();
+  };
+
+  function v3412RefreshUi() {
+    if (flow.phase !== "draft" || !state.draftActive) return;
+    syncSelectorVisibilityV348();
+    v3412BindSlots();
+    updateRequestButton();
+  }
+
+  const baseStartTurnV3412 = startTurn;
+  startTurn = function startTurnV3412(options = {}) {
+    baseStartTurnV3412(options);
+    scheduleDraftTimeout(v3412RefreshUi, 40);
+    scheduleDraftTimeout(v3412RefreshUi, 180);
+    scheduleDraftTimeout(v3412RefreshUi, 420);
+  };
+
+  if (!window.__rpmodsV3412UiInterval) {
+    window.__rpmodsV3412UiInterval = window.setInterval(v3412RefreshUi, 160);
+  }
+
+  // Final bot policy: bots only resolve their own active slots and pending requests. They do not create proposals.
+  scheduleTestingBotTurn = function scheduleTestingBotTurnV3412() {
+    try { clearTestingBotTurnTimer(); } catch (_) {}
+    if (!currentRoomCode || currentRole !== "host" || flow.phase !== "draft" || !state.draftActive || state.locked || state.roulette.active) return;
+    const turn = currentTurn();
+    if (!turn) return;
+
+    const botActors = botSlotsForTurn(turn).filter(item => {
+      if (turn.type !== "pick") return true;
+      return !turn.simultaneous || !simultaneousRecord(turn)[item.slotKey];
+    });
+
+    botActors.forEach(({ slotKey }, index) => {
+      const key = `botTurnV3412:${state.draftSessionId}:${state.turnIndex}:${slotKey}`;
+      if (flow.botKeys[key]) return;
+      flow.botKeys[key] = true;
+      const turnIndexSnapshot = state.turnIndex;
+      const sessionSnapshot = state.draftSessionId;
+      botTimeout(() => {
+        if (flow.phase !== "draft" || state.turnIndex !== turnIndexSnapshot || state.draftSessionId !== sessionSnapshot || state.locked || state.roulette.active) {
+          delete flow.botKeys[key];
+          return;
+        }
+
+        const pending = Object.values(flow.assist.requests || {}).find(item =>
+          item?.status === "pending" &&
+          item.team === turn.team &&
+          item.turnIndex === state.turnIndex &&
+          item.draftSessionId === state.draftSessionId &&
+          !state.picks?.[item.team]?.[Number(item.slotIndex)]
+        );
+        if (pending) {
+          if (Math.random() < 0.86) acceptRequest(pending.id, { botSystem: true, botSlotKey: slotKey });
+          else rejectRequest(pending.id, { botSystem: true });
+          delete flow.botKeys[key];
+          return;
+        }
+
+        const character = chooseBotCharacter(turn.team);
+        if (!character) {
+          delete flow.botKeys[key];
+          return;
+        }
+        state.selected = character;
+        confirmTurn(true, { onlineSystem: true, botSlotKey: slotKey });
+      }, randomDelay(760, 1380) + index * 300);
+    });
+  };
+
+  let v3412WatchdogKey = "";
+  window.setInterval(() => {
+    if (!currentRoomCode || currentRole !== "host" || flow.phase !== "draft" || !state.draftActive) return;
+    const turn = currentTurn();
+    if (!turn || state.locked || state.roulette.active) return;
+    scheduleTestingBotTurn();
+    if (!state.turnDeadlineAt || onlineNow() < Number(state.turnDeadlineAt) + 1200) return;
+    const key = `${currentRoomCode}:${state.draftSessionId}:${state.turnIndex}:${state.turnDeadlineAt}`;
+    if (v3412WatchdogKey === key) return;
+    v3412WatchdogKey = key;
+    if (v3412ActiveSlotIsBot(turn)) {
+      const character = chooseBotCharacter(turn.team);
+      if (character) {
+        state.selected = character;
+        confirmTurn(true, { onlineSystem: true, botSlotKey: v3412TurnKeys(turn).find(slotKey => isTestingBotParticipant(state.onlineSlots?.[turn.team]?.[slotKey])) });
+      }
+    }
+  }, 550);
 
 
   /* ------------------------------------------------------------------

@@ -20229,7 +20229,7 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
 }
 
 
-/* RPmods v3.4.11 — Map reveal and selector gating */
+/* RPmods v3.4.12 — Map reveal and selector gating */
 .rp348-selector-hidden #character-grid {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -20320,7 +20320,7 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
 }
 
 
-/* RPmods v3.4.11 — stronger active turn/slot UI recovery */
+/* RPmods v3.4.12 — stronger active turn/slot UI recovery */
 .rp346-delegatable-slot {
   cursor: pointer !important;
   outline: 2px solid rgba(255, 221, 69, .92) !important;
@@ -20338,7 +20338,7 @@ body:not(.rp348-selector-hidden) #character-grid {
 }
 
 
-/* RPmods v3.4.11 — force selector recovery while a valid actor is selecting */
+/* RPmods v3.4.12 — force selector recovery while a valid actor is selecting */
 body.rp3410-selector-force-visible #character-grid,
 body.rp3410-selector-force-visible.rp348-selector-hidden #character-grid,
 body:not(.rp348-selector-hidden) #character-grid {
@@ -20365,7 +20365,7 @@ body.rp3410-selector-force-visible #confirm-action {
 }
 
 
-/* RPmods v3.4.11 — strict selector ownership */
+/* RPmods v3.4.12 — strict selector ownership */
 body.rp348-selector-hidden #character-grid {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -20383,4 +20383,35 @@ body.rp3410-selector-force-visible #character-grid {
   cursor: pointer !important;
   outline: 2px solid rgba(255, 221, 69, .95) !important;
   outline-offset: -2px !important;
+}
+
+
+/* RPmods v3.4.12 — definitive selector and teammate-slot recovery */
+body.rp3412-selector-visible #character-grid,
+body.rp3412-selector-visible .character-grid,
+body.rp3412-selector-visible.rp348-selector-hidden #character-grid,
+body.rp3412-selector-visible.rp348-selector-hidden .character-grid {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  filter: none !important;
+  display: grid !important;
+}
+body.rp3412-selector-visible .character-carousel,
+body.rp3412-selector-visible .faction-tabs,
+body.rp3412-selector-visible #confirm-action {
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+.rp3412-delegatable-slot,
+.rp346-delegatable-slot {
+  cursor: pointer !important;
+  outline: 3px solid rgba(255, 221, 69, .98) !important;
+  outline-offset: -3px !important;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.18) inset, 0 0 34px rgba(255,221,69,.34) !important;
+}
+.rp346-slot-menu {
+  z-index: 13000 !important;
+  pointer-events: auto !important;
 }
