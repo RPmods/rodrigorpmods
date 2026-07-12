@@ -431,9 +431,17 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Se mantiene intacta la lógica del draft: este parche no modifica `js/app.js`.
 
 
-## v3.3.9 Stealth Scroll System
+## v3.3.10 Stealth Scroll System
 
 - Se ocultaron las barras de desplazamiento visibles de Menú, Torneo y apartados de configuración sin desactivar el scroll real.
 - El comportamiento se alineó con las pantallas online: rueda del mouse, trackpad y teclado siguen funcionando, pero la barra visual no distrae ni cambia el ancho aparente de la interfaz.
 - Se reforzó el modo responsivo de setup/tournament para evitar barras dobles, rieles laterales y desplazamientos visibles del navegador.
 - No se modificó `js/app.js`; la lógica del draft permanece intacta.
+
+
+## v3.3.10 Invisible Scroll Wheel Restore
+
+- Fixed invisible-scroll behavior after v3.3.9 so Menu, Tournament and setup pages keep the clean rail-less look while mouse wheel, trackpad and keyboard scrolling remain active.
+- The active setup screen is now the real scroll container instead of relying on the hidden document rail.
+- Added a small fallback in `js/tournament.js` that routes wheel/keyboard scrolling to the active setup screen only while setup/tournament surfaces are active.
+- Draft logic remains untouched.

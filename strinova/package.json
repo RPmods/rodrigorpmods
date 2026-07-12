@@ -1,6 +1,6 @@
 {
   "name": "draft-simulator",
-  "version": "3.3.9",
+  "version": "3.3.10",
   "description": "STRINOVA Draft System + Gantigun Cup 2026 Tournament Hub con reestructura responsiva del menú, barra superior estable, scroll natural y limpieza visual sin tocar la lógica del draft",
   "main": "main.js",
   "scripts": {

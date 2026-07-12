@@ -358,3 +358,89 @@
     initTournamentHub();
   }
 })();
+
+
+// v3.3.10 — Fallback for invisible setup scroll.
+// Some browsers do not route wheel movement to the hidden document scrollbar after the
+// setup/tournament layout switches to a rail-less surface. This keeps the clean visual
+// style while explicitly scrolling the active setup screen.
+(function installSetupStealthScrollFallback() {
+  if (window.__strinovaSetupStealthScrollFallbackInstalled) return;
+  window.__strinovaSetupStealthScrollFallbackInstalled = true;
+
+  function isEditableTarget(target) {
+    if (!target || target === document) return false;
+    const element = target.nodeType === Node.ELEMENT_NODE ? target : target.parentElement;
+    if (!element) return false;
+    return !!element.closest('input, textarea, select, [contenteditable="true"]');
+  }
+
+  function isSetupSurfaceActive() {
+    return document.body.classList.contains('setup-responsive-active') ||
+      document.documentElement.classList.contains('setup-responsive-active');
+  }
+
+  function getSetupScroller() {
+    const setupScreen = document.getElementById('setup-screen');
+    if (!setupScreen || !setupScreen.classList.contains('active')) return null;
+    return setupScreen;
+  }
+
+  function findNestedVerticalScroller(start, setupScroller) {
+    let node = start && start.nodeType === Node.ELEMENT_NODE ? start : start?.parentElement;
+    while (node && node !== document.body && node !== document.documentElement) {
+      if (node === setupScroller) return null;
+      const style = window.getComputedStyle(node);
+      const canScrollY = /(auto|scroll)/.test(style.overflowY || '') && node.scrollHeight > node.clientHeight + 2;
+      if (canScrollY) return node;
+      node = node.parentElement;
+    }
+    return null;
+  }
+
+  window.addEventListener('wheel', function onSetupWheel(event) {
+    if (!isSetupSurfaceActive()) return;
+    const setupScroller = getSetupScroller();
+    if (!setupScroller || !setupScroller.contains(event.target)) return;
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+
+    const nestedScroller = findNestedVerticalScroller(event.target, setupScroller);
+    if (nestedScroller) return;
+
+    const maxScroll = setupScroller.scrollHeight - setupScroller.clientHeight;
+    if (maxScroll <= 2) return;
+
+    const before = setupScroller.scrollTop;
+    setupScroller.scrollTop = Math.max(0, Math.min(maxScroll, before + event.deltaY));
+    if (setupScroller.scrollTop !== before) {
+      event.preventDefault();
+    }
+  }, { passive: false });
+
+  window.addEventListener('keydown', function onSetupKeyScroll(event) {
+    if (!isSetupSurfaceActive() || isEditableTarget(event.target)) return;
+    const setupScroller = getSetupScroller();
+    if (!setupScroller) return;
+
+    const maxScroll = setupScroller.scrollHeight - setupScroller.clientHeight;
+    if (maxScroll <= 2) return;
+
+    const step = Math.max(80, Math.round(setupScroller.clientHeight * 0.14));
+    const page = Math.max(120, Math.round(setupScroller.clientHeight * 0.82));
+    let delta = 0;
+
+    if (event.key === 'ArrowDown') delta = step;
+    else if (event.key === 'ArrowUp') delta = -step;
+    else if (event.key === 'PageDown') delta = page;
+    else if (event.key === 'PageUp') delta = -page;
+    else if (event.key === 'Home') delta = -maxScroll;
+    else if (event.key === 'End') delta = maxScroll;
+    else return;
+
+    const before = setupScroller.scrollTop;
+    setupScroller.scrollTop = Math.max(0, Math.min(maxScroll, before + delta));
+    if (setupScroller.scrollTop !== before) {
+      event.preventDefault();
+    }
+  });
+})();

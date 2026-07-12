@@ -18971,3 +18971,77 @@ html:not(.setup-responsive-active),
 body:not(.setup-responsive-active) {
   overflow: hidden;
 }
+
+
+/* v3.3.10 — Invisible Scroll Wheel Restore
+   v3.3.9 hid the browser rail correctly, but some browsers stopped routing wheel events
+   because the document scrollbar was hidden while the real setup surface was not the
+   explicit scroll container. The setup/tournament/config screens now scroll internally,
+   like the online room panels: invisible rail, active wheel/trackpad/keyboard scrolling. */
+html.setup-responsive-active,
+body.setup-responsive-active,
+html.tournament-surface-active,
+body.tournament-surface-active,
+html.menu-surface-active,
+body.menu-surface-active {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+}
+
+html.setup-responsive-active #viewport,
+body.setup-responsive-active #viewport,
+html.setup-responsive-active #game-root,
+body.setup-responsive-active #game-root {
+  width: 100% !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+}
+
+html.setup-responsive-active .setup-screen.active,
+body.setup-responsive-active .setup-screen.active {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html.setup-responsive-active .setup-screen.active::-webkit-scrollbar,
+body.setup-responsive-active .setup-screen.active::-webkit-scrollbar,
+html.setup-responsive-active .setup-shell::-webkit-scrollbar,
+body.setup-responsive-active .setup-shell::-webkit-scrollbar,
+html.setup-responsive-active .tournament-root::-webkit-scrollbar,
+body.setup-responsive-active .tournament-root::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+/* Do not create nested vertical scroll traps in setup/tournament content. The active
+   setup screen is the only vertical scroll container; tables may still scroll sideways. */
+html.setup-responsive-active .setup-shell,
+body.setup-responsive-active .setup-shell,
+html.setup-responsive-active .tournament-root,
+body.setup-responsive-active .tournament-root,
+html.setup-responsive-active .tournament-view,
+body.setup-responsive-active .tournament-view {
+  overflow-y: visible !important;
+  max-height: none !important;
+}
+
+html.setup-responsive-active .tournament-table-wrap,
+body.setup-responsive-active .tournament-table-wrap,
+html.setup-responsive-active .tournament-player-table-wrap,
+body.setup-responsive-active .tournament-player-table-wrap {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
