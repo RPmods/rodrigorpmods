@@ -1,4 +1,4 @@
-/* STRINOVA Draft System v3.4.6
+/* STRINOVA Draft System v3.4.8
  * Rebuilt flow controller: independent map phase, official 5v5 order,
  * simultaneous picks, private teammate requests and bot simulation.
  */
@@ -7,7 +7,7 @@
   if (window.__rpmodsDraftFlowV346Installed) return;
   window.__rpmodsDraftFlowV346Installed = true;
 
-  const VERSION = "3.4.6";
+  const VERSION = "3.4.8";
   const MAP_START_DELAY_MS = 900;
   const ASSIST_TIMEOUT_MS = 10000;
   const BOT_MIN_DELAY_MS = 850;
@@ -1727,6 +1727,276 @@
     systemDraftVoiceLines.advanced_team_ban_scissors_laminant.text = "Tu equipo está bloqueando un laminante de Urbino.";
     systemDraftVoiceLines.advanced_please_ban_scissors_laminant.text = "Por favor bloquea un laminante de Urbino.";
   } catch (_) {}
+
+
+  /* ------------------------------------------------------------------
+   * v3.4.8 — Map reveal, selector gating and safer bot flow
+   * ---------------------------------------------------------------- */
+  function v348VoiceSources() {
+    const preferred = 1 + Math.floor(Math.random() * CHIBI_VOICE_COUNT);
+    const first = `audio/map_vote_chibi_${preferred}.ogg`;
+    const fallback = "audio/map_vote_chibi_1.ogg";
+    return first === fallback ? [fallback] : [first, fallback];
+  }
+
+  playChibiVoice = function playChibiVoiceV348() {
+    unlockMediaPlayback(true);
+    audioPlayFromSourceList(v348VoiceSources(), 1, "sfx");
+  };
+
+  function ensureFinalMapRevealOverlayV348() {
+    let overlay = document.getElementById("rp348-map-final-reveal");
+    if (overlay) return overlay;
+    overlay = document.createElement("div");
+    overlay.id = "rp348-map-final-reveal";
+    overlay.className = "rp348-map-final-reveal hidden";
+    overlay.innerHTML = `
+      <section class="rp348-map-final-card">
+        <div class="rp348-map-final-image"></div>
+        <div class="rp348-map-final-copy">
+          <span>MAPA SELECCIONADO</span>
+          <strong></strong>
+        </div>
+      </section>
+    `;
+    document.body.appendChild(overlay);
+    return overlay;
+  }
+
+  function revealSelectedMapV348(map) {
+    return new Promise(resolve => {
+      const overlay = ensureFinalMapRevealOverlayV348();
+      const image = overlay.querySelector(".rp348-map-final-image");
+      const name = overlay.querySelector(".rp348-map-final-copy strong");
+      if (image) {
+        image.innerHTML = "";
+        const img = makeImage([mapImagePath(map)], "", map.name);
+        image.appendChild(img);
+      }
+      if (name) name.textContent = map?.name || "Mapa";
+      overlay.classList.remove("hidden", "is-leaving");
+      void overlay.offsetWidth;
+      overlay.classList.add("is-visible");
+      window.setTimeout(() => {
+        overlay.classList.add("is-leaving");
+        window.setTimeout(() => {
+          overlay.classList.add("hidden");
+          overlay.classList.remove("is-visible", "is-leaving");
+          resolve();
+        }, 280);
+      }, 1250);
+    });
+  }
+
+  dropChibi = async function dropChibiV348(mapId, finalPause, sessionId, token) {
+    const card = mapGrid?.querySelector(`.map-card[data-map-id="${mapId}"]`);
+    if (!card || !flowSessionAlive(sessionId, token)) return false;
+    if (finalPause) await delay(2000);
+    if (!flowSessionAlive(sessionId, token)) return false;
+    const overlay = ensureChibiOverlay();
+    const rect = card.getBoundingClientRect();
+    overlay.style.left = `${Math.round(rect.left + rect.width / 2)}px`;
+    overlay.style.top = `${Math.round(rect.top + rect.height / 2 - 22)}px`;
+    overlay.classList.remove("hidden", "dropping", "landed");
+    void overlay.offsetWidth;
+    overlay.classList.add("dropping");
+    await delay(520);
+    if (!flowSessionAlive(sessionId, token)) return false;
+    overlay.classList.remove("dropping");
+    overlay.classList.add("landed");
+    audioPlay(sounds.confirm, 0.68, "sfx");
+    playChibiVoice();
+    await delay(280);
+    overlay.classList.add("hidden");
+    overlay.classList.remove("landed");
+    return flowSessionAlive(sessionId, token);
+  };
+
+  finishMapPhase = function finishMapPhaseV348(selected, sessionId, token) {
+    if (!selected || !flowSessionAlive(sessionId, token)) return;
+    state.selectedMap = selected;
+    state.mapRoulette.active = false;
+    state.mapRoulette.highlightedId = null;
+    state.mapRoulette.finalId = selected.id;
+    updateMapRouletteClasses();
+    updateSelectedMapCopy();
+
+    if (currentRoomCode && currentRole === "host") {
+      pushOnlineDraftPatch({
+        force: true,
+        phase: "map",
+        selectedMap: { id: selected.id, name: selected.name },
+        mapRoulette: serializeMapState(),
+        mapEvent: { id: uid("mapSelectedV348"), type: "mapSelectedV348", mapId: selected.id, byClientId: onlineClientId() },
+      });
+    }
+
+    revealSelectedMapV348(selected).then(() => {
+      if (!flowSessionAlive(sessionId, token)) return;
+      if (flow.mapContext === "predraft") activateDraftAfterMap();
+      else enterSummary();
+    });
+  };
+
+  runMapRoulette = async function runMapRouletteV348(options = {}) {
+    const sessionId = Number(options.sessionId ?? state.draftSessionId);
+    const token = Number(options.flowToken ?? flow.mapToken);
+    if (!flowSessionAlive(sessionId, token) || state.mapRoulette.active || !maps.length) return;
+    state.mapRoulette.active = true;
+    state.mapRoulette.highlightedId = null;
+    state.mapRoulette.finalId = null;
+    flow.mapEliminatedIds = [];
+    renderMapGrid();
+    updateMapRouletteClasses();
+
+    if (currentDraftConfig().mapRandomMode === "classic-random") {
+      let selected = randomFrom(maps);
+      for (let i = 0; i < 24; i += 1) {
+        if (!flowSessionAlive(sessionId, token)) return;
+        selected = randomFrom(maps);
+        state.mapRoulette.highlightedId = selected.id;
+        updateMapRouletteClasses();
+        audioPlay(sounds.mapRoulette || sounds.roulette, 0.76, "sfx");
+        await delay(55 + i * 8);
+      }
+      finishMapPhase(selected, sessionId, token);
+      return;
+    }
+
+    const pool = [...maps];
+    const plan = eliminationPlan(pool.length);
+    for (let groupIndex = 0; groupIndex < plan.length; groupIndex += 1) {
+      for (let index = 0; index < plan[groupIndex]; index += 1) {
+        if (!flowSessionAlive(sessionId, token) || pool.length <= 1) return;
+        const target = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+
+        // v3.4.8: do not illuminate the card before impact.
+        state.mapRoulette.highlightedId = null;
+        updateMapRouletteClasses();
+
+        const finalPause = groupIndex === plan.length - 1 && index === plan[groupIndex] - 1;
+        if (currentRoomCode && currentRole === "host") {
+          pushOnlineDraftPatch({
+            force: true,
+            phase: "map",
+            mapEvent: { id: uid("chibiDropV348"), type: "chibiDropV348", mapId: target.id, finalPause, byClientId: onlineClientId() },
+            mapRoulette: serializeMapState(),
+          });
+        }
+
+        const completed = await dropChibi(target.id, finalPause, sessionId, token);
+        if (!completed) return;
+        flow.mapEliminatedIds.push(target.id);
+        state.mapRoulette.highlightedId = null;
+        updateMapRouletteClasses();
+
+        if (currentRoomCode && currentRole === "host") {
+          pushOnlineDraftPatch({
+            force: true,
+            phase: "map",
+            mapEvent: { id: uid("mapEliminatedV348"), type: "mapEliminatedV348", mapId: target.id, byClientId: onlineClientId() },
+            mapRoulette: serializeMapState(),
+          });
+        }
+        await delay(240);
+      }
+    }
+    finishMapPhase(pool[0] || randomFrom(maps), sessionId, token);
+  };
+
+  function shouldShowSelectorV348() {
+    if (flow.phase !== "draft" || !state.draftActive || state.locked || state.roulette.active) return false;
+    return canControlCurrentTurn() || canRequest();
+  }
+
+  function syncSelectorVisibilityV348() {
+    const show = shouldShowSelectorV348();
+    document.body.classList.toggle("rp348-selector-hidden", !show);
+    if (characterGrid) {
+      characterGrid.setAttribute("aria-hidden", show ? "false" : "true");
+    }
+  }
+
+  const basePreselectCharacterV348 = preselectCharacter;
+  preselectCharacter = function preselectCharacterV348(character, options = {}) {
+    if (canRequest() && character && isCharacterAvailable(character, currentTurn())) {
+      if (state.locked) return;
+      const source = options.source || "hover";
+      const previousName = state.selected?.name || null;
+      if (previousName === character.name) return;
+      state.selected = character;
+      if (source === "touch" || source === "click") state.preselectLocked = true;
+      audioPlay(sounds.select, source === "hover" ? 0.45 : 0.7, "sfx");
+      renderCharacterSelectionLight();
+      renderAssistUi();
+      return;
+    }
+    basePreselectCharacterV348(character, options);
+  };
+
+  const baseRenderAssistUiV348 = renderAssistUi;
+  renderAssistUi = function renderAssistUiV348() {
+    baseRenderAssistUiV348();
+    syncSelectorVisibilityV348();
+  };
+
+  const baseUpdateRequestButtonV348 = updateRequestButton;
+  updateRequestButton = function updateRequestButtonV348() {
+    baseUpdateRequestButtonV348();
+    const button = ensureRandomSelectionButton();
+    if (!button) return;
+    if (canRequest()) {
+      button.classList.remove("hidden");
+      button.textContent = "PEDIR";
+      button.title = "Pedir el laminante seleccionado";
+      button.setAttribute("aria-label", "Pedir el laminante seleccionado");
+      button.dataset.rp346RequestMode = "1";
+    }
+  };
+
+  // v3.4.8: bots keep the draft moving, but no longer create random teammate proposals.
+  scheduleTestingBotTurn = function scheduleTestingBotTurnV348() {
+    try { clearTestingBotTurnTimer(); } catch (_) {}
+    if (!currentRoomCode || currentRole !== "host" || flow.phase !== "draft" || !state.draftActive || state.locked || state.roulette.active) return;
+    const turn = currentTurn();
+    if (!turn) return;
+
+    const actorBots = botSlotsForTurn(turn).filter(item => !simultaneousRecord(turn)[item.slotKey]);
+    actorBots.forEach(({ slotKey }, index) => {
+      const key = `botTurnV348:${state.draftSessionId}:${state.turnIndex}:${slotKey}`;
+      if (flow.botKeys[key]) return;
+      flow.botKeys[key] = true;
+      const turnIndexSnapshot = state.turnIndex;
+      const sessionSnapshot = state.draftSessionId;
+      botTimeout(() => {
+        if (flow.phase !== "draft" || state.turnIndex !== turnIndexSnapshot || state.draftSessionId !== sessionSnapshot || state.locked) {
+          delete flow.botKeys[key];
+          return;
+        }
+        const pendingRequest = Object.values(flow.assist.requests).find(item =>
+          item?.status === "pending" &&
+          item.team === turn.team &&
+          item.turnIndex === state.turnIndex &&
+          item.draftSessionId === state.draftSessionId
+        );
+        if (pendingRequest && Math.random() < 0.82) {
+          acceptRequest(pendingRequest.id, { botSystem: true, botSlotKey: slotKey });
+          return;
+        }
+        if (pendingRequest) {
+          rejectRequest(pendingRequest.id, { botSystem: true });
+        }
+        const character = chooseBotCharacter(turn.team);
+        if (!character) {
+          delete flow.botKeys[key];
+          return;
+        }
+        state.selected = character;
+        confirmTurn(true, { onlineSystem: true, botSlotKey: slotKey });
+      }, randomDelay(780, 1450) + index * 320);
+    });
+  };
+
 
   /* ------------------------------------------------------------------
    * Boot

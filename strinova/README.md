@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.4.7
+# STRINOVA Draft System v3.4.8
 
 Actualización: Draft Flow Core Rebuild.
 
@@ -484,10 +484,18 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Se mantiene el flujo avanzado v3.4.x con selección de mapa previa, bans configurables y ruleta chibi de mapas.
 
 
-## v3.4.7 — Draft Flow Core Rebuild
+## v3.4.8 — Draft Flow Core Rebuild
 
 - La selección de mapa previa funciona como una fase independiente: no inicia temporizador, bots ni turnos detrás de la pantalla.
 - Flujo 5v5 por defecto: líderes → bloqueos alternados → picks restantes, con picks dobles simultáneos.
 - PEDIR está disponible para miembros aunque no tengan permiso de asignar; la asignación por compañero usa confirmación privada de 10 segundos.
 - Los bots simulan solicitudes, aceptación/rechazo y selecciones simultáneas sin permitir que el host responda por ellos.
 - El bloque Configuración → Intro del menú fue reconstruido e incluye el tamaño visual del chibi.
+
+
+## v3.4.8
+- Estabiliza la ruleta chibi de mapas.
+- Evita que la tarjeta objetivo se ilumine antes del impacto.
+- Añade reveal central del mapa seleccionado.
+- Oculta el selector de personajes cuando el usuario no puede elegir ni pedir.
+- Simplifica la IA de bots para no cruzarse con PEDIR/selección por compañero.
