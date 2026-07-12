@@ -1,7 +1,7 @@
 {
   "name": "draft-simulator",
-  "version": "3.4.9",
-  "description": "STRINOVA Draft System + Gantigun Cup 2026 con recuperación de selector activo, menú de compañero y bots estabilizados.",
+  "version": "3.4.10",
+  "description": "STRINOVA Draft System + Gantigun Cup 2026 con recuperación forzada del selector en turno propio y menú de compañero corregido.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
