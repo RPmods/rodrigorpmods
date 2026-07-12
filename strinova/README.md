@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.4.6
+# STRINOVA Draft System v3.4.7
 
 Actualización: Draft Flow Core Rebuild.
 
@@ -484,7 +484,7 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Se mantiene el flujo avanzado v3.4.x con selección de mapa previa, bans configurables y ruleta chibi de mapas.
 
 
-## v3.4.6 — Draft Flow Core Rebuild
+## v3.4.7 — Draft Flow Core Rebuild
 
 - La selección de mapa previa funciona como una fase independiente: no inicia temporizador, bots ni turnos detrás de la pantalla.
 - Flujo 5v5 por defecto: líderes → bloqueos alternados → picks restantes, con picks dobles simultáneos.

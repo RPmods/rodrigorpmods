@@ -20227,3 +20227,94 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
   .map-chibi-overlay-v346.landed .map-chibi-land-v346,
   .rp346-assist-progress i { animation-duration: 1ms !important; }
 }
+
+/* =====================================================================
+   v3.4.7 — Bot Assist + Map Roulette Stabilization
+   ===================================================================== */
+body.rp347-dock-hidden .character-dock {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(18px) scale(.985) !important;
+  visibility: hidden !important;
+}
+body.rp347-dock-hidden .hero-stage::after {
+  content: "ESPERANDO TURNO";
+  position: absolute;
+  left: 50%;
+  bottom: 44px;
+  transform: translateX(-50%);
+  z-index: 8;
+  min-width: 280px;
+  padding: 12px 18px;
+  text-align: center;
+  color: rgba(255,255,255,.88);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  border: 1px solid rgba(255,255,255,.18);
+  border-left: 4px solid rgba(232,63,87,.92);
+  background: rgba(18,22,32,.72);
+  box-shadow: 0 16px 38px rgba(0,0,0,.26);
+}
+body.rp347-request-mode .character-dock {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: none !important;
+}
+body.rp347-request-mode #random-selection-action {
+  background: linear-gradient(135deg, #e94c62, #a91e34) !important;
+  color: #fff !important;
+  border-color: rgba(255,255,255,.28) !important;
+  box-shadow: 0 0 18px rgba(232,63,87,.28) !important;
+}
+.rp347-request-note {
+  position: absolute !important;
+  z-index: 110 !important;
+  left: 50% !important;
+  bottom: calc(100% + 7px) !important;
+  transform: translateX(-50%) !important;
+  width: min(210px, calc(100vw - 32px)) !important;
+  display: grid !important;
+  gap: 4px !important;
+  padding: 8px 10px !important;
+  color: #fff !important;
+  background: rgba(34, 25, 34, .96) !important;
+  border: 1px solid rgba(255,255,255,.2) !important;
+  border-left: 4px solid #e83f57 !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,.38) !important;
+}
+.rp347-request-note span {
+  color: #ffb8c4 !important;
+  font-size: 8px !important;
+  font-weight: 900 !important;
+  letter-spacing: .12em !important;
+}
+.rp347-request-note strong {
+  color: #fff !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+}
+#intro-settings-panel.intro-settings-panel {
+  margin-bottom: 120px !important;
+  contain: none !important;
+}
+.setup-panel[data-panel="configuracion"].is-active {
+  padding-bottom: 180px !important;
+}
+.setup-shell.view-configuracion .setup-center-card,
+.setup-shell.view-configuracion .settings-surface,
+.setup-shell.view-configuracion {
+  overflow: visible !important;
+  max-height: none !important;
+}
+.map-chibi-overlay-v346 {
+  width: var(--rpmods-map-chibi-size, 150px) !important;
+  height: var(--rpmods-map-chibi-size, 150px) !important;
+}
+.map-chibi-overlay-v346.dropping { animation-duration: 500ms !important; }
+@keyframes rp346ChibiDrop {
+  from { transform: translate(-50%, -175px) scale(.88) rotate(-6deg); opacity: 0; }
+  18% { opacity: 1; }
+  to { transform: translate(-50%, -50%) scale(1) rotate(0); opacity: 1; }
+}
