@@ -18857,3 +18857,117 @@ body.setup-responsive-active .legacy-development-panel {
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* v3.3.9 — Stealth Scroll System
+   Keep wheel/touch/keyboard scrolling active, but remove visible browser scrollbars.
+   This mirrors the online-room feeling: scroll exists, the rail does not distract. */
+html,
+body {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+  background: transparent !important;
+}
+* {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+html.setup-responsive-active,
+body.setup-responsive-active {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain !important;
+  scrollbar-gutter: auto !important;
+}
+
+html.setup-responsive-active #viewport,
+body.setup-responsive-active #viewport {
+  min-height: 100vh !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+html.setup-responsive-active .setup-screen.active,
+body.setup-responsive-active .setup-screen.active,
+html.setup-responsive-active .summary-screen.active,
+body.setup-responsive-active .summary-screen.active {
+  overflow: visible !important;
+  overscroll-behavior: contain !important;
+}
+
+html.setup-responsive-active .setup-shell.settings-surface,
+body.setup-responsive-active .setup-shell.settings-surface {
+  overflow: visible !important;
+}
+
+html.setup-responsive-active .settings-tabs,
+body.setup-responsive-active .settings-tabs,
+html.setup-responsive-active .setup-panel,
+body.setup-responsive-active .setup-panel,
+html.setup-responsive-active .tournament-root,
+body.setup-responsive-active .tournament-root,
+html.setup-responsive-active .tournament-view,
+body.setup-responsive-active .tournament-view,
+html.setup-responsive-active .tournament-player-layout,
+body.setup-responsive-active .tournament-player-layout,
+html.setup-responsive-active .tournament-team-grid,
+body.setup-responsive-active .tournament-team-grid,
+html.setup-responsive-active .tournament-roster-list,
+body.setup-responsive-active .tournament-roster-list,
+html.setup-responsive-active .tournament-player-table,
+body.setup-responsive-active .tournament-player-table,
+html.setup-responsive-active .updates-history-panel,
+body.setup-responsive-active .updates-history-panel,
+html.setup-responsive-active .language-grid,
+body.setup-responsive-active .language-grid,
+html.setup-responsive-active .subconfig-grid,
+body.setup-responsive-active .subconfig-grid {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* Internal horizontal scroll areas still scroll with wheel/trackpad, without visible rails. */
+html.setup-responsive-active .settings-tabs,
+body.setup-responsive-active .settings-tabs,
+html.setup-responsive-active .tournament-table-wrap,
+body.setup-responsive-active .tournament-table-wrap,
+html.setup-responsive-active .tournament-player-table-wrap,
+body.setup-responsive-active .tournament-player-table-wrap {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Tournament page keeps document scrolling; the hub itself should never create a second visible rail. */
+html.tournament-surface-active,
+body.tournament-surface-active {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+html.tournament-surface-active .tournament-root,
+body.tournament-surface-active .tournament-root {
+  overflow: visible !important;
+  max-height: none !important;
+}
+
+/* Menu/setup pages use the same invisible-scroll behavior as online room screens. */
+html.menu-surface-active,
+body.menu-surface-active {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Preserve real fixed-layout draft behavior outside setup/tournament pages. */
+html:not(.setup-responsive-active),
+body:not(.setup-responsive-active) {
+  overflow: hidden;
+}

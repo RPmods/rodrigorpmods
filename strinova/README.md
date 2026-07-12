@@ -429,3 +429,11 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Se corrige el duplicado accidental del panel de resumen del torneo en `index.html`.
 - Se incluye `js/tournament_data.js` dentro del parche para evitar referencias faltantes en instalaciones incompletas.
 - Se mantiene intacta la lógica del draft: este parche no modifica `js/app.js`.
+
+
+## v3.3.9 Stealth Scroll System
+
+- Se ocultaron las barras de desplazamiento visibles de Menú, Torneo y apartados de configuración sin desactivar el scroll real.
+- El comportamiento se alineó con las pantallas online: rueda del mouse, trackpad y teclado siguen funcionando, pero la barra visual no distrae ni cambia el ancho aparente de la interfaz.
+- Se reforzó el modo responsivo de setup/tournament para evitar barras dobles, rieles laterales y desplazamientos visibles del navegador.
+- No se modificó `js/app.js`; la lógica del draft permanece intacta.
