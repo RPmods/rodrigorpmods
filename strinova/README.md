@@ -482,3 +482,12 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Se añadió recuperación de navegación para limpiar correctamente `view-tournament`, `tournament-surface-active` y el panel activo.
 - Se añadieron capturas de seguridad para los botones críticos: Iniciar Draft Local, Crear Sala Online y Unirse a Sala.
 - Se mantiene el flujo avanzado v3.4.x con selección de mapa previa, bans configurables y ruleta chibi de mapas.
+
+
+## v3.4.5 — Pre-draft Map Isolation + Private Assist Protocol
+
+- La selección de mapa previa ya no activa el temporizador ni los turnos del draft en segundo plano.
+- El orden 5v5 se mantiene como: líderes, bans y picks restantes.
+- Las asignaciones a compañeros requieren confirmación privada del destinatario durante 10 segundos.
+- Los bots pueden pedir laminantes, responder solicitudes y simular asignaciones.
+- El menú de asignación se posiciona como capa fija encima de la tarjeta seleccionada.

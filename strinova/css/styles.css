@@ -19875,3 +19875,221 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
   box-shadow: 0 12px 26px rgba(0,0,0,.28), inset 0 -2px 0 #d9364d;
 }
 #rpmods-request-pick-action.hidden { display: none !important; }
+
+/* RPmods v3.4.5 — isolated pre-draft map + private assist protocol */
+.rpmods-assist-confirm,
+.rpmods-slot-menu,
+.rpmods-request-bubble {
+  display: none !important;
+}
+
+#map-chibi-overlay-v345 {
+  position: fixed;
+  z-index: 165;
+  width: var(--rpmods-map-chibi-size, 150px);
+  height: var(--rpmods-map-chibi-size, 150px);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+#map-chibi-overlay-v345.hidden { display: none !important; }
+#map-chibi-overlay-v345 img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+#map-chibi-overlay-v345 .map-chibi-land-v345 { opacity: 0; }
+#map-chibi-overlay-v345.is-dropping {
+  animation: rp345ChibiDrop 540ms cubic-bezier(.16,.88,.24,1) forwards;
+}
+#map-chibi-overlay-v345.is-landing .map-chibi-fall-v345 { opacity: 0; }
+#map-chibi-overlay-v345.is-landing .map-chibi-land-v345 {
+  opacity: 1;
+  animation: rp345ChibiLand 310ms ease-out forwards;
+}
+@keyframes rp345ChibiDrop {
+  0% { transform: translate(-50%, -205%) scale(.9) rotate(-5deg); opacity: 0; }
+  18% { opacity: 1; }
+  86% { transform: translate(-50%, -56%) scale(1.03) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-50%, -52%) scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes rp345ChibiLand {
+  0% { transform: scale(.88); }
+  55% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.rp345-slot-menu {
+  position: fixed;
+  z-index: 220;
+  width: 224px;
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  transform: translate(-50%, -100%);
+  border: 1px solid rgba(255,255,255,.18);
+  border-left: 4px solid #e4455b;
+  background: linear-gradient(135deg, rgba(44,29,38,.98), rgba(18,15,22,.98));
+  box-shadow: 0 18px 46px rgba(0,0,0,.48);
+  clip-path: polygon(0 0, 100% 0, 100% 84%, 94% 100%, 0 100%);
+}
+.rp345-slot-menu::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  width: 16px;
+  height: 16px;
+  transform: translateX(-50%) rotate(45deg);
+  background: #17131a;
+  border-right: 1px solid rgba(255,255,255,.16);
+  border-bottom: 1px solid rgba(255,255,255,.16);
+}
+.rp345-slot-menu button {
+  position: relative;
+  z-index: 1;
+  min-height: 38px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(78,84,98,.68);
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: .03em;
+  cursor: pointer;
+}
+.rp345-slot-menu button:first-child {
+  background: linear-gradient(135deg, #d53a50, #8d2032);
+}
+
+.rp345-request-bubble {
+  position: absolute;
+  z-index: 145;
+  left: 8px;
+  right: 8px;
+  top: 8px;
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-left: 4px solid #47e579;
+  background: linear-gradient(135deg, rgba(48,30,40,.98), rgba(23,17,24,.97));
+  color: #fff;
+  box-shadow: 0 14px 34px rgba(0,0,0,.42);
+  pointer-events: auto;
+}
+.rp345-request-bubble span { font-size: 10px; opacity: .72; text-transform: uppercase; letter-spacing: .08em; }
+.rp345-request-bubble strong { font-size: 13px; line-height: 1.2; }
+.rp345-request-bubble > div { display: flex; gap: 7px; margin-top: 5px; }
+.rp345-request-bubble button {
+  flex: 1;
+  min-height: 30px;
+  border: 0;
+  background: rgba(94,101,117,.82);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.rp345-request-bubble button:first-child { background: #d83c52; }
+
+.rp345-assist-notice {
+  position: fixed;
+  z-index: 230;
+  right: 24px;
+  top: 110px;
+  width: min(430px, calc(100vw - 32px));
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.17);
+  border-left: 4px solid #e4445b;
+  background: linear-gradient(135deg, rgba(53,34,43,.98), rgba(25,18,24,.98));
+  color: #fff;
+  box-shadow: 0 20px 54px rgba(0,0,0,.48);
+  clip-path: polygon(0 0, 100% 0, 100% 87%, 96% 100%, 0 100%);
+}
+.rp345-assist-avatar {
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.08);
+}
+.rp345-assist-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.rp345-assist-message { min-width: 0; }
+.rp345-assist-message > span,
+.rp345-assist-waiting span {
+  display: block;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .11em;
+  color: #f08a99;
+}
+.rp345-assist-message strong,
+.rp345-assist-waiting strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+  line-height: 1.24;
+}
+.rp345-assist-message small,
+.rp345-assist-waiting small { display: block; margin-top: 5px; color: rgba(255,255,255,.72); }
+.rp345-assist-buttons { display: flex; gap: 8px; margin-top: 10px; }
+.rp345-assist-buttons button {
+  min-width: 92px;
+  min-height: 34px;
+  border: 0;
+  background: rgba(97,104,120,.78);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+}
+.rp345-assist-buttons button:first-child { background: linear-gradient(135deg, #d93d53, #992338); }
+.rp345-assist-progress {
+  height: 4px;
+  margin-top: 10px;
+  overflow: hidden;
+  background: rgba(255,255,255,.13);
+}
+.rp345-assist-progress i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #48e878;
+  animation: rp345AssistCountdown var(--rp345-assist-duration, 10000ms) linear forwards;
+}
+@keyframes rp345AssistCountdown { from { width: 100%; } to { width: 0%; } }
+
+.rp345-assist-waiting {
+  grid-template-columns: 18px minmax(0, 1fr);
+  width: min(360px, calc(100vw - 32px));
+}
+.rp345-waiting-dot {
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: #48e878;
+  box-shadow: 0 0 0 0 rgba(72,232,120,.55);
+  animation: rp345WaitingPulse 1.2s ease-out infinite;
+}
+@keyframes rp345WaitingPulse {
+  0% { box-shadow: 0 0 0 0 rgba(72,232,120,.55); }
+  100% { box-shadow: 0 0 0 10px rgba(72,232,120,0); }
+}
+
+#rpmods-request-pick-action:not(.hidden) {
+  display: inline-flex !important;
+}
+#rpmods-request-pick-action:disabled {
+  opacity: .48;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .rp345-assist-notice { right: 12px; top: 86px; }
+  .rp345-slot-menu { width: 194px; }
+}
