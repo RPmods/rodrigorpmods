@@ -19615,3 +19615,35 @@ html.setup-motion-ready.setup-tab-transition .setup-panel.is-active {
 .setup-shell.view-tournament .setup-panel[data-panel="tournament"].is-active .tournament-root {
   display: block !important;
 }
+
+/* RPmods v3.4.2 — Hard containment for Tournament Hub */
+.setup-shell:not([data-active-setup-tab="tournament"]) .setup-panel.tournament-panel,
+.setup-shell:not([data-active-setup-tab="tournament"]) #tournament-root,
+.setup-shell:not(.view-tournament) .setup-panel.tournament-panel,
+.setup-shell:not(.view-tournament) #tournament-root,
+body:not(.tournament-surface-active) .setup-panel.tournament-panel,
+body:not(.tournament-surface-active) #tournament-root {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.setup-shell[data-active-setup-tab="tournament"].view-tournament .setup-panel.tournament-panel.is-active,
+body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].view-tournament .setup-panel.tournament-panel.is-active {
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+.setup-shell[data-active-setup-tab="tournament"].view-tournament #tournament-root,
+body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].view-tournament #tournament-root {
+  visibility: visible !important;
+  pointer-events: auto !important;
+}

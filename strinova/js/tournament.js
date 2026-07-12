@@ -265,23 +265,15 @@
   function syncTournamentSurfaceState() {
     const shell = document.querySelector('.setup-shell');
     const setupScreen = document.getElementById('setup-screen');
-    const activeTopTab = document.querySelector('.setup-top-tab.is-active, .settings-tab.is-active');
-    const tournamentPanel = document.querySelector('[data-panel="tournament"]');
+    const activeTopTab = document.querySelector('.setup-top-tab.is-active');
+    const activePanel = document.querySelector('.setup-panel.is-active');
     const isSetupActive = Boolean(setupScreen && setupScreen.classList.contains('active'));
-    const activeTabName = activeTopTab && activeTopTab.dataset ? activeTopTab.dataset.tab : '';
-    const isTournament = Boolean(
-      isSetupActive && (
-        (shell && shell.classList.contains('view-tournament')) ||
-        activeTabName === 'tournament' ||
-        (tournamentPanel && tournamentPanel.classList.contains('is-active'))
-      )
-    );
-    const useResponsiveSetup = Boolean(isSetupActive);
+    const activeTabName = activeTopTab?.dataset?.tab || activePanel?.dataset?.panel || 'menu';
+    const isTournament = Boolean(isSetupActive && activeTabName === 'tournament');
+    const isMenu = Boolean(isSetupActive && activeTabName === 'menu');
 
-    const isMenu = Boolean(isSetupActive && (activeTabName === 'menu' || (!activeTabName && shell && shell.classList.contains('view-menu'))));
-
-    document.documentElement.classList.toggle('setup-responsive-active', useResponsiveSetup);
-    document.body.classList.toggle('setup-responsive-active', useResponsiveSetup);
+    document.documentElement.classList.toggle('setup-responsive-active', isSetupActive);
+    document.body.classList.toggle('setup-responsive-active', isSetupActive);
     document.documentElement.classList.toggle('tournament-surface-active', isTournament);
     document.body.classList.toggle('tournament-surface-active', isTournament);
     document.documentElement.classList.toggle('menu-surface-active', isMenu);
@@ -292,9 +284,10 @@
       setupScreen.classList.toggle('menu-surface-active', isMenu);
     }
     if (shell) {
-      shell.classList.toggle('view-tournament', isTournament);
-      shell.classList.toggle('view-menu', isMenu);
-      shell.dataset.activeSetupTab = activeTabName || 'menu';
+      const knownViews = ['view-menu', 'view-tournament', 'view-volumen', 'view-configuracion', 'view-development', 'view-random', 'view-idioma', 'view-creditos', 'view-updates'];
+      shell.classList.remove(...knownViews);
+      shell.classList.add(`view-${activeTabName}`);
+      shell.dataset.activeSetupTab = activeTabName;
     }
   }
 

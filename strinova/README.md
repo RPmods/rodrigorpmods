@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.3.12 by RPmods
+# STRINOVA Draft System v3.4.2 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -465,3 +465,11 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - The active setup screen is now the real scroll container instead of relying on the hidden document rail.
 - Added a small fallback in `js/tournament.js` that routes wheel/keyboard scrolling to the active setup screen only while setup/tournament surfaces are active.
 - Draft logic remains untouched.
+
+
+## Hotfix v3.4.2 Tournament Isolation + Button Recovery
+
+- Se aisló el Tournament Hub para que no aparezca en Menú, Configuración, Idioma, Random Selector ni otros apartados después de visitarlo.
+- Se añadió recuperación de navegación para limpiar correctamente `view-tournament`, `tournament-surface-active` y el panel activo.
+- Se añadieron capturas de seguridad para los botones críticos: Iniciar Draft Local, Crear Sala Online y Unirse a Sala.
+- Se mantiene el flujo avanzado v3.4.x con selección de mapa previa, bans configurables y ruleta chibi de mapas.

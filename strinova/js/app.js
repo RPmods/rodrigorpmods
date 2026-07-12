@@ -9872,3 +9872,112 @@ async function tryRestoreOnlineSession() {
   };
   renderMapGrid = cleanRenderMapGrid;
 })();
+
+/* RPmods v3.4.2 — Setup Navigation + Critical Buttons Recovery */
+(function installRpmodsSetupRecovery() {
+  if (window.__rpmodsSetupRecoveryV342) return;
+  window.__rpmodsSetupRecoveryV342 = true;
+
+  const KNOWN_SETUP_VIEWS = [
+    "view-menu", "view-tournament", "view-volumen", "view-configuracion",
+    "view-development", "view-random", "view-idioma", "view-creditos", "view-updates"
+  ];
+
+  function safeCall(fn, fallbackNotice) {
+    try {
+      if (typeof fn === "function") return fn();
+    } catch (error) {
+      console.error("RPmods recovery action failed", error);
+      try { showAppNotice(fallbackNotice || "La acción no pudo ejecutarse.", { type: "error" }); } catch (_) {}
+    }
+    return undefined;
+  }
+
+  function forceSetupTab(tabName = "menu", options = {}) {
+    const normalized = String(tabName || "menu").trim() || "menu";
+    const setupScreenEl = document.getElementById("setup-screen");
+    const shell = document.querySelector(".setup-shell");
+    const isTournament = normalized === "tournament";
+    const isMenu = normalized === "menu";
+
+    document.querySelectorAll(".setup-top-tab").forEach(button => {
+      button.classList.toggle("is-active", button.dataset.tab === normalized);
+    });
+    document.querySelectorAll(".setup-panel").forEach(panel => {
+      const active = panel.dataset.panel === normalized;
+      panel.classList.toggle("is-active", active);
+      if (panel.classList.contains("tournament-panel") && !active) {
+        panel.setAttribute("aria-hidden", "true");
+      } else if (panel.classList.contains("tournament-panel")) {
+        panel.removeAttribute("aria-hidden");
+      }
+    });
+
+    if (shell) {
+      shell.classList.remove(...KNOWN_SETUP_VIEWS);
+      shell.classList.add(`view-${normalized}`);
+      shell.dataset.activeSetupTab = normalized;
+    }
+
+    document.documentElement.classList.toggle("setup-responsive-active", Boolean(setupScreenEl?.classList.contains("active")));
+    document.body.classList.toggle("setup-responsive-active", Boolean(setupScreenEl?.classList.contains("active")));
+    document.documentElement.classList.toggle("tournament-surface-active", isTournament);
+    document.body.classList.toggle("tournament-surface-active", isTournament);
+    document.documentElement.classList.toggle("menu-surface-active", isMenu);
+    document.body.classList.toggle("menu-surface-active", isMenu);
+    setupScreenEl?.classList.toggle("tournament-surface-active", isTournament);
+    setupScreenEl?.classList.toggle("menu-surface-active", isMenu);
+
+    if (!isTournament) {
+      document.querySelectorAll(".tournament-panel, #tournament-root").forEach(node => {
+        node.classList.remove("force-visible", "surface-visible");
+      });
+    }
+
+    if (options.scroll !== false && document.body.classList.contains("setup-responsive-active")) {
+      try { (setupScreenEl || window).scrollTo({ top: 0, behavior: "auto" }); } catch (_) { window.scrollTo(0, 0); }
+    }
+  }
+
+  window.rpmodsForceSetupTab = forceSetupTab;
+
+  function installCaptureNavigation() {
+    document.addEventListener("click", event => {
+      const tab = event.target?.closest?.(".setup-top-tab[data-tab]");
+      if (!tab || tab.disabled) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      forceSetupTab(tab.dataset.tab || "menu");
+    }, true);
+
+    document.addEventListener("click", event => {
+      const start = event.target?.closest?.("#start-draft");
+      if (start) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return safeCall(openLocalDraftConfig, "No se pudo abrir la configuración del draft local.");
+      }
+      const create = event.target?.closest?.("#create-room");
+      if (create) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return safeCall(createOnlineRoom, "No se pudo crear la sala online.");
+      }
+      const join = event.target?.closest?.("#join-room");
+      if (join) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return safeCall(joinOnlineRoom, "No se pudo intentar unir a la sala.");
+      }
+    }, true);
+  }
+
+  function bootRecovery() {
+    installCaptureNavigation();
+    const active = document.querySelector(".setup-top-tab.is-active")?.dataset?.tab || "menu";
+    forceSetupTab(active, { scroll: false });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bootRecovery, { once: true });
+  else bootRecovery();
+})();
