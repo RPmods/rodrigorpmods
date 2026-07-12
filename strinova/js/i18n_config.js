@@ -389,7 +389,8 @@ window.I18N_CONFIG = {
       "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — Paquete regenerado con cambios verificables, scroll real reforzado para Torneo, barra superior estable y menú principal reorganizado sin tocar la lógica del draft.",
       "update_49": "v3.3.7 Hotfix (Responsive Setup Layout) — Se reestructuró el menú y el Tournament Hub con layout responsivo real, barra superior estable, scroll de documento restaurado y mejor centrado en pantalla completa/ventana normal. No se modificó la lógica del draft.",
       "update_50": "v3.3.9 Hotfix (Stealth Scroll System) — Se ocultaron las barras visibles de desplazamiento en Menú, Torneo y configuración, manteniendo la rueda del mouse, trackpad y teclado como en las pantallas online.",
-      "update_51": "v3.3.10 Hotfix (Invisible Scroll Wheel Restore) — Se corrigió el desplazamiento invisible para que Menú, Torneo y configuración vuelvan a responder con rueda del mouse, trackpad y teclado sin mostrar barras laterales visibles."
+      "update_51": "v3.3.10 Hotfix (Invisible Scroll Wheel Restore) — Se corrigió el desplazamiento invisible para que Menú, Torneo y configuración vuelvan a responder con rueda del mouse, trackpad y teclado sin mostrar barras laterales visibles.",
+      "update_52": "v3.3.11 Update (Menu Motion Polish) — Se añadieron microanimaciones ligeras para Menú, Tournament Hub y barra superior: entradas suaves, hover moderno, brillo sutil, transiciones entre apartados y soporte para reducción de movimiento sin tocar la lógica del draft."
     },
     "en": {
       "tab_menu": "MENU",
@@ -738,7 +739,8 @@ window.I18N_CONFIG = {
       "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — Regenerated package with verifiable changes, reinforced real Tournament scrolling, stabilized the top bar, and reorganized the main menu without touching draft logic.",
       "update_49": "v3.3.7 Hotfix (Responsive Setup Layout) — Rebuilt the menu and Tournament Hub around a real responsive layout, stable top bar, restored document scrolling, and better centering in fullscreen/windowed mode. Draft logic was not changed.",
       "update_50": "v3.3.9 Hotfix (Stealth Scroll System) — Visible scrollbars were hidden across Menu, Tournament and setup panels while mouse wheel, trackpad and keyboard scrolling remain active like the online screens.",
-      "update_51": "v3.3.10 Hotfix (Invisible Scroll Wheel Restore) — Invisible scrolling was restored so Menu, Tournament and configuration pages respond again to mouse wheel, trackpad and keyboard without showing visible side rails."
+      "update_51": "v3.3.10 Hotfix (Invisible Scroll Wheel Restore) — Invisible scrolling was restored so Menu, Tournament and configuration pages respond again to mouse wheel, trackpad and keyboard without showing visible side rails.",
+      "update_52": "v3.3.11 Update (Menu Motion Polish) — Lightweight micro-animations were added to the Menu, Tournament Hub and top bar: soft entrances, modern hover states, subtle glow, panel transitions and reduced-motion support without touching draft logic."
     },
     "ja": {
       "tab_menu": "メニュー",
@@ -1085,7 +1087,8 @@ window.I18N_CONFIG = {
       "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — 検証可能な変更でパッケージを再生成し、Tournament のスクロールと上部バーを安定化しました。Draft ロジックは変更していません。",
       "update_49": "v3.3.7 Hotfix (Responsive Setup Layout) — メニューと Tournament Hub をレスポンシブレイアウトに再構築し、上部バー、スクロール、中央配置を改善しました。Draft ロジックは変更していません。",
       "update_50": "v3.3.9 Hotfix (Stealth Scroll System) — メニュー、トーナメント、設定パネルのスクロールバーを非表示にし、オンライン画面と同じようにホイール/トラックパッド/キーボード操作は維持しました。",
-      "update_51": "v3.3.10 Hotfix (Invisible Scroll Wheel Restore) — メニュー、トーナメント、設定画面でスクロールバーを表示せずにホイール/トラックパッド/キーボードのスクロールが再び動作するよう修正しました。"
+      "update_51": "v3.3.10 Hotfix (Invisible Scroll Wheel Restore) — メニュー、トーナメント、設定画面でスクロールバーを表示せずにホイール/トラックパッド/キーボードのスクロールが再び動作するよう修正しました。",
+      "update_52": "v3.3.11 Update (Menu Motion Polish) — メニュー、Tournament Hub、上部バーに軽量なマイクロアニメーションを追加しました。Draft ロジックは変更していません。"
     },
     "ru": {
       "tab_menu": "МЕНЮ",
@@ -1432,7 +1435,8 @@ window.I18N_CONFIG = {
       "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — Пакет пересобран с проверяемыми изменениями, усилена прокрутка Tournament, стабилизирована верхняя панель и переработано главное меню без изменения логики драфта.",
       "update_49": "v3.3.7 Hotfix (Responsive Setup Layout) — Меню и Tournament Hub переведены на адаптивную компоновку, стабилизирована верхняя панель, восстановлена прокрутка страницы и улучшено центрирование. Логика draft не изменялась.",
       "update_50": "v3.3.9 Hotfix (Stealth Scroll System) — Видимые полосы прокрутки скрыты в меню, турнире и настройках, но колесо мыши, трекпад и клавиатура продолжают работать как в онлайн-экранах.",
-      "update_51": "v3.3.10 Hotfix (Invisible Scroll Wheel Restore) — Восстановлена невидимая прокрутка: меню, турнир и настройки снова реагируют на колесо мыши, трекпад и клавиатуру без видимых боковых полос."
+      "update_51": "v3.3.10 Hotfix (Invisible Scroll Wheel Restore) — Восстановлена невидимая прокрутка: меню, турнир и настройки снова реагируют на колесо мыши, трекпад и клавиатуру без видимых боковых полос.",
+      "update_52": "v3.3.11 Update (Menu Motion Polish) — Добавлены лёгкие микроанимации для меню, Tournament Hub и верхней панели: мягкое появление, hover-эффекты, свечение, переходы и поддержка reduced-motion без изменения логики draft."
     },
     "zh": {
       "tab_menu": "菜单",
@@ -1779,7 +1783,8 @@ window.I18N_CONFIG = {
       "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — 重新生成带有可验证更改的包，强化 Tournament 真实滚动，稳定顶部栏，并重新整理主菜单。未改动 Draft 逻辑。",
       "update_49": "v3.3.7 Hotfix (Responsive Setup Layout) — 将菜单和 Tournament Hub 重构为真实响应式布局，稳定顶部栏，恢复页面滚动，并改善全屏/窗口模式下的居中。未改动 Draft 逻辑。",
       "update_50": "v3.3.9 Hotfix (Stealth Scroll System) — 已隐藏菜单、锦标赛与设置面板中的可见滚动条，同时保留鼠标滚轮、触控板和键盘滚动行为，效果接近在线房间界面。",
-      "update_51": "v3.3.10 Hotfix (Invisible Scroll Wheel Restore) — 修复隐藏滚动条后的滚轮问题，菜单、锦标赛和设置页面可再次通过鼠标滚轮、触控板和键盘滚动，且不显示侧边滚动条。"
+      "update_51": "v3.3.10 Hotfix (Invisible Scroll Wheel Restore) — 修复隐藏滚动条后的滚轮问题，菜单、锦标赛和设置页面可再次通过鼠标滚轮、触控板和键盘滚动，且不显示侧边滚动条。",
+      "update_52": "v3.3.11 Update (Menu Motion Polish) — 为菜单、Tournament Hub 和顶部栏添加轻量微动画：柔和入场、现代悬停、细微发光、面板过渡，并支持减少动态效果；未改动 Draft 逻辑。"
     },
     "pt": {
       "tab_menu": "MENU",
@@ -2126,7 +2131,8 @@ window.I18N_CONFIG = {
       "update_48": "v3.3.6 Hotfix (Verified Menu + Tournament Scroll) — Pacote regenerado com alterações verificáveis, rolagem real reforçada no Tournament, barra superior estabilizada e menu principal reorganizado sem alterar a lógica do draft.",
       "update_49": "v3.3.7 Hotfix (Responsive Setup Layout) — Menu e Tournament Hub foram reestruturados com layout responsivo real, barra superior estável, rolagem de página restaurada e melhor centralização. A lógica do draft não foi alterada.",
       "update_50": "v3.3.9 Hotfix (Stealth Scroll System) — As barras de rolagem visíveis foram ocultadas no Menu, Torneio e configurações, mantendo a rolagem por mouse, trackpad e teclado como nas telas online.",
-      "update_51": "v3.3.10 Hotfix (Invisible Scroll Wheel Restore) — A rolagem invisível foi restaurada para que Menu, Torneio e configurações voltem a responder ao mouse, trackpad e teclado sem barras laterais visíveis."
+      "update_51": "v3.3.10 Hotfix (Invisible Scroll Wheel Restore) — A rolagem invisível foi restaurada para que Menu, Torneio e configurações voltem a responder ao mouse, trackpad e teclado sem barras laterais visíveis.",
+      "update_52": "v3.3.11 Update (Menu Motion Polish) — Foram adicionadas microanimações leves ao Menu, Tournament Hub e barra superior: entradas suaves, hover moderno, brilho sutil, transições entre seções e suporte a movimento reduzido sem alterar a lógica do draft."
     }
   }
 };

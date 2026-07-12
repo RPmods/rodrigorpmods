@@ -444,3 +444,48 @@
     }
   });
 })();
+
+// v3.3.11 — Menu Motion Polish.
+// Adds a tiny motion state layer for setup/menu/tournament screens only. No draft logic is changed.
+(function installSetupMotionPolish() {
+  if (window.__strinovaSetupMotionPolishInstalled) return;
+  window.__strinovaSetupMotionPolishInstalled = true;
+
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const html = document.documentElement;
+  const body = document.body;
+
+  function setMotionReady() {
+    if (reduceMotion) {
+      html.classList.add('setup-motion-reduced');
+      body.classList.add('setup-motion-reduced');
+      return;
+    }
+    requestAnimationFrame(() => {
+      html.classList.add('setup-motion-ready');
+      body.classList.add('setup-motion-ready');
+    });
+  }
+
+  function pulseTabTransition() {
+    if (reduceMotion) return;
+    html.classList.add('setup-tab-transition');
+    body.classList.add('setup-tab-transition');
+    window.clearTimeout(window.__strinovaSetupMotionTimer);
+    window.__strinovaSetupMotionTimer = window.setTimeout(() => {
+      html.classList.remove('setup-tab-transition');
+      body.classList.remove('setup-tab-transition');
+    }, 320);
+  }
+
+  function install() {
+    setMotionReady();
+    document.addEventListener('click', event => {
+      const tab = event.target && event.target.closest ? event.target.closest('[data-tab], [data-tournament-view]') : null;
+      if (tab) pulseTabTransition();
+    }, true);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true });
+  else install();
+})();

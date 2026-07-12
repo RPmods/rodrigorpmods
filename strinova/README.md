@@ -431,6 +431,16 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Se mantiene intacta la lógica del draft: este parche no modifica `js/app.js`.
 
 
+
+## v3.3.11 Menu Motion Polish
+
+- Se añadieron microanimaciones ligeras de entrada para la pantalla de Menú y Tournament Hub.
+- Se mejoraron los hover de botones, tarjetas, pestañas, equipos y perfiles usando transform/opacity para no cargar la UI.
+- Se añadió brillo sutil en títulos y paneles principales, inspirado en la estética competitiva de Strinova.
+- Se añadieron transiciones cortas entre apartados de configuración sin alterar el sistema draft.
+- Se respeta `prefers-reduced-motion` para desactivar animaciones en equipos o usuarios que prefieren menos movimiento.
+- Se mantiene el sistema de scroll invisible corregido en v3.3.10.
+
 ## v3.3.10 Stealth Scroll System
 
 - Se ocultaron las barras de desplazamiento visibles de Menú, Torneo y apartados de configuración sin desactivar el scroll real.
