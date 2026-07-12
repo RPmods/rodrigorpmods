@@ -20229,7 +20229,7 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
 }
 
 
-/* RPmods v3.4.10 — Map reveal and selector gating */
+/* RPmods v3.4.11 — Map reveal and selector gating */
 .rp348-selector-hidden #character-grid {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -20320,7 +20320,7 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
 }
 
 
-/* RPmods v3.4.10 — stronger active turn/slot UI recovery */
+/* RPmods v3.4.11 — stronger active turn/slot UI recovery */
 .rp346-delegatable-slot {
   cursor: pointer !important;
   outline: 2px solid rgba(255, 221, 69, .92) !important;
@@ -20338,7 +20338,7 @@ body:not(.rp348-selector-hidden) #character-grid {
 }
 
 
-/* RPmods v3.4.10 — force selector recovery while a valid actor is selecting */
+/* RPmods v3.4.11 — force selector recovery while a valid actor is selecting */
 body.rp3410-selector-force-visible #character-grid,
 body.rp3410-selector-force-visible.rp348-selector-hidden #character-grid,
 body:not(.rp348-selector-hidden) #character-grid {
@@ -20362,4 +20362,25 @@ body.rp3410-selector-force-visible #confirm-action {
 }
 .rp346-slot-menu {
   z-index: 12000 !important;
+}
+
+
+/* RPmods v3.4.11 — strict selector ownership */
+body.rp348-selector-hidden #character-grid {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(8px) scale(.985) !important;
+  filter: saturate(.65) brightness(.8) !important;
+}
+body.rp3411-selector-owned #character-grid,
+body.rp3410-selector-force-visible #character-grid {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  filter: none !important;
+}
+.rp346-delegatable-slot {
+  cursor: pointer !important;
+  outline: 2px solid rgba(255, 221, 69, .95) !important;
+  outline-offset: -2px !important;
 }
