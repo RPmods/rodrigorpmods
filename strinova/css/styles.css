@@ -20229,7 +20229,7 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
 }
 
 
-/* RPmods v3.4.17 — Map reveal and selector gating */
+/* RPmods v3.4.18 — Map reveal and selector gating */
 .rp348-selector-hidden #character-grid {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -20320,7 +20320,7 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
 }
 
 
-/* RPmods v3.4.17 — stronger active turn/slot UI recovery */
+/* RPmods v3.4.18 — stronger active turn/slot UI recovery */
 .rp346-delegatable-slot {
   cursor: pointer !important;
   outline: 2px solid rgba(255, 221, 69, .92) !important;
@@ -20338,7 +20338,7 @@ body:not(.rp348-selector-hidden) #character-grid {
 }
 
 
-/* RPmods v3.4.17 — force selector recovery while a valid actor is selecting */
+/* RPmods v3.4.18 — force selector recovery while a valid actor is selecting */
 body.rp3410-selector-force-visible #character-grid,
 body.rp3410-selector-force-visible.rp348-selector-hidden #character-grid,
 body:not(.rp348-selector-hidden) #character-grid {
@@ -20365,7 +20365,7 @@ body.rp3410-selector-force-visible #confirm-action {
 }
 
 
-/* RPmods v3.4.17 — strict selector ownership */
+/* RPmods v3.4.18 — strict selector ownership */
 body.rp348-selector-hidden #character-grid {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -20386,7 +20386,7 @@ body.rp3410-selector-force-visible #character-grid {
 }
 
 
-/* RPmods v3.4.17 — definitive selector and teammate-slot recovery */
+/* RPmods v3.4.18 — definitive selector and teammate-slot recovery */
 body.rp3412-selector-visible #character-grid,
 body.rp3412-selector-visible .character-grid,
 body.rp3412-selector-visible.rp348-selector-hidden #character-grid,
@@ -20416,16 +20416,16 @@ body.rp3412-selector-visible #confirm-action {
   pointer-events: auto !important;
 }
 
-/* RPmods v3.4.17 — anti-stall safety, no visual changes required */
+/* RPmods v3.4.18 — anti-stall safety, no visual changes required */
 
-/* RPmods v3.4.17 — hard anti-stall keeps simultaneous groups moving without changing selector UI. */
+/* RPmods v3.4.18 — hard anti-stall keeps simultaneous groups moving without changing selector UI. */
 
 
-/* RPmods v3.4.17 — remaining picks now run 1 by 1; no simultaneous-pick UI should remain active. */
+/* RPmods v3.4.18 — remaining picks now run 1 by 1; no simultaneous-pick UI should remain active. */
 .rpmods-sequential-picks-note { display: none; }
 
 
-/* RPmods v3.4.17 — PEDIR correct order */
+/* RPmods v3.4.18 — PEDIR correct order */
 body.rp3417-request-picking #character-grid {
   opacity: 1 !important;
   pointer-events: auto !important;
@@ -20437,4 +20437,73 @@ body.rp3417-request-picking #character-grid {
   color: #261705 !important;
   border-color: rgba(255, 232, 142, .95) !important;
   box-shadow: 0 0 24px rgba(255, 198, 60, .28) !important;
+}
+
+
+/* RPmods v3.4.18 — separated PEDIR layer */
+.rp3418-request-layer-active #character-grid {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  filter: none !important;
+}
+.rp3418-request-layer-active .confirm-panel,
+.rp3418-request-layer-active #confirm-action {
+  filter: saturate(.75) brightness(.82);
+}
+.rp3418-request-panel {
+  position: fixed;
+  z-index: 10090;
+  left: 50%;
+  bottom: 118px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: min(720px, 82vw);
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 217, 74, .75);
+  background:
+    linear-gradient(135deg, rgba(34, 24, 10, .92), rgba(18, 20, 34, .94)),
+    rgba(10, 12, 20, .95);
+  box-shadow: 0 18px 60px rgba(0,0,0,.42), 0 0 26px rgba(255, 195, 42, .18);
+  color: #fff;
+  pointer-events: auto;
+}
+.rp3418-request-panel.hidden {
+  display: none !important;
+}
+.rp3418-request-panel-copy {
+  display: grid;
+  gap: 3px;
+  flex: 1;
+}
+.rp3418-request-panel-copy span {
+  color: #ffd94a;
+  font-size: .72rem;
+  font-weight: 1000;
+  letter-spacing: .16em;
+}
+.rp3418-request-panel-copy strong {
+  font-size: 1.05rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.rp3418-request-panel-copy p {
+  margin: 0;
+  color: rgba(255,255,255,.74);
+  font-size: .82rem;
+}
+.rp3418-request-cancel {
+  min-width: 132px;
+  border: 1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: .08em;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+.rp3418-request-cancel:hover {
+  background: rgba(255,255,255,.16);
 }

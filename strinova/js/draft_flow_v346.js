@@ -1,4 +1,4 @@
-/* STRINOVA Draft System v3.4.17
+/* STRINOVA Draft System v3.4.18
  * Rebuilt flow controller: independent map phase, official 5v5 order,
  * simultaneous picks, private teammate requests and bot simulation.
  */
@@ -7,7 +7,7 @@
   if (window.__rpmodsDraftFlowV346Installed) return;
   window.__rpmodsDraftFlowV346Installed = true;
 
-  const VERSION = "3.4.17";
+  const VERSION = "3.4.18";
   const MAP_START_DELAY_MS = 900;
   const ASSIST_TIMEOUT_MS = 10000;
   const BOT_MIN_DELAY_MS = 850;
@@ -162,7 +162,7 @@
   }
 
   function buildRemainingTurns(size) {
-    // v3.4.17: se elimina definitivamente el doble pick simultáneo.
+    // v3.4.18: se elimina definitivamente el doble pick simultáneo.
     // Si un equipo debe elegir dos jugadores, se hacen dos turnos consecutivos 1 por 1.
     if (size === 2) {
       return [
@@ -1746,7 +1746,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.17 — Map reveal, selector gating and safer bot flow
+   * v3.4.18 — Map reveal, selector gating and safer bot flow
    * ---------------------------------------------------------------- */
   function v348VoiceSources() {
     const preferred = 1 + Math.floor(Math.random() * CHIBI_VOICE_COUNT);
@@ -1886,7 +1886,7 @@
         if (!flowSessionAlive(sessionId, token) || pool.length <= 1) return;
         const target = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
 
-        // v3.4.17: do not illuminate the card before impact.
+        // v3.4.18: do not illuminate the card before impact.
         state.mapRoulette.highlightedId = null;
         updateMapRouletteClasses();
 
@@ -1922,7 +1922,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.17 — Correct PEDIR order
+   * v3.4.18 — Correct PEDIR order
    * ---------------------------------------------------------------- */
   function ownRequestModeActiveV3417() {
     const own = ownAssignment();
@@ -2042,7 +2042,7 @@
     }
   };
 
-  // v3.4.17: bots keep the draft moving, but no longer create random teammate proposals.
+  // v3.4.18: bots keep the draft moving, but no longer create random teammate proposals.
   scheduleTestingBotTurn = function scheduleTestingBotTurnV348() {
     try { clearTestingBotTurnTimer(); } catch (_) {}
     if (!currentRoomCode || currentRole !== "host" || flow.phase !== "draft" || !state.draftActive || state.locked || state.roulette.active) return;
@@ -2088,7 +2088,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.17 — Turn ownership, teammate menu and bot guardrails
+   * v3.4.18 — Turn ownership, teammate menu and bot guardrails
    * ---------------------------------------------------------------- */
   function v349TurnSlotKeys(turn = currentTurn()) {
     return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
@@ -2244,7 +2244,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.17 — Hard recovery for selector and teammate slot actions
+   * v3.4.18 — Hard recovery for selector and teammate slot actions
    * ---------------------------------------------------------------- */
   const baseCanControlCurrentTurnV3410 = canControlCurrentTurn;
   canControlCurrentTurn = function canControlCurrentTurnV3410() {
@@ -2403,7 +2403,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.17 — Ownership isolation, assist swap fix and anti-stall watchdog
+   * v3.4.18 — Ownership isolation, assist swap fix and anti-stall watchdog
    * ---------------------------------------------------------------- */
   function v3411TurnKeys(turn = currentTurn()) {
     return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
@@ -2667,7 +2667,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.17 — definitive turn owner resolver and slot action recovery
+   * v3.4.18 — definitive turn owner resolver and slot action recovery
    * ---------------------------------------------------------------- */
   function v3412Norm(value) {
     return String(value || "").trim().toLowerCase();
@@ -2933,7 +2933,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.17 — post-ban simultaneous anti-stall and safe bot finalizer
+   * v3.4.18 — post-ban simultaneous anti-stall and safe bot finalizer
    * ---------------------------------------------------------------- */
   function v3413TurnKeys(turn = currentTurn()) {
     return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
@@ -2977,7 +2977,7 @@
         const ok = await registerSimultaneousSelection(turn, character, { onlineSystem: true, botSlotKey: slotKey, isAuto: true, reason });
         changed = Boolean(ok) || changed;
       } catch (error) {
-        console.warn("RPmods v3.4.17 no pudo completar slot simultáneo.", error);
+        console.warn("RPmods v3.4.18 no pudo completar slot simultáneo.", error);
       }
       await delay(120);
     }
@@ -2995,7 +2995,7 @@
       confirmTurn(true, { onlineSystem: true, botSlotKey: turn.slotKey, reason });
       return true;
     } catch (error) {
-      console.warn("RPmods v3.4.17 no pudo resolver turno simple.", error);
+      console.warn("RPmods v3.4.18 no pudo resolver turno simple.", error);
       return false;
     }
   }
@@ -3070,7 +3070,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.17 — definitive simultaneous group finalizer
+   * v3.4.18 — definitive simultaneous group finalizer
    * ---------------------------------------------------------------- */
   function v3414TurnSlotKeys(turn = currentTurn()) {
     return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
@@ -3148,7 +3148,7 @@
     try {
       pushOnlineDraftPatch({ force: true, phase: "draft", rp346Simultaneous: clone(flow.simultaneous, {}) });
     } catch (error) {
-      console.warn("RPmods v3.4.17 no pudo sincronizar simultáneo.", error);
+      console.warn("RPmods v3.4.18 no pudo sincronizar simultáneo.", error);
     }
   }
 
@@ -3173,7 +3173,7 @@
       if (record[slotKey]) continue;
       const character = v3414PickSafeCharacter(turn, slotKey);
       if (!character) {
-        console.warn("RPmods v3.4.17 no encontró personaje para slot simultáneo", slotKey, reason);
+        console.warn("RPmods v3.4.18 no encontró personaje para slot simultáneo", slotKey, reason);
         continue;
       }
       record[slotKey] = character.name;
@@ -3200,7 +3200,7 @@
     try {
       return Boolean(finalizeSimultaneousGroup(turn, true));
     } catch (error) {
-      console.warn("RPmods v3.4.17 finalizeSimultaneousGroup falló; usando avance manual.", error);
+      console.warn("RPmods v3.4.18 finalizeSimultaneousGroup falló; usando avance manual.", error);
       const names = v3414TurnSlotKeys(turn).map(slotKey => record[slotKey]).filter(Boolean);
       const picks = names.map(name => characters.find(character => character.name === name)).filter(Boolean);
       picks.forEach(character => state.picks[turn.team].push(character));
@@ -3233,14 +3233,14 @@
     const lateBy = onlineNow() - Number(state.turnDeadlineAt || 0);
     if (lateBy < 350) return false;
 
-    // This is the critical case from v3.4.17: one slot says "esperando al compañero".
+    // This is the critical case from v3.4.18: one slot says "esperando al compañero".
     if (turn.simultaneous) return v3414FinalizeGroupHard(turn, reason);
     return v3414ResolveSingleHard(turn, reason);
   }
 
   const baseScheduleTestingBotTurnV3414 = scheduleTestingBotTurn;
   scheduleTestingBotTurn = function scheduleTestingBotTurnV3414() {
-    try { baseScheduleTestingBotTurnV3414(); } catch (error) { console.warn("RPmods v3.4.17 base bot scheduler falló.", error); }
+    try { baseScheduleTestingBotTurnV3414(); } catch (error) { console.warn("RPmods v3.4.18 base bot scheduler falló.", error); }
     v3414MaybeRescueTurn("scheduler-rescue");
   };
 
@@ -3266,7 +3266,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.17 — sequential remaining picks, no double-pick groups
+   * v3.4.18 — sequential remaining picks, no double-pick groups
    * ---------------------------------------------------------------- */
   function v3415SequentialRemainingTurns(size) {
     if (size === 2) return [
@@ -3323,7 +3323,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.17 — bot preselection delay
+   * v3.4.18 — bot preselection delay
    * ---------------------------------------------------------------- */
   const RP3416_BOT_PRESELECT_DELAY_MS = 1100;
   const RP3416_BOT_CONFIRM_DELAY_MS = 5000;
@@ -3436,6 +3436,146 @@
       }, preDelay);
     });
   };
+
+
+
+  /* ------------------------------------------------------------------
+   * v3.4.18 — PEDIR separated request layer
+   * ---------------------------------------------------------------- */
+  function requestCharacterByNameV3418(name) {
+    return characters.find(character => character.name === name) || null;
+  }
+
+  function ensureRequestPanelV3418() {
+    let panel = document.getElementById("rp3418-request-panel");
+    if (panel) return panel;
+    panel = document.createElement("section");
+    panel.id = "rp3418-request-panel";
+    panel.className = "rp3418-request-panel hidden";
+    panel.innerHTML = `
+      <div class="rp3418-request-panel-copy">
+        <span>PEDIR LAMINANTE</span>
+        <strong>Elige el laminante que quieres solicitar</strong>
+        <p>Esta acción no modifica la preselección ni el turno actual del capitán/subcapitán.</p>
+      </div>
+      <button type="button" class="rp3418-request-cancel">CANCELAR</button>
+    `;
+    document.body.appendChild(panel);
+    panel.querySelector(".rp3418-request-cancel")?.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      clearRequestPickModeV3417();
+      showAppNotice("Pedido cancelado.", { type: "info", duration: 2400 });
+    });
+    return panel;
+  }
+
+  function renderRequestPanelV3418() {
+    const panel = ensureRequestPanelV3418();
+    const active = ownRequestModeActiveV3417();
+    panel.classList.toggle("hidden", !active);
+    document.body.classList.toggle("rp3418-request-layer-active", active);
+  }
+
+  // v3.4.18: PEDIR is a separated layer. It never uses CONFIRMAR and never reads
+  // the captain/subcaptain current preselection.
+  document.addEventListener("click", event => {
+    if (!ownRequestModeActiveV3417()) return;
+    const card = event.target?.closest?.("#character-grid .character-card[data-name]");
+    if (!card) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const character = requestCharacterByNameV3418(card.dataset.name);
+    if (!character || !baseIsCharacterAvailable(character, currentTurn())) {
+      showAppNotice("Ese laminante no está disponible para pedir.", { type: "warning", duration: 3200 });
+      return;
+    }
+
+    const requestedName = character.name;
+    flow.requestPicking = null;
+    document.body.classList.remove("rp3417-request-picking", "rp3418-request-layer-active");
+
+    // Do not preserve or push state.selected. This prevents PEDIR from affecting
+    // the active player's preselection.
+    state.selected = null;
+    state.preselectLocked = false;
+
+    createRequest(character);
+    showAppNotice(`Solicitud enviada: ${requestedName}.`, { type: "success", duration: 3600 });
+    renderRequestPanelV3418();
+    renderAssistUi();
+  }, true);
+
+  const baseStartRequestPickModeV3418 = startRequestPickModeV3417;
+  startRequestPickModeV3417 = function startRequestPickModeV3418() {
+    if (currentRole === "host" && !ownAssignment()) return;
+    baseStartRequestPickModeV3418();
+    state.selected = null;
+    state.preselectLocked = false;
+    renderRequestPanelV3418();
+  };
+
+  const baseClearRequestPickModeV3418 = clearRequestPickModeV3417;
+  clearRequestPickModeV3417 = function clearRequestPickModeV3418(options = {}) {
+    baseClearRequestPickModeV3418({ ...options, keepSelection: false });
+    renderRequestPanelV3418();
+  };
+
+  const baseRenderAssistUiV3418 = renderAssistUi;
+  renderAssistUi = function renderAssistUiV3418() {
+    baseRenderAssistUiV3418();
+    renderRequestPanelV3418();
+  };
+
+  const baseUpdateRequestButtonV3418 = updateRequestButton;
+  updateRequestButton = function updateRequestButtonV3418() {
+    baseUpdateRequestButtonV3418();
+    const button = ensureRandomSelectionButton();
+    if (!button) return;
+
+    const spectator = currentRoomCode && !ownAssignment();
+    if (spectator) {
+      button.dataset.rp346RequestMode = "0";
+      button.removeAttribute("data-rp3417-request-picking");
+      if (button.textContent === "PEDIR" || button.textContent === "CANCELAR PEDIDO") button.classList.add("hidden");
+      return;
+    }
+
+    if (canRequest()) {
+      button.classList.remove("hidden");
+      button.textContent = ownRequestModeActiveV3417() ? "CANCELAR PEDIDO" : "PEDIR";
+      button.title = ownRequestModeActiveV3417()
+        ? "Cancelar modo PEDIR"
+        : "Activa un selector separado para pedir un laminante";
+      button.setAttribute("aria-label", button.title);
+      button.dataset.rp346RequestMode = "1";
+      button.dataset.rp3417RequestPicking = ownRequestModeActiveV3417() ? "1" : "0";
+    }
+  };
+
+  // Replace request button behavior again: first click only activates the request layer.
+  document.addEventListener("click", event => {
+    const requestButton = event.target?.closest?.("#random-selection-action[data-rp346-request-mode='1']");
+    if (!requestButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (!canRequest() || (currentRoomCode && !ownAssignment())) return;
+
+    if (ownRequestModeActiveV3417()) {
+      clearRequestPickModeV3417();
+      showAppNotice("Pedido cancelado.", { type: "info", duration: 2400 });
+      return;
+    }
+
+    startRequestPickModeV3417();
+  }, true);
+
 
 
   /* ------------------------------------------------------------------

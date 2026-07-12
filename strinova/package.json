@@ -1,7 +1,7 @@
 {
   "name": "draft-simulator",
-  "version": "3.4.17",
-  "description": "STRINOVA Draft System + Gantigun Cup 2026 con flujo PEDIR corregido: primero activar pedido y luego elegir laminante.",
+  "version": "3.4.18",
+  "description": "STRINOVA Draft System + Gantigun Cup 2026 con PEDIR separado del turno activo.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
