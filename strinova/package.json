@@ -1,7 +1,7 @@
 {
   "name": "draft-simulator",
-  "version": "3.4.14",
-  "description": "STRINOVA Draft System + Gantigun Cup 2026 con finalizador definitivo para selecciones dobles y anti-stall posterior a bloqueos.",
+  "version": "3.4.15",
+  "description": "STRINOVA Draft System + Gantigun Cup 2026 con picks restantes secuenciales 1 por 1 para evitar bloqueos del doble pick.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",

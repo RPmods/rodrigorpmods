@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.4.14
+# STRINOVA Draft System v3.4.15
 
 Actualización: Draft Flow Core Rebuild.
 
@@ -538,3 +538,9 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Corrige atasco de picks dobles cuando un slot queda “esperando al compañero”.
 - El host completa solo el slot pendiente después del deadline.
 - No modifica la visibilidad del selector ni el menú de compañero que ya estaban funcionando.
+
+
+## v3.4.15
+- Elimina el doble pick simultáneo de selecciones restantes.
+- Si un equipo debe elegir dos miembros, se resuelve en dos turnos consecutivos 1 por 1.
+- Reduce atascos en “esperando al compañero” y bloqueos post-bans.

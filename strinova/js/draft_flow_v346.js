@@ -1,4 +1,4 @@
-/* STRINOVA Draft System v3.4.14
+/* STRINOVA Draft System v3.4.15
  * Rebuilt flow controller: independent map phase, official 5v5 order,
  * simultaneous picks, private teammate requests and bot simulation.
  */
@@ -7,7 +7,7 @@
   if (window.__rpmodsDraftFlowV346Installed) return;
   window.__rpmodsDraftFlowV346Installed = true;
 
-  const VERSION = "3.4.14";
+  const VERSION = "3.4.15";
   const MAP_START_DELAY_MS = 900;
   const ASSIST_TIMEOUT_MS = 10000;
   const BOT_MIN_DELAY_MS = 850;
@@ -162,6 +162,8 @@
   }
 
   function buildRemainingTurns(size) {
+    // v3.4.15: se elimina definitivamente el doble pick simultáneo.
+    // Si un equipo debe elegir dos jugadores, se hacen dos turnos consecutivos 1 por 1.
     if (size === 2) {
       return [
         makePickTurn("A", "subcaptain", "remaining-a-sub", "remaining-picks"),
@@ -170,21 +172,25 @@
     }
     if (size === 3) {
       return [
-        makePickTurn("A", "player3", "remaining-a-1", "remaining-picks"),
-        makePickTurn("B", "player3", "remaining-b-1", "remaining-picks"),
+        makePickTurn("A", "player3", "remaining-a-player3", "remaining-picks"),
+        makePickTurn("B", "player3", "remaining-b-player3", "remaining-picks"),
       ];
     }
     if (size === 4) {
       return [
-        makePickTurn("A", ["player3", "player4"], "remaining-a-2", "remaining-picks"),
-        makePickTurn("B", ["player3", "player4"], "remaining-b-2", "remaining-picks"),
+        makePickTurn("A", "player3", "remaining-a-player3", "remaining-picks"),
+        makePickTurn("A", "player4", "remaining-a-player4", "remaining-picks"),
+        makePickTurn("B", "player3", "remaining-b-player3", "remaining-picks"),
+        makePickTurn("B", "player4", "remaining-b-player4", "remaining-picks"),
       ];
     }
     return [
-      makePickTurn("A", ["player3", "player4"], "remaining-a-2", "remaining-picks"),
-      makePickTurn("B", ["player3", "player4"], "remaining-b-2", "remaining-picks"),
-      makePickTurn("A", "player5", "remaining-a-1", "remaining-picks"),
-      makePickTurn("B", "player5", "remaining-b-1", "remaining-picks"),
+      makePickTurn("A", "player3", "remaining-a-player3", "remaining-picks"),
+      makePickTurn("A", "player4", "remaining-a-player4", "remaining-picks"),
+      makePickTurn("B", "player3", "remaining-b-player3", "remaining-picks"),
+      makePickTurn("B", "player4", "remaining-b-player4", "remaining-picks"),
+      makePickTurn("A", "player5", "remaining-a-player5", "remaining-picks"),
+      makePickTurn("B", "player5", "remaining-b-player5", "remaining-picks"),
     ];
   }
 
@@ -1730,7 +1736,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.11 — Map reveal, selector gating and safer bot flow
+   * v3.4.15 — Map reveal, selector gating and safer bot flow
    * ---------------------------------------------------------------- */
   function v348VoiceSources() {
     const preferred = 1 + Math.floor(Math.random() * CHIBI_VOICE_COUNT);
@@ -1870,7 +1876,7 @@
         if (!flowSessionAlive(sessionId, token) || pool.length <= 1) return;
         const target = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
 
-        // v3.4.11: do not illuminate the card before impact.
+        // v3.4.15: do not illuminate the card before impact.
         state.mapRoulette.highlightedId = null;
         updateMapRouletteClasses();
 
@@ -1954,7 +1960,7 @@
     }
   };
 
-  // v3.4.11: bots keep the draft moving, but no longer create random teammate proposals.
+  // v3.4.15: bots keep the draft moving, but no longer create random teammate proposals.
   scheduleTestingBotTurn = function scheduleTestingBotTurnV348() {
     try { clearTestingBotTurnTimer(); } catch (_) {}
     if (!currentRoomCode || currentRole !== "host" || flow.phase !== "draft" || !state.draftActive || state.locked || state.roulette.active) return;
@@ -2000,7 +2006,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.11 — Turn ownership, teammate menu and bot guardrails
+   * v3.4.15 — Turn ownership, teammate menu and bot guardrails
    * ---------------------------------------------------------------- */
   function v349TurnSlotKeys(turn = currentTurn()) {
     return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
@@ -2156,7 +2162,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.11 — Hard recovery for selector and teammate slot actions
+   * v3.4.15 — Hard recovery for selector and teammate slot actions
    * ---------------------------------------------------------------- */
   const baseCanControlCurrentTurnV3410 = canControlCurrentTurn;
   canControlCurrentTurn = function canControlCurrentTurnV3410() {
@@ -2315,7 +2321,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.11 — Ownership isolation, assist swap fix and anti-stall watchdog
+   * v3.4.15 — Ownership isolation, assist swap fix and anti-stall watchdog
    * ---------------------------------------------------------------- */
   function v3411TurnKeys(turn = currentTurn()) {
     return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
@@ -2579,7 +2585,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.12 — definitive turn owner resolver and slot action recovery
+   * v3.4.15 — definitive turn owner resolver and slot action recovery
    * ---------------------------------------------------------------- */
   function v3412Norm(value) {
     return String(value || "").trim().toLowerCase();
@@ -2845,7 +2851,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.13 — post-ban simultaneous anti-stall and safe bot finalizer
+   * v3.4.15 — post-ban simultaneous anti-stall and safe bot finalizer
    * ---------------------------------------------------------------- */
   function v3413TurnKeys(turn = currentTurn()) {
     return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
@@ -2889,7 +2895,7 @@
         const ok = await registerSimultaneousSelection(turn, character, { onlineSystem: true, botSlotKey: slotKey, isAuto: true, reason });
         changed = Boolean(ok) || changed;
       } catch (error) {
-        console.warn("RPmods v3.4.13 no pudo completar slot simultáneo.", error);
+        console.warn("RPmods v3.4.15 no pudo completar slot simultáneo.", error);
       }
       await delay(120);
     }
@@ -2907,7 +2913,7 @@
       confirmTurn(true, { onlineSystem: true, botSlotKey: turn.slotKey, reason });
       return true;
     } catch (error) {
-      console.warn("RPmods v3.4.13 no pudo resolver turno simple.", error);
+      console.warn("RPmods v3.4.15 no pudo resolver turno simple.", error);
       return false;
     }
   }
@@ -2982,7 +2988,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.14 — definitive simultaneous group finalizer
+   * v3.4.15 — definitive simultaneous group finalizer
    * ---------------------------------------------------------------- */
   function v3414TurnSlotKeys(turn = currentTurn()) {
     return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
@@ -3060,7 +3066,7 @@
     try {
       pushOnlineDraftPatch({ force: true, phase: "draft", rp346Simultaneous: clone(flow.simultaneous, {}) });
     } catch (error) {
-      console.warn("RPmods v3.4.14 no pudo sincronizar simultáneo.", error);
+      console.warn("RPmods v3.4.15 no pudo sincronizar simultáneo.", error);
     }
   }
 
@@ -3085,7 +3091,7 @@
       if (record[slotKey]) continue;
       const character = v3414PickSafeCharacter(turn, slotKey);
       if (!character) {
-        console.warn("RPmods v3.4.14 no encontró personaje para slot simultáneo", slotKey, reason);
+        console.warn("RPmods v3.4.15 no encontró personaje para slot simultáneo", slotKey, reason);
         continue;
       }
       record[slotKey] = character.name;
@@ -3112,7 +3118,7 @@
     try {
       return Boolean(finalizeSimultaneousGroup(turn, true));
     } catch (error) {
-      console.warn("RPmods v3.4.14 finalizeSimultaneousGroup falló; usando avance manual.", error);
+      console.warn("RPmods v3.4.15 finalizeSimultaneousGroup falló; usando avance manual.", error);
       const names = v3414TurnSlotKeys(turn).map(slotKey => record[slotKey]).filter(Boolean);
       const picks = names.map(name => characters.find(character => character.name === name)).filter(Boolean);
       picks.forEach(character => state.picks[turn.team].push(character));
@@ -3145,14 +3151,14 @@
     const lateBy = onlineNow() - Number(state.turnDeadlineAt || 0);
     if (lateBy < 350) return false;
 
-    // This is the critical case from v3.4.13: one slot says "esperando al compañero".
+    // This is the critical case from v3.4.15: one slot says "esperando al compañero".
     if (turn.simultaneous) return v3414FinalizeGroupHard(turn, reason);
     return v3414ResolveSingleHard(turn, reason);
   }
 
   const baseScheduleTestingBotTurnV3414 = scheduleTestingBotTurn;
   scheduleTestingBotTurn = function scheduleTestingBotTurnV3414() {
-    try { baseScheduleTestingBotTurnV3414(); } catch (error) { console.warn("RPmods v3.4.14 base bot scheduler falló.", error); }
+    try { baseScheduleTestingBotTurnV3414(); } catch (error) { console.warn("RPmods v3.4.15 base bot scheduler falló.", error); }
     v3414MaybeRescueTurn("scheduler-rescue");
   };
 
@@ -3173,6 +3179,63 @@
       if (complete) v3414FinalizeGroupHard(turn, "complete-record-guard");
     }, 360);
   }
+
+
+
+
+  /* ------------------------------------------------------------------
+   * v3.4.15 — sequential remaining picks, no double-pick groups
+   * ---------------------------------------------------------------- */
+  function v3415SequentialRemainingTurns(size) {
+    if (size === 2) return [
+      makePickTurn("A", "subcaptain", "remaining-a-sub", "remaining-picks"),
+      makePickTurn("B", "subcaptain", "remaining-b-sub", "remaining-picks"),
+    ];
+    if (size === 3) return [
+      makePickTurn("A", "player3", "remaining-a-player3", "remaining-picks"),
+      makePickTurn("B", "player3", "remaining-b-player3", "remaining-picks"),
+    ];
+    if (size === 4) return [
+      makePickTurn("A", "player3", "remaining-a-player3", "remaining-picks"),
+      makePickTurn("A", "player4", "remaining-a-player4", "remaining-picks"),
+      makePickTurn("B", "player3", "remaining-b-player3", "remaining-picks"),
+      makePickTurn("B", "player4", "remaining-b-player4", "remaining-picks"),
+    ];
+    return [
+      makePickTurn("A", "player3", "remaining-a-player3", "remaining-picks"),
+      makePickTurn("A", "player4", "remaining-a-player4", "remaining-picks"),
+      makePickTurn("B", "player3", "remaining-b-player3", "remaining-picks"),
+      makePickTurn("B", "player4", "remaining-b-player4", "remaining-picks"),
+      makePickTurn("A", "player5", "remaining-a-player5", "remaining-picks"),
+      makePickTurn("B", "player5", "remaining-b-player5", "remaining-picks"),
+    ];
+  }
+
+  buildPickTurns = function buildPickTurnsV3415(config = currentDraftConfig()) {
+    const normalized = sanitizeDraftConfig(config);
+    return [...buildLeaderTurns(normalized.teamSize), ...v3415SequentialRemainingTurns(normalized.teamSize)];
+  };
+  activeTurns = function activeTurnsV3415(config = currentDraftConfig()) {
+    const normalized = sanitizeDraftConfig(config);
+    return [...buildLeaderTurns(normalized.teamSize), ...buildOfficialBans(normalized), ...v3415SequentialRemainingTurns(normalized.teamSize)];
+  };
+  activePickTurns = function activePickTurnsV3415(config = currentDraftConfig()) {
+    const normalized = sanitizeDraftConfig(config);
+    return [...buildLeaderTurns(normalized.teamSize), ...v3415SequentialRemainingTurns(normalized.teamSize)];
+  };
+
+  const baseStartTurnV3415 = startTurn;
+  startTurn = function startTurnV3415(options = {}) {
+    const turn = currentTurn();
+    if (turn?.simultaneous) {
+      turn.simultaneous = false;
+      turn.slotKeys = [turn.slotKey].filter(Boolean);
+      turn.slotIndices = [turn.slotIndex].filter(index => Number.isFinite(Number(index)));
+      turn.groupCount = 1;
+      turn.groupSlot = 0;
+    }
+    baseStartTurnV3415(options);
+  };
 
 
   /* ------------------------------------------------------------------
