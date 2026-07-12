@@ -20229,7 +20229,7 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
 }
 
 
-/* RPmods v3.4.12 — Map reveal and selector gating */
+/* RPmods v3.4.13 — Map reveal and selector gating */
 .rp348-selector-hidden #character-grid {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -20320,7 +20320,7 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
 }
 
 
-/* RPmods v3.4.12 — stronger active turn/slot UI recovery */
+/* RPmods v3.4.13 — stronger active turn/slot UI recovery */
 .rp346-delegatable-slot {
   cursor: pointer !important;
   outline: 2px solid rgba(255, 221, 69, .92) !important;
@@ -20338,7 +20338,7 @@ body:not(.rp348-selector-hidden) #character-grid {
 }
 
 
-/* RPmods v3.4.12 — force selector recovery while a valid actor is selecting */
+/* RPmods v3.4.13 — force selector recovery while a valid actor is selecting */
 body.rp3410-selector-force-visible #character-grid,
 body.rp3410-selector-force-visible.rp348-selector-hidden #character-grid,
 body:not(.rp348-selector-hidden) #character-grid {
@@ -20365,7 +20365,7 @@ body.rp3410-selector-force-visible #confirm-action {
 }
 
 
-/* RPmods v3.4.12 — strict selector ownership */
+/* RPmods v3.4.13 — strict selector ownership */
 body.rp348-selector-hidden #character-grid {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -20386,7 +20386,7 @@ body.rp3410-selector-force-visible #character-grid {
 }
 
 
-/* RPmods v3.4.12 — definitive selector and teammate-slot recovery */
+/* RPmods v3.4.13 — definitive selector and teammate-slot recovery */
 body.rp3412-selector-visible #character-grid,
 body.rp3412-selector-visible .character-grid,
 body.rp3412-selector-visible.rp348-selector-hidden #character-grid,
@@ -20415,3 +20415,5 @@ body.rp3412-selector-visible #confirm-action {
   z-index: 13000 !important;
   pointer-events: auto !important;
 }
+
+/* RPmods v3.4.13 — anti-stall safety, no visual changes required */

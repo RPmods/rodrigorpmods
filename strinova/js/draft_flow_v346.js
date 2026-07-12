@@ -1,4 +1,4 @@
-/* STRINOVA Draft System v3.4.12
+/* STRINOVA Draft System v3.4.13
  * Rebuilt flow controller: independent map phase, official 5v5 order,
  * simultaneous picks, private teammate requests and bot simulation.
  */
@@ -7,7 +7,7 @@
   if (window.__rpmodsDraftFlowV346Installed) return;
   window.__rpmodsDraftFlowV346Installed = true;
 
-  const VERSION = "3.4.12";
+  const VERSION = "3.4.13";
   const MAP_START_DELAY_MS = 900;
   const ASSIST_TIMEOUT_MS = 10000;
   const BOT_MIN_DELAY_MS = 850;
@@ -2840,6 +2840,145 @@
       }
     }
   }, 550);
+
+
+
+
+  /* ------------------------------------------------------------------
+   * v3.4.13 — post-ban simultaneous anti-stall and safe bot finalizer
+   * ---------------------------------------------------------------- */
+  function v3413TurnKeys(turn = currentTurn()) {
+    return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
+  }
+
+  function v3413TurnKey(turn = currentTurn()) {
+    return `${currentRoomCode || "local"}:${state.draftSessionId}:${state.turnIndex}:${turn?.team || "-"}:${turn?.type || "-"}:${v3413TurnKeys(turn).join("+")}`;
+  }
+
+  function v3413PickValidCharacter(turn = currentTurn()) {
+    const valid = characters.filter(character => isCharacterAvailable(character, turn));
+    if (!valid.length) return null;
+    if (turn?.type === "pick") {
+      const usedRoles = new Set((state.picks?.[turn.team] || []).map(character => roleOf(character.name)));
+      const priority = ["Soporte", "Controlador", "Vanguardia", "Centinela", "Duelista"];
+      const missing = priority.find(role => !usedRoles.has(role));
+      const rolePool = missing ? valid.filter(character => roleOf(character.name) === missing) : [];
+      const pool = rolePool.length ? rolePool : valid;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+    return valid[Math.floor(Math.random() * valid.length)];
+  }
+
+  async function v3413FillPendingSimultaneous(turn, reason = "watchdog") {
+    if (!turn?.simultaneous || !currentRoomCode || currentRole !== "host") return false;
+    const record = simultaneousRecord(turn);
+    const pending = v3413TurnKeys(turn).filter(slotKey => !record[slotKey]);
+    if (!pending.length) return false;
+
+    const originalLocked = state.locked;
+    state.locked = false;
+    let changed = false;
+    for (const slotKey of pending) {
+      if (state.turnIndex >= activeTurnCount()) break;
+      if (currentTurn()?.groupId !== turn.groupId || currentTurn()?.team !== turn.team) break;
+      if (simultaneousRecord(turn)[slotKey]) continue;
+      const character = v3413PickValidCharacter(turn);
+      if (!character) continue;
+      state.selected = character;
+      try {
+        const ok = await registerSimultaneousSelection(turn, character, { onlineSystem: true, botSlotKey: slotKey, isAuto: true, reason });
+        changed = Boolean(ok) || changed;
+      } catch (error) {
+        console.warn("RPmods v3.4.13 no pudo completar slot simultáneo.", error);
+      }
+      await delay(120);
+    }
+    state.locked = originalLocked && !changed ? originalLocked : false;
+    return changed;
+  }
+
+  function v3413ResolveSingleTurn(turn, reason = "watchdog") {
+    if (!turn || !currentRoomCode || currentRole !== "host") return false;
+    const character = v3413PickValidCharacter(turn);
+    if (!character) return false;
+    state.locked = false;
+    state.selected = character;
+    try {
+      confirmTurn(true, { onlineSystem: true, botSlotKey: turn.slotKey, reason });
+      return true;
+    } catch (error) {
+      console.warn("RPmods v3.4.13 no pudo resolver turno simple.", error);
+      return false;
+    }
+  }
+
+  const baseScheduleTestingBotTurnV3413 = scheduleTestingBotTurn;
+  scheduleTestingBotTurn = function scheduleTestingBotTurnV3413() {
+    if (!currentRoomCode || currentRole !== "host" || flow.phase !== "draft" || !state.draftActive || state.roulette.active) return;
+    const turn = currentTurn();
+    if (!turn) return;
+
+    // Keep previous working bot behaviour for normal bot-owned slots.
+    try { baseScheduleTestingBotTurnV3413(); } catch (error) { console.warn("RPmods bot scheduler base falló.", error); }
+
+    // Additional safety: after bans, simultaneous remaining-pick turns may include inactive humans.
+    // Do not touch before timeout; after timeout the host fills only missing slots.
+    if (!state.turnDeadlineAt) return;
+    const lateBy = onlineNow() - Number(state.turnDeadlineAt || 0);
+    if (lateBy < 900) return;
+    const key = `v3413:schedule:${v3413TurnKey(turn)}:${Math.floor(lateBy / 1200)}`;
+    if (flow.botKeys[key]) return;
+    flow.botKeys[key] = true;
+    if (turn.simultaneous) {
+      void v3413FillPendingSimultaneous(turn, "bot-safety");
+    } else if (!state.locked) {
+      v3413ResolveSingleTurn(turn, "bot-safety");
+    } else {
+      state.locked = false;
+      v3413ResolveSingleTurn(turn, "bot-safety-unlock");
+    }
+  };
+
+  let v3413WatchdogKey = "";
+  if (!window.__rpmodsV3413Watchdog) {
+    window.__rpmodsV3413Watchdog = window.setInterval(() => {
+      if (!currentRoomCode || currentRole !== "host" || flow.phase !== "draft" || !state.draftActive || state.roulette.active) return;
+      const turn = currentTurn();
+      if (!turn || !state.turnDeadlineAt) return;
+      const lateBy = onlineNow() - Number(state.turnDeadlineAt || 0);
+      if (lateBy < 1250) {
+        try { scheduleTestingBotTurn(); } catch (_) {}
+        return;
+      }
+      const key = `${v3413TurnKey(turn)}:${Math.floor(lateBy / 1800)}`;
+      if (v3413WatchdogKey === key) return;
+      v3413WatchdogKey = key;
+
+      // If the base auto-random selected a character but did not commit it, release the lock and commit/fill.
+      if (turn.simultaneous) {
+        void v3413FillPendingSimultaneous(turn, "deadline-watchdog");
+      } else {
+        v3413ResolveSingleTurn(turn, "deadline-watchdog");
+      }
+    }, 420);
+  }
+
+  // If a simultaneous group already has all records but did not advance, force finalization.
+  if (!window.__rpmodsV3413FinalizeGuard) {
+    window.__rpmodsV3413FinalizeGuard = window.setInterval(() => {
+      if (!currentRoomCode || currentRole !== "host" || flow.phase !== "draft" || !state.draftActive) return;
+      const turn = currentTurn();
+      if (!turn?.simultaneous) return;
+      const record = simultaneousRecord(turn);
+      const complete = v3413TurnKeys(turn).length && v3413TurnKeys(turn).every(slotKey => Boolean(record[slotKey]));
+      if (!complete) return;
+      const key = `v3413:finalize:${v3413TurnKey(turn)}`;
+      if (flow.botKeys[key]) return;
+      flow.botKeys[key] = true;
+      state.locked = false;
+      finalizeSimultaneousGroup(turn, true);
+    }, 500);
+  }
 
 
   /* ------------------------------------------------------------------

@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.4.12
+# STRINOVA Draft System v3.4.13
 
 Actualización: Draft Flow Core Rebuild.
 
@@ -469,14 +469,14 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Draft logic remains untouched.
 
 
-## Hotfix v3.4.12 Draft Flow Real Wiring + Chibi Audio/Assist UI
+## Hotfix v3.4.13 Draft Flow Real Wiring + Chibi Audio/Assist UI
 
 - Se conectó el flujo avanzado por defecto en 5v5: mapa primero, picks iniciales de líderes, bloqueos alternados y picks restantes.
 - Se ocultó el toggle antiguo de “Fase de bloqueos” porque ahora el control real es “Modo de bloqueos”.
 - Se ajustó la animación chibi para PNG de 300x300, caída más baja y reproducción de voces .ogg desde `audio/map_vote_chibi_1` hasta `audio/map_vote_chibi_8`.
 - Se añadió una primera capa visual de “Pedir” y “Seleccionar PJ” con avisos tipo Strinova para preparar el flujo de asignación de laminantes por compañeros.
 
-## Hotfix v3.4.12 Tournament Isolation + Button Recovery
+## Hotfix v3.4.13 Tournament Isolation + Button Recovery
 
 - Se aisló el Tournament Hub para que no aparezca en Menú, Configuración, Idioma, Random Selector ni otros apartados después de visitarlo.
 - Se añadió recuperación de navegación para limpiar correctamente `view-tournament`, `tournament-surface-active` y el panel activo.
@@ -484,7 +484,7 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Se mantiene el flujo avanzado v3.4.x con selección de mapa previa, bans configurables y ruleta chibi de mapas.
 
 
-## v3.4.12 — Draft Flow Core Rebuild
+## v3.4.13 — Draft Flow Core Rebuild
 
 - La selección de mapa previa funciona como una fase independiente: no inicia temporizador, bots ni turnos detrás de la pantalla.
 - Flujo 5v5 por defecto: líderes → bloqueos alternados → picks restantes, con picks dobles simultáneos.
@@ -493,7 +493,7 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - El bloque Configuración → Intro del menú fue reconstruido e incluye el tamaño visual del chibi.
 
 
-## v3.4.12
+## v3.4.13
 - Estabiliza la ruleta chibi de mapas.
 - Evita que la tarjeta objetivo se ilumine antes del impacto.
 - Añade reveal central del mapa seleccionado.
@@ -501,28 +501,34 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Simplifica la IA de bots para no cruzarse con PEDIR/selección por compañero.
 
 
-## v3.4.12
+## v3.4.13
 - Recupera el selector cuando el jugador tiene el turno real.
 - Corrige el menú de slots para elegir por compañero.
 - Refuerza permisos de capitán/subcapitán.
 - Estabiliza la IA de bots en turnos con solicitudes.
 
 
-## v3.4.12
+## v3.4.13
 - Recuperación forzada del selector cuando es turno propio.
 - Host puede operar salas con bots durante pruebas.
 - Click en slot aliado abre Seleccionar PJ / Cancelar si el actor tiene permiso.
 
 
-## v3.4.12
+## v3.4.13
 - Aísla el selector al turno real del jugador.
 - Evita selector visible durante turno rival.
 - Corrige swap para elegir por el compañero exacto.
 - Añade watchdog online anti-stall para turnos congelados en 00:00.
 
 
-## v3.4.12
+## v3.4.13
 - Rebuild del detector de dueño del turno.
 - Selector visible únicamente cuando el usuario realmente puede elegir o pedir.
 - Click en slot aliado recuperado para Seleccionar PJ / Cancelar.
 - Bots limitados a resolver su propio slot y solicitudes pendientes.
+
+
+## v3.4.13
+- Corrige atasco en selecciones restantes después de bloqueos.
+- Watchdog host completa slots simultáneos pendientes tras 00:00.
+- Refuerza bots sin cambiar el selector que ya funcionaba.

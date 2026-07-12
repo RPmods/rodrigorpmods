@@ -1,7 +1,7 @@
 {
   "name": "draft-simulator",
-  "version": "3.4.12",
-  "description": "STRINOVA Draft System + Gantigun Cup 2026 con detector definitivo de dueño del turno, selector recuperado y bots estabilizados.",
+  "version": "3.4.13",
+  "description": "STRINOVA Draft System + Gantigun Cup 2026 con anti-stall para selecciones simultáneas posteriores a bloqueos y bots reforzados.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
