@@ -1,7 +1,7 @@
 {
   "name": "draft-simulator",
-  "version": "3.4.16",
-  "description": "STRINOVA Draft System + Gantigun Cup 2026 con picks restantes secuenciales y bots con preselección visible antes de confirmar.",
+  "version": "3.4.17",
+  "description": "STRINOVA Draft System + Gantigun Cup 2026 con flujo PEDIR corregido: primero activar pedido y luego elegir laminante.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",

@@ -20229,7 +20229,7 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
 }
 
 
-/* RPmods v3.4.16 — Map reveal and selector gating */
+/* RPmods v3.4.17 — Map reveal and selector gating */
 .rp348-selector-hidden #character-grid {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -20320,7 +20320,7 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
 }
 
 
-/* RPmods v3.4.16 — stronger active turn/slot UI recovery */
+/* RPmods v3.4.17 — stronger active turn/slot UI recovery */
 .rp346-delegatable-slot {
   cursor: pointer !important;
   outline: 2px solid rgba(255, 221, 69, .92) !important;
@@ -20338,7 +20338,7 @@ body:not(.rp348-selector-hidden) #character-grid {
 }
 
 
-/* RPmods v3.4.16 — force selector recovery while a valid actor is selecting */
+/* RPmods v3.4.17 — force selector recovery while a valid actor is selecting */
 body.rp3410-selector-force-visible #character-grid,
 body.rp3410-selector-force-visible.rp348-selector-hidden #character-grid,
 body:not(.rp348-selector-hidden) #character-grid {
@@ -20365,7 +20365,7 @@ body.rp3410-selector-force-visible #confirm-action {
 }
 
 
-/* RPmods v3.4.16 — strict selector ownership */
+/* RPmods v3.4.17 — strict selector ownership */
 body.rp348-selector-hidden #character-grid {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -20386,7 +20386,7 @@ body.rp3410-selector-force-visible #character-grid {
 }
 
 
-/* RPmods v3.4.16 — definitive selector and teammate-slot recovery */
+/* RPmods v3.4.17 — definitive selector and teammate-slot recovery */
 body.rp3412-selector-visible #character-grid,
 body.rp3412-selector-visible .character-grid,
 body.rp3412-selector-visible.rp348-selector-hidden #character-grid,
@@ -20416,10 +20416,25 @@ body.rp3412-selector-visible #confirm-action {
   pointer-events: auto !important;
 }
 
-/* RPmods v3.4.16 — anti-stall safety, no visual changes required */
+/* RPmods v3.4.17 — anti-stall safety, no visual changes required */
 
-/* RPmods v3.4.16 — hard anti-stall keeps simultaneous groups moving without changing selector UI. */
+/* RPmods v3.4.17 — hard anti-stall keeps simultaneous groups moving without changing selector UI. */
 
 
-/* RPmods v3.4.16 — remaining picks now run 1 by 1; no simultaneous-pick UI should remain active. */
+/* RPmods v3.4.17 — remaining picks now run 1 by 1; no simultaneous-pick UI should remain active. */
 .rpmods-sequential-picks-note { display: none; }
+
+
+/* RPmods v3.4.17 — PEDIR correct order */
+body.rp3417-request-picking #character-grid {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  filter: none !important;
+}
+#random-selection-action[data-rp3417-request-picking="1"] {
+  background: linear-gradient(135deg, #ffc94b, #d78b11) !important;
+  color: #261705 !important;
+  border-color: rgba(255, 232, 142, .95) !important;
+  box-shadow: 0 0 24px rgba(255, 198, 60, .28) !important;
+}
