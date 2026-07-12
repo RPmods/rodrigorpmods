@@ -991,7 +991,7 @@ function applyLanguage(lang = currentLanguage(), options = {}) {
   setText('.versus-core','vs'); setText('.menu-panel-copy p','setup_copy'); updateSetupRulesText();
   setText('.player-name-mode-panel .subconfig-heading span','names_heading_small'); setText('.player-name-mode-panel .subconfig-heading strong','names_heading'); setText('#manual-player-names','manual_mode'); setText('#random-player-names','random_names'); setText('#start-draft','setup_start_local');
   const highlights=document.querySelectorAll('.menu-panel-highlights span'); if(highlights[0])highlights[0].textContent=t('highlight_1'); if(highlights[1])highlights[1].textContent=t('highlight_2'); if(highlights[2])highlights[2].textContent=t('highlight_3');
-  document.querySelectorAll('.setup-top-tab').forEach(button=>{ const key={menu:'tab_menu',tournament:'tab_tournament',volumen:'tab_volume',configuracion:'tab_config',random:'tab_random',idioma:'tab_language',updates:'tab_updates',creditos:'tab_credits'}[button.dataset.tab]; if(key) button.textContent=t(key); });
+  document.querySelectorAll('.setup-top-tab').forEach(button=>{ const key={menu:'tab_menu',volumen:'tab_volume',configuracion:'tab_config',random:'tab_random',idioma:'tab_language',updates:'tab_updates',creditos:'tab_credits'}[button.dataset.tab]; if(key) button.textContent=t(key); });
   setText('[data-panel="volumen"] .subconfig-heading span','sound'); setText('[data-panel="volumen"] .subconfig-heading strong','volume');
   [['master_volume','master_volume_desc'],['music_volume','music_volume_desc'],['sfx_volume','sfx_volume_desc'],['narration_volume','narration_volume_desc'],['character_voice_volume','character_voice_volume_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="volumen"] .volume-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
   setText('[data-panel="idioma"] .subconfig-heading span','language'); setText('[data-panel="idioma"] .subconfig-heading strong','interface_text');
@@ -1521,6 +1521,28 @@ const RESOURCE_PRELOAD_ITEM_TIMEOUT_MS = 5200;
 const RESOURCE_PRELOAD_CONCURRENCY = 6;
 const RESOURCE_PRELOAD_BACKGROUND_CONCURRENCY = 2;
 const RESOURCE_PRELOAD_SECONDARY_CONCURRENCY = 2;
+const RESOURCE_PRELOAD_VIDEO_METADATA_TIMEOUT_MS = 2800;
+const warmedResourceSources = new Set();
+const inflightResourcePreloads = new Map();
+const PRELOAD_DEBUG_ENABLED = (() => {
+  try {
+    return new URLSearchParams(window.location.search || "").has("debugPreload");
+  } catch (_) {
+    return false;
+  }
+})();
+
+function debugPreloadLog(...args) {
+  if (PRELOAD_DEBUG_ENABLED) console.debug("[SilentPrecache]", ...args);
+}
+
+function resourceCacheKey(url, type = "generic") {
+  return `${type}:${url}`;
+}
+
+function isOnlineDraftPerformanceMode() {
+  return Boolean(currentRoomCode && state.draftActive && state.onlinePhase === "draft");
+}
 
 function uniqueResourceGroups(groups) {
   const seen = new Set();
@@ -1620,9 +1642,19 @@ function preloadImageCandidate(url) {
       img.onload = null;
       img.onerror = null;
     };
-    img.onload = () => { cleanup(); resolve(url); };
+    const finish = async () => {
+      try {
+        if (typeof img.decode === "function") await img.decode();
+      } catch (_) {
+        // La imagen ya cargó; decode puede fallar en algunos navegadores con caché o formatos antiguos.
+      }
+      cleanup();
+      resolve(url);
+    };
+    img.onload = () => { void finish(); };
     img.onerror = () => { cleanup(); reject(new Error("image error")); };
     img.decoding = "async";
+    img.loading = "eager";
     img.src = url;
   });
 }
@@ -1647,20 +1679,27 @@ function preloadAudioCandidate(url) {
   });
 }
 
-function preloadVideoCandidate(url) {
+function preloadVideoCandidate(url, options = {}) {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
-    const timer = window.setTimeout(() => { cleanup(); reject(new Error("video timeout")); }, RESOURCE_PRELOAD_ITEM_TIMEOUT_MS);
+    const lightMode = options.light === true || options.preload === "metadata";
+    const timeoutMs = lightMode ? RESOURCE_PRELOAD_VIDEO_METADATA_TIMEOUT_MS : RESOURCE_PRELOAD_ITEM_TIMEOUT_MS;
+    const timer = window.setTimeout(() => { cleanup(); reject(new Error("video timeout")); }, timeoutMs);
     const cleanup = () => {
       window.clearTimeout(timer);
+      video.onloadedmetadata = null;
       video.onloadeddata = null;
       video.oncanplay = null;
       video.onerror = null;
       try { video.pause(); video.removeAttribute("src"); video.load?.(); } catch (_) {}
     };
-    video.preload = "auto";
+    video.preload = lightMode ? "metadata" : "auto";
     video.muted = true;
+    video.defaultMuted = true;
     video.playsInline = true;
+    video.onloadedmetadata = () => {
+      if (lightMode) { cleanup(); resolve(url); }
+    };
     video.onloadeddata = () => { cleanup(); resolve(url); };
     video.oncanplay = () => { cleanup(); resolve(url); };
     video.onerror = () => { cleanup(); reject(new Error("video error")); };
@@ -1677,19 +1716,41 @@ function fetchResourceCandidate(url) {
   });
 }
 
-function preloadOneCandidate(url, type = "generic") {
+function preloadOneCandidate(url, type = "generic", options = {}) {
   if (!url) return Promise.reject(new Error("empty resource"));
-  if (type === "image") return preloadImageCandidate(url).catch(() => fetchResourceCandidate(url));
-  if (type === "audio") return preloadAudioCandidate(url).catch(() => fetchResourceCandidate(url));
-  if (type === "video") return preloadVideoCandidate(url).catch(() => fetchResourceCandidate(url));
-  return fetchResourceCandidate(url);
+  const key = resourceCacheKey(url, type);
+  if (warmedResourceSources.has(key)) return Promise.resolve(url);
+  if (inflightResourcePreloads.has(key)) return inflightResourcePreloads.get(key);
+
+  const run = (() => {
+    if (type === "image") return preloadImageCandidate(url).catch(() => fetchResourceCandidate(url));
+    if (type === "audio") return preloadAudioCandidate(url).catch(() => fetchResourceCandidate(url));
+    if (type === "video") {
+      const videoPreload = preloadVideoCandidate(url, options);
+      return options.light ? videoPreload : videoPreload.catch(() => fetchResourceCandidate(url));
+    }
+    return fetchResourceCandidate(url);
+  })().then(result => {
+    warmedResourceSources.add(key);
+    debugPreloadLog("ready", type, url);
+    return result;
+  }).finally(() => {
+    inflightResourcePreloads.delete(key);
+  });
+
+  inflightResourcePreloads.set(key, run);
+  return run;
 }
 
 async function preloadFirstAvailable(group) {
   const sources = group?.sources || [];
+  const options = {
+    light: group?.light === true,
+    preload: group?.preload,
+  };
   for (const source of sources) {
     try {
-      await preloadOneCandidate(source, group.type);
+      await preloadOneCandidate(source, group.type, options);
       return { ok: true, source };
     } catch (_) {
     }
@@ -1720,11 +1781,17 @@ function scheduleSecondaryResourcePreload() {
   if (state.resourcePreload.secondaryStarted) return;
   state.resourcePreload.secondaryStarted = true;
   const queue = () => {
-    runResourcePreloadQueue(
+    const run = () => runResourcePreloadQueue(
       resourcePreloadGroups({ secondary: true }),
       null,
-      RESOURCE_PRELOAD_SECONDARY_CONCURRENCY
+      isOnlineDraftPerformanceMode() ? 1 : RESOURCE_PRELOAD_SECONDARY_CONCURRENCY
     ).catch(() => {});
+
+    if (isOnlineDraftPerformanceMode()) {
+      window.setTimeout(run, 2500);
+      return;
+    }
+    run();
   };
   window.setTimeout(() => {
     if (typeof window.requestIdleCallback === "function") {
@@ -2020,7 +2087,8 @@ function setupBackgroundVideo() {
     clearScheduledRecovery();
     applyVideoSettings();
     const hasMediaError = Boolean(video.error) || video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE;
-    if (hard && hasMediaError) {
+    const softOnlineDraftMode = isOnlineDraftPerformanceMode();
+    if (hard && hasMediaError && !softOnlineDraftMode) {
       try { video.pause(); } catch (_) {}
       try { video.load(); } catch (_) {}
     }
@@ -2071,9 +2139,9 @@ function setupBackgroundVideo() {
     video.dataset.lastTimeUpdateAt = String(Date.now());
   });
   video.addEventListener("canplay", playVideo);
-  video.addEventListener("waiting", () => scheduleRecovery(2400, false));
-  video.addEventListener("stalled", () => scheduleRecovery(2800, false));
-  video.addEventListener("suspend", () => scheduleRecovery(3200, false));
+  video.addEventListener("waiting", () => { if (!isOnlineDraftPerformanceMode()) scheduleRecovery(2400, false); });
+  video.addEventListener("stalled", () => { if (!isOnlineDraftPerformanceMode()) scheduleRecovery(2800, false); });
+  video.addEventListener("suspend", () => { if (!isOnlineDraftPerformanceMode()) scheduleRecovery(3200, false); });
   video.addEventListener("error", () => {
     document.body.classList.add("video-error");
     scheduleRecovery(1200, true);
@@ -2102,6 +2170,11 @@ function setupBackgroundVideo() {
 
       if (video.paused) {
         playVideo();
+        video.dataset.stallTicks = "0";
+        return;
+      }
+
+      if (isOnlineDraftPerformanceMode()) {
         video.dataset.stallTicks = "0";
         return;
       }
@@ -2428,7 +2501,7 @@ function activateSetupTab(tabName) {
     panel.classList.toggle("is-active", panel.dataset.panel === tabName);
   });
   if (setupShell) {
-    setupShell.classList.remove("view-menu", "view-tournament", "view-volumen", "view-configuracion", "view-development", "view-random", "view-idioma", "view-creditos", "view-updates");
+    setupShell.classList.remove("view-menu", "view-volumen", "view-configuracion", "view-development", "view-random", "view-idioma", "view-creditos", "view-updates");
     setupShell.classList.add(`view-${tabName}`);
   }
 }
@@ -2996,8 +3069,8 @@ function scheduleAlternativeIntroPrecache() {
   const task = async () => {
     for (const set of alternatives) {
       await preloadFirstAvailable({ sources: [set.audio, set.legacyAudio].filter(Boolean), type: "audio" });
-      await preloadFirstAvailable({ sources: [set.video, set.legacyVideo].filter(Boolean), type: "video" });
-      await waitMs(120);
+      await preloadFirstAvailable({ sources: [set.video, set.legacyVideo].filter(Boolean), type: "video", light: true, preload: "metadata" });
+      await waitMs(isOnlineDraftPerformanceMode() ? 420 : 160);
     }
   };
   state.intro.alternativesPrecachePromise = new Promise(resolve => {
@@ -3877,8 +3950,6 @@ function toggleMusic() {
 }
 
 function showPhaseOverlay(text, voiceSrc, subtitle, callback) {
-  clearTestingBotTurnTimer();
-  testingBotTurnKey = null;
   const overlay = $("#phase-overlay");
   const title = $("#phase-title");
   const subtitleElement = $("#phase-subtitle");
@@ -6186,6 +6257,61 @@ function botClientIdForCurrentTurn(data = onlineLatestRoomData || {}, turn = cur
   return isTestingBotParticipant(participant) ? clientId : null;
 }
 
+const TESTING_BOT_ROLE_PRIORITY_BY_SLOT = {
+  captain: ["Vanguardia", "Centinela", "Controlador", "Soporte", "Duelista"],
+  subcaptain: ["Controlador", "Soporte", "Centinela", "Vanguardia", "Duelista"],
+  player3: ["Duelista", "Vanguardia", "Controlador", "Centinela", "Soporte"],
+  player4: ["Soporte", "Controlador", "Centinela", "Vanguardia", "Duelista"],
+  player5: ["Duelista", "Centinela", "Soporte", "Controlador", "Vanguardia"],
+};
+
+function testingBotRawRole(character) {
+  return roles?.[character?.name] || "Sin rol";
+}
+
+function testingBotCharacterScore(character, turn = currentTurn()) {
+  if (!character || !turn) return -Infinity;
+  const ownPicks = state.picks?.[turn.team] || [];
+  const enemyTeam = turn.team === "A" ? "B" : "A";
+  const enemyPicks = state.picks?.[enemyTeam] || [];
+  const role = testingBotRawRole(character);
+  let score = Math.random() * 8;
+
+  if (turn.type === "pick") {
+    const ownRoles = ownPicks.map(testingBotRawRole);
+    const repeatedRoleCount = ownRoles.filter(item => item === role).length;
+    const ownFactionCount = ownPicks.filter(item => item.faction === character.faction).length;
+    const priority = TESTING_BOT_ROLE_PRIORITY_BY_SLOT[turn.slotKey || "captain"] || TESTING_BOT_ROLE_PRIORITY_BY_SLOT.captain;
+    const priorityIndex = priority.indexOf(role);
+
+    if (repeatedRoleCount === 0) score += 46;
+    else score -= repeatedRoleCount * 24;
+
+    if (priorityIndex >= 0) score += 20 - (priorityIndex * 4);
+    score -= ownFactionCount * 7;
+
+    if (ownPicks.length >= 3 && !ownRoles.includes("Soporte") && role === "Soporte") score += 18;
+    if (ownPicks.length >= 3 && !ownRoles.includes("Controlador") && role === "Controlador") score += 14;
+  } else {
+    const enemyRoles = enemyPicks.map(testingBotRawRole);
+    const utilityRole = role === "Soporte" || role === "Controlador" || role === "Centinela";
+    if (utilityRole) score += 9;
+    if (!enemyRoles.includes(role)) score += 5;
+  }
+
+  return score;
+}
+
+function chooseWeightedTestingBotCharacter(candidates, turn = currentTurn()) {
+  if (!candidates?.length) return null;
+  const ranked = [...candidates]
+    .map(character => ({ character, score: testingBotCharacterScore(character, turn) }))
+    .sort((a, b) => b.score - a.score);
+  const poolSize = Math.min(3, ranked.length);
+  const pool = ranked.slice(0, poolSize);
+  return pool[Math.floor(Math.random() * pool.length)]?.character || ranked[0]?.character || null;
+}
+
 function testingBotPickCharacter(turn = currentTurn()) {
   if (!turn) return null;
   const allowedFactions = turn.type === "pick"
@@ -6197,13 +6323,7 @@ function testingBotPickCharacter(turn = currentTurn()) {
   });
   if (!available.length) return null;
 
-  if (turn.type === "pick") {
-    const teamRoles = state.picks[turn.team].map(character => roleOf(character.name));
-    const balanced = available.filter(character => !teamRoles.includes(roleOf(character.name)));
-    if (balanced.length) return balanced[Math.floor(Math.random() * balanced.length)];
-  }
-
-  return available[Math.floor(Math.random() * available.length)];
+  return chooseWeightedTestingBotCharacter(available, turn);
 }
 
 function clearTestingBotTurnTimer() {
@@ -6221,59 +6341,29 @@ function testingBotPreselectDelayMs() {
   return 520 + Math.round(Math.random() * 680);
 }
 
-function testingBotTurnPlayableDelayMs() {
-  if (!currentRoomCode || currentRole !== "host" || !state.draftActive || state.onlinePhase !== "draft") return -1;
-  const turn = currentTurn();
-  if (!turn || state.turnIndex >= activeTurnCount()) return -1;
-  if (state.locked || state.roulette.active) return -1;
-
-  const now = onlineNow();
-  const turnStartedAt = Number(state.turnStartedAt || 0);
-  if (turnStartedAt && now < turnStartedAt) {
-    return Math.max(180, Math.min(8000, turnStartedAt - now + 220));
-  }
-
-  if (state.turnDeadlineAt && Number(state.turnDeadlineAt) <= now) return -1;
-  if (document.body.classList.contains("phase-announcing") || document.body.classList.contains("overlay-lock")) {
-    return 260;
-  }
-
-  return 0;
-}
-
-function isTestingBotTurnPlayable() {
-  return testingBotTurnPlayableDelayMs() === 0;
-}
-
-function testingBotWaitUntilPlayable(turnKey) {
-  const delayMs = testingBotTurnPlayableDelayMs();
-  if (delayMs < 0) return false;
-  if (delayMs === 0) return true;
-
-  const waitKey = `${turnKey}:wait`;
-  if (testingBotTurnKey === waitKey) return false;
-  testingBotTurnKey = waitKey;
-  clearTestingBotTurnTimer();
-  testingBotTimerId = setTimeout(() => {
-    testingBotTurnKey = null;
-    scheduleTestingBotTurn();
-  }, delayMs);
-  return false;
+function shouldPublishTestingBotPreselection(source = "") {
+  if (String(source).includes("final")) return true;
+  const now = Date.now();
+  const lastAt = Number(state.lastTestingBotPreselectAt || 0);
+  if (now - lastAt < 1350) return false;
+  state.lastTestingBotPreselectAt = now;
+  return !isOnlineDraftPerformanceMode();
 }
 
 function testingBotApplyPreselection(character, botClientId, source = "testing-bot-thinking") {
   const turn = currentTurn();
-  if (!isTestingBotTurnPlayable()) return false;
   if (!character || !turn || !isCharacterAvailable(character, turn)) return false;
 
   state.selected = character;
   state.preselectLocked = false;
   renderCharacterSelectionLight();
-  pushOnlineDraftPatch({
-    selected: serializeCharacterForOnline(character),
-    preselectLocked: false,
-    actionEvent: createOnlineActionEvent("preselect", turn.team, character, { source, botClientId }),
-  });
+  if (shouldPublishTestingBotPreselection(source)) {
+    pushOnlineDraftPatch({
+      selected: serializeCharacterForOnline(character),
+      preselectLocked: false,
+      actionEvent: createOnlineActionEvent("preselect", turn.team, character, { source, botClientId }),
+    });
+  }
   return true;
 }
 
@@ -6302,7 +6392,7 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
 
     const turn = currentTurn();
     const activeBot = botClientIdForCurrentTurn(latestData, turn);
-    if (!turn || activeBot !== botClientId || !isTestingBotTurnPlayable()) return;
+    if (!turn || activeBot !== botClientId || state.locked || state.roulette.active) return;
 
     const startedAt = Date.now();
     const thinkingDuration = testingBotThinkingDurationMs();
@@ -6311,11 +6401,7 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
       if (!isDraftSessionActive()) return;
       const current = currentTurn();
       const stillBot = botClientIdForCurrentTurn(onlineLatestRoomData || {}, current);
-      if (!current || stillBot !== botClientId || !isTestingBotTurnPlayable()) {
-        testingBotTurnKey = null;
-        scheduleTestingBotTurn();
-        return;
-      }
+      if (!current || stillBot !== botClientId || state.locked || state.roulette.active) return;
 
       const elapsed = Date.now() - startedAt;
       const character = testingBotPickCharacter(current);
@@ -6330,7 +6416,7 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
           if (!isDraftSessionActive()) return;
           const finalTurn = currentTurn();
           const finalBot = botClientIdForCurrentTurn(onlineLatestRoomData || {}, finalTurn);
-          if (!finalTurn || finalBot !== botClientId || !isTestingBotTurnPlayable()) return;
+          if (!finalTurn || finalBot !== botClientId || state.locked || state.roulette.active) return;
 
           if (!state.selected || !isCharacterAvailable(state.selected, finalTurn)) {
             const fallback = testingBotPickCharacter(finalTurn);
@@ -6338,6 +6424,7 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
             state.selected = fallback;
           }
 
+          testingBotApplyPreselection(state.selected, botClientId, "testing-bot-final-preselect");
           confirmTurn(true, { onlineSystem: true, testingBot: true });
         }, 280 + Math.round(Math.random() * 320));
         return;
@@ -6355,16 +6442,15 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
 function scheduleTestingBotTurn() {
   if (!currentRoomCode || currentRole !== "host" || !state.draftActive || state.onlinePhase !== "draft") return;
   const turn = currentTurn();
-  if (!turn || state.turnIndex >= activeTurnCount()) return;
+  if (!turn || state.locked || state.roulette.active || state.turnIndex >= activeTurnCount()) return;
 
   const botClientId = botClientIdForCurrentTurn(onlineLatestRoomData || {}, turn);
   if (!botClientId) return;
 
-  const turnKey = `${currentRoomCode}:${state.draftSessionId}:${state.turnIndex}:${state.turnStartedAt || 0}:${state.turnDeadlineAt || 0}:${botClientId}`;
-  if (!testingBotWaitUntilPlayable(turnKey)) return;
-
+  const turnKey = `${currentRoomCode}:${state.draftSessionId}:${state.turnIndex}:${state.turnDeadlineAt || 0}:${botClientId}`;
   if (testingBotTurnKey === turnKey) return;
   testingBotTurnKey = turnKey;
+  state.lastTestingBotPreselectAt = 0;
   clearTestingBotTurnTimer();
 
   const delayMs = 350 + Math.round(Math.random() * 650);
@@ -7050,455 +7136,21 @@ function startOnlineDraftFromRoom(data = {}) {
 
   switchScreen(draftScreen);
   const startedRecently = onlineNow() - Number(data.startedAt || 0) < 4500 && Number(data.draftState?.turnIndex || 0) === 0;
-  if (startedRecently) {
-    const initialTurn = currentTurn();
-    const isBanPhase = initialTurn?.type === "ban";
+  const activeTurn = currentTurn();
+  const justEnteredPickPhase = activeBanTurnCount() > 0 && state.turnIndex === activeBanTurnCount() && activeTurn?.type === "pick";
+
+  if (startedRecently || justEnteredPickPhase) {
+    const isBanPhase = activeTurn?.type === "ban";
     showPhaseOverlay(
       isBanPhase ? t("phase_ban") : t("phase_pick"),
       isBanPhase ? systemDraftVoiceLines.voice_ban_phase.src : systemDraftVoiceLines.voice_pick_phase.src,
       isBanPhase ? systemDraftVoiceLines.voice_ban_phase.text : systemDraftVoiceLines.voice_pick_phase.text,
       startTurn,
     );
-  } else {
-    startTurn({ skipNarration: true });
-  }
-}
-
-function updateDraftUI(data = {}) {
-  onlineLatestRoomData = data || {};
-  if (data.closed) {
-    handleRoomClosed(currentRoomCode);
     return;
   }
 
-  if (data.started) {
-    const readyOverlay = document.getElementById("online-ready-overlay");
-    if (readyOverlay && !readyOverlay.classList.contains("hidden")) renderOnlineReadyCheck(data);
-    startOnlineDraftFromRoom(data);
-    return;
-  }
-
-  updateRoomLobby(data);
-  renderOnlineReadyCheck(data);
-  maybeAdvanceOnlineReadyCheck(data);
-  syncDraftStateFromRoom(data);
-}
-
-function listenRoomChanges(roomCode) {
-  const roomRef = roomRefFor(roomCode);
-  if (!roomRef) {
-    showOnlineServiceNotice();
-    return;
-  }
-
-  if (onlineRoomListenerCode === roomCode) return;
-  if (onlineRoomListenerCode) {
-    roomRefFor(onlineRoomListenerCode)?.off("value");
-  }
-  onlineRoomListenerCode = roomCode;
-
-  roomRef.on("value", (snapshot) => {
-    const data = snapshot.val();
-    if (!data) {
-      handleRoomClosed(roomCode);
-      return;
-    }
-    updateDraftUI(data);
-  }, (error) => {
-    console.error("RPmods Services no pudo escuchar la sala online.", error);
-  });
-}
-
-function saveOnlineSession() {
-  try {
-    if (!currentRoomCode || !currentRole) return;
-    localStorage.setItem(ONLINE_SESSION_STORAGE_KEY, JSON.stringify({
-      roomCode: currentRoomCode,
-      role: currentRole,
-      playerTeam,
-      playerName: currentOnlinePlayerName,
-      clientId: onlineClientId(),
-      savedAt: onlineNow(),
-    }));
-  } catch (_) {}
-}
-
-function clearOnlineSession() {
-  try { localStorage.removeItem(ONLINE_SESSION_STORAGE_KEY); } catch (_) {}
-}
-
-function clearPassiveOnlineSessionOnBoot() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(ONLINE_SESSION_STORAGE_KEY) || "null");
-    if (!saved?.roomCode) return;
-    const age = onlineNow() - Number(saved.savedAt || 0);
-    const maxPassiveAge = 1000 * 60 * 60 * 12;
-    if (saved.role === "host" || age > maxPassiveAge) {
-      localStorage.removeItem(ONLINE_SESSION_STORAGE_KEY);
-    }
-  } catch (_) {}
-}
-
-function setRoomCodeDisplay(roomCode, hide = true) {
-  const codeDisplay = document.getElementById("room-code-display");
-  const toggle = document.getElementById("toggle-room-code");
-  if (!codeDisplay) return;
-  codeDisplay.dataset.hidden = hide ? "1" : "0";
-  codeDisplay.textContent = hide ? "••••••" : (roomCode || "----");
-  if (toggle) toggle.textContent = hide ? t("show_code") : t("hide_code");
-}
-
-function setRoomRoleDisplay(text) {
-  const roleDisplay = document.getElementById("room-role-display");
-  if (roleDisplay) roleDisplay.textContent = text;
-}
-
-function rolePathForCurrentClient() {
-  if (currentRole === "host") return "host";
-  if (currentRole === "player") return `participants/${onlineClientId()}`;
-  return null;
-}
-
-function setupPresenceForCurrentRoom() {
-  const roomRef = roomRefFor(currentRoomCode);
-  const path = rolePathForCurrentClient();
-  if (!roomRef || !path) return;
-  const seatRef = roomRef.child(path);
-  const payload = { connected: true, clientId: onlineClientId(), lastSeen: onlineNow() };
-  if (currentRole === "player" && currentOnlinePlayerName) payload.name = currentOnlinePlayerName;
-  if (currentRole === "host" && currentOnlinePlayerName) payload.name = currentOnlinePlayerName;
-  if (currentRole === "host" && !payload.name) payload.name = "Líder / Host";
-  seatRef.update(payload).catch(() => {});
-  try {
-    seatRef.child("connected").onDisconnect().set(false);
-    seatRef.child("lastSeen").onDisconnect().set(onlineNow());
-  } catch (_) {}
-}
-
-function attachCurrentRoom(roomCode, role, team = null) {
-  startOnlineClockSync();
-  currentRoomCode = roomCode;
-  currentRole = role;
-  playerTeam = team;
-  onlineStartedForRoom = null;
-  setRoomCodeDisplay(roomCode, true);
-  if (role === "host") setRoomRoleDisplay(t("leader_spectator"));
-  else if (team === "teamA") setRoomRoleDisplay(`${t("role_captain_attackers")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
-  else if (team === "teamB") setRoomRoleDisplay(`${t("role_captain_defenders")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
-  else setRoomRoleDisplay(`${t("role_in_room_waiting")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
-  saveOnlineSession();
-  setupPresenceForCurrentRoom();
-  switchScreen(roomScreen);
-  showHostControls(role === "host");
-  updateOnlineBodyClasses();
-  listenRoomChanges(roomCode);
-  watchRoomDeletion(roomCode);
-}
-
-function canClaimSeat(seat) {
-  if (!seat) return true;
-  if (seat.clientId && seat.clientId === onlineClientId()) return true;
-  return seat.connected === false;
-}
-
-function blankOnlineDraftState(startPayload = {}) {
-  return {
-    phase: "lobby",
-    draftSessionId: state.draftSessionId,
-    turnIndex: 0,
-    turnDuration: state.turnDuration,
-    turnStartedAt: null,
-    turnDeadlineAt: null,
-    draftConfig: currentDraftConfig(),
-    players: roomPlayersPayload(),
-    slots: state.onlineSlots || emptyAdvancedSlots(activeTeamSize()),
-    picks: { A: [], B: [] },
-    bans: { A: [], B: [] },
-    pickBatchSelections: {},
-    selected: null,
-    preselectLocked: false,
-    locked: false,
-    flashBan: null,
-    flashPick: null,
-    banAnimation: null,
-    pickAnimation: null,
-    roulette: { active: false, highlightedName: null, finalName: null, previewCharacter: null },
-    phaseEvent: null,
-    captainAssignments: { A: null, B: null },
-    selectedMap: null,
-    mapRoulette: { active: false, highlightedId: null, finalId: null },
-    updatedAt: onlineNow(),
-    ...startPayload,
-  };
-}
-
-async function createOnlineRoom() {
-  return checkOnlineServiceAndContinue(performCreateOnlineRoom, { source: "create-room" });
-}
-
-async function performCreateOnlineRoom() {
-  const database = getRealtimeDatabase();
-  if (!database) throw new Error("RPmods Services unavailable after connection check");
-  startOnlineClockSync();
-
-  readPlayers();
-  try {
-    const storedHostName = String(localStorage.getItem(ONLINE_PLAYER_NAME_STORAGE_KEY) || "").trim();
-    currentOnlinePlayerName = sanitizeOnlineDisplayName(currentOnlinePlayerName || storedHostName || "Líder / Host");
-  } catch (_) {
-    currentOnlinePlayerName = sanitizeOnlineDisplayName(currentOnlinePlayerName || "Líder / Host");
-  }
-
-  const roomCode = generateRoomCode();
-  const roomRef = database.ref("rooms/" + roomCode);
-  state.onlinePhase = "lobby";
-
-  const initialConfig = currentDraftConfig();
-  state.onlineSlots = emptyAdvancedSlots(initialConfig.teamSize);
-  await roomRef.set({
-    createdAt: onlineNow(),
-    updatedAt: onlineNow(),
-    started: false,
-    closed: false,
-    turnDuration: state.turnDuration,
-    draftConfig: initialConfig,
-    players: initialConfig.mode === "advanced" ? playersPayloadFromAdvancedSlots(state.onlineSlots, initialConfig) : roomPlayersPayload(),
-    host: { connected: true, clientId: onlineClientId(), name: currentOnlinePlayerName || "Líder / Host", role: "LÍDER_ESPECTADOR", lastSeen: onlineNow() },
-    participants: {},
-    captainAssignments: { A: null, B: null },
-    slots: state.onlineSlots,
-    teamA: null,
-    teamB: null,
-    draftState: blankOnlineDraftState({ slots: state.onlineSlots }),
-  });
-
-  attachCurrentRoom(roomCode, "host", null);
-}
-
-function normalizeRoomCode(value) {
-  return String(value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
-}
-
-function showJoinNameModal(roomCode) {
-  pendingJoinRoomCode = normalizeRoomCode(roomCode);
-  const modal = document.getElementById("join-name-modal");
-  const preview = document.getElementById("join-room-code-preview");
-  const input = document.getElementById("join-player-name");
-  if (!pendingJoinRoomCode) {
-    showAppNotice(t("enter_room_code_alert"), { type: "warning" });
-    return;
-  }
-  if (preview) preview.textContent = pendingJoinRoomCode;
-  if (input && !input.value) {
-    try { input.value = localStorage.getItem(ONLINE_PLAYER_NAME_STORAGE_KEY) || ""; } catch (_) {}
-  }
-  if (modal) {
-    modal.classList.remove("hidden");
-    modal.setAttribute("aria-hidden", "false");
-  }
-  window.setTimeout(() => input?.focus(), 40);
-}
-
-function hideJoinNameModal() {
-  const modal = document.getElementById("join-name-modal");
-  if (modal) {
-    modal.classList.add("hidden");
-    modal.setAttribute("aria-hidden", "true");
-  }
-}
-
-async function joinOnlineRoom(options = {}) {
-  const input = document.getElementById("room-input");
-  const nameInput = document.getElementById("join-player-name");
-  const roomCode = normalizeRoomCode(options.roomCode || pendingJoinRoomCode || input?.value);
-  const hasProvidedName = Object.prototype.hasOwnProperty.call(options, "nameOverride");
-  const playerName = String(hasProvidedName ? options.nameOverride : "").trim();
-
-  if (!roomCode) {
-    showAppNotice(t("enter_room_code_alert"), { type: "warning" });
-    input?.focus();
-    return;
-  }
-
-  if (!hasProvidedName) {
-    return checkOnlineServiceAndContinue(() => showJoinNameModal(roomCode), { source: "open-join-form" });
-  }
-
-  if (!playerName) {
-    showJoinNameModal(roomCode);
-    showAppNotice(t("join_name_required"), { type: "warning" });
-    nameInput?.focus();
-    return;
-  }
-
-  return checkOnlineServiceAndContinue(
-    () => performJoinOnlineRoom({ roomCode, playerName }),
-    { source: "join-room" },
-  );
-}
-
-async function performJoinOnlineRoom({ roomCode, playerName }) {
-  const database = getRealtimeDatabase();
-  if (!database) throw new Error("RPmods Services unavailable after connection check");
-  startOnlineClockSync();
-
-  try { localStorage.setItem(ONLINE_PLAYER_NAME_STORAGE_KEY, playerName); } catch (_) {}
-  currentOnlinePlayerName = playerName;
-
-  const roomRef = database.ref("rooms/" + roomCode);
-  const snapshot = await roomRef.get();
-
-  if (!snapshot.exists()) {
-    showAppNotice(t("room_not_found"), { type: "error" });
-    return;
-  }
-
-  const roomData = snapshot.val() || {};
-  if (roomData.closed) {
-    showAppNotice(t("room_already_closed"), { type: "warning" });
-    return;
-  }
-
-  const clientId = onlineClientId();
-  const alreadyInRoom = Boolean(roomData.participants?.[clientId]);
-  if (roomData.started && !alreadyInRoom) {
-    showAppNotice(t("room_draft_already_started"), { type: "warning", duration: 7000 });
-    return;
-  }
-
-  await roomRef.child(`participants/${clientId}`).update({
-    name: playerName,
-    connected: true,
-    clientId,
-    role: "PARTICIPANTE",
-    joinedAt: roomData.participants?.[clientId]?.joinedAt || onlineNow(),
-    lastSeen: onlineNow(),
-  });
-
-  const assignments = captainAssignmentsFromRoom(roomData);
-  let assignedTeam = null;
-  if (assignments.A === clientId) assignedTeam = "teamA";
-  else if (assignments.B === clientId) assignedTeam = "teamB";
-
-  hideJoinNameModal();
-  pendingJoinRoomCode = null;
-  attachCurrentRoom(roomCode, "player", assignedTeam);
-}
-
-async function runCharacterRoulette(validCharacters) {
-  const sessionId = state.draftSessionId;
-  if (!isDraftSessionActive(sessionId)) return null;
-
-  const valid = validCharacters.filter(Boolean);
-  if (!valid.length) return null;
-
-  state.roulette.active = true;
-  state.roulette.finalName = null;
-  state.roulette.highlightedName = null;
-  state.roulette.previewCharacter = null;
-  state.locked = true;
-  updateCharacterRouletteClasses();
-
-  const totalSteps = 28 + Math.floor(Math.random() * 9);
-  const sequence = Array.from({ length: totalSteps }, () => randomFrom(valid));
-  const delays = sequence.map((_, step) => weightedRandomDelay(step, totalSteps));
-  const startedAt = onlineNow();
-  let selected = sequence[sequence.length - 1];
-
-  if (currentRoomCode) {
-    pushOnlineDraftPatch({
-      phase: "draft",
-      locked: true,
-      roulette: serializeRouletteForOnline(state.roulette),
-      rouletteEvent: {
-        id: `rouletteSequence_${startedAt}_${Math.random().toString(36).slice(2, 7)}`,
-        type: "rouletteSequence",
-        sequence: sequence.map(character => character.name),
-        delays,
-        startedAt,
-        byClientId: onlineClientId(),
-      },
-    });
-  }
-
-  for (let step = 0; step < sequence.length; step += 1) {
-    selected = sequence[step];
-    state.roulette.highlightedName = selected.name;
-    audioPlay(sounds.roulette, 0.82, "sfx");
-    updateCharacterRoulettePreview(selected);
-    await delay(delays[step]);
-    if (!isDraftSessionActive(sessionId)) return null;
-  }
-
-  state.roulette.highlightedName = selected.name;
-  state.roulette.finalName = selected.name;
-  state.selected = selected;
-  updateCharacterRoulettePreview(selected);
-  if (currentRoomCode) {
-    pushOnlineDraftPatch({
-      phase: "draft",
-      selected: serializeCharacterForOnline(selected),
-      locked: true,
-      roulette: serializeRouletteForOnline(state.roulette),
-      rouletteEvent: { id: `rouletteSelected_${onlineNow()}_${selected.name}`, type: "rouletteSelected", character: selected.name, byClientId: onlineClientId() },
-    });
-  }
-  await delay(520);
-  if (!isDraftSessionActive(sessionId)) return null;
-
-  state.roulette.active = false;
-  clearCharacterRouletteVisuals();
-  renderStageCharacters();
-  renderSlots();
-  renderBans();
-  renderSelected();
-  return selected;
-}
-
-async function autoResolveTurn(options = {}) {
-  const sessionId = state.draftSessionId;
-  const allowOnlineSystem = Boolean(options.onlineSystem);
-  if (!isDraftSessionActive(sessionId) || state.locked || state.roulette.active || (!allowOnlineSystem && !canControlCurrentTurn())) return;
-  const valid = getValidCharacters();
-  state.locked = true;
-  pushOnlineDraftState({ phase: "draft", audioEvent: createOnlineAudioEvent("randomStart") });
-  playNarration(systemDraftVoiceLines.random_start.src, systemDraftVoiceLines.random_start.text, 0.9);
-  await delay(2000);
-  if (!isDraftSessionActive(sessionId)) return;
-
-  const selected = await runCharacterRoulette(valid);
-  if (!isDraftSessionActive(sessionId)) return;
-  if (!selected) {
-    state.turnIndex += 1;
-    state.locked = false;
-    startTurn();
-    return;
-  }
-
-  state.locked = false;
-  state.selected = selected;
-  confirmTurn(true, { onlineSystem: allowOnlineSystem });
-}
-
-function proceedAfterTurn() {
-  if (!isDraftSessionActive()) return;
-  if (state.turnIndex >= activeTurnCount()) {
-    startMapSelection();
-    return;
-  }
-
-  const nextTurn = currentTurn();
-  const justEnteredPickPhase = activeBanTurnCount() > 0 && state.turnIndex === activeBanTurnCount();
-  if (justEnteredPickPhase && nextTurn.type === "pick") {
-    showPhaseOverlay(
-      t("phase_pick"),
-      systemDraftVoiceLines.voice_pick_phase.src,
-      systemDraftVoiceLines.voice_pick_phase.text,
-      startTurn,
-    );
-  } else {
-    startTurn();
-  }
+  startTurn({ skipNarration: true });
 }
 
 function phaseOverlayDurationMs() {
@@ -9259,3 +8911,546 @@ async function tryRestoreOnlineSession() {
     console.warn("No se pudo restaurar la sesión online.", error);
   }
 }
+
+
+/* RPmods v3.4.0 Advanced Draft Flow Extension */
+(function() {
+  const RP_OFFICIAL_CONFIG_DEFAULTS = {
+    mode: "advanced",
+    teamSize: 5,
+    bansEnabled: true,
+    phaseOrder: "map-first",
+    banMode: "full",
+    pickPreset: "official-5v5",
+    delegationMode: "captain_subcaptain",
+    mapRandomMode: "chibi-elimination",
+  };
+
+  try {
+    if (factions?.urbino) factions.urbino.label = "Urbino";
+  } catch (_) {}
+
+  const originalSanitizeDraftConfig = sanitizeDraftConfig;
+  sanitizeDraftConfig = function(config = {}) {
+    const base = originalSanitizeDraftConfig(config || {});
+    const phaseOrder = String(config.phaseOrder || RP_OFFICIAL_CONFIG_DEFAULTS.phaseOrder).toLowerCase() === 'draft-first' ? 'draft-first' : 'map-first';
+    const rawBanMode = String(config.banMode || RP_OFFICIAL_CONFIG_DEFAULTS.banMode).toLowerCase();
+    const banMode = ['full', 'simple', 'none'].includes(rawBanMode) ? rawBanMode : RP_OFFICIAL_CONFIG_DEFAULTS.banMode;
+    const rawPickPreset = String(config.pickPreset || RP_OFFICIAL_CONFIG_DEFAULTS.pickPreset).toLowerCase();
+    const pickPreset = ['official-5v5', 'classic'].includes(rawPickPreset) ? rawPickPreset : RP_OFFICIAL_CONFIG_DEFAULTS.pickPreset;
+    const rawDelegation = String(config.delegationMode || RP_OFFICIAL_CONFIG_DEFAULTS.delegationMode).toLowerCase();
+    const delegationMode = ['captain_only', 'captain_subcaptain', 'all_members', 'none'].includes(rawDelegation) ? rawDelegation : RP_OFFICIAL_CONFIG_DEFAULTS.delegationMode;
+    const rawMapMode = String(config.mapRandomMode || RP_OFFICIAL_CONFIG_DEFAULTS.mapRandomMode).toLowerCase();
+    const mapRandomMode = ['classic-random', 'chibi-elimination'].includes(rawMapMode) ? rawMapMode : RP_OFFICIAL_CONFIG_DEFAULTS.mapRandomMode;
+    return {
+      ...base,
+      mode: String(config.mode || base.mode || RP_OFFICIAL_CONFIG_DEFAULTS.mode).toLowerCase() === 'classic' ? 'classic' : 'advanced',
+      phaseOrder,
+      banMode,
+      pickPreset,
+      delegationMode,
+      mapRandomMode,
+    };
+  };
+
+  state.draftConfig = sanitizeDraftConfig({ ...RP_OFFICIAL_CONFIG_DEFAULTS, ...(state.draftConfig || {}) });
+  state.mapSelectionContext = state.mapSelectionContext || 'postdraft';
+  state.mapRoulette.eliminatedIds = state.mapRoulette.eliminatedIds || [];
+
+  function rpShouldUseOfficialPreset(config = currentDraftConfig()) {
+    const normalized = sanitizeDraftConfig(config);
+    return normalized.mode === 'advanced' && normalized.pickPreset === 'official-5v5';
+  }
+
+  function rpBuildOfficialPickTurns(config = currentDraftConfig()) {
+    const normalized = sanitizeDraftConfig(config);
+    const size = Number(normalized.teamSize || 5);
+    const turns = [];
+    let groupId = 0;
+    const pushPick = (team, slotKey, groupCount = 1, groupSlot = 0) => {
+      turns.push({ type: 'pick', team, groupId, groupCount, groupSlot, slotIndex: advancedSlotIndex(slotKey), slotKey, advanced: true, simultaneous: groupCount > 1 });
+    };
+    const pushGroup = (team, slotKeys) => {
+      const keys = slotKeys.filter(Boolean);
+      keys.forEach((slotKey, idx) => pushPick(team, slotKey, keys.length, idx));
+      groupId += 1;
+    };
+
+    if (size <= 2) {
+      pushGroup('A', ['captain']);
+      pushGroup('B', ['captain']);
+      pushGroup('A', ['subcaptain']);
+      pushGroup('B', ['subcaptain']);
+      return turns;
+    }
+
+    pushGroup('A', ['captain']);
+    pushGroup('B', ['captain']);
+    pushGroup('B', ['subcaptain']);
+    pushGroup('A', ['subcaptain']);
+
+    if (size === 3) {
+      pushGroup('A', ['player3']);
+      pushGroup('B', ['player3']);
+      return turns;
+    }
+
+    if (size === 4) {
+      pushGroup('A', ['player3', 'player4']);
+      pushGroup('B', ['player3', 'player4']);
+      return turns;
+    }
+
+    pushGroup('A', ['player3', 'player4']);
+    pushGroup('B', ['player3', 'player4']);
+    pushGroup('A', ['player5']);
+    pushGroup('B', ['player5']);
+    return turns;
+  }
+
+  buildPickTurns = function(config = DEFAULT_DRAFT_CONFIG) {
+    const normalized = sanitizeDraftConfig(config);
+    if (rpShouldUseOfficialPreset(normalized)) {
+      return rpBuildOfficialPickTurns(normalized);
+    }
+    return originalSanitizeDraftConfig && normalized.mode === 'advanced'
+      ? (function(){
+          const slotKeys = advancedSlotsForTeamSize(normalized.teamSize);
+          return slotKeys.flatMap((slotKey, index) => ([
+            { type: 'pick', team: 'A', groupId: index * 2, groupCount: 1, groupSlot: 0, slotIndex: index, slotKey, advanced: true },
+            { type: 'pick', team: 'B', groupId: index * 2 + 1, groupCount: 1, groupSlot: 0, slotIndex: index, slotKey, advanced: true },
+          ]));
+        })()
+      : (function() {
+          const counters = { A: 0, B: 0 };
+          return pickGroupsForTeamSize(normalized.teamSize).flatMap((group, groupId) => {
+            return Array.from({ length: group.count }, (_, slot) => {
+              const slotIndex = counters[group.team];
+              counters[group.team] += 1;
+              return {
+                type: 'pick', team: group.team, groupId, groupCount: group.count, groupSlot: slot, slotIndex, slotKey: null, advanced: false,
+              };
+            });
+          });
+        })();
+  };
+
+  buildBanTurns = function(config = DEFAULT_DRAFT_CONFIG) {
+    const normalized = sanitizeDraftConfig(config);
+    if (!normalized.bansEnabled || normalized.banMode === 'none') return [];
+    const base = [];
+    // Team A = Ataque (The Scissors). Team B = Defensa (P.U.S.)
+    base.push({ type: 'ban', team: 'B', faction: 'scissors', text: 'DEFENSA bloquea un laminante de The Scissors', banIndex: 0, slotIndex: 0, advancedSlotKey: 'captain' });
+    base.push({ type: 'ban', team: 'A', faction: 'pus', text: 'ATAQUE bloquea un laminante de P.U.S.', banIndex: 1, slotIndex: 0, advancedSlotKey: 'captain' });
+    if (normalized.banMode === 'full') {
+      base.push({ type: 'ban', team: 'B', faction: 'urbino', text: 'DEFENSA bloquea un laminante de Urbino', banIndex: 2, slotIndex: 1, advancedSlotKey: 'subcaptain' });
+      base.push({ type: 'ban', team: 'A', faction: 'urbino', text: 'ATAQUE bloquea un laminante de Urbino', banIndex: 3, slotIndex: 1, advancedSlotKey: 'subcaptain' });
+    }
+    return base.map(turn => ({ ...turn, slotKey: normalized.mode === 'advanced' ? turn.advancedSlotKey : null, advanced: normalized.mode === 'advanced' }));
+  };
+
+  function rpConfigSummaryText(config = currentDraftConfig(), prefix = 'Configuración') {
+    const normalized = sanitizeDraftConfig(config);
+    const parts = [
+      `${normalized.teamSize}v${normalized.teamSize}`,
+      normalized.phaseOrder === 'map-first' ? 'Mapa primero' : 'Draft primero',
+      normalized.banMode === 'none' ? 'Sin bloqueos' : normalized.banMode === 'simple' ? 'Bloqueos simples' : 'Bloqueos completos',
+      normalized.mapRandomMode === 'chibi-elimination' ? 'Mapa aleatorio chibi' : 'Mapa aleatorio clásico',
+    ];
+    return `${prefix}: ${parts.join(' · ')}`;
+  }
+
+  function rpEnsureSelectRow(container, id, label, options) {
+    let row = container.querySelector(`[data-rpmods-row="${id}"]`);
+    if (!row) {
+      row = document.createElement('label');
+      row.className = 'draft-config-select-row';
+      row.dataset.rpmodsRow = id;
+      const span = document.createElement('span');
+      span.className = 'draft-config-label';
+      span.textContent = label;
+      const select = document.createElement('select');
+      select.id = id;
+      select.className = 'draft-config-select';
+      row.append(span, select);
+      container.appendChild(row);
+    }
+    const select = row.querySelector('select');
+    if (select && !select.dataset.rpmodsFilled) {
+      select.innerHTML = '';
+      options.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.value;
+        opt.textContent = item.label;
+        select.appendChild(opt);
+      });
+      select.dataset.rpmodsFilled = '1';
+    }
+    return row.querySelector('select');
+  }
+
+  function rpEnsureEnhancedDraftConfigUi() {
+    const localCard = document.querySelector('#local-config-modal .draft-config-card');
+    if (localCard && !localCard.querySelector('.rpmods-advanced-config-block')) {
+      const block = document.createElement('div');
+      block.className = 'draft-config-block rpmods-advanced-config-block';
+      const title = document.createElement('span');
+      title.className = 'draft-config-label';
+      title.textContent = 'Flujo avanzado';
+      block.appendChild(title);
+      rpEnsureSelectRow(block, 'local-phase-order', 'Orden de fase', [
+        { value: 'map-first', label: 'Selección de mapa primero' },
+        { value: 'draft-first', label: 'Draft primero' },
+      ]);
+      rpEnsureSelectRow(block, 'local-ban-mode', 'Modo de bloqueos', [
+        { value: 'full', label: 'Completo: rival + Urbino' },
+        { value: 'simple', label: 'Simple: solo facción rival' },
+        { value: 'none', label: 'Sin bloqueos' },
+      ]);
+      rpEnsureSelectRow(block, 'local-map-random-mode', 'Mapa aleatorio', [
+        { value: 'chibi-elimination', label: 'Chibi eliminación (por defecto)' },
+        { value: 'classic-random', label: 'Aleatorio clásico' },
+      ]);
+      const summary = localCard.querySelector('#local-config-summary');
+      summary?.insertAdjacentElement('beforebegin', block);
+    }
+
+    const roomPanel = document.querySelector('.room-draft-config-panel');
+    if (roomPanel && !roomPanel.querySelector('.rpmods-online-config-block')) {
+      const block = document.createElement('div');
+      block.className = 'draft-config-block compact rpmods-online-config-block';
+      const title = document.createElement('span');
+      title.className = 'draft-config-label';
+      title.textContent = 'Flujo avanzado';
+      block.appendChild(title);
+      rpEnsureSelectRow(block, 'room-phase-order', 'Orden de fase', [
+        { value: 'map-first', label: 'Selección de mapa primero' },
+        { value: 'draft-first', label: 'Draft primero' },
+      ]);
+      rpEnsureSelectRow(block, 'room-ban-mode', 'Modo de bloqueos', [
+        { value: 'full', label: 'Completo: rival + Urbino' },
+        { value: 'simple', label: 'Simple: solo facción rival' },
+        { value: 'none', label: 'Sin bloqueos' },
+      ]);
+      rpEnsureSelectRow(block, 'room-delegation-mode', 'Quién puede elegir por otros', [
+        { value: 'captain_subcaptain', label: 'Capitán y subcapitán' },
+        { value: 'captain_only', label: 'Solo capitán' },
+        { value: 'all_members', label: 'Todos los integrantes' },
+        { value: 'none', label: 'Nadie' },
+      ]);
+      rpEnsureSelectRow(block, 'room-map-random-mode', 'Mapa aleatorio', [
+        { value: 'chibi-elimination', label: 'Chibi eliminación (por defecto)' },
+        { value: 'classic-random', label: 'Aleatorio clásico' },
+      ]);
+      roomPanel.appendChild(block);
+    }
+  }
+
+  const originalUpdateLocalConfigUI = updateLocalConfigUI;
+  updateLocalConfigUI = function() {
+    rpEnsureEnhancedDraftConfigUi();
+    originalUpdateLocalConfigUI();
+    const config = currentDraftConfig();
+    const phase = document.getElementById('local-phase-order');
+    const banMode = document.getElementById('local-ban-mode');
+    const mapMode = document.getElementById('local-map-random-mode');
+    if (phase) phase.value = config.phaseOrder;
+    if (banMode) banMode.value = config.banMode;
+    if (mapMode) mapMode.value = config.mapRandomMode;
+    const summary = document.getElementById('local-config-summary');
+    if (summary) summary.textContent = rpConfigSummaryText(config, 'Configuración');
+  };
+
+  const originalUpdateRoomDraftConfigUI = updateRoomDraftConfigUI;
+  updateRoomDraftConfigUI = function() {
+    rpEnsureEnhancedDraftConfigUi();
+    originalUpdateRoomDraftConfigUI();
+    const config = currentDraftConfig();
+    const ids = ['room-phase-order','room-ban-mode','room-delegation-mode','room-map-random-mode'];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (id === 'room-phase-order') el.value = config.phaseOrder;
+      if (id === 'room-ban-mode') el.value = config.banMode;
+      if (id === 'room-delegation-mode') el.value = config.delegationMode;
+      if (id === 'room-map-random-mode') el.value = config.mapRandomMode;
+      el.disabled = currentRole !== 'host' || Boolean(state.draftActive);
+    });
+    const summary = document.getElementById('room-draft-config-summary');
+    if (summary) summary.textContent = rpConfigSummaryText(config, 'Configuración online');
+  };
+
+  const originalSetupLocalConfigControls = setupLocalConfigControls;
+  setupLocalConfigControls = function() {
+    rpEnsureEnhancedDraftConfigUi();
+    originalSetupLocalConfigControls();
+    document.getElementById('local-phase-order')?.addEventListener('change', e => applyDraftConfigPatch({ phaseOrder: e.currentTarget.value }));
+    document.getElementById('local-ban-mode')?.addEventListener('change', e => applyDraftConfigPatch({ banMode: e.currentTarget.value, bansEnabled: e.currentTarget.value !== 'none' }));
+    document.getElementById('local-map-random-mode')?.addEventListener('change', e => applyDraftConfigPatch({ mapRandomMode: e.currentTarget.value }));
+    updateLocalConfigUI();
+  };
+
+  const originalSetupOnlineControls = setupOnlineControls;
+  setupOnlineControls = function() {
+    rpEnsureEnhancedDraftConfigUi();
+    originalSetupOnlineControls();
+    document.getElementById('room-phase-order')?.addEventListener('change', e => {
+      if (currentRole !== 'host' || state.draftActive) return;
+      applyDraftConfigPatch({ phaseOrder: e.currentTarget.value }, { syncOnline: true });
+      pushRoomLobbyConfig();
+    });
+    document.getElementById('room-ban-mode')?.addEventListener('change', e => {
+      if (currentRole !== 'host' || state.draftActive) return;
+      applyDraftConfigPatch({ banMode: e.currentTarget.value, bansEnabled: e.currentTarget.value !== 'none' }, { syncOnline: true });
+      pushRoomLobbyConfig();
+    });
+    document.getElementById('room-delegation-mode')?.addEventListener('change', e => {
+      if (currentRole !== 'host' || state.draftActive) return;
+      applyDraftConfigPatch({ delegationMode: e.currentTarget.value }, { syncOnline: true });
+      pushRoomLobbyConfig();
+    });
+    document.getElementById('room-map-random-mode')?.addEventListener('change', e => {
+      if (currentRole !== 'host' || state.draftActive) return;
+      applyDraftConfigPatch({ mapRandomMode: e.currentTarget.value }, { syncOnline: true });
+      pushRoomLobbyConfig();
+    });
+    updateRoomDraftConfigUI();
+  };
+
+  function rpBeginDraftTurnsAfterMap() {
+    state.mapSelectionContext = 'predraft-done';
+    state.onlinePhase = currentRoomCode ? 'draft' : state.onlinePhase;
+    switchScreen(draftScreen);
+    setupBackgroundVideo();
+    startMusic('draft');
+    const initialTurn = currentTurn();
+    const isBanPhase = initialTurn?.type === 'ban';
+    showPhaseOverlay(
+      isBanPhase ? t('phase_ban') : t('phase_pick'),
+      isBanPhase ? systemDraftVoiceLines.voice_ban_phase.src : systemDraftVoiceLines.voice_pick_phase.src,
+      isBanPhase ? systemDraftVoiceLines.voice_ban_phase.text : systemDraftVoiceLines.voice_pick_phase.text,
+      startTurn,
+    );
+  }
+
+  function rpFinishMapSelectionContext() {
+    updateMapRouletteClasses();
+    updateSelectedMapCopy();
+    if (state.mapSelectionContext === 'predraft') {
+      rpBeginDraftTurnsAfterMap();
+    } else {
+      showSummaryIntro();
+    }
+  }
+
+  const originalStartDraft = startDraft;
+  startDraft = async function() {
+    if (state.startingDraft) return;
+    state.startingDraft = true;
+    setStartDraftLoading(true);
+    await playUiSound(sounds.startDraft, 1);
+    await delay(5000);
+    resetDraftStateBeforeStart();
+    clearDraftTimeouts();
+    state.draftSessionId += 1;
+    state.draftActive = true;
+    setStartDraftLoading(false);
+    state.startingDraft = false;
+    setupBackgroundVideo();
+    startMusic('draft');
+    const config = currentDraftConfig();
+    if (config.phaseOrder === 'map-first') {
+      state.mapSelectionContext = 'predraft';
+      startMapSelection({ predraft: true });
+      if (!currentRoomCode || canControlMapSelection()) {
+        scheduleDraftTimeout(() => runMapRoulette({ predraft: true }), 850);
+      }
+      return;
+    }
+    state.mapSelectionContext = 'postdraft';
+    switchScreen(draftScreen);
+    const initialTurn = currentTurn();
+    const isBanPhase = initialTurn?.type === 'ban';
+    showPhaseOverlay(
+      isBanPhase ? t('phase_ban') : t('phase_pick'),
+      isBanPhase ? systemDraftVoiceLines.voice_ban_phase.src : systemDraftVoiceLines.voice_pick_phase.src,
+      isBanPhase ? systemDraftVoiceLines.voice_ban_phase.text : systemDraftVoiceLines.voice_pick_phase.text,
+      startTurn,
+    );
+  };
+
+  const originalStartMapSelection = startMapSelection;
+  startMapSelection = function(options = {}) {
+    if (currentDraftConfig().phaseOrder === 'map-first' && state.selectedMap && !options.force) {
+      if (state.turnIndex >= activeTurnCount()) {
+        showSummaryIntro();
+        return;
+      }
+    }
+    state.mapSelectionContext = options.predraft ? 'predraft' : (state.turnIndex >= activeTurnCount() ? 'postdraft' : (state.mapSelectionContext || 'postdraft'));
+    originalStartMapSelection(options);
+  };
+
+  const originalRenderMapGrid = renderMapGrid;
+  renderMapGrid = function() {
+    originalRenderMapGrid();
+    if (!mapGrid) return;
+    mapGrid.querySelectorAll('.map-card').forEach(card => {
+      const id = card.dataset.mapId;
+      card.classList.toggle('map-eliminated', Array.isArray(state.mapRoulette.eliminatedIds) && state.mapRoulette.eliminatedIds.includes(id));
+      const map = maps.find(item => item.id === id);
+      if (!map) return;
+      card.onclick = null;
+      card.addEventListener('click', () => {
+        if (state.mapRoulette.active || !canControlMapSelection()) return;
+        state.selectedMap = map;
+        state.mapRoulette.finalId = map.id;
+        updateMapRouletteClasses();
+        pushOnlineDraftState();
+        audioPlay(sounds.confirm, 0.86, 'sfx');
+        renderMapGrid();
+        updateSelectedMapCopy();
+        rpFinishMapSelectionContext();
+      }, { once: true });
+    });
+  };
+
+  const originalUpdateMapRouletteClasses = updateMapRouletteClasses;
+  updateMapRouletteClasses = function() {
+    originalUpdateMapRouletteClasses();
+    if (!mapGrid) return;
+    mapGrid.querySelectorAll('.map-card').forEach(card => {
+      const id = card.dataset.mapId;
+      card.classList.toggle('map-eliminated', Array.isArray(state.mapRoulette.eliminatedIds) && state.mapRoulette.eliminatedIds.includes(id));
+    });
+  };
+
+  function rpMapVoicePool() {
+    return Array.from({ length: 8 }, (_, idx) => `audio/map_vote_chibi_${idx + 1}`);
+  }
+
+  function rpPlayMapEliminationVoice() {
+    const pool = rpMapVoicePool();
+    const src = pool[Math.floor(Math.random() * pool.length)];
+    if (!src) return;
+    audioPlay(src, 0.9, 'narration');
+  }
+
+  function rpEnsureChibiOverlay() {
+    let overlay = document.getElementById('map-chibi-overlay');
+    if (overlay) return overlay;
+    overlay = document.createElement('div');
+    overlay.id = 'map-chibi-overlay';
+    overlay.className = 'map-chibi-overlay hidden';
+    overlay.innerHTML = `
+      <img class="map-chibi map-chibi-fall" alt="chibi" src="img/ui/map_chibi_fall.png" />
+      <img class="map-chibi map-chibi-land" alt="chibi" src="img/ui/map_chibi_land.png" />
+    `;
+    document.body.appendChild(overlay);
+    return overlay;
+  }
+
+  async function rpDropChibiOnMap(mapId, finalDrop = false) {
+    const card = mapGrid?.querySelector(`.map-card[data-map-id="${mapId}"]`);
+    if (!card) return;
+    const overlay = rpEnsureChibiOverlay();
+    const rect = card.getBoundingClientRect();
+    overlay.style.left = `${Math.round(rect.left + rect.width / 2)}px`;
+    overlay.style.top = `${Math.round(rect.top - 90)}px`;
+    overlay.classList.remove('hidden', 'landed');
+    void overlay.offsetWidth;
+    overlay.classList.add('dropping');
+    await delay(560);
+    overlay.classList.remove('dropping');
+    overlay.classList.add('landed');
+    audioPlay(sounds.confirm, finalDrop ? 0.92 : 0.82, 'sfx');
+    rpPlayMapEliminationVoice();
+    await delay(260);
+    overlay.classList.add('hidden');
+    overlay.classList.remove('landed');
+  }
+
+  function rpBuildEliminationPlan(poolSize) {
+    if (poolSize <= 1) return [];
+    const removeCount = Math.max(0, poolSize - 1);
+    if (poolSize === 9) return [3,2,2,1];
+    const plan = [];
+    let remaining = removeCount;
+    while (remaining > 0) {
+      if (remaining >= 3 && plan.length === 0) {
+        plan.push(3);
+        remaining -= 3;
+      } else if (remaining >= 2) {
+        plan.push(2);
+        remaining -= 2;
+      } else {
+        plan.push(1);
+        remaining -= 1;
+      }
+    }
+    return plan;
+  }
+
+  const originalRunMapRoulette = runMapRoulette;
+  runMapRoulette = async function(options = {}) {
+    const config = currentDraftConfig();
+    if (config.mapRandomMode !== 'chibi-elimination') {
+      state.mapRoulette.eliminatedIds = [];
+      return originalRunMapRoulette(options);
+    }
+    const sessionId = state.draftSessionId;
+    if (!isDraftSessionActive(sessionId) || state.mapRoulette.active || !maps.length) return;
+    state.mapRoulette.active = true;
+    state.mapRoulette.finalId = null;
+    state.mapRoulette.highlightedId = null;
+    state.mapRoulette.eliminatedIds = [];
+    updateMapRouletteClasses();
+
+    const pool = [...maps];
+    const plan = rpBuildEliminationPlan(pool.length);
+    for (let groupIndex = 0; groupIndex < plan.length; groupIndex += 1) {
+      const count = plan[groupIndex];
+      for (let i = 0; i < count; i += 1) {
+        if (!pool.length || pool.length === 1) break;
+        const index = Math.floor(Math.random() * pool.length);
+        const target = pool.splice(index, 1)[0];
+        state.mapRoulette.highlightedId = target.id;
+        updateMapRouletteClasses();
+        if (groupIndex === plan.length - 1 && i === count - 1) await delay(2000);
+        await rpDropChibiOnMap(target.id, false);
+        state.mapRoulette.eliminatedIds.push(target.id);
+        updateMapRouletteClasses();
+        await delay(300);
+      }
+      await delay(220);
+    }
+
+    const selected = pool[0] || randomFrom(maps);
+    state.selectedMap = selected;
+    state.mapRoulette.highlightedId = selected.id;
+    state.mapRoulette.finalId = selected.id;
+    updateMapRouletteClasses();
+    updateSelectedMapCopy();
+    await delay(420);
+    state.mapRoulette.active = false;
+    rpFinishMapSelectionContext();
+  };
+
+  const originalTurnVoiceKey = turnVoiceKey;
+  turnVoiceKey = function(turn) {
+    if (!turn) return '';
+    if (turn.type === 'pick') return 'pick';
+    if (turn.type === 'ban') {
+      if (String(turn.faction) === 'urbino') return 'ban_scissors';
+      return 'ban';
+    }
+    return originalTurnVoiceKey(turn);
+  };
+
+  try {
+    if (systemDraftVoiceLines?.team_a_ban_scissors) systemDraftVoiceLines.team_a_ban_scissors.text = 'Los atacantes están bloqueando un laminante de Urbino.';
+    if (systemDraftVoiceLines?.team_b_ban_scissors) systemDraftVoiceLines.team_b_ban_scissors.text = 'Los defensores están bloqueando un laminante de Urbino.';
+    if (systemDraftVoiceLines?.advanced_team_ban_scissors_laminant) systemDraftVoiceLines.advanced_team_ban_scissors_laminant.text = 'Tu equipo está bloqueando un laminante de Urbino.';
+    if (systemDraftVoiceLines?.advanced_please_ban_scissors_laminant) systemDraftVoiceLines.advanced_please_ban_scissors_laminant.text = 'Por favor bloquea un laminante de Urbino.';
+  } catch (_) {}
+})();

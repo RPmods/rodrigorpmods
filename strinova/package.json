@@ -1,7 +1,7 @@
 {
   "name": "draft-simulator",
-  "version": "3.3.12",
-  "description": "STRINOVA Draft System + Gantigun Cup 2026 Tournament Hub con sistema de animaciones refinado, sin blur visual, scroll invisible funcional y mejoras de UI sin tocar la lógica del draft",
+  "version": "3.4.0",
+  "description": "STRINOVA Draft System + Gantigun Cup 2026 Tournament Hub con flujo avanzado de draft, mapa primero, bans ajustables y ruleta chibi de mapas.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
