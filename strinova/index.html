@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STRINOVA Draft System v3.4.5 by RPmods</title>
+  <title>STRINOVA Draft System v3.4.6 by RPmods</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -36,7 +36,7 @@
   <main id="setup-screen" class="screen setup-screen active">
     <section class="setup-shell settings-surface">
       <header class="settings-topbar">
-        <div class="settings-brand">STRINOVA Draft System v3.4.5 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.6 by RPmods</div>
         <nav class="settings-tabs">
           <button type="button" class="settings-tab setup-top-tab is-active" data-tab="menu">MENÚ</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="tournament">TORNEO</button>
@@ -450,7 +450,8 @@
                   <li>v3.2.27 Hotfix (Bot Phase Guard) — Se corrigió la lógica de Testing Bots para que no puedan preseleccionar ni confirmar durante la transición de bloqueos a selección. Ahora esperan a que termine el anuncio de fase y a que el turno esté realmente activo.</li>
                   <li>v3.3.0 Update (Gantigun Cup 2026 Tournament Hub Base) — Se añadió la primera extensión del torneo con datos locales de equipos/jugadores, perfiles con rangos e iconos, aviso de estadísticas no en tiempo real, map pool personalizado y apartado Ajustar HUD en Configuración.</li>
                   <li>v3.3.1 Hotfix (Tournament Layout + Teams) — Se movió TORNEO junto a MENÚ, se centró el Tournament Hub, se ocultaron los paneles de equipos del draft dentro de la vista de torneo, se mejoró la visualización tipo Strinova, se añadieron tres equipos de ejemplo con nombres de <code>player_names_config.js</code> y se ordenan jugadores por rango de mayor a menor.</li>
-                  <li>v3.4.5 Hotfix (Pre-draft Map Isolation + Private Assist Protocol) — Se separó completamente la selección de mapa previa del motor de turnos para evitar que el draft se ejecute en segundo plano. También se corrigieron los permisos de asignación: solo el destinatario humano puede aceptar o rechazar, mientras los bots responden de forma simulada. Se añadió soporte de pedidos de miembros, intercambio real de slots al aceptar, menús anclados sobre la tarjeta y comportamiento de bots para pedir, aceptar, rechazar y asegurar laminantes.</li>
+                  <li>v3.4.6 Update (Draft Flow Core Rebuild) — Se separaron completamente la selección de mapa y el motor del draft. El mapa previo ya no activa temporizadores ni bots detrás de la pantalla; después del mapa comienza el orden oficial de líderes, bloqueos y selecciones restantes. También se reconstruyeron PEDIR, asignación privada y simulación de bots, y se reorganizó el panel Intro del menú.</li>
+                  <li>v3.4.5 Hotfix (Pre-draft Map + Private Assist + Bots) — Se intentó separar el mapa previo del draft, se añadieron avisos privados de asignación y simulación inicial de solicitudes con bots. Esta base fue reemplazada en v3.4.6 por una reconstrucción completa del motor de fases.</li>
                   <li>v3.4.4 Hotfix (Map-first Stable Flow + Assist Request Fix) — Se estabilizó la selección de mapa cuando ocurre antes del draft, se corrigió la posición del menú de slot para que aparezca encima de la tarjeta, se redujo el tamaño visual del chibi a 150px por defecto, se añadió ajuste de tamaño del chibi en Configuración, se restauró la visibilidad completa de Intro del menú y se habilitó el botón PEDIR para miembros durante turnos de capitanes/subcapitanes.</li>
                   <li>v3.4.3 Hotfix (Draft Flow Real Wiring + Chibi Audio/Assist UI) — Se conectó realmente el flujo avanzado por defecto: mapa primero, picks iniciales de líderes, bloqueos alternados y picks restantes. Se ocultó el toggle duplicado de fase de bloqueos, se corrigió el tamaño/caída del chibi 300x300, se reforzó la reproducción de voces .ogg map_vote_chibi_1-8 y se añadió la primera capa visual de pedir/asignar laminantes con estilo de aviso.</li>
                                                       <li>v3.4.2 Hotfix (Tournament Isolation + Button Recovery) — Se aisló completamente el Tournament Hub para que no se mezcle con Menú, Idioma, Configuración o Random Selector después de visitarlo. También se añadió un sistema de recuperación para los botones críticos Crear sala online, Unirse a sala e Iniciar draft local, y se corrigió la sincronización visual de la barra superior.</li>
@@ -568,34 +569,64 @@
 
               <section id="intro-settings-panel" class="intro-settings-panel is-random" aria-labelledby="intro-settings-title">
                 <div class="subconfig-heading intro-settings-heading">
-                  <span>Intro del menú</span>
-                  <strong id="intro-settings-title">Selección de conjunto</strong>
+                  <span>PERSONALIZACIÓN VISUAL</span>
+                  <strong id="intro-settings-title">Intro del menú y selección de mapa</strong>
                 </div>
 
-                <label class="toggle-row intro-random-row">
-                  <div class="subconfig-copy">
-                    <span>Selección aleatoria</span>
-                    <small>Elige una intro distinta y evita repetir la anterior</small>
-                  </div>
-                  <input id="intro-random-toggle" class="toggle-input" type="checkbox" checked />
-                </label>
+                <div class="intro-settings-body">
+                  <div class="intro-settings-group">
+                    <div class="intro-settings-group-heading">
+                      <span>INTRO DEL MENÚ</span>
+                      <small>Configura el conjunto visual que aparece al abrir la página.</small>
+                    </div>
 
-                <label class="intro-manual-row" for="intro-manual-select">
-                  <div class="subconfig-copy intro-manual-copy">
-                    <span>Conjunto manual</span>
-                    <small>Disponible cuando la selección aleatoria está desactivada</small>
-                  </div>
-                  <select id="intro-manual-select" class="language-select intro-manual-select" disabled>
-                    <option value="1">Strinova Season 9 (26sp3)</option>
-                    <option value="2">Strinova Season 6 (Michelle Skin)</option>
-                    <option value="3">Strinova Season 7 (p2)</option>
-                    <option value="4">Strinova Season 7</option>
-                    <option value="5">Kanami [Be Shining] - Strinova</option>
-                  </select>
-                </label>
+                    <label class="toggle-row intro-random-row">
+                      <div class="subconfig-copy">
+                        <span>Selección aleatoria</span>
+                        <small>Elige una intro distinta y evita repetir la anterior.</small>
+                      </div>
+                      <input id="intro-random-toggle" class="toggle-input" type="checkbox" checked />
+                    </label>
 
-                <div id="intro-selection-status" class="intro-selection-status" role="status" aria-live="polite">
-                  Modo aleatorio activo. La pareja se elegirá al iniciar la aplicación.
+                    <label class="intro-manual-row" for="intro-manual-select">
+                      <div class="subconfig-copy intro-manual-copy">
+                        <span>Conjunto manual</span>
+                        <small>Disponible cuando la selección aleatoria está desactivada.</small>
+                      </div>
+                      <select id="intro-manual-select" class="language-select intro-manual-select" disabled>
+                        <option value="1">Strinova Season 9 (26sp3)</option>
+                        <option value="2">Strinova Season 6 (Michelle Skin)</option>
+                        <option value="3">Strinova Season 7 (p2)</option>
+                        <option value="4">Strinova Season 7</option>
+                        <option value="5">Kanami [Be Shining] - Strinova</option>
+                      </select>
+                    </label>
+
+                    <div id="intro-selection-status" class="intro-selection-status" role="status" aria-live="polite">
+                      Modo aleatorio activo. La pareja se elegirá al iniciar la aplicación.
+                    </div>
+                  </div>
+
+                  <div class="intro-settings-group map-chibi-settings-group">
+                    <div class="intro-settings-group-heading">
+                      <span>CHIBI DE SELECCIÓN DE MAPA</span>
+                      <small>Ajusta únicamente el tamaño mostrado. Los PNG originales pueden conservarse en 300 × 300 px.</small>
+                    </div>
+                    <label class="map-chibi-size-row" for="map-chibi-size-range-v346">
+                      <div class="subconfig-copy">
+                        <span>Tamaño en pantalla</span>
+                        <small>Valor recomendado: 150 px.</small>
+                      </div>
+                      <div class="map-chibi-size-control">
+                        <input id="map-chibi-size-range-v346" type="range" min="80" max="220" step="5" value="150" />
+                        <output id="map-chibi-size-value-v346" for="map-chibi-size-range-v346">150px</output>
+                      </div>
+                    </label>
+                    <div class="map-chibi-paths-note">
+                      <code>img/ui/map_chibi_fall.png</code>
+                      <code>img/ui/map_chibi_land.png</code>
+                    </div>
+                  </div>
                 </div>
               </section>
             </section>
@@ -869,7 +900,7 @@
   <main id="map-screen" class="screen map-screen">
     <section class="map-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.4.5 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.6 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab is-active">SELECCIÓN DE MAPA</span>
         </nav>
@@ -900,7 +931,7 @@
   <main id="summary-screen" class="screen summary-screen">
     <section class="summary-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.4.5 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.6 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab">BÁSICO</span>
           <span class="settings-tab">EQUIPOS</span>
@@ -989,6 +1020,7 @@
   <script src="js/i18n_config.js"></script>
   <script src="js/tournament_data.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/draft_flow_v346.js"></script>
   <script src="js/tournament.js"></script>
 </body>
 </html>

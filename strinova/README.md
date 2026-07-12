@@ -1,6 +1,6 @@
-# STRINOVA Draft System v3.4.4
+# STRINOVA Draft System v3.4.6
 
-Hotfix: Map-first Stable Flow + Assist Request Fix.
+Actualización: Draft Flow Core Rebuild.
 
 Versión estable del sistema draft competitivo.
 
@@ -484,10 +484,10 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Se mantiene el flujo avanzado v3.4.x con selección de mapa previa, bans configurables y ruleta chibi de mapas.
 
 
-## v3.4.5 — Pre-draft Map Isolation + Private Assist Protocol
+## v3.4.6 — Draft Flow Core Rebuild
 
-- La selección de mapa previa ya no activa el temporizador ni los turnos del draft en segundo plano.
-- El orden 5v5 se mantiene como: líderes, bans y picks restantes.
-- Las asignaciones a compañeros requieren confirmación privada del destinatario durante 10 segundos.
-- Los bots pueden pedir laminantes, responder solicitudes y simular asignaciones.
-- El menú de asignación se posiciona como capa fija encima de la tarjeta seleccionada.
+- La selección de mapa previa funciona como una fase independiente: no inicia temporizador, bots ni turnos detrás de la pantalla.
+- Flujo 5v5 por defecto: líderes → bloqueos alternados → picks restantes, con picks dobles simultáneos.
+- PEDIR está disponible para miembros aunque no tengan permiso de asignar; la asignación por compañero usa confirmación privada de 10 segundos.
+- Los bots simulan solicitudes, aceptación/rechazo y selecciones simultáneas sin permitir que el host responda por ellos.
+- El bloque Configuración → Intro del menú fue reconstruido e incluye el tamaño visual del chibi.

@@ -1,7 +1,7 @@
 {
   "name": "draft-simulator",
-  "version": "3.4.5",
-  "description": "STRINOVA Draft System con selección de mapa previa aislada, protocolo privado de asignación y simulación avanzada de bots.",
+  "version": "3.4.6",
+  "description": "STRINOVA Draft System + Gantigun Cup 2026 con motor de fases reconstruido, mapa previo independiente, picks simultáneos y asistencia privada entre compañeros.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
