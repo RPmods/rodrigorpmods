@@ -19515,6 +19515,16 @@ html.setup-motion-ready.setup-tab-transition .setup-panel.is-active {
   }
 }
 
+/* RPmods v3.4.1 Tournament Surface Restore */
+.setup-shell:not(.view-tournament) .tournament-root,
+.setup-panel:not(.is-active) .tournament-root {
+  display: none !important;
+}
+.setup-shell.view-tournament .setup-panel[data-panel="tournament"].is-active .tournament-root {
+  display: block !important;
+}
+
+
 /* RPmods v3.4.0 Advanced Draft Flow */
 .draft-config-select-row {
   display: grid;
@@ -19594,4 +19604,14 @@ html.setup-motion-ready.setup-tab-transition .setup-panel.is-active {
   0% { transform: scale(0.84); }
   60% { transform: scale(1.08); }
   100% { transform: scale(1); }
+}
+
+
+/* RPmods v3.4.1 Tournament Surface Restore */
+.setup-shell:not(.view-tournament) .tournament-root,
+.setup-panel:not(.is-active) .tournament-root {
+  display: none !important;
+}
+.setup-shell.view-tournament .setup-panel[data-panel="tournament"].is-active .tournament-root {
+  display: block !important;
 }

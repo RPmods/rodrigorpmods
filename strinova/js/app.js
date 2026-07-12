@@ -991,7 +991,7 @@ function applyLanguage(lang = currentLanguage(), options = {}) {
   setText('.versus-core','vs'); setText('.menu-panel-copy p','setup_copy'); updateSetupRulesText();
   setText('.player-name-mode-panel .subconfig-heading span','names_heading_small'); setText('.player-name-mode-panel .subconfig-heading strong','names_heading'); setText('#manual-player-names','manual_mode'); setText('#random-player-names','random_names'); setText('#start-draft','setup_start_local');
   const highlights=document.querySelectorAll('.menu-panel-highlights span'); if(highlights[0])highlights[0].textContent=t('highlight_1'); if(highlights[1])highlights[1].textContent=t('highlight_2'); if(highlights[2])highlights[2].textContent=t('highlight_3');
-  document.querySelectorAll('.setup-top-tab').forEach(button=>{ const key={menu:'tab_menu',volumen:'tab_volume',configuracion:'tab_config',random:'tab_random',idioma:'tab_language',updates:'tab_updates',creditos:'tab_credits'}[button.dataset.tab]; if(key) button.textContent=t(key); });
+  document.querySelectorAll('.setup-top-tab').forEach(button=>{ const key={menu:'tab_menu',tournament:'tab_tournament',volumen:'tab_volume',configuracion:'tab_config',random:'tab_random',idioma:'tab_language',updates:'tab_updates',creditos:'tab_credits'}[button.dataset.tab]; if(key) button.textContent=t(key); });
   setText('[data-panel="volumen"] .subconfig-heading span','sound'); setText('[data-panel="volumen"] .subconfig-heading strong','volume');
   [['master_volume','master_volume_desc'],['music_volume','music_volume_desc'],['sfx_volume','sfx_volume_desc'],['narration_volume','narration_volume_desc'],['character_voice_volume','character_voice_volume_desc']].forEach((keys,i)=>{ const row=document.querySelectorAll('[data-panel="volumen"] .volume-row')[i]; if(!row)return; const sp=row.querySelector('.subconfig-copy span'); const sm=row.querySelector('.subconfig-copy small'); if(sp)sp.textContent=t(keys[0]); if(sm)sm.textContent=t(keys[1]); });
   setText('[data-panel="idioma"] .subconfig-heading span','language'); setText('[data-panel="idioma"] .subconfig-heading strong','interface_text');
@@ -1521,28 +1521,6 @@ const RESOURCE_PRELOAD_ITEM_TIMEOUT_MS = 5200;
 const RESOURCE_PRELOAD_CONCURRENCY = 6;
 const RESOURCE_PRELOAD_BACKGROUND_CONCURRENCY = 2;
 const RESOURCE_PRELOAD_SECONDARY_CONCURRENCY = 2;
-const RESOURCE_PRELOAD_VIDEO_METADATA_TIMEOUT_MS = 2800;
-const warmedResourceSources = new Set();
-const inflightResourcePreloads = new Map();
-const PRELOAD_DEBUG_ENABLED = (() => {
-  try {
-    return new URLSearchParams(window.location.search || "").has("debugPreload");
-  } catch (_) {
-    return false;
-  }
-})();
-
-function debugPreloadLog(...args) {
-  if (PRELOAD_DEBUG_ENABLED) console.debug("[SilentPrecache]", ...args);
-}
-
-function resourceCacheKey(url, type = "generic") {
-  return `${type}:${url}`;
-}
-
-function isOnlineDraftPerformanceMode() {
-  return Boolean(currentRoomCode && state.draftActive && state.onlinePhase === "draft");
-}
 
 function uniqueResourceGroups(groups) {
   const seen = new Set();
@@ -1642,19 +1620,9 @@ function preloadImageCandidate(url) {
       img.onload = null;
       img.onerror = null;
     };
-    const finish = async () => {
-      try {
-        if (typeof img.decode === "function") await img.decode();
-      } catch (_) {
-        // La imagen ya cargó; decode puede fallar en algunos navegadores con caché o formatos antiguos.
-      }
-      cleanup();
-      resolve(url);
-    };
-    img.onload = () => { void finish(); };
+    img.onload = () => { cleanup(); resolve(url); };
     img.onerror = () => { cleanup(); reject(new Error("image error")); };
     img.decoding = "async";
-    img.loading = "eager";
     img.src = url;
   });
 }
@@ -1679,27 +1647,20 @@ function preloadAudioCandidate(url) {
   });
 }
 
-function preloadVideoCandidate(url, options = {}) {
+function preloadVideoCandidate(url) {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
-    const lightMode = options.light === true || options.preload === "metadata";
-    const timeoutMs = lightMode ? RESOURCE_PRELOAD_VIDEO_METADATA_TIMEOUT_MS : RESOURCE_PRELOAD_ITEM_TIMEOUT_MS;
-    const timer = window.setTimeout(() => { cleanup(); reject(new Error("video timeout")); }, timeoutMs);
+    const timer = window.setTimeout(() => { cleanup(); reject(new Error("video timeout")); }, RESOURCE_PRELOAD_ITEM_TIMEOUT_MS);
     const cleanup = () => {
       window.clearTimeout(timer);
-      video.onloadedmetadata = null;
       video.onloadeddata = null;
       video.oncanplay = null;
       video.onerror = null;
       try { video.pause(); video.removeAttribute("src"); video.load?.(); } catch (_) {}
     };
-    video.preload = lightMode ? "metadata" : "auto";
+    video.preload = "auto";
     video.muted = true;
-    video.defaultMuted = true;
     video.playsInline = true;
-    video.onloadedmetadata = () => {
-      if (lightMode) { cleanup(); resolve(url); }
-    };
     video.onloadeddata = () => { cleanup(); resolve(url); };
     video.oncanplay = () => { cleanup(); resolve(url); };
     video.onerror = () => { cleanup(); reject(new Error("video error")); };
@@ -1716,41 +1677,19 @@ function fetchResourceCandidate(url) {
   });
 }
 
-function preloadOneCandidate(url, type = "generic", options = {}) {
+function preloadOneCandidate(url, type = "generic") {
   if (!url) return Promise.reject(new Error("empty resource"));
-  const key = resourceCacheKey(url, type);
-  if (warmedResourceSources.has(key)) return Promise.resolve(url);
-  if (inflightResourcePreloads.has(key)) return inflightResourcePreloads.get(key);
-
-  const run = (() => {
-    if (type === "image") return preloadImageCandidate(url).catch(() => fetchResourceCandidate(url));
-    if (type === "audio") return preloadAudioCandidate(url).catch(() => fetchResourceCandidate(url));
-    if (type === "video") {
-      const videoPreload = preloadVideoCandidate(url, options);
-      return options.light ? videoPreload : videoPreload.catch(() => fetchResourceCandidate(url));
-    }
-    return fetchResourceCandidate(url);
-  })().then(result => {
-    warmedResourceSources.add(key);
-    debugPreloadLog("ready", type, url);
-    return result;
-  }).finally(() => {
-    inflightResourcePreloads.delete(key);
-  });
-
-  inflightResourcePreloads.set(key, run);
-  return run;
+  if (type === "image") return preloadImageCandidate(url).catch(() => fetchResourceCandidate(url));
+  if (type === "audio") return preloadAudioCandidate(url).catch(() => fetchResourceCandidate(url));
+  if (type === "video") return preloadVideoCandidate(url).catch(() => fetchResourceCandidate(url));
+  return fetchResourceCandidate(url);
 }
 
 async function preloadFirstAvailable(group) {
   const sources = group?.sources || [];
-  const options = {
-    light: group?.light === true,
-    preload: group?.preload,
-  };
   for (const source of sources) {
     try {
-      await preloadOneCandidate(source, group.type, options);
+      await preloadOneCandidate(source, group.type);
       return { ok: true, source };
     } catch (_) {
     }
@@ -1781,17 +1720,11 @@ function scheduleSecondaryResourcePreload() {
   if (state.resourcePreload.secondaryStarted) return;
   state.resourcePreload.secondaryStarted = true;
   const queue = () => {
-    const run = () => runResourcePreloadQueue(
+    runResourcePreloadQueue(
       resourcePreloadGroups({ secondary: true }),
       null,
-      isOnlineDraftPerformanceMode() ? 1 : RESOURCE_PRELOAD_SECONDARY_CONCURRENCY
+      RESOURCE_PRELOAD_SECONDARY_CONCURRENCY
     ).catch(() => {});
-
-    if (isOnlineDraftPerformanceMode()) {
-      window.setTimeout(run, 2500);
-      return;
-    }
-    run();
   };
   window.setTimeout(() => {
     if (typeof window.requestIdleCallback === "function") {
@@ -2087,8 +2020,7 @@ function setupBackgroundVideo() {
     clearScheduledRecovery();
     applyVideoSettings();
     const hasMediaError = Boolean(video.error) || video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE;
-    const softOnlineDraftMode = isOnlineDraftPerformanceMode();
-    if (hard && hasMediaError && !softOnlineDraftMode) {
+    if (hard && hasMediaError) {
       try { video.pause(); } catch (_) {}
       try { video.load(); } catch (_) {}
     }
@@ -2139,9 +2071,9 @@ function setupBackgroundVideo() {
     video.dataset.lastTimeUpdateAt = String(Date.now());
   });
   video.addEventListener("canplay", playVideo);
-  video.addEventListener("waiting", () => { if (!isOnlineDraftPerformanceMode()) scheduleRecovery(2400, false); });
-  video.addEventListener("stalled", () => { if (!isOnlineDraftPerformanceMode()) scheduleRecovery(2800, false); });
-  video.addEventListener("suspend", () => { if (!isOnlineDraftPerformanceMode()) scheduleRecovery(3200, false); });
+  video.addEventListener("waiting", () => scheduleRecovery(2400, false));
+  video.addEventListener("stalled", () => scheduleRecovery(2800, false));
+  video.addEventListener("suspend", () => scheduleRecovery(3200, false));
   video.addEventListener("error", () => {
     document.body.classList.add("video-error");
     scheduleRecovery(1200, true);
@@ -2170,11 +2102,6 @@ function setupBackgroundVideo() {
 
       if (video.paused) {
         playVideo();
-        video.dataset.stallTicks = "0";
-        return;
-      }
-
-      if (isOnlineDraftPerformanceMode()) {
         video.dataset.stallTicks = "0";
         return;
       }
@@ -2501,7 +2428,7 @@ function activateSetupTab(tabName) {
     panel.classList.toggle("is-active", panel.dataset.panel === tabName);
   });
   if (setupShell) {
-    setupShell.classList.remove("view-menu", "view-volumen", "view-configuracion", "view-development", "view-random", "view-idioma", "view-creditos", "view-updates");
+    setupShell.classList.remove("view-menu", "view-tournament", "view-volumen", "view-configuracion", "view-development", "view-random", "view-idioma", "view-creditos", "view-updates");
     setupShell.classList.add(`view-${tabName}`);
   }
 }
@@ -3069,8 +2996,8 @@ function scheduleAlternativeIntroPrecache() {
   const task = async () => {
     for (const set of alternatives) {
       await preloadFirstAvailable({ sources: [set.audio, set.legacyAudio].filter(Boolean), type: "audio" });
-      await preloadFirstAvailable({ sources: [set.video, set.legacyVideo].filter(Boolean), type: "video", light: true, preload: "metadata" });
-      await waitMs(isOnlineDraftPerformanceMode() ? 420 : 160);
+      await preloadFirstAvailable({ sources: [set.video, set.legacyVideo].filter(Boolean), type: "video" });
+      await waitMs(120);
     }
   };
   state.intro.alternativesPrecachePromise = new Promise(resolve => {
@@ -3950,6 +3877,8 @@ function toggleMusic() {
 }
 
 function showPhaseOverlay(text, voiceSrc, subtitle, callback) {
+  clearTestingBotTurnTimer();
+  testingBotTurnKey = null;
   const overlay = $("#phase-overlay");
   const title = $("#phase-title");
   const subtitleElement = $("#phase-subtitle");
@@ -6257,61 +6186,6 @@ function botClientIdForCurrentTurn(data = onlineLatestRoomData || {}, turn = cur
   return isTestingBotParticipant(participant) ? clientId : null;
 }
 
-const TESTING_BOT_ROLE_PRIORITY_BY_SLOT = {
-  captain: ["Vanguardia", "Centinela", "Controlador", "Soporte", "Duelista"],
-  subcaptain: ["Controlador", "Soporte", "Centinela", "Vanguardia", "Duelista"],
-  player3: ["Duelista", "Vanguardia", "Controlador", "Centinela", "Soporte"],
-  player4: ["Soporte", "Controlador", "Centinela", "Vanguardia", "Duelista"],
-  player5: ["Duelista", "Centinela", "Soporte", "Controlador", "Vanguardia"],
-};
-
-function testingBotRawRole(character) {
-  return roles?.[character?.name] || "Sin rol";
-}
-
-function testingBotCharacterScore(character, turn = currentTurn()) {
-  if (!character || !turn) return -Infinity;
-  const ownPicks = state.picks?.[turn.team] || [];
-  const enemyTeam = turn.team === "A" ? "B" : "A";
-  const enemyPicks = state.picks?.[enemyTeam] || [];
-  const role = testingBotRawRole(character);
-  let score = Math.random() * 8;
-
-  if (turn.type === "pick") {
-    const ownRoles = ownPicks.map(testingBotRawRole);
-    const repeatedRoleCount = ownRoles.filter(item => item === role).length;
-    const ownFactionCount = ownPicks.filter(item => item.faction === character.faction).length;
-    const priority = TESTING_BOT_ROLE_PRIORITY_BY_SLOT[turn.slotKey || "captain"] || TESTING_BOT_ROLE_PRIORITY_BY_SLOT.captain;
-    const priorityIndex = priority.indexOf(role);
-
-    if (repeatedRoleCount === 0) score += 46;
-    else score -= repeatedRoleCount * 24;
-
-    if (priorityIndex >= 0) score += 20 - (priorityIndex * 4);
-    score -= ownFactionCount * 7;
-
-    if (ownPicks.length >= 3 && !ownRoles.includes("Soporte") && role === "Soporte") score += 18;
-    if (ownPicks.length >= 3 && !ownRoles.includes("Controlador") && role === "Controlador") score += 14;
-  } else {
-    const enemyRoles = enemyPicks.map(testingBotRawRole);
-    const utilityRole = role === "Soporte" || role === "Controlador" || role === "Centinela";
-    if (utilityRole) score += 9;
-    if (!enemyRoles.includes(role)) score += 5;
-  }
-
-  return score;
-}
-
-function chooseWeightedTestingBotCharacter(candidates, turn = currentTurn()) {
-  if (!candidates?.length) return null;
-  const ranked = [...candidates]
-    .map(character => ({ character, score: testingBotCharacterScore(character, turn) }))
-    .sort((a, b) => b.score - a.score);
-  const poolSize = Math.min(3, ranked.length);
-  const pool = ranked.slice(0, poolSize);
-  return pool[Math.floor(Math.random() * pool.length)]?.character || ranked[0]?.character || null;
-}
-
 function testingBotPickCharacter(turn = currentTurn()) {
   if (!turn) return null;
   const allowedFactions = turn.type === "pick"
@@ -6323,7 +6197,13 @@ function testingBotPickCharacter(turn = currentTurn()) {
   });
   if (!available.length) return null;
 
-  return chooseWeightedTestingBotCharacter(available, turn);
+  if (turn.type === "pick") {
+    const teamRoles = state.picks[turn.team].map(character => roleOf(character.name));
+    const balanced = available.filter(character => !teamRoles.includes(roleOf(character.name)));
+    if (balanced.length) return balanced[Math.floor(Math.random() * balanced.length)];
+  }
+
+  return available[Math.floor(Math.random() * available.length)];
 }
 
 function clearTestingBotTurnTimer() {
@@ -6341,29 +6221,59 @@ function testingBotPreselectDelayMs() {
   return 520 + Math.round(Math.random() * 680);
 }
 
-function shouldPublishTestingBotPreselection(source = "") {
-  if (String(source).includes("final")) return true;
-  const now = Date.now();
-  const lastAt = Number(state.lastTestingBotPreselectAt || 0);
-  if (now - lastAt < 1350) return false;
-  state.lastTestingBotPreselectAt = now;
-  return !isOnlineDraftPerformanceMode();
+function testingBotTurnPlayableDelayMs() {
+  if (!currentRoomCode || currentRole !== "host" || !state.draftActive || state.onlinePhase !== "draft") return -1;
+  const turn = currentTurn();
+  if (!turn || state.turnIndex >= activeTurnCount()) return -1;
+  if (state.locked || state.roulette.active) return -1;
+
+  const now = onlineNow();
+  const turnStartedAt = Number(state.turnStartedAt || 0);
+  if (turnStartedAt && now < turnStartedAt) {
+    return Math.max(180, Math.min(8000, turnStartedAt - now + 220));
+  }
+
+  if (state.turnDeadlineAt && Number(state.turnDeadlineAt) <= now) return -1;
+  if (document.body.classList.contains("phase-announcing") || document.body.classList.contains("overlay-lock")) {
+    return 260;
+  }
+
+  return 0;
+}
+
+function isTestingBotTurnPlayable() {
+  return testingBotTurnPlayableDelayMs() === 0;
+}
+
+function testingBotWaitUntilPlayable(turnKey) {
+  const delayMs = testingBotTurnPlayableDelayMs();
+  if (delayMs < 0) return false;
+  if (delayMs === 0) return true;
+
+  const waitKey = `${turnKey}:wait`;
+  if (testingBotTurnKey === waitKey) return false;
+  testingBotTurnKey = waitKey;
+  clearTestingBotTurnTimer();
+  testingBotTimerId = setTimeout(() => {
+    testingBotTurnKey = null;
+    scheduleTestingBotTurn();
+  }, delayMs);
+  return false;
 }
 
 function testingBotApplyPreselection(character, botClientId, source = "testing-bot-thinking") {
   const turn = currentTurn();
+  if (!isTestingBotTurnPlayable()) return false;
   if (!character || !turn || !isCharacterAvailable(character, turn)) return false;
 
   state.selected = character;
   state.preselectLocked = false;
   renderCharacterSelectionLight();
-  if (shouldPublishTestingBotPreselection(source)) {
-    pushOnlineDraftPatch({
-      selected: serializeCharacterForOnline(character),
-      preselectLocked: false,
-      actionEvent: createOnlineActionEvent("preselect", turn.team, character, { source, botClientId }),
-    });
-  }
+  pushOnlineDraftPatch({
+    selected: serializeCharacterForOnline(character),
+    preselectLocked: false,
+    actionEvent: createOnlineActionEvent("preselect", turn.team, character, { source, botClientId }),
+  });
   return true;
 }
 
@@ -6392,7 +6302,7 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
 
     const turn = currentTurn();
     const activeBot = botClientIdForCurrentTurn(latestData, turn);
-    if (!turn || activeBot !== botClientId || state.locked || state.roulette.active) return;
+    if (!turn || activeBot !== botClientId || !isTestingBotTurnPlayable()) return;
 
     const startedAt = Date.now();
     const thinkingDuration = testingBotThinkingDurationMs();
@@ -6401,7 +6311,11 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
       if (!isDraftSessionActive()) return;
       const current = currentTurn();
       const stillBot = botClientIdForCurrentTurn(onlineLatestRoomData || {}, current);
-      if (!current || stillBot !== botClientId || state.locked || state.roulette.active) return;
+      if (!current || stillBot !== botClientId || !isTestingBotTurnPlayable()) {
+        testingBotTurnKey = null;
+        scheduleTestingBotTurn();
+        return;
+      }
 
       const elapsed = Date.now() - startedAt;
       const character = testingBotPickCharacter(current);
@@ -6416,7 +6330,7 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
           if (!isDraftSessionActive()) return;
           const finalTurn = currentTurn();
           const finalBot = botClientIdForCurrentTurn(onlineLatestRoomData || {}, finalTurn);
-          if (!finalTurn || finalBot !== botClientId || state.locked || state.roulette.active) return;
+          if (!finalTurn || finalBot !== botClientId || !isTestingBotTurnPlayable()) return;
 
           if (!state.selected || !isCharacterAvailable(state.selected, finalTurn)) {
             const fallback = testingBotPickCharacter(finalTurn);
@@ -6424,7 +6338,6 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
             state.selected = fallback;
           }
 
-          testingBotApplyPreselection(state.selected, botClientId, "testing-bot-final-preselect");
           confirmTurn(true, { onlineSystem: true, testingBot: true });
         }, 280 + Math.round(Math.random() * 320));
         return;
@@ -6442,15 +6355,16 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
 function scheduleTestingBotTurn() {
   if (!currentRoomCode || currentRole !== "host" || !state.draftActive || state.onlinePhase !== "draft") return;
   const turn = currentTurn();
-  if (!turn || state.locked || state.roulette.active || state.turnIndex >= activeTurnCount()) return;
+  if (!turn || state.turnIndex >= activeTurnCount()) return;
 
   const botClientId = botClientIdForCurrentTurn(onlineLatestRoomData || {}, turn);
   if (!botClientId) return;
 
-  const turnKey = `${currentRoomCode}:${state.draftSessionId}:${state.turnIndex}:${state.turnDeadlineAt || 0}:${botClientId}`;
+  const turnKey = `${currentRoomCode}:${state.draftSessionId}:${state.turnIndex}:${state.turnStartedAt || 0}:${state.turnDeadlineAt || 0}:${botClientId}`;
+  if (!testingBotWaitUntilPlayable(turnKey)) return;
+
   if (testingBotTurnKey === turnKey) return;
   testingBotTurnKey = turnKey;
-  state.lastTestingBotPreselectAt = 0;
   clearTestingBotTurnTimer();
 
   const delayMs = 350 + Math.round(Math.random() * 650);
@@ -7136,21 +7050,455 @@ function startOnlineDraftFromRoom(data = {}) {
 
   switchScreen(draftScreen);
   const startedRecently = onlineNow() - Number(data.startedAt || 0) < 4500 && Number(data.draftState?.turnIndex || 0) === 0;
-  const activeTurn = currentTurn();
-  const justEnteredPickPhase = activeBanTurnCount() > 0 && state.turnIndex === activeBanTurnCount() && activeTurn?.type === "pick";
-
-  if (startedRecently || justEnteredPickPhase) {
-    const isBanPhase = activeTurn?.type === "ban";
+  if (startedRecently) {
+    const initialTurn = currentTurn();
+    const isBanPhase = initialTurn?.type === "ban";
     showPhaseOverlay(
       isBanPhase ? t("phase_ban") : t("phase_pick"),
       isBanPhase ? systemDraftVoiceLines.voice_ban_phase.src : systemDraftVoiceLines.voice_pick_phase.src,
       isBanPhase ? systemDraftVoiceLines.voice_ban_phase.text : systemDraftVoiceLines.voice_pick_phase.text,
       startTurn,
     );
+  } else {
+    startTurn({ skipNarration: true });
+  }
+}
+
+function updateDraftUI(data = {}) {
+  onlineLatestRoomData = data || {};
+  if (data.closed) {
+    handleRoomClosed(currentRoomCode);
     return;
   }
 
-  startTurn({ skipNarration: true });
+  if (data.started) {
+    const readyOverlay = document.getElementById("online-ready-overlay");
+    if (readyOverlay && !readyOverlay.classList.contains("hidden")) renderOnlineReadyCheck(data);
+    startOnlineDraftFromRoom(data);
+    return;
+  }
+
+  updateRoomLobby(data);
+  renderOnlineReadyCheck(data);
+  maybeAdvanceOnlineReadyCheck(data);
+  syncDraftStateFromRoom(data);
+}
+
+function listenRoomChanges(roomCode) {
+  const roomRef = roomRefFor(roomCode);
+  if (!roomRef) {
+    showOnlineServiceNotice();
+    return;
+  }
+
+  if (onlineRoomListenerCode === roomCode) return;
+  if (onlineRoomListenerCode) {
+    roomRefFor(onlineRoomListenerCode)?.off("value");
+  }
+  onlineRoomListenerCode = roomCode;
+
+  roomRef.on("value", (snapshot) => {
+    const data = snapshot.val();
+    if (!data) {
+      handleRoomClosed(roomCode);
+      return;
+    }
+    updateDraftUI(data);
+  }, (error) => {
+    console.error("RPmods Services no pudo escuchar la sala online.", error);
+  });
+}
+
+function saveOnlineSession() {
+  try {
+    if (!currentRoomCode || !currentRole) return;
+    localStorage.setItem(ONLINE_SESSION_STORAGE_KEY, JSON.stringify({
+      roomCode: currentRoomCode,
+      role: currentRole,
+      playerTeam,
+      playerName: currentOnlinePlayerName,
+      clientId: onlineClientId(),
+      savedAt: onlineNow(),
+    }));
+  } catch (_) {}
+}
+
+function clearOnlineSession() {
+  try { localStorage.removeItem(ONLINE_SESSION_STORAGE_KEY); } catch (_) {}
+}
+
+function clearPassiveOnlineSessionOnBoot() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(ONLINE_SESSION_STORAGE_KEY) || "null");
+    if (!saved?.roomCode) return;
+    const age = onlineNow() - Number(saved.savedAt || 0);
+    const maxPassiveAge = 1000 * 60 * 60 * 12;
+    if (saved.role === "host" || age > maxPassiveAge) {
+      localStorage.removeItem(ONLINE_SESSION_STORAGE_KEY);
+    }
+  } catch (_) {}
+}
+
+function setRoomCodeDisplay(roomCode, hide = true) {
+  const codeDisplay = document.getElementById("room-code-display");
+  const toggle = document.getElementById("toggle-room-code");
+  if (!codeDisplay) return;
+  codeDisplay.dataset.hidden = hide ? "1" : "0";
+  codeDisplay.textContent = hide ? "••••••" : (roomCode || "----");
+  if (toggle) toggle.textContent = hide ? t("show_code") : t("hide_code");
+}
+
+function setRoomRoleDisplay(text) {
+  const roleDisplay = document.getElementById("room-role-display");
+  if (roleDisplay) roleDisplay.textContent = text;
+}
+
+function rolePathForCurrentClient() {
+  if (currentRole === "host") return "host";
+  if (currentRole === "player") return `participants/${onlineClientId()}`;
+  return null;
+}
+
+function setupPresenceForCurrentRoom() {
+  const roomRef = roomRefFor(currentRoomCode);
+  const path = rolePathForCurrentClient();
+  if (!roomRef || !path) return;
+  const seatRef = roomRef.child(path);
+  const payload = { connected: true, clientId: onlineClientId(), lastSeen: onlineNow() };
+  if (currentRole === "player" && currentOnlinePlayerName) payload.name = currentOnlinePlayerName;
+  if (currentRole === "host" && currentOnlinePlayerName) payload.name = currentOnlinePlayerName;
+  if (currentRole === "host" && !payload.name) payload.name = "Líder / Host";
+  seatRef.update(payload).catch(() => {});
+  try {
+    seatRef.child("connected").onDisconnect().set(false);
+    seatRef.child("lastSeen").onDisconnect().set(onlineNow());
+  } catch (_) {}
+}
+
+function attachCurrentRoom(roomCode, role, team = null) {
+  startOnlineClockSync();
+  currentRoomCode = roomCode;
+  currentRole = role;
+  playerTeam = team;
+  onlineStartedForRoom = null;
+  setRoomCodeDisplay(roomCode, true);
+  if (role === "host") setRoomRoleDisplay(t("leader_spectator"));
+  else if (team === "teamA") setRoomRoleDisplay(`${t("role_captain_attackers")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
+  else if (team === "teamB") setRoomRoleDisplay(`${t("role_captain_defenders")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
+  else setRoomRoleDisplay(`${t("role_in_room_waiting")}${currentOnlinePlayerName ? ` · ${currentOnlinePlayerName}` : ""}`);
+  saveOnlineSession();
+  setupPresenceForCurrentRoom();
+  switchScreen(roomScreen);
+  showHostControls(role === "host");
+  updateOnlineBodyClasses();
+  listenRoomChanges(roomCode);
+  watchRoomDeletion(roomCode);
+}
+
+function canClaimSeat(seat) {
+  if (!seat) return true;
+  if (seat.clientId && seat.clientId === onlineClientId()) return true;
+  return seat.connected === false;
+}
+
+function blankOnlineDraftState(startPayload = {}) {
+  return {
+    phase: "lobby",
+    draftSessionId: state.draftSessionId,
+    turnIndex: 0,
+    turnDuration: state.turnDuration,
+    turnStartedAt: null,
+    turnDeadlineAt: null,
+    draftConfig: currentDraftConfig(),
+    players: roomPlayersPayload(),
+    slots: state.onlineSlots || emptyAdvancedSlots(activeTeamSize()),
+    picks: { A: [], B: [] },
+    bans: { A: [], B: [] },
+    pickBatchSelections: {},
+    selected: null,
+    preselectLocked: false,
+    locked: false,
+    flashBan: null,
+    flashPick: null,
+    banAnimation: null,
+    pickAnimation: null,
+    roulette: { active: false, highlightedName: null, finalName: null, previewCharacter: null },
+    phaseEvent: null,
+    captainAssignments: { A: null, B: null },
+    selectedMap: null,
+    mapRoulette: { active: false, highlightedId: null, finalId: null },
+    updatedAt: onlineNow(),
+    ...startPayload,
+  };
+}
+
+async function createOnlineRoom() {
+  return checkOnlineServiceAndContinue(performCreateOnlineRoom, { source: "create-room" });
+}
+
+async function performCreateOnlineRoom() {
+  const database = getRealtimeDatabase();
+  if (!database) throw new Error("RPmods Services unavailable after connection check");
+  startOnlineClockSync();
+
+  readPlayers();
+  try {
+    const storedHostName = String(localStorage.getItem(ONLINE_PLAYER_NAME_STORAGE_KEY) || "").trim();
+    currentOnlinePlayerName = sanitizeOnlineDisplayName(currentOnlinePlayerName || storedHostName || "Líder / Host");
+  } catch (_) {
+    currentOnlinePlayerName = sanitizeOnlineDisplayName(currentOnlinePlayerName || "Líder / Host");
+  }
+
+  const roomCode = generateRoomCode();
+  const roomRef = database.ref("rooms/" + roomCode);
+  state.onlinePhase = "lobby";
+
+  const initialConfig = currentDraftConfig();
+  state.onlineSlots = emptyAdvancedSlots(initialConfig.teamSize);
+  await roomRef.set({
+    createdAt: onlineNow(),
+    updatedAt: onlineNow(),
+    started: false,
+    closed: false,
+    turnDuration: state.turnDuration,
+    draftConfig: initialConfig,
+    players: initialConfig.mode === "advanced" ? playersPayloadFromAdvancedSlots(state.onlineSlots, initialConfig) : roomPlayersPayload(),
+    host: { connected: true, clientId: onlineClientId(), name: currentOnlinePlayerName || "Líder / Host", role: "LÍDER_ESPECTADOR", lastSeen: onlineNow() },
+    participants: {},
+    captainAssignments: { A: null, B: null },
+    slots: state.onlineSlots,
+    teamA: null,
+    teamB: null,
+    draftState: blankOnlineDraftState({ slots: state.onlineSlots }),
+  });
+
+  attachCurrentRoom(roomCode, "host", null);
+}
+
+function normalizeRoomCode(value) {
+  return String(value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+}
+
+function showJoinNameModal(roomCode) {
+  pendingJoinRoomCode = normalizeRoomCode(roomCode);
+  const modal = document.getElementById("join-name-modal");
+  const preview = document.getElementById("join-room-code-preview");
+  const input = document.getElementById("join-player-name");
+  if (!pendingJoinRoomCode) {
+    showAppNotice(t("enter_room_code_alert"), { type: "warning" });
+    return;
+  }
+  if (preview) preview.textContent = pendingJoinRoomCode;
+  if (input && !input.value) {
+    try { input.value = localStorage.getItem(ONLINE_PLAYER_NAME_STORAGE_KEY) || ""; } catch (_) {}
+  }
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+  }
+  window.setTimeout(() => input?.focus(), 40);
+}
+
+function hideJoinNameModal() {
+  const modal = document.getElementById("join-name-modal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.setAttribute("aria-hidden", "true");
+  }
+}
+
+async function joinOnlineRoom(options = {}) {
+  const input = document.getElementById("room-input");
+  const nameInput = document.getElementById("join-player-name");
+  const roomCode = normalizeRoomCode(options.roomCode || pendingJoinRoomCode || input?.value);
+  const hasProvidedName = Object.prototype.hasOwnProperty.call(options, "nameOverride");
+  const playerName = String(hasProvidedName ? options.nameOverride : "").trim();
+
+  if (!roomCode) {
+    showAppNotice(t("enter_room_code_alert"), { type: "warning" });
+    input?.focus();
+    return;
+  }
+
+  if (!hasProvidedName) {
+    return checkOnlineServiceAndContinue(() => showJoinNameModal(roomCode), { source: "open-join-form" });
+  }
+
+  if (!playerName) {
+    showJoinNameModal(roomCode);
+    showAppNotice(t("join_name_required"), { type: "warning" });
+    nameInput?.focus();
+    return;
+  }
+
+  return checkOnlineServiceAndContinue(
+    () => performJoinOnlineRoom({ roomCode, playerName }),
+    { source: "join-room" },
+  );
+}
+
+async function performJoinOnlineRoom({ roomCode, playerName }) {
+  const database = getRealtimeDatabase();
+  if (!database) throw new Error("RPmods Services unavailable after connection check");
+  startOnlineClockSync();
+
+  try { localStorage.setItem(ONLINE_PLAYER_NAME_STORAGE_KEY, playerName); } catch (_) {}
+  currentOnlinePlayerName = playerName;
+
+  const roomRef = database.ref("rooms/" + roomCode);
+  const snapshot = await roomRef.get();
+
+  if (!snapshot.exists()) {
+    showAppNotice(t("room_not_found"), { type: "error" });
+    return;
+  }
+
+  const roomData = snapshot.val() || {};
+  if (roomData.closed) {
+    showAppNotice(t("room_already_closed"), { type: "warning" });
+    return;
+  }
+
+  const clientId = onlineClientId();
+  const alreadyInRoom = Boolean(roomData.participants?.[clientId]);
+  if (roomData.started && !alreadyInRoom) {
+    showAppNotice(t("room_draft_already_started"), { type: "warning", duration: 7000 });
+    return;
+  }
+
+  await roomRef.child(`participants/${clientId}`).update({
+    name: playerName,
+    connected: true,
+    clientId,
+    role: "PARTICIPANTE",
+    joinedAt: roomData.participants?.[clientId]?.joinedAt || onlineNow(),
+    lastSeen: onlineNow(),
+  });
+
+  const assignments = captainAssignmentsFromRoom(roomData);
+  let assignedTeam = null;
+  if (assignments.A === clientId) assignedTeam = "teamA";
+  else if (assignments.B === clientId) assignedTeam = "teamB";
+
+  hideJoinNameModal();
+  pendingJoinRoomCode = null;
+  attachCurrentRoom(roomCode, "player", assignedTeam);
+}
+
+async function runCharacterRoulette(validCharacters) {
+  const sessionId = state.draftSessionId;
+  if (!isDraftSessionActive(sessionId)) return null;
+
+  const valid = validCharacters.filter(Boolean);
+  if (!valid.length) return null;
+
+  state.roulette.active = true;
+  state.roulette.finalName = null;
+  state.roulette.highlightedName = null;
+  state.roulette.previewCharacter = null;
+  state.locked = true;
+  updateCharacterRouletteClasses();
+
+  const totalSteps = 28 + Math.floor(Math.random() * 9);
+  const sequence = Array.from({ length: totalSteps }, () => randomFrom(valid));
+  const delays = sequence.map((_, step) => weightedRandomDelay(step, totalSteps));
+  const startedAt = onlineNow();
+  let selected = sequence[sequence.length - 1];
+
+  if (currentRoomCode) {
+    pushOnlineDraftPatch({
+      phase: "draft",
+      locked: true,
+      roulette: serializeRouletteForOnline(state.roulette),
+      rouletteEvent: {
+        id: `rouletteSequence_${startedAt}_${Math.random().toString(36).slice(2, 7)}`,
+        type: "rouletteSequence",
+        sequence: sequence.map(character => character.name),
+        delays,
+        startedAt,
+        byClientId: onlineClientId(),
+      },
+    });
+  }
+
+  for (let step = 0; step < sequence.length; step += 1) {
+    selected = sequence[step];
+    state.roulette.highlightedName = selected.name;
+    audioPlay(sounds.roulette, 0.82, "sfx");
+    updateCharacterRoulettePreview(selected);
+    await delay(delays[step]);
+    if (!isDraftSessionActive(sessionId)) return null;
+  }
+
+  state.roulette.highlightedName = selected.name;
+  state.roulette.finalName = selected.name;
+  state.selected = selected;
+  updateCharacterRoulettePreview(selected);
+  if (currentRoomCode) {
+    pushOnlineDraftPatch({
+      phase: "draft",
+      selected: serializeCharacterForOnline(selected),
+      locked: true,
+      roulette: serializeRouletteForOnline(state.roulette),
+      rouletteEvent: { id: `rouletteSelected_${onlineNow()}_${selected.name}`, type: "rouletteSelected", character: selected.name, byClientId: onlineClientId() },
+    });
+  }
+  await delay(520);
+  if (!isDraftSessionActive(sessionId)) return null;
+
+  state.roulette.active = false;
+  clearCharacterRouletteVisuals();
+  renderStageCharacters();
+  renderSlots();
+  renderBans();
+  renderSelected();
+  return selected;
+}
+
+async function autoResolveTurn(options = {}) {
+  const sessionId = state.draftSessionId;
+  const allowOnlineSystem = Boolean(options.onlineSystem);
+  if (!isDraftSessionActive(sessionId) || state.locked || state.roulette.active || (!allowOnlineSystem && !canControlCurrentTurn())) return;
+  const valid = getValidCharacters();
+  state.locked = true;
+  pushOnlineDraftState({ phase: "draft", audioEvent: createOnlineAudioEvent("randomStart") });
+  playNarration(systemDraftVoiceLines.random_start.src, systemDraftVoiceLines.random_start.text, 0.9);
+  await delay(2000);
+  if (!isDraftSessionActive(sessionId)) return;
+
+  const selected = await runCharacterRoulette(valid);
+  if (!isDraftSessionActive(sessionId)) return;
+  if (!selected) {
+    state.turnIndex += 1;
+    state.locked = false;
+    startTurn();
+    return;
+  }
+
+  state.locked = false;
+  state.selected = selected;
+  confirmTurn(true, { onlineSystem: allowOnlineSystem });
+}
+
+function proceedAfterTurn() {
+  if (!isDraftSessionActive()) return;
+  if (state.turnIndex >= activeTurnCount()) {
+    startMapSelection();
+    return;
+  }
+
+  const nextTurn = currentTurn();
+  const justEnteredPickPhase = activeBanTurnCount() > 0 && state.turnIndex === activeBanTurnCount();
+  if (justEnteredPickPhase && nextTurn.type === "pick") {
+    showPhaseOverlay(
+      t("phase_pick"),
+      systemDraftVoiceLines.voice_pick_phase.src,
+      systemDraftVoiceLines.voice_pick_phase.text,
+      startTurn,
+    );
+  } else {
+    startTurn();
+  }
 }
 
 function phaseOverlayDurationMs() {
@@ -8913,7 +9261,7 @@ async function tryRestoreOnlineSession() {
 }
 
 
-/* RPmods v3.4.0 Advanced Draft Flow Extension */
+/* RPmods v3.4.1 Advanced Draft Flow Extension */
 (function() {
   const RP_OFFICIAL_CONFIG_DEFAULTS = {
     mode: "advanced",
@@ -9233,7 +9581,7 @@ async function tryRestoreOnlineSession() {
     );
   }
 
-  function rpFinishMapSelectionContext() {
+  window.rpFinishMapSelectionContext = window.rpFinishMapSelectionContext = function rpFinishMapSelectionContext() {
     updateMapRouletteClasses();
     updateSelectedMapCopy();
     if (state.mapSelectionContext === 'predraft') {
@@ -9310,7 +9658,7 @@ async function tryRestoreOnlineSession() {
         audioPlay(sounds.confirm, 0.86, 'sfx');
         renderMapGrid();
         updateSelectedMapCopy();
-        rpFinishMapSelectionContext();
+        window.rpFinishMapSelectionContext();
       }, { once: true });
     });
   };
@@ -9433,7 +9781,7 @@ async function tryRestoreOnlineSession() {
     updateSelectedMapCopy();
     await delay(420);
     state.mapRoulette.active = false;
-    rpFinishMapSelectionContext();
+    window.rpFinishMapSelectionContext();
   };
 
   const originalTurnVoiceKey = turnVoiceKey;
@@ -9453,4 +9801,74 @@ async function tryRestoreOnlineSession() {
     if (systemDraftVoiceLines?.advanced_team_ban_scissors_laminant) systemDraftVoiceLines.advanced_team_ban_scissors_laminant.text = 'Tu equipo está bloqueando un laminante de Urbino.';
     if (systemDraftVoiceLines?.advanced_please_ban_scissors_laminant) systemDraftVoiceLines.advanced_please_ban_scissors_laminant.text = 'Por favor bloquea un laminante de Urbino.';
   } catch (_) {}
+})();
+
+
+/* RPmods v3.4.1 Tournament Surface + Map Click Hotfix */
+(function(){
+  const previousActivateSetupTab = activateSetupTab;
+  activateSetupTab = function(tabName) {
+    document.querySelectorAll(".setup-top-tab").forEach(button => {
+      button.classList.toggle("is-active", button.dataset.tab === tabName);
+    });
+    document.querySelectorAll(".setup-panel").forEach(panel => {
+      panel.classList.toggle("is-active", panel.dataset.panel === tabName);
+    });
+    if (setupShell) {
+      setupShell.classList.remove("view-menu", "view-tournament", "view-volumen", "view-configuracion", "view-development", "view-random", "view-idioma", "view-creditos", "view-updates");
+      setupShell.classList.add(`view-${tabName}`);
+      setupShell.dataset.activeSetupTab = tabName || "menu";
+    }
+    const isTournament = tabName === "tournament";
+    const isMenu = tabName === "menu";
+    document.documentElement.classList.toggle("tournament-surface-active", isTournament);
+    document.body.classList.toggle("tournament-surface-active", isTournament);
+    document.documentElement.classList.toggle("menu-surface-active", isMenu);
+    document.body.classList.toggle("menu-surface-active", isMenu);
+    document.getElementById("setup-screen")?.classList.toggle("tournament-surface-active", isTournament);
+    document.getElementById("setup-screen")?.classList.toggle("menu-surface-active", isMenu);
+  };
+
+  const cleanRenderMapGrid = function() {
+    if (!mapGrid) return;
+    mapGrid.innerHTML = "";
+    mapGrid.dataset.mapCount = String(maps.length);
+    mapGrid.classList.toggle("map-grid-many", maps.length > 6);
+    mapGrid.classList.toggle("map-grid-xl", maps.length > 9);
+
+    maps.forEach(map => {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "map-card";
+      card.dataset.mapId = map.id;
+      card.classList.toggle("map-roulette-highlight", state.mapRoulette.active && state.mapRoulette.highlightedId === map.id);
+      card.classList.toggle("map-selected", state.mapRoulette.finalId === map.id || state.selectedMap?.id === map.id);
+      card.classList.toggle("map-eliminated", Array.isArray(state.mapRoulette.eliminatedIds) && state.mapRoulette.eliminatedIds.includes(map.id));
+
+      const image = document.createElement("div");
+      image.className = "map-card-image";
+      image.appendChild(makeImage([mapImagePath(map)], "", map.name));
+      const imageFallback = document.createElement("span");
+      imageFallback.textContent = t("map");
+      image.appendChild(imageFallback);
+
+      const name = document.createElement("strong");
+      name.textContent = map.name;
+      card.appendChild(image);
+      card.appendChild(name);
+      card.addEventListener("click", () => {
+        if (state.mapRoulette.active || !canControlMapSelection()) return;
+        state.selectedMap = map;
+        state.mapRoulette.finalId = map.id;
+        pushOnlineDraftState();
+        audioPlay(sounds.confirm, 0.86, "sfx");
+        renderMapGrid();
+        updateSelectedMapCopy();
+        if (typeof window.rpFinishMapSelectionContext === "function") window.rpFinishMapSelectionContext();
+        else showSummaryIntro();
+      });
+      mapGrid.appendChild(card);
+    });
+  };
+  renderMapGrid = cleanRenderMapGrid;
 })();
