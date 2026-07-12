@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.2.27 by RPmods
+# STRINOVA Draft System v3.3.12 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -431,6 +431,16 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Se mantiene intacta la lógica del draft: este parche no modifica `js/app.js`.
 
 
+
+
+## v3.3.12 Refined Motion System
+
+- Se refinó el sistema de animaciones del menú principal, Tournament Hub y apartados de configuración.
+- Se eliminaron efectos de blur y filtros animados que podían hacer que las tarjetas se vieran borrosas.
+- Se redujo el desplazamiento de las transiciones para evitar el “tick” o salto visual al cambiar de apartado.
+- Las animaciones ahora usan principalmente `opacity` y `transform`, con curvas más estables y menor coste de repintado.
+- Se desactivó la animación continua del fondo en setup para evitar micro-stutter en equipos o navegadores sensibles.
+- Se mantuvo intacta la lógica del draft; este parche no modifica `js/app.js`.
 
 ## v3.3.11 Menu Motion Polish
 

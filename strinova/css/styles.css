@@ -19287,3 +19287,230 @@ html.setup-motion-ready.setup-tab-transition .setup-panel.is-active {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* v3.3.12 — Refined Motion System
+   Replaces the heavier v3.3.11 motion layer for setup/menu/tournament surfaces.
+   Goal: polished movement without blur, without panel jumps, and without continuous
+   repaint-heavy background animation. Draft logic remains untouched. */
+@keyframes rpmods-soft-rise {
+  from { opacity: 0; transform: translate3d(0, 7px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes rpmods-soft-slide {
+  from { opacity: 0; transform: translate3d(0, 4px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes rpmods-red-sweep {
+  0% { transform: translate3d(-115%, 0, 0) skewX(-14deg); opacity: 0; }
+  22% { opacity: .18; }
+  58% { opacity: .10; }
+  100% { transform: translate3d(115%, 0, 0) skewX(-14deg); opacity: 0; }
+}
+
+@keyframes rpmods-ambient-grid {
+  from { background-position: 0 0, 0 0, center, center; }
+  to { background-position: 0 0, 0 0, center, center; }
+}
+
+@keyframes rpmods-rank-glow {
+  0%, 100% { opacity: 1; transform: translateZ(0); }
+  50% { opacity: .96; transform: translate3d(0, -1px, 0); }
+}
+
+body.setup-motion-ready.setup-responsive-active .background-layer,
+html.setup-motion-ready.setup-responsive-active .background-layer {
+  animation: none !important;
+}
+
+body.setup-motion-ready.setup-responsive-active .settings-topbar,
+html.setup-motion-ready.setup-responsive-active .settings-topbar {
+  animation: rpmods-soft-rise .22s cubic-bezier(.18,.84,.24,1) both !important;
+  will-change: auto !important;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+body.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-top,
+body.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-team-a,
+body.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-center-card,
+body.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-team-b,
+html.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-top,
+html.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-team-a,
+html.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-center-card,
+html.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-team-b {
+  animation: rpmods-soft-rise .28s cubic-bezier(.18,.84,.24,1) both !important;
+  will-change: auto !important;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+body.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-top,
+html.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-top { animation-delay: .015s !important; }
+body.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-team-a,
+html.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-team-a { animation-delay: .045s !important; }
+body.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-center-card,
+html.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-center-card { animation-delay: .075s !important; }
+body.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-team-b,
+html.setup-motion-ready.setup-responsive-active .setup-shell.view-menu .setup-team-b { animation-delay: .105s !important; }
+
+body.setup-motion-ready.setup-responsive-active .setup-panel.is-active,
+html.setup-motion-ready.setup-responsive-active .setup-panel.is-active,
+body.setup-motion-ready.setup-responsive-active .tournament-view.is-active,
+html.setup-motion-ready.setup-responsive-active .tournament-view.is-active {
+  animation: rpmods-soft-slide .18s cubic-bezier(.18,.84,.24,1) both !important;
+  transform-origin: center top;
+  backface-visibility: hidden;
+}
+
+/* During tab switches, avoid re-running large child animations. This removes the
+   visible “tick” while keeping a small, clean panel fade. */
+body.setup-motion-ready.setup-section-switching .tournament-hero-card,
+body.setup-motion-ready.setup-section-switching .tournament-notice-card,
+body.setup-motion-ready.setup-section-switching .tournament-summary-showcase,
+body.setup-motion-ready.setup-section-switching .tournament-summary-rank-strip,
+body.setup-motion-ready.setup-section-switching .tournament-team-card,
+body.setup-motion-ready.setup-section-switching .tournament-player-detail,
+html.setup-motion-ready.setup-section-switching .tournament-hero-card,
+html.setup-motion-ready.setup-section-switching .tournament-notice-card,
+html.setup-motion-ready.setup-section-switching .tournament-summary-showcase,
+html.setup-motion-ready.setup-section-switching .tournament-summary-rank-strip,
+html.setup-motion-ready.setup-section-switching .tournament-team-card,
+html.setup-motion-ready.setup-section-switching .tournament-player-detail {
+  animation: none !important;
+}
+
+body.setup-motion-ready.setup-responsive-active .tournament-hero-card,
+body.setup-motion-ready.setup-responsive-active .tournament-notice-card,
+body.setup-motion-ready.setup-responsive-active .tournament-summary-showcase,
+body.setup-motion-ready.setup-responsive-active .tournament-summary-rank-strip,
+body.setup-motion-ready.setup-responsive-active .tournament-team-card,
+body.setup-motion-ready.setup-responsive-active .tournament-player-detail,
+html.setup-motion-ready.setup-responsive-active .tournament-hero-card,
+html.setup-motion-ready.setup-responsive-active .tournament-notice-card,
+html.setup-motion-ready.setup-responsive-active .tournament-summary-showcase,
+html.setup-motion-ready.setup-responsive-active .tournament-summary-rank-strip,
+html.setup-motion-ready.setup-responsive-active .tournament-team-card,
+html.setup-motion-ready.setup-responsive-active .tournament-player-detail {
+  animation: rpmods-soft-rise .26s cubic-bezier(.18,.84,.24,1) both !important;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Remove persistent content-visibility pop-in on prominent cards; it was useful for
+   long lists but caused visible late painting during panel transitions. */
+body.setup-responsive-active .tournament-team-card,
+body.setup-responsive-active .tournament-roster-member,
+body.setup-responsive-active .tournament-player-detail,
+html.setup-responsive-active .tournament-team-card,
+html.setup-responsive-active .tournament-roster-member,
+html.setup-responsive-active .tournament-player-detail {
+  content-visibility: visible !important;
+  contain-intrinsic-size: auto !important;
+}
+
+body.setup-responsive-active .setup-shell.view-menu .setup-top::before,
+body.setup-responsive-active .setup-shell.view-menu .setup-center-card::before,
+body.setup-responsive-active .tournament-hero-card::before,
+html.setup-responsive-active .setup-shell.view-menu .setup-top::before,
+html.setup-responsive-active .setup-shell.view-menu .setup-center-card::before,
+html.setup-responsive-active .tournament-hero-card::before {
+  animation: rpmods-red-sweep 8.2s ease-in-out infinite !important;
+  opacity: .8 !important;
+  will-change: transform, opacity !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body.setup-responsive-active .settings-tab,
+  body.setup-responsive-active .setup-top-tab,
+  body.setup-responsive-active .primary-button,
+  body.setup-responsive-active .secondary-button,
+  body.setup-responsive-active .setup-shell.view-menu .setup-team,
+  body.setup-responsive-active .setup-shell.view-menu .setup-center-card,
+  body.setup-responsive-active .tournament-info-tile,
+  body.setup-responsive-active .tournament-mini-team,
+  body.setup-responsive-active .tournament-team-card,
+  body.setup-responsive-active .tournament-roster-member,
+  body.setup-responsive-active .tournament-player-row,
+  body.setup-responsive-active .tournament-view-tab,
+  html.setup-responsive-active .settings-tab,
+  html.setup-responsive-active .setup-top-tab,
+  html.setup-responsive-active .primary-button,
+  html.setup-responsive-active .secondary-button,
+  html.setup-responsive-active .setup-shell.view-menu .setup-team,
+  html.setup-responsive-active .setup-shell.view-menu .setup-center-card,
+  html.setup-responsive-active .tournament-info-tile,
+  html.setup-responsive-active .tournament-mini-team,
+  html.setup-responsive-active .tournament-team-card,
+  html.setup-responsive-active .tournament-roster-member,
+  html.setup-responsive-active .tournament-player-row,
+  html.setup-responsive-active .tournament-view-tab {
+    transition:
+      transform .14s cubic-bezier(.2,.8,.22,1),
+      box-shadow .14s ease,
+      border-color .14s ease,
+      background-color .14s ease,
+      color .14s ease,
+      opacity .14s ease !important;
+    backface-visibility: hidden;
+  }
+
+  body.setup-responsive-active .settings-tab:hover,
+  body.setup-responsive-active .setup-top-tab:hover,
+  html.setup-responsive-active .settings-tab:hover,
+  html.setup-responsive-active .setup-top-tab:hover {
+    transform: translate3d(0, -1px, 0) !important;
+    box-shadow: inset 0 -2px 0 rgba(255,68,86,.66), 0 8px 18px rgba(0,0,0,.12) !important;
+  }
+
+  body.setup-responsive-active .primary-button:hover,
+  body.setup-responsive-active .secondary-button:hover,
+  html.setup-responsive-active .primary-button:hover,
+  html.setup-responsive-active .secondary-button:hover {
+    transform: translate3d(0, -1px, 0) !important;
+    box-shadow: 0 12px 24px rgba(184,36,54,.18), 0 0 0 1px rgba(255,255,255,.14) inset !important;
+  }
+
+  body.setup-responsive-active .setup-shell.view-menu .setup-team:hover,
+  body.setup-responsive-active .setup-shell.view-menu .setup-center-card:hover,
+  body.setup-responsive-active .tournament-info-tile:hover,
+  body.setup-responsive-active .tournament-mini-team:hover,
+  body.setup-responsive-active .tournament-team-card:hover,
+  body.setup-responsive-active .tournament-roster-member:hover,
+  html.setup-responsive-active .setup-shell.view-menu .setup-team:hover,
+  html.setup-responsive-active .setup-shell.view-menu .setup-center-card:hover,
+  html.setup-responsive-active .tournament-info-tile:hover,
+  html.setup-responsive-active .tournament-mini-team:hover,
+  html.setup-responsive-active .tournament-team-card:hover,
+  html.setup-responsive-active .tournament-roster-member:hover {
+    transform: translate3d(0, -1px, 0) !important;
+    border-color: rgba(255,68,86,.28) !important;
+    box-shadow: 0 14px 30px rgba(30,37,48,.14), 0 0 0 1px rgba(255,255,255,.08) inset !important;
+  }
+}
+
+body.setup-responsive-active .tournament-rank-icon,
+body.setup-responsive-active .rank-big img,
+html.setup-responsive-active .tournament-rank-icon,
+html.setup-responsive-active .rank-big img {
+  animation: rpmods-rank-glow 5.8s ease-in-out infinite !important;
+  filter: none !important;
+}
+
+body.setup-motion-ready.setup-tab-transition .setup-panel.is-active,
+html.setup-motion-ready.setup-tab-transition .setup-panel.is-active {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.setup-motion-ready.setup-responsive-active *,
+  html.setup-motion-ready.setup-responsive-active *,
+  body.setup-responsive-active .background-layer,
+  html.setup-responsive-active .background-layer {
+    animation: none !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

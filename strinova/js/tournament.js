@@ -445,15 +445,17 @@
   });
 })();
 
-// v3.3.11 — Menu Motion Polish.
-// Adds a tiny motion state layer for setup/menu/tournament screens only. No draft logic is changed.
-(function installSetupMotionPolish() {
-  if (window.__strinovaSetupMotionPolishInstalled) return;
-  window.__strinovaSetupMotionPolishInstalled = true;
+// v3.3.12 — Refined Motion System.
+// Keeps setup/menu/tournament motion subtle and stable: no blur, no large scale,
+// no background animation, and no repeated layout-triggering panel pulses.
+(function installSetupRefinedMotion() {
+  if (window.__strinovaSetupRefinedMotionInstalled) return;
+  window.__strinovaSetupRefinedMotionInstalled = true;
 
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const html = document.documentElement;
   const body = document.body;
+  let transitionTimer = 0;
 
   function setMotionReady() {
     if (reduceMotion) {
@@ -462,27 +464,29 @@
       return;
     }
     requestAnimationFrame(() => {
-      html.classList.add('setup-motion-ready');
-      body.classList.add('setup-motion-ready');
+      html.classList.add('setup-motion-ready', 'setup-motion-refined');
+      body.classList.add('setup-motion-ready', 'setup-motion-refined');
     });
   }
 
-  function pulseTabTransition() {
+  function pulseSectionSwitch() {
     if (reduceMotion) return;
-    html.classList.add('setup-tab-transition');
-    body.classList.add('setup-tab-transition');
-    window.clearTimeout(window.__strinovaSetupMotionTimer);
-    window.__strinovaSetupMotionTimer = window.setTimeout(() => {
-      html.classList.remove('setup-tab-transition');
-      body.classList.remove('setup-tab-transition');
-    }, 320);
+    html.classList.add('setup-section-switching');
+    body.classList.add('setup-section-switching');
+    window.clearTimeout(transitionTimer);
+    transitionTimer = window.setTimeout(() => {
+      html.classList.remove('setup-section-switching');
+      body.classList.remove('setup-section-switching');
+    }, 180);
   }
 
   function install() {
     setMotionReady();
     document.addEventListener('click', event => {
-      const tab = event.target && event.target.closest ? event.target.closest('[data-tab], [data-tournament-view]') : null;
-      if (tab) pulseTabTransition();
+      const tab = event.target && event.target.closest
+        ? event.target.closest('[data-tab], [data-tournament-view]')
+        : null;
+      if (tab) pulseSectionSwitch();
     }, true);
   }
 
