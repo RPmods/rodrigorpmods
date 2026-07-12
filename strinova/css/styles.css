@@ -19770,3 +19770,108 @@ body.tournament-surface-active .setup-shell[data-active-setup-tab="tournament"].
 .rpmods-assist-bar span { display: block; height: 100%; background: #46ff75; animation: rpmodsAssistTimeout 10s linear forwards; }
 .rpmods-assist-actions { display: flex; gap: 8px; align-items: center; }
 @keyframes rpmodsAssistTimeout { from { width: 100%; } to { width: 0%; } }
+
+/* RPmods v3.4.4 — UI corrections for map chibi, assist menu and config panels */
+:root { --rpmods-map-chibi-size: 150px; }
+#intro-settings-panel,
+.intro-settings-panel {
+  display: block !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.map-chibi-settings-panel {
+  margin-top: 18px !important;
+}
+.map-chibi-settings-panel code {
+  font-weight: 900;
+  color: #2d3440;
+}
+.map-chibi-size-row {
+  min-height: 74px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(46,56,70,0.1);
+  border-radius: 11px;
+  background: rgba(255,255,255,0.48);
+}
+.map-chibi-overlay-v343,
+.map-chibi-overlay-v344 {
+  width: var(--rpmods-map-chibi-size) !important;
+  height: var(--rpmods-map-chibi-size) !important;
+  z-index: 160 !important;
+}
+.map-chibi-overlay-v344 {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.map-chibi-overlay-v344.hidden { display: none !important; }
+.map-chibi-overlay-v344 img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.map-chibi-overlay-v344 .map-chibi-land-v344 { opacity: 0; }
+.map-chibi-overlay-v344.is-dropping { animation: rpmodsChibiDropV344 540ms cubic-bezier(.15,.9,.22,1) forwards; }
+.map-chibi-overlay-v344.is-landing .map-chibi-fall-v344 { opacity: 0; }
+.map-chibi-overlay-v344.is-landing .map-chibi-land-v344 {
+  opacity: 1;
+  animation: rpmodsChibiLandV344 310ms ease-out forwards;
+}
+@keyframes rpmodsChibiDropV344 {
+  0% { transform: translate(-50%, -190%) scale(.92) rotate(-4deg); opacity: 0; }
+  18% { opacity: 1; }
+  88% { transform: translate(-50%, -54%) scale(1.02) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes rpmodsChibiLandV344 {
+  0% { transform: scale(.9); }
+  55% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.rpmods-assist-slot {
+  position: relative !important;
+  overflow: visible !important;
+}
+.rpmods-slot-menu {
+  left: 50% !important;
+  right: auto !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  min-width: 190px !important;
+  max-width: calc(100% - 24px) !important;
+  z-index: 120 !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  clip-path: polygon(0 0,100% 0,100% 84%,94% 100%,0 100%) !important;
+}
+.rpmods-slot-menu::before { display: none !important; }
+.rpmods-slot-menu button {
+  width: 100%;
+  min-height: 36px;
+  text-align: center;
+}
+.rpmods-request-bubble {
+  left: 8px !important;
+  right: 8px !important;
+  top: 8px !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  z-index: 125 !important;
+  transform: none !important;
+}
+.rpmods-request-bubble::before { display: none !important; }
+#rpmods-request-pick-action.random-selection-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 156px;
+  background: linear-gradient(135deg, #2c3548, #141a26) !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+  color: #fff !important;
+  box-shadow: 0 12px 26px rgba(0,0,0,.28), inset 0 -2px 0 #d9364d;
+}
+#rpmods-request-pick-action.hidden { display: none !important; }

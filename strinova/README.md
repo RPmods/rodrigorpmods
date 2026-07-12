@@ -1,4 +1,6 @@
-# STRINOVA Draft System v3.4.3 by RPmods
+# STRINOVA Draft System v3.4.4
+
+Hotfix: Map-first Stable Flow + Assist Request Fix.
 
 Versión estable del sistema draft competitivo.
 
