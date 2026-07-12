@@ -1,4 +1,4 @@
-# STRINOVA Draft System v3.4.2 by RPmods
+# STRINOVA Draft System v3.4.3 by RPmods
 
 Versión estable del sistema draft competitivo.
 
@@ -466,6 +466,13 @@ Aplicación recomendada: copiar estos archivos sobre la carpeta real `strinova/`
 - Added a small fallback in `js/tournament.js` that routes wheel/keyboard scrolling to the active setup screen only while setup/tournament surfaces are active.
 - Draft logic remains untouched.
 
+
+## Hotfix v3.4.3 Draft Flow Real Wiring + Chibi Audio/Assist UI
+
+- Se conectó el flujo avanzado por defecto en 5v5: mapa primero, picks iniciales de líderes, bloqueos alternados y picks restantes.
+- Se ocultó el toggle antiguo de “Fase de bloqueos” porque ahora el control real es “Modo de bloqueos”.
+- Se ajustó la animación chibi para PNG de 300x300, caída más baja y reproducción de voces .ogg desde `audio/map_vote_chibi_1` hasta `audio/map_vote_chibi_8`.
+- Se añadió una primera capa visual de “Pedir” y “Seleccionar PJ” con avisos tipo Strinova para preparar el flujo de asignación de laminantes por compañeros.
 
 ## Hotfix v3.4.2 Tournament Isolation + Button Recovery
 

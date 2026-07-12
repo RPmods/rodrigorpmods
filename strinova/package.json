@@ -1,7 +1,7 @@
 {
   "name": "draft-simulator",
-  "version": "3.4.2",
-  "description": "STRINOVA Draft System + Gantigun Cup 2026 Tournament Hub con aislamiento del panel de torneo, recuperación de botones críticos y flujo avanzado de draft.",
+  "version": "3.4.3",
+  "description": "STRINOVA Draft System + Gantigun Cup 2026 Tournament Hub con flujo avanzado conectado, mapa primero, chibi map elimination 300x300 y UI de pedir/asignar laminantes.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",

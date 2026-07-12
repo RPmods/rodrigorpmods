@@ -9981,3 +9981,793 @@ async function tryRestoreOnlineSession() {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bootRecovery, { once: true });
   else bootRecovery();
 })();
+
+/* RPmods v3.4.3 — Draft Flow Real Wiring + Chibi Audio/Position + Assist Requests */
+(function installRpmodsV343() {
+  if (window.__rpmodsV343Installed) return;
+  window.__rpmodsV343Installed = true;
+
+  const RP343_DEFAULTS = {
+    mode: "advanced",
+    teamSize: 5,
+    bansEnabled: true,
+    phaseOrder: "map-first",
+    banMode: "full",
+    pickPreset: "official-5v5",
+    delegationMode: "captain_subcaptain",
+    mapRandomMode: "chibi-elimination",
+  };
+
+  try { if (factions?.urbino) factions.urbino.label = "Urbino"; } catch (_) {}
+  try { document.querySelectorAll("#local-bans-enabled, #room-bans-enabled").forEach(input => input.closest(".draft-config-toggle")?.classList.add("rpmods-hidden-legacy-ban-toggle")); } catch (_) {}
+
+  const previousSanitize343 = sanitizeDraftConfig;
+  sanitizeDraftConfig = function rpmodsSanitizeDraftConfigV343(config = {}) {
+    const raw = { ...RP343_DEFAULTS, ...(config || {}) };
+    const base = previousSanitize343(raw);
+    const phaseOrder = String(raw.phaseOrder || RP343_DEFAULTS.phaseOrder).toLowerCase() === "draft-first" ? "draft-first" : "map-first";
+    const banModeRaw = String(raw.banMode || RP343_DEFAULTS.banMode).toLowerCase();
+    const banMode = ["full", "simple", "none"].includes(banModeRaw) ? banModeRaw : "full";
+    const pickPresetRaw = String(raw.pickPreset || RP343_DEFAULTS.pickPreset).toLowerCase();
+    const pickPreset = ["official-5v5", "classic"].includes(pickPresetRaw) ? pickPresetRaw : "official-5v5";
+    const delegationRaw = String(raw.delegationMode || RP343_DEFAULTS.delegationMode).toLowerCase();
+    const delegationMode = ["captain_only", "captain_subcaptain", "all_members", "none"].includes(delegationRaw) ? delegationRaw : "captain_subcaptain";
+    const mapRaw = String(raw.mapRandomMode || RP343_DEFAULTS.mapRandomMode).toLowerCase();
+    const mapRandomMode = ["classic-random", "chibi-elimination"].includes(mapRaw) ? mapRaw : "chibi-elimination";
+    const mode = String(raw.mode || RP343_DEFAULTS.mode).toLowerCase() === "classic" ? "classic" : "advanced";
+    return {
+      ...base,
+      mode,
+      bansEnabled: banMode !== "none" && raw.bansEnabled !== false,
+      phaseOrder,
+      banMode,
+      pickPreset,
+      delegationMode,
+      mapRandomMode,
+    };
+  };
+
+  state.draftConfig = sanitizeDraftConfig({ ...(state.draftConfig || {}), ...RP343_DEFAULTS });
+  state.mapSelectionContext = state.mapSelectionContext || "postdraft";
+  state.mapRoulette = state.mapRoulette || { active: false, highlightedId: null, finalId: null };
+  state.mapRoulette.eliminatedIds = state.mapRoulette.eliminatedIds || [];
+  state.rpmodsRequests = state.rpmodsRequests || {};
+  state.rpmodsAssistTarget = null;
+
+  function rp343IsOfficial(config = currentDraftConfig()) {
+    const normalized = sanitizeDraftConfig(config);
+    return normalized.mode === "advanced" && normalized.pickPreset === "official-5v5";
+  }
+
+  function rp343PickTurn(team, slotKey, groupId, groupCount = 1, groupSlot = 0) {
+    return {
+      type: "pick",
+      team,
+      groupId,
+      groupCount,
+      groupSlot,
+      slotIndex: advancedSlotIndex(slotKey),
+      slotKey,
+      advanced: true,
+      simultaneous: groupCount > 1,
+    };
+  }
+
+  function rp343PushPickGroup(output, team, slotKeys, groupIdRef) {
+    const keys = slotKeys.filter(Boolean);
+    keys.forEach((slotKey, index) => output.push(rp343PickTurn(team, slotKey, groupIdRef.value, keys.length, index)));
+    groupIdRef.value += 1;
+  }
+
+  function rp343LeaderPickTurns(config = currentDraftConfig()) {
+    const size = Number(sanitizeDraftConfig(config).teamSize || 5);
+    const output = [];
+    const groupIdRef = { value: 0 };
+    rp343PushPickGroup(output, "A", ["captain"], groupIdRef);
+    rp343PushPickGroup(output, "B", ["captain"], groupIdRef);
+    if (size >= 2) {
+      rp343PushPickGroup(output, "B", ["subcaptain"], groupIdRef);
+      rp343PushPickGroup(output, "A", ["subcaptain"], groupIdRef);
+    }
+    output._nextGroupId = groupIdRef.value;
+    return output;
+  }
+
+  function rp343RemainingPickTurns(config = currentDraftConfig(), startGroupId = 4) {
+    const size = Number(sanitizeDraftConfig(config).teamSize || 5);
+    const output = [];
+    const groupIdRef = { value: startGroupId };
+    if (size <= 2) return output;
+    if (size === 3) {
+      rp343PushPickGroup(output, "A", ["player3"], groupIdRef);
+      rp343PushPickGroup(output, "B", ["player3"], groupIdRef);
+      return output;
+    }
+    if (size === 4) {
+      rp343PushPickGroup(output, "A", ["player3", "player4"], groupIdRef);
+      rp343PushPickGroup(output, "B", ["player3", "player4"], groupIdRef);
+      return output;
+    }
+    rp343PushPickGroup(output, "A", ["player3", "player4"], groupIdRef);
+    rp343PushPickGroup(output, "B", ["player3", "player4"], groupIdRef);
+    rp343PushPickGroup(output, "A", ["player5"], groupIdRef);
+    rp343PushPickGroup(output, "B", ["player5"], groupIdRef);
+    return output;
+  }
+
+  buildBanTurns = function rpmodsBuildBanTurnsV343(config = DEFAULT_DRAFT_CONFIG) {
+    const normalized = sanitizeDraftConfig(config);
+    if (!normalized.bansEnabled || normalized.banMode === "none") return [];
+    const turns = [
+      { type: "ban", team: "B", faction: "scissors", text: "DEFENSA bloquea un laminante de The Scissors", banIndex: 0, slotIndex: 0, slotKey: "captain", advancedSlotKey: "captain", advanced: normalized.mode === "advanced" },
+      { type: "ban", team: "A", faction: "pus", text: "ATAQUE bloquea un laminante de P.U.S.", banIndex: 1, slotIndex: 0, slotKey: "captain", advancedSlotKey: "captain", advanced: normalized.mode === "advanced" },
+    ];
+    if (normalized.banMode === "full") {
+      turns.push(
+        { type: "ban", team: "B", faction: "urbino", text: "DEFENSA bloquea un laminante de Urbino", banIndex: 2, slotIndex: 1, slotKey: "subcaptain", advancedSlotKey: "subcaptain", advanced: normalized.mode === "advanced" },
+        { type: "ban", team: "A", faction: "urbino", text: "ATAQUE bloquea un laminante de Urbino", banIndex: 3, slotIndex: 1, slotKey: "subcaptain", advancedSlotKey: "subcaptain", advanced: normalized.mode === "advanced" },
+      );
+    }
+    return turns.map(turn => ({ ...turn, slotKey: normalized.mode === "advanced" ? turn.advancedSlotKey : null }));
+  };
+
+  buildPickTurns = function rpmodsBuildPickTurnsV343(config = DEFAULT_DRAFT_CONFIG) {
+    const normalized = sanitizeDraftConfig(config);
+    if (!rp343IsOfficial(normalized)) {
+      const slotKeys = advancedSlotsForTeamSize(normalized.teamSize);
+      if (normalized.mode === "advanced") {
+        return slotKeys.flatMap((slotKey, index) => ([
+          { type: "pick", team: "A", groupId: index * 2, groupCount: 1, groupSlot: 0, slotIndex: index, slotKey, advanced: true },
+          { type: "pick", team: "B", groupId: index * 2 + 1, groupCount: 1, groupSlot: 0, slotIndex: index, slotKey, advanced: true },
+        ]));
+      }
+      const counters = { A: 0, B: 0 };
+      return pickGroupsForTeamSize(normalized.teamSize).flatMap((group, groupId) => Array.from({ length: group.count }, (_, slot) => {
+        const slotIndex = counters[group.team];
+        counters[group.team] += 1;
+        return { type: "pick", team: group.team, groupId, groupCount: group.count, groupSlot: slot, slotIndex, slotKey: null, advanced: false };
+      }));
+    }
+    return [...rp343LeaderPickTurns(normalized), ...rp343RemainingPickTurns(normalized)];
+  };
+
+  activeTurns = function rpmodsActiveTurnsV343(config = currentDraftConfig()) {
+    const normalized = sanitizeDraftConfig(config);
+    if (!rp343IsOfficial(normalized)) return [...buildBanTurns(normalized), ...buildPickTurns(normalized)];
+    const leaders = rp343LeaderPickTurns(normalized);
+    const nextGroupId = Number(leaders._nextGroupId || leaders.length || 4);
+    return [...leaders, ...buildBanTurns(normalized), ...rp343RemainingPickTurns(normalized, nextGroupId)];
+  };
+
+  activePickTurns = function rpmodsActivePickTurnsV343(config = currentDraftConfig()) {
+    return activeTurns(config).filter(turn => turn.type === "pick");
+  };
+  activeBanTurns = function rpmodsActiveBanTurnsV343(config = currentDraftConfig()) {
+    return buildBanTurns(config);
+  };
+  activeBanTurnCount = function rpmodsActiveBanTurnCountV343(config = currentDraftConfig()) {
+    return activeTurns(config).filter(turn => turn.type === "ban").length;
+  };
+
+  function rp343NormalizeConfigPatch(patch = {}) {
+    const next = { ...patch };
+    if (next.banMode) next.bansEnabled = next.banMode !== "none";
+    return next;
+  }
+
+  const previousApplyDraftConfigPatch343 = applyDraftConfigPatch;
+  applyDraftConfigPatch = function rpmodsApplyDraftConfigPatchV343(patch = {}, options = {}) {
+    previousApplyDraftConfigPatch343(rp343NormalizeConfigPatch(patch), options);
+    state.draftConfig = sanitizeDraftConfig({ ...state.draftConfig });
+    rp343SyncDraftConfigUi();
+  };
+
+  function rp343ConfigSummary(config = currentDraftConfig(), prefix = "Configuración") {
+    const c = sanitizeDraftConfig(config);
+    const bans = c.banMode === "none" ? "Sin bloqueos" : c.banMode === "simple" ? "Baneos simples" : "Baneos completos";
+    const mapMode = c.mapRandomMode === "chibi-elimination" ? "Chibi eliminación" : "Aleatorio clásico";
+    return `${prefix}: ${c.teamSize}v${c.teamSize} · ${c.phaseOrder === "map-first" ? "Mapa primero" : "Draft primero"} · ${bans} · ${mapMode}`;
+  }
+
+  function rp343SelectOptions(select, values) {
+    if (!select || select.dataset.rpmodsV343Filled) return;
+    select.innerHTML = "";
+    values.forEach(item => {
+      const option = document.createElement("option");
+      option.value = item.value;
+      option.textContent = item.label;
+      select.appendChild(option);
+    });
+    select.dataset.rpmodsV343Filled = "1";
+  }
+
+  function rp343EnsureConfigControls() {
+    document.querySelectorAll("#local-bans-enabled, #room-bans-enabled").forEach(input => input.closest(".draft-config-toggle")?.classList.add("rpmods-hidden-legacy-ban-toggle"));
+    const localCard = document.querySelector("#local-config-modal .draft-config-card");
+    if (localCard && !document.getElementById("local-phase-order")) {
+      const block = document.createElement("div");
+      block.className = "draft-config-block rpmods-advanced-config-block";
+      block.innerHTML = `
+        <span class="draft-config-label">Flujo del draft</span>
+        <label class="draft-config-select-row"><span class="draft-config-label">Orden de fase</span><select id="local-phase-order" class="draft-config-select"></select></label>
+        <label class="draft-config-select-row"><span class="draft-config-label">Modo de bloqueos</span><select id="local-ban-mode" class="draft-config-select"></select></label>
+        <label class="draft-config-select-row"><span class="draft-config-label">Mapa aleatorio</span><select id="local-map-random-mode" class="draft-config-select"></select></label>
+      `;
+      document.getElementById("local-config-summary")?.insertAdjacentElement("beforebegin", block);
+    }
+    const roomPanel = document.querySelector(".room-draft-config-panel");
+    if (roomPanel && !document.getElementById("room-phase-order")) {
+      const block = document.createElement("div");
+      block.className = "draft-config-block compact rpmods-online-config-block";
+      block.innerHTML = `
+        <span class="draft-config-label">Flujo del draft</span>
+        <label class="draft-config-select-row"><span class="draft-config-label">Orden de fase</span><select id="room-phase-order" class="draft-config-select"></select></label>
+        <label class="draft-config-select-row"><span class="draft-config-label">Modo de bloqueos</span><select id="room-ban-mode" class="draft-config-select"></select></label>
+        <label class="draft-config-select-row"><span class="draft-config-label">Quién puede elegir por compañeros</span><select id="room-delegation-mode" class="draft-config-select"></select></label>
+        <label class="draft-config-select-row"><span class="draft-config-label">Mapa aleatorio</span><select id="room-map-random-mode" class="draft-config-select"></select></label>
+      `;
+      roomPanel.appendChild(block);
+    }
+
+    const phaseOptions = [
+      { value: "map-first", label: "Selección de mapa primero" },
+      { value: "draft-first", label: "Draft primero" },
+    ];
+    const banOptions = [
+      { value: "full", label: "Completo: rival + Urbino" },
+      { value: "simple", label: "Simple: solo facción rival" },
+      { value: "none", label: "Sin bloqueos" },
+    ];
+    const mapOptions = [
+      { value: "chibi-elimination", label: "Chibi eliminación" },
+      { value: "classic-random", label: "Aleatorio clásico" },
+    ];
+    const delegationOptions = [
+      { value: "captain_subcaptain", label: "Capitán y subcapitán" },
+      { value: "captain_only", label: "Solo capitán" },
+      { value: "all_members", label: "Todos los integrantes" },
+      { value: "none", label: "Nadie" },
+    ];
+    rp343SelectOptions(document.getElementById("local-phase-order"), phaseOptions);
+    rp343SelectOptions(document.getElementById("local-ban-mode"), banOptions);
+    rp343SelectOptions(document.getElementById("local-map-random-mode"), mapOptions);
+    rp343SelectOptions(document.getElementById("room-phase-order"), phaseOptions);
+    rp343SelectOptions(document.getElementById("room-ban-mode"), banOptions);
+    rp343SelectOptions(document.getElementById("room-map-random-mode"), mapOptions);
+    rp343SelectOptions(document.getElementById("room-delegation-mode"), delegationOptions);
+  }
+
+  function rp343SyncDraftConfigUi() {
+    rp343EnsureConfigControls();
+    const c = currentDraftConfig();
+    [["local-phase-order", c.phaseOrder], ["local-ban-mode", c.banMode], ["local-map-random-mode", c.mapRandomMode], ["room-phase-order", c.phaseOrder], ["room-ban-mode", c.banMode], ["room-map-random-mode", c.mapRandomMode], ["room-delegation-mode", c.delegationMode]].forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el && el.value !== value) el.value = value;
+    });
+    const localSummary = document.getElementById("local-config-summary");
+    if (localSummary) localSummary.textContent = rp343ConfigSummary(c, "Configuración");
+    const roomSummary = document.getElementById("room-draft-config-summary");
+    if (roomSummary) roomSummary.textContent = rp343ConfigSummary(c, "Configuración online");
+    document.querySelectorAll("[data-local-team-size]").forEach(button => button.classList.toggle("is-active", Number(button.dataset.localTeamSize) === c.teamSize));
+    document.querySelectorAll("[data-room-team-size]").forEach(button => button.classList.toggle("is-active", Number(button.dataset.roomTeamSize) === c.teamSize));
+    document.querySelectorAll("[data-room-draft-mode]").forEach(button => button.classList.toggle("is-active", button.dataset.roomDraftMode === c.mode));
+  }
+
+  function rp343InstallConfigListeners() {
+    if (window.__rpmodsV343ConfigListeners) return;
+    window.__rpmodsV343ConfigListeners = true;
+    document.addEventListener("change", event => {
+      const id = event.target?.id;
+      if (!id) return;
+      const value = event.target.value;
+      if (id === "local-phase-order") applyDraftConfigPatch({ phaseOrder: value });
+      if (id === "local-ban-mode") applyDraftConfigPatch({ banMode: value });
+      if (id === "local-map-random-mode") applyDraftConfigPatch({ mapRandomMode: value });
+      if (id === "room-phase-order" && currentRole === "host" && !state.draftActive) { applyDraftConfigPatch({ phaseOrder: value }, { syncOnline: true }); pushRoomLobbyConfig(); }
+      if (id === "room-ban-mode" && currentRole === "host" && !state.draftActive) { applyDraftConfigPatch({ banMode: value }, { syncOnline: true }); pushRoomLobbyConfig(); }
+      if (id === "room-map-random-mode" && currentRole === "host" && !state.draftActive) { applyDraftConfigPatch({ mapRandomMode: value }, { syncOnline: true }); pushRoomLobbyConfig(); }
+      if (id === "room-delegation-mode" && currentRole === "host" && !state.draftActive) { applyDraftConfigPatch({ delegationMode: value }, { syncOnline: true }); pushRoomLobbyConfig(); }
+    }, true);
+    document.addEventListener("click", event => {
+      const teamSizeLocal = event.target?.closest?.("[data-local-team-size]");
+      if (teamSizeLocal) applyDraftConfigPatch({ teamSize: Number(teamSizeLocal.dataset.localTeamSize), mode: "advanced", pickPreset: "official-5v5" });
+      const teamSizeRoom = event.target?.closest?.("[data-room-team-size]");
+      if (teamSizeRoom && currentRole === "host" && !state.draftActive) { applyDraftConfigPatch({ teamSize: Number(teamSizeRoom.dataset.roomTeamSize), mode: "advanced", pickPreset: "official-5v5" }, { syncOnline: true }); pushRoomLobbyConfig(); }
+      const roomMode = event.target?.closest?.("[data-room-draft-mode]");
+      if (roomMode && currentRole === "host" && !state.draftActive) { applyDraftConfigPatch({ mode: roomMode.dataset.roomDraftMode === "classic" ? "classic" : "advanced" }, { syncOnline: true }); pushRoomLobbyConfig(); }
+    }, true);
+  }
+
+  const previousOpenLocalDraftConfig343 = openLocalDraftConfig;
+  openLocalDraftConfig = function rpmodsOpenLocalDraftConfigV343() {
+    state.draftConfig = sanitizeDraftConfig({ ...state.draftConfig, mode: "advanced", pickPreset: "official-5v5" });
+    rp343EnsureConfigControls();
+    rp343SyncDraftConfigUi();
+    return previousOpenLocalDraftConfig343();
+  };
+
+  const previousCreateOnlineRoom343 = createOnlineRoom;
+  createOnlineRoom = function rpmodsCreateOnlineRoomV343() {
+    state.draftConfig = sanitizeDraftConfig({ ...state.draftConfig, mode: "advanced", pickPreset: "official-5v5" });
+    rp343SyncDraftConfigUi();
+    return previousCreateOnlineRoom343();
+  };
+
+  function rp343BeginDraftTurnsAfterMap() {
+    state.mapSelectionContext = "predraft-done";
+    state.onlinePhase = currentRoomCode ? "draft" : "local";
+    prepareClockForTurnIndex(0, phaseOverlayDurationMs());
+    if (currentRoomCode) {
+      pushOnlineDraftState({
+        phase: "draft",
+        turnIndex: 0,
+        turnStartedAt: state.turnStartedAt,
+        turnDeadlineAt: state.turnDeadlineAt,
+        selectedMap: state.selectedMap ? { id: state.selectedMap.id, name: state.selectedMap.name } : null,
+        mapRoulette: serializeMapRouletteForOnline(state.mapRoulette),
+        phaseEvent: createOnlinePhaseEvent(currentTurn()?.type === "ban" ? "banPhase" : "pickPhase"),
+      });
+    }
+    switchScreen(draftScreen);
+    setupBackgroundVideo();
+    startMusic("draft");
+    const turn = currentTurn();
+    const isBan = turn?.type === "ban";
+    showPhaseOverlay(
+      isBan ? t("phase_ban") : t("phase_pick"),
+      isBan ? systemDraftVoiceLines.voice_ban_phase.src : systemDraftVoiceLines.voice_pick_phase.src,
+      isBan ? systemDraftVoiceLines.voice_ban_phase.text : systemDraftVoiceLines.voice_pick_phase.text,
+      startTurn,
+    );
+  }
+  window.rpFinishMapSelectionContext = function rpmodsFinishMapSelectionContextV343() {
+    updateMapRouletteClasses();
+    updateSelectedMapCopy();
+    if (state.mapSelectionContext === "predraft") rp343BeginDraftTurnsAfterMap();
+    else showSummaryIntro();
+  };
+
+  startDraft = async function rpmodsStartDraftV343() {
+    if (state.startingDraft) return;
+    state.startingDraft = true;
+    setStartDraftLoading(true);
+    await playUiSound(sounds.startDraft, 1);
+    await delay(5000);
+    state.draftConfig = sanitizeDraftConfig({ ...state.draftConfig, mode: "advanced", pickPreset: "official-5v5" });
+    resetDraftStateBeforeStart();
+    clearDraftTimeouts();
+    state.draftSessionId += 1;
+    state.draftActive = true;
+    setStartDraftLoading(false);
+    state.startingDraft = false;
+    setupBackgroundVideo();
+    startMusic("draft");
+    if (currentDraftConfig().phaseOrder === "map-first") {
+      state.mapSelectionContext = "predraft";
+      startMapSelection({ predraft: true, force: true });
+      scheduleDraftTimeout(() => { if (!state.selectedMap && !state.mapRoulette.active) runMapRoulette({ predraft: true }); }, 850);
+      return;
+    }
+    state.mapSelectionContext = "postdraft";
+    switchScreen(draftScreen);
+    const turn = currentTurn();
+    const isBan = turn?.type === "ban";
+    showPhaseOverlay(
+      isBan ? t("phase_ban") : t("phase_pick"),
+      isBan ? systemDraftVoiceLines.voice_ban_phase.src : systemDraftVoiceLines.voice_pick_phase.src,
+      isBan ? systemDraftVoiceLines.voice_ban_phase.text : systemDraftVoiceLines.voice_pick_phase.text,
+      startTurn,
+    );
+  };
+
+  const previousStartOnlineDraftNow343 = startOnlineDraftNow;
+  startOnlineDraftNow = async function rpmodsStartOnlineDraftNowV343(roomRef, roomData = {}) {
+    const prepared = prepareOnlineDraftStart(roomData);
+    const draftConfig = sanitizeDraftConfig({ ...prepared.draftConfig, mode: "advanced", pickPreset: "official-5v5" });
+    if (draftConfig.phaseOrder !== "map-first") return previousStartOnlineDraftNow343(roomRef, { ...roomData, draftConfig });
+
+    const { assignments, slots, players, captainA, captainB } = { ...prepared, draftConfig };
+    resetDraftStateBeforeStart();
+    state.onlineSlots = slots;
+    state.players = players;
+    state.draftConfig = draftConfig;
+    state.draftSessionId += 1;
+    state.onlinePhase = "map";
+    state.mapSelectionContext = "predraft";
+    const draftPayload = blankOnlineDraftState({
+      phase: "map",
+      draftSessionId: state.draftSessionId,
+      turnIndex: 0,
+      turnDuration: state.turnDuration,
+      turnStartedAt: null,
+      turnDeadlineAt: null,
+      draftConfig,
+      players,
+      slots,
+      captainAssignments: assignments,
+      selectedMap: null,
+      mapRoulette: serializeMapRouletteForOnline({ active: false, highlightedId: null, finalId: null, eliminatedIds: [] }),
+    });
+    await roomRef.update({
+      started: true,
+      startedAt: onlineNow(),
+      updatedAt: onlineNow(),
+      readyCheck: null,
+      players,
+      turnDuration: state.turnDuration,
+      draftConfig,
+      slots,
+      captainAssignments: assignments,
+      teamA: captainA ? { clientId: assignments.A, name: captainA.name, connected: captainA.connected, isBot: Boolean(captainA.isBot), role: "CAPITÁN_ATACANTES", lastSeen: captainA.lastSeen || onlineNow() } : null,
+      teamB: captainB ? { clientId: assignments.B, name: captainB.name, connected: captainB.connected, isBot: Boolean(captainB.isBot), role: "CAPITÁN_DEFENSORES", lastSeen: captainB.lastSeen || onlineNow() } : null,
+      draftState: draftPayload,
+    });
+  };
+
+  const previousProceedAfterTurn343 = proceedAfterTurn;
+  proceedAfterTurn = function rpmodsProceedAfterTurnV343() {
+    if (!isDraftSessionActive()) return;
+    if (state.turnIndex >= activeTurnCount()) {
+      if (currentDraftConfig().phaseOrder === "map-first" && state.selectedMap) showSummaryIntro();
+      else startMapSelection();
+      return;
+    }
+    const prev = activeTurns()[Math.max(0, state.turnIndex - 1)];
+    const next = currentTurn();
+    if (prev && next && prev.type !== next.type) {
+      const isBan = next.type === "ban";
+      showPhaseOverlay(
+        isBan ? t("phase_ban") : t("phase_pick"),
+        isBan ? systemDraftVoiceLines.voice_ban_phase.src : systemDraftVoiceLines.voice_pick_phase.src,
+        isBan ? systemDraftVoiceLines.voice_ban_phase.text : systemDraftVoiceLines.voice_pick_phase.text,
+        startTurn,
+      );
+      return;
+    }
+    startTurn();
+  };
+
+  startMapSelection = function rpmodsStartMapSelectionV343(options = {}) {
+    if (!isDraftSessionActive()) return;
+    clearInterval(state.timerId);
+    state.mapSelectionContext = options.predraft ? "predraft" : (state.turnIndex >= activeTurnCount() ? "postdraft" : state.mapSelectionContext || "postdraft");
+    state.onlinePhase = currentRoomCode ? "map" : state.onlinePhase;
+    state.locked = true;
+    state.selected = null;
+    state.flashBan = null;
+    state.flashPick = null;
+    state.banAnimation = null;
+    state.pickAnimation = null;
+    state.roulette = { active: false, highlightedName: null, finalName: null, previewCharacter: null };
+    state.mapRoulette = state.mapRoulette || { active: false, highlightedId: null, finalId: null, eliminatedIds: [] };
+    state.mapRoulette.eliminatedIds = state.mapRoulette.eliminatedIds || [];
+    switchScreen(mapScreen);
+    mapScreen?.classList.remove("map-enter");
+    void mapScreen?.offsetWidth;
+    mapScreen?.classList.add("map-enter");
+    renderMapGrid();
+    updateSelectedMapCopy();
+    if (currentRoomCode && currentRole === "host") pushOnlineDraftState({ phase: "map", mapRoulette: serializeMapRouletteForOnline(state.mapRoulette) });
+  };
+
+  renderMapGrid = function rpmodsRenderMapGridV343() {
+    if (!mapGrid) return;
+    mapGrid.innerHTML = "";
+    mapGrid.dataset.mapCount = String(maps.length);
+    mapGrid.classList.toggle("map-grid-many", maps.length > 6);
+    mapGrid.classList.toggle("map-grid-xl", maps.length > 9);
+    maps.forEach(map => {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "map-card";
+      card.dataset.mapId = map.id;
+      card.classList.toggle("map-roulette-highlight", state.mapRoulette.active && state.mapRoulette.highlightedId === map.id);
+      card.classList.toggle("map-selected", state.mapRoulette.finalId === map.id || state.selectedMap?.id === map.id);
+      card.classList.toggle("map-eliminated", Array.isArray(state.mapRoulette.eliminatedIds) && state.mapRoulette.eliminatedIds.includes(map.id));
+      const image = document.createElement("div");
+      image.className = "map-card-image";
+      image.appendChild(makeImage([mapImagePath(map)], "", map.name));
+      const imageFallback = document.createElement("span");
+      imageFallback.textContent = t("map");
+      image.appendChild(imageFallback);
+      const name = document.createElement("strong");
+      name.textContent = map.name;
+      card.append(image, name);
+      card.addEventListener("click", () => {
+        if (state.mapRoulette.active || !canControlMapSelection()) return;
+        state.selectedMap = map;
+        state.mapRoulette.finalId = map.id;
+        state.mapRoulette.highlightedId = map.id;
+        pushOnlineDraftState({ selectedMap: { id: map.id, name: map.name }, mapRoulette: serializeMapRouletteForOnline(state.mapRoulette) });
+        audioPlay(sounds.confirm, 0.86, "sfx");
+        renderMapGrid();
+        window.rpFinishMapSelectionContext();
+      });
+      mapGrid.appendChild(card);
+    });
+  };
+
+  updateMapRouletteClasses = function rpmodsUpdateMapRouletteClassesV343() {
+    if (!mapGrid) return;
+    mapGrid.querySelectorAll(".map-card").forEach(card => {
+      const id = card.dataset.mapId;
+      card.classList.toggle("map-roulette-highlight", state.mapRoulette.active && state.mapRoulette.highlightedId === id);
+      card.classList.toggle("map-selected", state.mapRoulette.finalId === id || state.selectedMap?.id === id);
+      card.classList.toggle("map-eliminated", Array.isArray(state.mapRoulette.eliminatedIds) && state.mapRoulette.eliminatedIds.includes(id));
+    });
+  };
+
+  function rp343AudioCandidates(base) {
+    if (!base) return [];
+    if (/\.(ogg|mp3|mp4)$/i.test(base)) return [base];
+    return [`${base}.ogg`, `${base}.mp3`, `${base}.mp4`];
+  }
+  function rp343PlayChibiVoice() {
+    unlockMediaPlayback(true);
+    const index = 1 + Math.floor(Math.random() * 8);
+    audioPlayFromSourceList(rp343AudioCandidates(`audio/map_vote_chibi_${index}`), 1, "sfx");
+  }
+  function rp343EnsureChibiOverlay() {
+    let overlay = document.getElementById("map-chibi-overlay-v343");
+    if (overlay) return overlay;
+    overlay = document.createElement("div");
+    overlay.id = "map-chibi-overlay-v343";
+    overlay.className = "map-chibi-overlay-v343 hidden";
+    overlay.innerHTML = `
+      <img class="map-chibi-fall-v343" alt="chibi" src="img/ui/map_chibi_fall.png">
+      <img class="map-chibi-land-v343" alt="chibi" src="img/ui/map_chibi_land.png">
+    `;
+    document.body.appendChild(overlay);
+    return overlay;
+  }
+  async function rp343DropChibi(mapId, isFinalPause = false) {
+    const card = mapGrid?.querySelector(`.map-card[data-map-id="${mapId}"]`);
+    if (!card) return;
+    if (isFinalPause) await delay(2000);
+    const overlay = rp343EnsureChibiOverlay();
+    const rect = card.getBoundingClientRect();
+    overlay.style.left = `${Math.round(rect.left + rect.width / 2)}px`;
+    overlay.style.top = `${Math.round(rect.top + rect.height / 2 + 22)}px`;
+    overlay.classList.remove("hidden", "is-landing", "is-dropping");
+    void overlay.offsetWidth;
+    overlay.classList.add("is-dropping");
+    await delay(620);
+    overlay.classList.remove("is-dropping");
+    overlay.classList.add("is-landing");
+    audioPlay(sounds.confirm, 0.82, "sfx");
+    rp343PlayChibiVoice();
+    await delay(360);
+    overlay.classList.add("hidden");
+    overlay.classList.remove("is-landing");
+  }
+  function rp343EliminationPlan(total) {
+    const remove = Math.max(0, total - 1);
+    if (total === 9) return [3, 2, 2, 1];
+    const plan = [];
+    let left = remove;
+    while (left > 0) {
+      const step = left >= 3 && !plan.length ? 3 : left >= 2 ? 2 : 1;
+      plan.push(step);
+      left -= step;
+    }
+    return plan;
+  }
+  runMapRoulette = async function rpmodsRunMapRouletteV343(options = {}) {
+    const config = currentDraftConfig();
+    if (config.mapRandomMode === "classic-random") {
+      state.mapRoulette.eliminatedIds = [];
+      const selected = randomFrom(maps);
+      state.mapRoulette.active = true;
+      for (let i = 0; i < 18; i += 1) {
+        const temp = randomFrom(maps);
+        state.mapRoulette.highlightedId = temp.id;
+        updateMapRouletteClasses();
+        audioPlay(sounds.mapRoulette || sounds.roulette, 0.72, "sfx");
+        await delay(70 + i * 10);
+      }
+      state.selectedMap = selected;
+      state.mapRoulette.finalId = selected.id;
+      state.mapRoulette.highlightedId = selected.id;
+      state.mapRoulette.active = false;
+      updateMapRouletteClasses();
+      updateSelectedMapCopy();
+      window.rpFinishMapSelectionContext();
+      return;
+    }
+    const sessionId = state.draftSessionId;
+    if (!isDraftSessionActive(sessionId) || state.mapRoulette.active || !maps.length) return;
+    state.mapRoulette.active = true;
+    state.mapRoulette.finalId = null;
+    state.mapRoulette.highlightedId = null;
+    state.mapRoulette.eliminatedIds = [];
+    updateMapRouletteClasses();
+    const pool = [...maps];
+    const plan = rp343EliminationPlan(pool.length);
+    for (let groupIndex = 0; groupIndex < plan.length; groupIndex += 1) {
+      const count = plan[groupIndex];
+      for (let i = 0; i < count; i += 1) {
+        if (pool.length <= 1) break;
+        const target = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+        state.mapRoulette.highlightedId = target.id;
+        updateMapRouletteClasses();
+        await rp343DropChibi(target.id, groupIndex === plan.length - 1 && i === count - 1);
+        state.mapRoulette.eliminatedIds.push(target.id);
+        updateMapRouletteClasses();
+        await delay(260);
+      }
+    }
+    const selected = pool[0] || randomFrom(maps);
+    state.selectedMap = selected;
+    state.mapRoulette.highlightedId = selected.id;
+    state.mapRoulette.finalId = selected.id;
+    state.mapRoulette.active = false;
+    pushOnlineDraftState({ selectedMap: { id: selected.id, name: selected.name }, mapRoulette: serializeMapRouletteForOnline(state.mapRoulette) });
+    updateMapRouletteClasses();
+    updateSelectedMapCopy();
+    await delay(420);
+    window.rpFinishMapSelectionContext();
+  };
+
+  const previousCanControlCurrentTurn343 = canControlCurrentTurn;
+  canControlCurrentTurn = function rpmodsCanControlCurrentTurnV343() {
+    if (previousCanControlCurrentTurn343()) return true;
+    if (!currentRoomCode || !isAdvancedDraftConfig()) return false;
+    const turn = currentTurn();
+    if (!turn || turn.type !== "pick") return false;
+    const own = advancedAssignmentForClient(onlineClientId(), state.onlineSlots);
+    if (!own || own.team !== turn.team) return false;
+    const mode = currentDraftConfig().delegationMode;
+    if (mode === "none") return false;
+    if (mode === "all_members") return true;
+    if (mode === "captain_only") return own.slotKey === "captain";
+    if (mode === "captain_subcaptain") return own.slotKey === "captain" || own.slotKey === "subcaptain";
+    return false;
+  };
+
+  function rp343RequestKey(team, index) { return `${team}:${index}`; }
+  const previousUpdatePlayerSlotElement343 = updatePlayerSlotElement;
+  updatePlayerSlotElement = function rpmodsUpdatePlayerSlotElementV343(slot, team, index, turn) {
+    previousUpdatePlayerSlotElement343(slot, team, index, turn);
+    slot.dataset.team = team;
+    slot.dataset.slotIndex = String(index);
+    slot.classList.add("rpmods-assist-slot");
+    const old = slot.querySelector(".rpmods-request-bubble");
+    if (old) old.remove();
+    const request = state.rpmodsRequests?.[rp343RequestKey(team, index)];
+    if (request && !state.picks[team][index]) {
+      const bubble = document.createElement("div");
+      bubble.className = "rpmods-request-bubble";
+      bubble.innerHTML = `<strong>Solicitó utilizar el agente ${escapeHtml(request.characterName)}</strong><div class="rpmods-request-actions"><button type="button" data-rpmods-request-accept="1">Aceptar</button><button type="button" data-rpmods-request-reject="1">Rechazar</button></div>`;
+      bubble.querySelector("[data-rpmods-request-accept]")?.addEventListener("click", event => {
+        event.stopPropagation();
+        const character = characters.find(item => item.name === request.characterName);
+        if (character && isCharacterAvailable(character, currentTurn())) {
+          state.selected = character;
+          confirmTurn(false, { onlineSystem: true });
+        }
+        delete state.rpmodsRequests[rp343RequestKey(team, index)];
+        renderAll();
+      });
+      bubble.querySelector("[data-rpmods-request-reject]")?.addEventListener("click", event => {
+        event.stopPropagation();
+        delete state.rpmodsRequests[rp343RequestKey(team, index)];
+        renderAll();
+      });
+      slot.appendChild(bubble);
+    }
+    if (!slot.dataset.rpmodsAssistBound) {
+      slot.dataset.rpmodsAssistBound = "1";
+      slot.addEventListener("click", event => {
+        if (event.target.closest("button")) return;
+        const current = currentTurn();
+        if (!current || current.type !== "pick" || current.team !== team) return;
+        if (state.picks[team][index]) return;
+        if (!canControlCurrentTurn()) return;
+        rp343ShowSlotAssistMenu(slot, team, index);
+      });
+    }
+  };
+
+  function rp343ShowSlotAssistMenu(slot, team, index) {
+    document.querySelectorAll(".rpmods-slot-menu").forEach(node => node.remove());
+    const menu = document.createElement("div");
+    menu.className = "rpmods-slot-menu";
+    menu.innerHTML = `<button type="button" data-rpmods-slot-select="1">Seleccionar PJ</button><button type="button" data-rpmods-slot-cancel="1">Cancelar</button>`;
+    slot.appendChild(menu);
+    menu.querySelector("[data-rpmods-slot-select]")?.addEventListener("click", event => {
+      event.stopPropagation();
+      state.rpmodsAssistTarget = { team, index, playerName: state.players?.[team]?.[index] || `Jugador ${index + 1}` };
+      showAppNotice(`Selecciona el laminante para ${state.rpmodsAssistTarget.playerName}.`, { type: "info", duration: 4200 });
+      menu.remove();
+    });
+    menu.querySelector("[data-rpmods-slot-cancel]")?.addEventListener("click", event => { event.stopPropagation(); menu.remove(); });
+  }
+
+  function rp343IsRequestTurn() {
+    const turn = currentTurn();
+    return Boolean(turn?.type === "pick" && /^player[3-5]$/i.test(String(turn.slotKey || "")));
+  }
+  function rp343SubmitPickRequest() {
+    const turn = currentTurn();
+    if (!turn || !state.selected || !isCharacterAvailable(state.selected, turn)) {
+      showAppNotice("Primero selecciona el laminante que quieres pedir.", { type: "warning" });
+      return;
+    }
+    state.rpmodsRequests[rp343RequestKey(turn.team, turn.slotIndex)] = {
+      characterName: state.selected.name,
+      requestedBy: advancedTurnPlayerName(turn) || state.players?.[turn.team]?.[turn.slotIndex] || "Compañero",
+      at: Date.now(),
+    };
+    showAppNotice(`Pedido enviado: ${state.selected.name}.`, { type: "success" });
+    renderAll();
+  }
+
+  const previousEnsureRandomSelectionButton343 = ensureRandomSelectionButton;
+  ensureRandomSelectionButton = function rpmodsEnsureRandomSelectionButtonV343() {
+    const button = previousEnsureRandomSelectionButton343();
+    if (!button) return button;
+    if (rp343IsRequestTurn()) {
+      button.textContent = "PEDIR";
+      button.title = "Pedir laminante al capitán o subcapitán";
+      button.setAttribute("aria-label", "Pedir laminante al capitán o subcapitán");
+      button.dataset.rpmodsRequestButton = "1";
+    } else {
+      delete button.dataset.rpmodsRequestButton;
+    }
+    return button;
+  };
+
+  document.addEventListener("click", event => {
+    const requestButton = event.target?.closest?.("#random-selection-action[data-rpmods-request-button='1']");
+    if (!requestButton) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    rp343SubmitPickRequest();
+  }, true);
+
+  const previousConfirmTurn343 = confirmTurn;
+  confirmTurn = function rpmodsConfirmTurnV343(isAuto = false, options = {}) {
+    const turn = currentTurn();
+    if (state.rpmodsAssistTarget && state.selected && turn?.type === "pick") {
+      const target = state.rpmodsAssistTarget;
+      state.rpmodsAssistTarget = null;
+      if (target.team === turn.team && isCharacterAvailable(state.selected, turn)) {
+        rp343ShowAssistConfirm(target, state.selected, () => previousConfirmTurn343(isAuto, options));
+        return;
+      }
+    }
+    return previousConfirmTurn343(isAuto, options);
+  };
+
+  function rp343ShowAssistConfirm(target, character, onAccept) {
+    const overlay = document.createElement("div");
+    overlay.className = "rpmods-assist-confirm";
+    overlay.innerHTML = `
+      <section class="rpmods-assist-card">
+        <div class="rpmods-assist-thumb"><img src="${escapeHtml(thumbPath(character.name))}" alt=""></div>
+        <div class="rpmods-assist-copy"><strong>Solicitud de asignación</strong><p>${escapeHtml(target.playerName)} recibirá el laminante <b>${escapeHtml(character.name)}</b>.</p><small>El jugador tiene 10 segundos para aceptar o rechazar.</small><div class="rpmods-assist-bar"><span></span></div></div>
+        <div class="rpmods-assist-actions"><button type="button" data-rpmods-accept="1">Aceptar</button><button type="button" data-rpmods-reject="1">Rechazar</button></div>
+      </section>`;
+    document.body.appendChild(overlay);
+    let done = false;
+    const close = accepted => {
+      if (done) return;
+      done = true;
+      overlay.remove();
+      if (accepted) onAccept?.();
+      else showAppNotice("La solicitud fue rechazada o expiró.", { type: "warning" });
+    };
+    overlay.querySelector("[data-rpmods-accept]")?.addEventListener("click", () => close(true));
+    overlay.querySelector("[data-rpmods-reject]")?.addEventListener("click", () => close(false));
+    setTimeout(() => close(false), 10000);
+  }
+
+  function rp343Boot() {
+    rp343EnsureConfigControls();
+    rp343InstallConfigListeners();
+    state.draftConfig = sanitizeDraftConfig({ ...state.draftConfig, mode: "advanced", pickPreset: "official-5v5" });
+    rp343SyncDraftConfigUi();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", rp343Boot, { once: true });
+  else rp343Boot();
+})();
