@@ -20507,3 +20507,374 @@ body.rp3417-request-picking #character-grid {
 .rp3418-request-cancel:hover {
   background: rgba(255,255,255,.16);
 }
+
+
+/* Revision 2: version badge + map chibi selector */
+.updates-current-version {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(12, 16, 24, 0.72);
+  color: #f3d55b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.map-chibi-variant-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: 18px;
+  align-items: center;
+}
+
+.map-chibi-variant-select {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(24, 30, 42, 0.95);
+  color: #f5f7fb;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.map-chibi-variant-select:disabled {
+  opacity: 0.92;
+  cursor: default;
+}
+
+.map-chibi-selector-note {
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 860px) {
+  .map-chibi-variant-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* v3.4.19 — real tournament rosters and unified player profiles */
+.updates-history-panel li.is-current-update {
+  border-left: 4px solid #d73a4a;
+  padding-left: 12px;
+  background: linear-gradient(90deg, rgba(215, 58, 74, 0.12), transparent 62%);
+}
+
+.tournament-member-level {
+  flex: 0 0 auto;
+  color: var(--t-gold);
+  font-size: .72rem;
+  font-weight: 1000;
+  letter-spacing: .05em;
+}
+
+.tournament-player-layout {
+  grid-template-columns: minmax(0, 1fr) clamp(430px, 31vw, 560px) !important;
+}
+
+.tournament-player-detail {
+  padding: 18px !important;
+}
+
+.tournament-profile-basics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tournament-profile-basics > div,
+.tournament-collection-grid > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(19,23,29,.28);
+}
+
+.tournament-profile-basics span,
+.tournament-collection-grid span,
+.tournament-stat-grid span {
+  color: var(--t-muted);
+  font-size: .68rem;
+  font-weight: 1000;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+
+.tournament-profile-basics b,
+.tournament-collection-grid strong {
+  color: var(--t-text);
+  overflow-wrap: anywhere;
+}
+
+.tournament-rank-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.tournament-rank-overview article {
+  min-width: 0;
+  min-height: 150px;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 6px;
+  padding: 10px 8px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,.13);
+  background: linear-gradient(180deg, rgba(101,111,124,.34), rgba(28,33,40,.24));
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+}
+
+.tournament-rank-overview article > span {
+  min-height: 31px;
+  color: var(--t-muted);
+  font-size: .67rem;
+  font-weight: 1000;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.tournament-rank-overview img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 5px rgba(0,0,0,.4));
+}
+
+.tournament-rank-overview strong {
+  color: var(--t-text);
+  font-size: .92rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.tournament-rank-overview small {
+  color: var(--t-muted);
+  font-size: .67rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.tournament-profile-section {
+  margin-top: 14px;
+}
+
+.tournament-profile-section-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,.15);
+}
+
+.tournament-profile-section-title > span {
+  color: var(--t-gold);
+  font-size: .78rem;
+  font-weight: 1000;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.tournament-profile-section-title > small {
+  max-width: 65%;
+  color: var(--t-muted);
+  font-size: .66rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: right;
+}
+
+.tournament-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.tournament-stat-grid > div {
+  min-width: 0;
+  min-height: 72px;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 9px 10px;
+  background: rgba(22,27,34,.3);
+  border-left: 3px solid rgba(255,211,77,.78);
+}
+
+.tournament-stat-grid strong {
+  color: var(--t-text);
+  font-size: 1.04rem;
+  overflow-wrap: anywhere;
+}
+
+.tournament-collection-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+@media (max-width: 1320px) {
+  .tournament-player-layout {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .tournament-profile-basics,
+  .tournament-stat-grid,
+  .tournament-collection-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tournament-rank-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .tournament-rank-overview article {
+    min-height: 0;
+  }
+
+  .tournament-profile-section-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .tournament-profile-section-title > small {
+    max-width: none;
+    text-align: left;
+  }
+}
+
+
+/* v3.4.23 — normalized tournament thumbnails */
+.tournament-team-emblem {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.tournament-team-emblem strong {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding-inline: 4px !important;
+  font-size: clamp(1.45rem, 1.75vw, 2.15rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: .01em !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  text-wrap: balance;
+}
+
+.tournament-team-emblem strong.is-long-name {
+  font-size: clamp(1.05rem, 1.24vw, 1.58rem) !important;
+  line-height: 1.08 !important;
+  letter-spacing: 0 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  hyphens: none !important;
+}
+
+.tournament-member-main-character {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 7px;
+  background: rgba(20, 24, 31, .22);
+  border-left: 2px solid rgba(255, 211, 77, .72);
+}
+
+.tournament-member-main-character span {
+  color: rgba(255, 255, 255, .68);
+  font-size: .66rem;
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.tournament-member-main-character b,
+.tournament-table-main-character {
+  color: var(--t-gold);
+  font-weight: 1000;
+}
+
+.tournament-most-used-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tournament-most-used-list li {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  background: rgba(255, 255, 255, .055);
+  border: 1px solid rgba(255, 255, 255, .1);
+  min-height: 94px;
+}
+
+.tournament-most-used-list li span {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 24px;
+  height: 24px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 24px;
+  background: var(--t-gold);
+  color: #20242b;
+  font-size: .72rem;
+  font-weight: 1000;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .24);
+}
+
+.tournament-most-used-thumb {
+  width: 64px;
+  height: 64px;
+  display: block;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 2px solid rgba(255, 255, 255, .16);
+  background: rgba(19, 24, 32, .72);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .25);
+}
+
+.tournament-most-used-empty {
+  padding: 12px;
+  background: rgba(255, 255, 255, .045);
+  color: rgba(255, 255, 255, .68);
+  font-weight: 800;
+}
+
+.tournament-player-table {
+  min-width: 1180px !important;
+}
+
+@media (max-width: 760px) {
+  .tournament-most-used-list {
+    grid-template-columns: 1fr;
+  }
+}

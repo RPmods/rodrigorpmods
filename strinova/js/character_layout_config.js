@@ -24,6 +24,7 @@ window.CHARACTER_LAYOUT_CONFIG = {
     "Michele":   { stageSingle: 1.02, stageDouble: 0.98, summary: 1.05, stageOffset: { x: 0, y: -60 }, summaryOffset: { x: -4, y: -6 } },
     "Ming":      { stageSingle: 1.02, stageDouble: 0.98, summary: 1.05, stageOffset: { x: 0, y: -60 }, summaryOffset: { x: -4, y: -6 } },
     "Nobunaga":  { stageSingle: 1.02, stageDouble: 0.98, summary: 1.05, stageOffset: { x: 0, y: -60 }, summaryOffset: { x: -4, y: -6 } },
+    "Nora":      { stageSingle: 1.02, stageDouble: 0.98, summary: 1.05, stageOffset: { x: 0, y: -60 }, summaryOffset: { x: -4, y: -6 } },
     "Reiichi":   { stageSingle: 1.02, stageDouble: 0.98, summary: 1.05, stageOffset: { x: 0, y: -60 }, summaryOffset: { x: -4, y: -6 } },
     "Yugiri":    { stageSingle: 1.02, stageDouble: 0.98, summary: 1.05, stageOffset: { x: 0, y: -60 }, summaryOffset: { x: -4, y: -6 } },
     "Yvette":    { stageSingle: 1.02, stageDouble: 0.98, summary: 1.05, stageOffset: { x: 0, y: -60 }, summaryOffset: { x: -4, y: -6 } },

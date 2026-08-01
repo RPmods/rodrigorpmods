@@ -1,16 +1,17 @@
+// AUTO-GENERATED FILE. Edit the JSON files in data/ and run npm run data:build.
 window.STRINOVA_TOURNAMENT_DATA = {
   "config": {
     "id": "gantigun_cup_2026",
     "name": "Gantigun Cup 2026",
-    "subtitle": "Tournament Hub externo para organización, equipos y perfiles",
+    "subtitle": "Equipos, roles, clasificación y perfiles registrados",
     "organizer": "Gantigun",
     "status": "Preparación",
     "draftCore": "STRINOVA Draft System",
     "statsMeta": {
       "isRealtime": false,
-      "lastUpdated": "2026-07-05T18:37:00-05:00",
-      "display": "05/07/2026 · 18:37 UTC-5",
-      "source": "Datos manuales / capturas de perfil"
+      "lastUpdated": "2026-08-01",
+      "display": "01/08/2026 · datos manuales",
+      "source": "Capturas de perfil del juego y Stringify cuando se indica"
     }
   },
   "teams": [
@@ -26,73 +27,33 @@ window.STRINOVA_TOURNAMENT_DATA = {
         "player_ichitose02",
         "player_itszerone",
         "player_xlixusx",
-        "player_gantigunttv"
+        "player_nameless"
       ],
       "substitutes": [
         "sub_yo4hvns_1",
         "sub_yo4hvns_2"
       ],
-      "notes": "Equipo registrado manualmente con información entregada por el organizador."
+      "notes": "Equipo registrado con cinco titulares. Los dos cupos de suplente permanecen disponibles."
     },
     {
-      "id": "team_crimson_byte",
-      "name": "Crimson Byte",
-      "tag": "CRB",
-      "captainId": "player_nrdarckcore",
-      "subCaptainId": "player_ttvkeeylongas",
-      "status": "demo",
+      "id": "team_shinigamigang",
+      "name": "ShinigamiGang",
+      "tag": "SG",
+      "captainId": "player_niru777",
+      "subCaptainId": "player_miller",
+      "status": "confirmed",
       "players": [
-        "player_nrdarckcore",
-        "player_ttvkeeylongas",
-        "player_pauwu",
-        "player_geanct",
-        "player_annacchi"
+        "player_niru777",
+        "player_miller",
+        "player_kuronon",
+        "player_golfry",
+        "player_kofura"
       ],
       "substitutes": [
-        "sub_crimson_1",
-        "sub_crimson_2"
+        "player_nifer",
+        "player_xenji"
       ],
-      "notes": "Equipo de ejemplo creado con nombres existentes de player_names_config.js."
-    },
-    {
-      "id": "team_nova_rift",
-      "name": "Nova Rift",
-      "tag": "NVR",
-      "captainId": "player_andercito007",
-      "subCaptainId": "player_sant1ago23",
-      "status": "demo",
-      "players": [
-        "player_andercito007",
-        "player_sant1ago23",
-        "player_avega",
-        "player_shadowroot",
-        "player_emikoai"
-      ],
-      "substitutes": [
-        "sub_nova_1",
-        "sub_nova_2"
-      ],
-      "notes": "Equipo de ejemplo creado con nombres existentes de player_names_config.js."
-    },
-    {
-      "id": "team_arc_light",
-      "name": "Arc Light",
-      "tag": "ARC",
-      "captainId": "player_pr1m",
-      "subCaptainId": "player_wizzsv",
-      "status": "demo",
-      "players": [
-        "player_pr1m",
-        "player_wizzsv",
-        "player_pacifyai",
-        "player_fersaqui",
-        "player_nash03"
-      ],
-      "substitutes": [
-        "sub_arc_1",
-        "sub_arc_2"
-      ],
-      "notes": "Equipo de ejemplo creado con nombres existentes de player_names_config.js."
+      "notes": "Capitán: niru777 · Subcapitán: Míller · Suplentes: Nifer y Xenji."
     }
   ],
   "players": [
@@ -102,27 +63,83 @@ window.STRINOVA_TOURNAMENT_DATA = {
       "gameId": "7924676",
       "teamId": "team_yo4hvns",
       "role": "Capitán",
-      "currentRank": "Quarck V",
-      "currentRankId": "quark",
-      "peakRank": "Quarck II",
+      "level": 353,
+      "currentRank": "Electrón IV",
+      "currentRankId": "electron",
+      "seasonHighRank": "Electrón III",
+      "seasonHighRankId": "electron",
+      "peakRank": "Cuark II",
       "peakRankId": "quark",
-      "mainCharacter": "Maddelena",
-      "mainCharacterId": "Maddelena",
-      "status": "inscrito"
+      "peakSeason": "26SP2: Galería de pioneros",
+      "collections": {
+        "laminantSkins": "137/524",
+        "weaponSkins": "167/603"
+      },
+      "seasonStats": {
+        "matches": 58,
+        "winRate": "48.15%",
+        "eliminations": 436,
+        "averageDamage": 250.53,
+        "bestPlayerRate": "1.72%",
+        "headshotEliminationRate": "17.89%",
+        "averageEliminations": 0.55
+      },
+      "statsContext": "Estadísticas de la temporada 26SP4: Velo de Sombras",
+      "profileSource": "Capturas del perfil del juego",
+      "privacyProtected": true,
+      "externalMetrics": {},
+      "mainCharacter": "Nora",
+      "mainCharacterId": "Nora",
+      "status": "inscrito",
+      "accountCreatedAt": "25-5-24",
+      "mostUsedCharacters": [
+        "Nora",
+        "Maddelena",
+        "Celestia"
+      ],
+      "mostUsedContext": "Temporada 26SP4: Velo de Sombras"
     },
     {
       "id": "player_ichitose02",
       "nickname": "iChitose02",
       "gameId": "4306291",
       "teamId": "team_yo4hvns",
-      "role": "Sub-capitán",
-      "currentRank": "Electron I",
+      "role": "Subcapitán",
+      "level": 438,
+      "currentRank": "Electrón IV",
       "currentRankId": "electron",
-      "peakRank": "Quarck V",
+      "seasonHighRank": "Electrón IV",
+      "seasonHighRankId": "electron",
+      "peakRank": "Cuark V",
       "peakRankId": "quark",
-      "mainCharacter": "Fucsia",
+      "peakSeason": "26SP3: Divergencia de sombras",
+      "collections": {
+        "laminantSkins": null,
+        "weaponSkins": null
+      },
+      "seasonStats": {
+        "matches": 93,
+        "winRate": "69.66%",
+        "eliminations": 1002,
+        "averageDamage": 179.18,
+        "bestPlayerRate": "24.73%",
+        "headshotEliminationRate": "22.95%",
+        "averageEliminations": 0.51
+      },
+      "statsContext": "Estadísticas de la temporada 26SP4: Velo de Sombras",
+      "profileSource": "Capturas del perfil del juego",
+      "privacyProtected": false,
+      "externalMetrics": {},
+      "mainCharacter": "Fuchsia",
       "mainCharacterId": "Fuchsia",
-      "status": "inscrito"
+      "status": "inscrito",
+      "accountCreatedAt": "24-11-28",
+      "mostUsedCharacters": [
+        "Fuchsia",
+        "Celestia",
+        "Yvette"
+      ],
+      "mostUsedContext": "Temporada 26SP4: Velo de Sombras"
     },
     {
       "id": "player_itszerone",
@@ -130,13 +147,41 @@ window.STRINOVA_TOURNAMENT_DATA = {
       "gameId": "2215585",
       "teamId": "team_yo4hvns",
       "role": "Miembro",
-      "currentRank": "Electron II",
+      "level": 305,
+      "currentRank": "Electrón III",
       "currentRankId": "electron",
-      "peakRank": "Electron I",
-      "peakRankId": "electron",
-      "mainCharacter": "Chiyo",
-      "mainCharacterId": "Chiyo",
-      "status": "inscrito"
+      "seasonHighRank": "Electrón III",
+      "seasonHighRankId": "electron",
+      "peakRank": "Cuark IV",
+      "peakRankId": "quark",
+      "peakSeason": "26SP3: Divergencia de sombras",
+      "collections": {
+        "laminantSkins": "176/524",
+        "weaponSkins": "215/603"
+      },
+      "seasonStats": {
+        "matches": 65,
+        "winRate": null,
+        "eliminations": 541,
+        "averageDamage": null,
+        "bestPlayerRate": null,
+        "headshotEliminationRate": "20.33%",
+        "averageEliminations": null
+      },
+      "statsContext": "Estadísticas de la temporada 26SP4: Velo de Sombras",
+      "profileSource": "Capturas del perfil del juego",
+      "privacyProtected": true,
+      "externalMetrics": {},
+      "mainCharacter": "Nora",
+      "mainCharacterId": "Nora",
+      "status": "inscrito",
+      "accountCreatedAt": "24-11-21",
+      "mostUsedCharacters": [
+        "Nora",
+        "Michele",
+        "Flavia"
+      ],
+      "mostUsedContext": "Temporada 26SP4: Velo de Sombras"
     },
     {
       "id": "player_xlixusx",
@@ -144,27 +189,102 @@ window.STRINOVA_TOURNAMENT_DATA = {
       "gameId": "8156127",
       "teamId": "team_yo4hvns",
       "role": "Miembro",
-      "currentRank": "Laminante",
-      "currentRankId": "superstring",
+      "level": 114,
+      "currentRank": "Cuark V",
+      "currentRankId": "quark",
+      "seasonHighRank": "Cuark V",
+      "seasonHighRankId": "quark",
       "peakRank": "Laminante",
       "peakRankId": "superstring",
-      "mainCharacter": "Galatea",
-      "mainCharacterId": "Galatea",
-      "status": "inscrito"
+      "peakSeason": "26SP3: Divergencia de sombras",
+      "collections": {
+        "laminantSkins": "74/524",
+        "weaponSkins": "104/603"
+      },
+      "seasonStats": {
+        "matches": 29,
+        "winRate": "57.14%",
+        "eliminations": 272,
+        "averageDamage": 267.01,
+        "bestPlayerRate": "17.24%",
+        "headshotEliminationRate": "19.85%",
+        "averageEliminations": 0.7
+      },
+      "statsContext": "Estadísticas de la temporada 26SP4: Velo de Sombras",
+      "profileSource": "Capturas del perfil del juego",
+      "privacyProtected": false,
+      "externalMetrics": {},
+      "mainCharacter": "Fuchsia",
+      "mainCharacterId": "Fuchsia",
+      "status": "inscrito",
+      "accountCreatedAt": "25-7-20",
+      "mostUsedCharacters": [
+        "Fuchsia",
+        "Nora",
+        "Chiyo"
+      ],
+      "mostUsedContext": "Temporada 26SP4: Velo de Sombras"
     },
     {
-      "id": "player_gantigunttv",
-      "nickname": "GantigunTTV",
-      "gameId": "3361355",
+      "id": "player_nameless",
+      "nickname": "Nàmeless",
+      "gameId": null,
       "teamId": "team_yo4hvns",
       "role": "Miembro",
-      "currentRank": "Electron IV",
+      "level": 124,
+      "currentRank": "Electrón I",
       "currentRankId": "electron",
-      "peakRank": "Electron II",
-      "peakRankId": "electron",
-      "mainCharacter": "Ivette",
-      "mainCharacterId": "Yvette",
-      "status": "inscrito"
+      "seasonHighRank": "Sin datos",
+      "seasonHighRankId": "unranked",
+      "peakRank": "Cuark V",
+      "peakRankId": "quark",
+      "peakSeason": "26SP3: Divergencia de sombras",
+      "collections": {
+        "laminantSkins": null,
+        "weaponSkins": null
+      },
+      "seasonStats": {
+        "matches": null,
+        "winRate": null,
+        "eliminations": null,
+        "averageDamage": null,
+        "bestPlayerRate": null,
+        "headshotEliminationRate": null,
+        "averageEliminations": null
+      },
+      "statsContext": "Resumen parcial disponible en Stringify · 73 replays procesadas",
+      "profileSource": "Stringify · datos parciales",
+      "privacyProtected": false,
+      "externalMetrics": {
+        "replaysProcessed": 73,
+        "kd": 0.87,
+        "weightedKda": 1.25,
+        "headshotRate": "11%",
+        "bodyshotRate": "65%",
+        "legshotRate": "24%",
+        "adr": 214.6,
+        "kast": "56.8%",
+        "rankHistory": [
+          {
+            "season": "26SP3: Divergencia de sombras",
+            "rank": "Cuark V"
+          },
+          {
+            "season": "26SP2: Galería de pioneros",
+            "rank": "Neutrón II"
+          }
+        ]
+      },
+      "mainCharacter": "Nora",
+      "mainCharacterId": "Nora",
+      "status": "inscrito",
+      "accountCreatedAt": null,
+      "mostUsedCharacters": [
+        "Nora",
+        "Yvette",
+        "Celestia"
+      ],
+      "mostUsedContext": "Temporada 26SP4: Velo de Sombras"
     },
     {
       "id": "sub_yo4hvns_1",
@@ -172,13 +292,35 @@ window.STRINOVA_TOURNAMENT_DATA = {
       "gameId": null,
       "teamId": "team_yo4hvns",
       "role": "Suplente 1",
+      "level": null,
       "currentRank": "Sin inscripción",
       "currentRankId": "unranked",
+      "seasonHighRank": "Sin inscripción",
+      "seasonHighRankId": "unranked",
       "peakRank": "Sin inscripción",
       "peakRankId": "unranked",
-      "mainCharacter": "Sin inscripción",
-      "mainCharacterId": "Sin inscripción",
-      "status": "empty"
+      "peakSeason": "Sin información",
+      "collections": {
+        "laminantSkins": null,
+        "weaponSkins": null
+      },
+      "seasonStats": {
+        "matches": null,
+        "winRate": null,
+        "eliminations": null,
+        "averageDamage": null,
+        "bestPlayerRate": null,
+        "headshotEliminationRate": null,
+        "averageEliminations": null
+      },
+      "statsContext": "Sin información",
+      "profileSource": "Sin información",
+      "privacyProtected": false,
+      "externalMetrics": {},
+      "mainCharacter": "Sin información",
+      "mainCharacterId": null,
+      "status": "empty",
+      "accountCreatedAt": null
     },
     {
       "id": "sub_yo4hvns_2",
@@ -186,307 +328,321 @@ window.STRINOVA_TOURNAMENT_DATA = {
       "gameId": null,
       "teamId": "team_yo4hvns",
       "role": "Suplente 2",
+      "level": null,
       "currentRank": "Sin inscripción",
       "currentRankId": "unranked",
+      "seasonHighRank": "Sin inscripción",
+      "seasonHighRankId": "unranked",
       "peakRank": "Sin inscripción",
       "peakRankId": "unranked",
-      "mainCharacter": "Sin inscripción",
-      "mainCharacterId": "Sin inscripción",
-      "status": "empty"
+      "peakSeason": "Sin información",
+      "collections": {
+        "laminantSkins": null,
+        "weaponSkins": null
+      },
+      "seasonStats": {
+        "matches": null,
+        "winRate": null,
+        "eliminations": null,
+        "averageDamage": null,
+        "bestPlayerRate": null,
+        "headshotEliminationRate": null,
+        "averageEliminations": null
+      },
+      "statsContext": "Sin información",
+      "profileSource": "Sin información",
+      "privacyProtected": false,
+      "externalMetrics": {},
+      "mainCharacter": "Sin información",
+      "mainCharacterId": null,
+      "status": "empty",
+      "accountCreatedAt": null
     },
     {
-      "id": "player_nrdarckcore",
-      "nickname": "NR火Darckcore",
-      "gameId": null,
-      "teamId": "team_crimson_byte",
+      "id": "player_niru777",
+      "nickname": "niru777",
+      "gameId": "7417074",
+      "teamId": "team_shinigamigang",
       "role": "Capitán",
-      "currentRank": "Laminante",
-      "currentRankId": "superstring",
-      "peakRank": "Laminante",
-      "peakRankId": "superstring",
-      "mainCharacter": "Ming",
-      "mainCharacterId": "Ming",
-      "status": "inscrito"
-    },
-    {
-      "id": "player_ttvkeeylongas",
-      "nickname": "TTVKEEYLONGAS",
-      "gameId": null,
-      "teamId": "team_crimson_byte",
-      "role": "Sub-capitán",
-      "currentRank": "Quarck I",
-      "currentRankId": "quark",
-      "peakRank": "Laminante",
-      "peakRankId": "superstring",
-      "mainCharacter": "Reiichi",
-      "mainCharacterId": "Reiichi",
-      "status": "inscrito"
-    },
-    {
-      "id": "player_pauwu",
-      "nickname": "pauwu",
-      "gameId": null,
-      "teamId": "team_crimson_byte",
-      "role": "Miembro",
-      "currentRank": "Electron II",
-      "currentRankId": "electron",
-      "peakRank": "Quarck V",
-      "peakRankId": "quark",
-      "mainCharacter": "Kokona",
-      "mainCharacterId": "Kokona",
-      "status": "inscrito"
-    },
-    {
-      "id": "player_geanct",
-      "nickname": "GeanCT",
-      "gameId": null,
-      "teamId": "team_crimson_byte",
-      "role": "Miembro",
-      "currentRank": "Electron V",
-      "currentRankId": "electron",
-      "peakRank": "Electron III",
-      "peakRankId": "electron",
-      "mainCharacter": "Bai Mo",
-      "mainCharacterId": "Bai Mo",
-      "status": "inscrito"
-    },
-    {
-      "id": "player_annacchi",
-      "nickname": "Annacchi",
-      "gameId": null,
-      "teamId": "team_crimson_byte",
-      "role": "Miembro",
-      "currentRank": "Proton I",
-      "currentRankId": "proton",
-      "peakRank": "Neutron IV",
+      "level": 136,
+      "currentRank": "Neutrón IV",
+      "currentRankId": "neutron",
+      "seasonHighRank": "Neutrón IV",
+      "seasonHighRankId": "neutron",
+      "peakRank": "Neutrón II",
       "peakRankId": "neutron",
+      "peakSeason": "26SP2: Galería de pioneros",
+      "collections": {
+        "laminantSkins": "123/524",
+        "weaponSkins": "167/603"
+      },
+      "seasonStats": {
+        "matches": 29,
+        "winRate": "85.19%",
+        "eliminations": 185,
+        "averageDamage": null,
+        "bestPlayerRate": null,
+        "headshotEliminationRate": "20.00%",
+        "averageEliminations": null
+      },
+      "statsContext": "Estadísticas de la temporada 26SP4: Velo de Sombras",
+      "profileSource": "Capturas del perfil del juego",
+      "privacyProtected": false,
+      "externalMetrics": {},
       "mainCharacter": "Flavia",
       "mainCharacterId": "Flavia",
-      "status": "inscrito"
+      "status": "inscrito",
+      "accountCreatedAt": "25-3-2",
+      "mostUsedCharacters": [
+        "Flavia",
+        "Meredith",
+        "Nora"
+      ],
+      "mostUsedContext": "Temporada 26SP4: Velo de Sombras"
     },
     {
-      "id": "sub_crimson_1",
-      "nickname": "- sin inscripción -",
-      "gameId": null,
-      "teamId": "team_crimson_byte",
-      "role": "Suplente 1",
-      "currentRank": "Sin inscripción",
-      "currentRankId": "unranked",
-      "peakRank": "Sin inscripción",
-      "peakRankId": "unranked",
-      "mainCharacter": "Sin inscripción",
-      "mainCharacterId": "Sin inscripción",
-      "status": "empty"
-    },
-    {
-      "id": "sub_crimson_2",
-      "nickname": "- sin inscripción -",
-      "gameId": null,
-      "teamId": "team_crimson_byte",
-      "role": "Suplente 2",
-      "currentRank": "Sin inscripción",
-      "currentRankId": "unranked",
-      "peakRank": "Sin inscripción",
-      "peakRankId": "unranked",
-      "mainCharacter": "Sin inscripción",
-      "mainCharacterId": "Sin inscripción",
-      "status": "empty"
-    },
-    {
-      "id": "player_andercito007",
-      "nickname": "Andercito007",
-      "gameId": null,
-      "teamId": "team_nova_rift",
-      "role": "Capitán",
-      "currentRank": "Quarck II",
-      "currentRankId": "quark",
-      "peakRank": "Quarck I",
-      "peakRankId": "quark",
-      "mainCharacter": "Audrey",
-      "mainCharacterId": "Audrey",
-      "status": "inscrito"
-    },
-    {
-      "id": "player_sant1ago23",
-      "nickname": "Sant1ago23",
-      "gameId": null,
-      "teamId": "team_nova_rift",
-      "role": "Sub-capitán",
-      "currentRank": "Quarck V",
-      "currentRankId": "quark",
-      "peakRank": "Quarck III",
-      "peakRankId": "quark",
-      "mainCharacter": "Nobunaga",
-      "mainCharacterId": "Nobunaga",
-      "status": "inscrito"
-    },
-    {
-      "id": "player_avega",
-      "nickname": "AVega",
-      "gameId": null,
-      "teamId": "team_nova_rift",
-      "role": "Miembro",
-      "currentRank": "Electron I",
+      "id": "player_miller",
+      "nickname": "Míller",
+      "gameId": "5298109",
+      "teamId": "team_shinigamigang",
+      "role": "Subcapitán",
+      "level": 295,
+      "currentRank": "Electrón IV",
       "currentRankId": "electron",
-      "peakRank": "Quarck V",
+      "seasonHighRank": "Electrón IV",
+      "seasonHighRankId": "electron",
+      "peakRank": "Cuark IV",
       "peakRankId": "quark",
-      "mainCharacter": "Celestia",
-      "mainCharacterId": "Celestia",
-      "status": "inscrito"
+      "peakSeason": "26SP3: Divergencia de sombras",
+      "collections": {
+        "laminantSkins": "143/524",
+        "weaponSkins": "177/603"
+      },
+      "seasonStats": {
+        "matches": 37,
+        "winRate": "71.88%",
+        "eliminations": 343,
+        "averageDamage": 321.33,
+        "bestPlayerRate": "21.62%",
+        "headshotEliminationRate": "52.77%",
+        "averageEliminations": 0.65
+      },
+      "statsContext": "Estadísticas de la temporada 26SP4: Velo de Sombras",
+      "profileSource": "Capturas del perfil del juego",
+      "privacyProtected": false,
+      "externalMetrics": {},
+      "mainCharacter": "Kokona",
+      "mainCharacterId": "Kokona",
+      "status": "inscrito",
+      "accountCreatedAt": "24-12-9",
+      "mostUsedCharacters": [
+        "Kokona",
+        "Kanami",
+        "Maddelena"
+      ],
+      "mostUsedContext": "Temporada 26SP4: Velo de Sombras"
     },
     {
-      "id": "player_shadowroot",
-      "nickname": "ShadowRoot",
-      "gameId": null,
-      "teamId": "team_nova_rift",
+      "id": "player_kuronon",
+      "nickname": "kuronon",
+      "gameId": "2091266",
+      "teamId": "team_shinigamigang",
       "role": "Miembro",
-      "currentRank": "Electron III",
-      "currentRankId": "electron",
-      "peakRank": "Electron I",
+      "level": 187,
+      "currentRank": "Protón II",
+      "currentRankId": "proton",
+      "seasonHighRank": "Protón II",
+      "seasonHighRankId": "proton",
+      "peakRank": "Electrón V",
       "peakRankId": "electron",
-      "mainCharacter": "Lawine",
-      "mainCharacterId": "Lawine",
-      "status": "inscrito"
+      "peakSeason": "26SP3: Divergencia de sombras",
+      "collections": {
+        "laminantSkins": "156/524",
+        "weaponSkins": "185/603"
+      },
+      "seasonStats": {
+        "matches": 37,
+        "winRate": "85.29%",
+        "eliminations": 477,
+        "averageDamage": null,
+        "bestPlayerRate": null,
+        "headshotEliminationRate": null,
+        "averageEliminations": null
+      },
+      "statsContext": "Estadísticas de la temporada 26SP4: Velo de Sombras",
+      "profileSource": "Capturas del perfil del juego",
+      "privacyProtected": false,
+      "externalMetrics": {},
+      "mainCharacter": "Meredith",
+      "mainCharacterId": "Meredith",
+      "status": "inscrito",
+      "accountCreatedAt": "24-11-21",
+      "mostUsedCharacters": [
+        "Meredith",
+        "Michele",
+        "Nora"
+      ],
+      "mostUsedContext": "Temporada 26SP4: Velo de Sombras"
     },
     {
-      "id": "player_emikoai",
-      "nickname": "EmikoAi",
-      "gameId": null,
-      "teamId": "team_nova_rift",
+      "id": "player_golfry",
+      "nickname": "golfry",
+      "gameId": "6847525",
+      "teamId": "team_shinigamigang",
       "role": "Miembro",
-      "currentRank": "Neutron I",
+      "level": 176,
+      "currentRank": "Átomo I",
+      "currentRankId": "atom",
+      "seasonHighRank": "Átomo I",
+      "seasonHighRankId": "atom",
+      "peakRank": "Protón IV",
+      "peakRankId": "proton",
+      "peakSeason": "26SP2: Galería de pioneros",
+      "collections": {
+        "laminantSkins": "147/524",
+        "weaponSkins": "168/603"
+      },
+      "seasonStats": {
+        "matches": 26,
+        "winRate": "84.62%",
+        "eliminations": 346,
+        "averageDamage": 259.26,
+        "bestPlayerRate": "23.08%",
+        "headshotEliminationRate": "17.34%",
+        "averageEliminations": null
+      },
+      "statsContext": "Estadísticas de la temporada 26SP4: Velo de Sombras",
+      "profileSource": "Capturas del perfil del juego",
+      "privacyProtected": true,
+      "externalMetrics": {},
+      "mainCharacter": "Nora",
+      "mainCharacterId": "Nora",
+      "status": "inscrito",
+      "accountCreatedAt": "25-1-24",
+      "mostUsedCharacters": [
+        "Nora",
+        "Fuchsia",
+        "Nobunaga"
+      ],
+      "mostUsedContext": "Temporada 26SP4: Velo de Sombras"
+    },
+    {
+      "id": "player_kofura",
+      "nickname": "Kofura",
+      "gameId": "3793638",
+      "teamId": "team_shinigamigang",
+      "role": "Miembro",
+      "level": 82,
+      "currentRank": "Neutrón IV",
       "currentRankId": "neutron",
-      "peakRank": "Electron V",
-      "peakRankId": "electron",
-      "mainCharacter": "Yvette",
-      "mainCharacterId": "Yvette",
-      "status": "inscrito"
+      "seasonHighRank": "Neutrón IV",
+      "seasonHighRankId": "neutron",
+      "peakRank": "Neutrón IV",
+      "peakRankId": "neutron",
+      "peakSeason": "26SP3: Divergencia de sombras",
+      "collections": {
+        "laminantSkins": "76/524",
+        "weaponSkins": "105/603"
+      },
+      "seasonStats": {
+        "matches": 70,
+        "winRate": "80.30%",
+        "eliminations": 757,
+        "averageDamage": 272.54,
+        "bestPlayerRate": "38.57%",
+        "headshotEliminationRate": "27.61%",
+        "averageEliminations": 0.77
+      },
+      "statsContext": "Estadísticas de la temporada 26SP4: Velo de Sombras",
+      "profileSource": "Capturas del perfil del juego",
+      "privacyProtected": true,
+      "externalMetrics": {},
+      "mainCharacter": "Sin información",
+      "mainCharacterId": null,
+      "status": "inscrito",
+      "accountCreatedAt": "24-11-25",
+      "mostUsedCharacters": [],
+      "mostUsedContext": "Temporada 26SP4: Velo de Sombras"
     },
     {
-      "id": "sub_nova_1",
-      "nickname": "- sin inscripción -",
-      "gameId": null,
-      "teamId": "team_nova_rift",
-      "role": "Suplente 1",
-      "currentRank": "Sin inscripción",
-      "currentRankId": "unranked",
-      "peakRank": "Sin inscripción",
-      "peakRankId": "unranked",
-      "mainCharacter": "Sin inscripción",
-      "mainCharacterId": "Sin inscripción",
-      "status": "empty"
-    },
-    {
-      "id": "sub_nova_2",
-      "nickname": "- sin inscripción -",
-      "gameId": null,
-      "teamId": "team_nova_rift",
-      "role": "Suplente 2",
-      "currentRank": "Sin inscripción",
-      "currentRankId": "unranked",
-      "peakRank": "Sin inscripción",
-      "peakRankId": "unranked",
-      "mainCharacter": "Sin inscripción",
-      "mainCharacterId": "Sin inscripción",
-      "status": "empty"
-    },
-    {
-      "id": "player_pr1m",
-      "nickname": "Pr1m",
-      "gameId": null,
-      "teamId": "team_arc_light",
-      "role": "Capitán",
-      "currentRank": "Quarck III",
-      "currentRankId": "quark",
-      "peakRank": "Quarck II",
-      "peakRankId": "quark",
-      "mainCharacter": "Fuchsia",
-      "mainCharacterId": "Fuchsia",
-      "status": "inscrito"
-    },
-    {
-      "id": "player_wizzsv",
-      "nickname": "wizzSv",
-      "gameId": null,
-      "teamId": "team_arc_light",
-      "role": "Sub-capitán",
-      "currentRank": "Quarck V",
-      "currentRankId": "quark",
-      "peakRank": "Quarck IV",
-      "peakRankId": "quark",
-      "mainCharacter": "Michele",
-      "mainCharacterId": "Michele",
-      "status": "inscrito"
-    },
-    {
-      "id": "player_pacifyai",
-      "nickname": "PacifyAI",
-      "gameId": null,
-      "teamId": "team_arc_light",
-      "role": "Miembro",
-      "currentRank": "Electron I",
-      "currentRankId": "electron",
-      "peakRank": "Quarck V",
-      "peakRankId": "quark",
+      "id": "player_nifer",
+      "nickname": "Nifer",
+      "gameId": "4493159",
+      "teamId": "team_shinigamigang",
+      "role": "Suplente",
+      "level": 238,
+      "currentRank": "Protón III",
+      "currentRankId": "proton",
+      "seasonHighRank": "Protón III",
+      "seasonHighRankId": "proton",
+      "peakRank": "Neutrón IV",
+      "peakRankId": "neutron",
+      "peakSeason": "Temporada 6: Sinfonía del dragón",
+      "collections": {
+        "laminantSkins": "160/524",
+        "weaponSkins": "214/603"
+      },
+      "seasonStats": {
+        "matches": 46,
+        "winRate": "100.00%",
+        "eliminations": null,
+        "averageDamage": null,
+        "bestPlayerRate": "36.96%",
+        "headshotEliminationRate": "17.07%",
+        "averageEliminations": null
+      },
+      "statsContext": "Estadísticas de la temporada 26SP4: Velo de Sombras",
+      "profileSource": "Capturas del perfil del juego",
+      "privacyProtected": false,
+      "externalMetrics": {},
       "mainCharacter": "Chiyo",
       "mainCharacterId": "Chiyo",
-      "status": "inscrito"
+      "status": "inscrito",
+      "accountCreatedAt": "24-11-30",
+      "mostUsedCharacters": [
+        "Chiyo",
+        "Nora",
+        "Eika"
+      ],
+      "mostUsedContext": "Temporada 26SP4: Velo de Sombras"
     },
     {
-      "id": "player_fersaqui",
-      "nickname": "FerSaQui",
-      "gameId": null,
-      "teamId": "team_arc_light",
-      "role": "Miembro",
-      "currentRank": "Electron II",
-      "currentRankId": "electron",
-      "peakRank": "Electron I",
-      "peakRankId": "electron",
-      "mainCharacter": "Kanami",
-      "mainCharacterId": "Kanami",
-      "status": "inscrito"
-    },
-    {
-      "id": "player_nash03",
-      "nickname": "Nash03",
-      "gameId": null,
-      "teamId": "team_arc_light",
-      "role": "Miembro",
-      "currentRank": "Neutron I",
-      "currentRankId": "neutron",
-      "peakRank": "Electron IV",
-      "peakRankId": "electron",
-      "mainCharacter": "Maddelena",
-      "mainCharacterId": "Maddelena",
-      "status": "inscrito"
-    },
-    {
-      "id": "sub_arc_1",
-      "nickname": "- sin inscripción -",
-      "gameId": null,
-      "teamId": "team_arc_light",
-      "role": "Suplente 1",
-      "currentRank": "Sin inscripción",
-      "currentRankId": "unranked",
-      "peakRank": "Sin inscripción",
-      "peakRankId": "unranked",
-      "mainCharacter": "Sin inscripción",
-      "mainCharacterId": "Sin inscripción",
-      "status": "empty"
-    },
-    {
-      "id": "sub_arc_2",
-      "nickname": "- sin inscripción -",
-      "gameId": null,
-      "teamId": "team_arc_light",
-      "role": "Suplente 2",
-      "currentRank": "Sin inscripción",
-      "currentRankId": "unranked",
-      "peakRank": "Sin inscripción",
-      "peakRankId": "unranked",
-      "mainCharacter": "Sin inscripción",
-      "mainCharacterId": "Sin inscripción",
-      "status": "empty"
+      "id": "player_xenji",
+      "nickname": "Xenji",
+      "gameId": "3618656",
+      "teamId": "team_shinigamigang",
+      "role": "Suplente",
+      "level": 256,
+      "currentRank": "Protón I",
+      "currentRankId": "proton",
+      "seasonHighRank": "Protón I",
+      "seasonHighRankId": "proton",
+      "peakRank": "Neutrón IV",
+      "peakRankId": "neutron",
+      "peakSeason": "26SP3: Divergencia de sombras",
+      "collections": {
+        "laminantSkins": "144/524",
+        "weaponSkins": "171/603"
+      },
+      "seasonStats": {
+        "matches": 54,
+        "winRate": "98.11%",
+        "eliminations": 1454,
+        "averageDamage": null,
+        "bestPlayerRate": "37.04%",
+        "headshotEliminationRate": "12.10%",
+        "averageEliminations": null
+      },
+      "statsContext": "Estadísticas de la temporada 26SP4: Velo de Sombras",
+      "profileSource": "Capturas del perfil del juego",
+      "privacyProtected": true,
+      "externalMetrics": {},
+      "mainCharacter": "Sin información",
+      "mainCharacterId": null,
+      "status": "inscrito",
+      "accountCreatedAt": "24-11-24",
+      "mostUsedCharacters": [],
+      "mostUsedContext": "Temporada 26SP4: Velo de Sombras"
     }
   ],
   "ranks": [
@@ -794,6 +950,14 @@ window.STRINOVA_TOURNAMENT_DATA = {
       "displayName": "Ivette",
       "faction": "PUS",
       "draftName": "Yvette"
+    },
+    {
+      "id": "nora",
+      "name": "Nora",
+      "faction": "The Scissors",
+      "factionId": "scissors",
+      "draftName": "Nora",
+      "role": "Vanguardia"
     }
   ]
 };

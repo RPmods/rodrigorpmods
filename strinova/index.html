@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STRINOVA Draft System v3.4.18 by RPmods</title>
+  <title>STRINOVA Draft System v3.4.23 by RPmods</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -36,7 +36,7 @@
   <main id="setup-screen" class="screen setup-screen active">
     <section class="setup-shell settings-surface">
       <header class="settings-topbar">
-        <div class="settings-brand">STRINOVA Draft System v3.4.18 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.23 by RPmods</div>
         <nav class="settings-tabs">
           <button type="button" class="settings-tab setup-top-tab is-active" data-tab="menu">MENÚ</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="tournament">TORNEO</button>
@@ -403,9 +403,10 @@
               <div class="subconfig-heading updates-heading">
                 <span>Updates / Historial</span>
                 <strong>Mejoras importantes</strong>
+                <small class="updates-current-version" data-current-version-label>Versión actual: v3.4.23</small>
               </div>
 
-              <div class="updates-history-panel">
+              <div class="updates-history-panel" data-current-version="3.4.23">
                 <ul>
                   <li>v2.3 — Base estable: se consolidó la interfaz competitiva, el draft local, bloqueos, selecciones, audios y resumen final.</li>
                   <li>v2.4 — Se añadió el modo online con salas por código, líder espectador, sincronización de picks, bans, turnos, mapa y estado completo.</li>
@@ -470,6 +471,8 @@
                   <li>v3.3.5 Hotfix (Menu Layout + Tournament Real Scroll) — Se reorganizó visualmente el menú principal sin tocar el flujo del draft, se estabilizó la barra superior al entrar en Torneo y se corrigió el scroll real del Tournament Hub para que pueda bajarse con la rueda del mouse sin cortar contenido.</li>
                   <li>v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Se corrigió el recorte vertical del Tournament Hub, se mejoró el desplazamiento con rueda del mouse, se rediseñaron tarjetas de equipos/jugadores para evitar nombres cortados y se modernizó la barra del menú principal sin tocar la lógica del draft.</li>
                   <li>v3.3.2 Hotfix (Tournament Wide Layout) — Se amplió el Tournament Hub para usar más espacio de pantalla, se retiraron las pestañas innecesarias de Mapas y Reglas, se reforzó el escalado responsivo y se mejoró la visualización de Resumen, Equipos y Jugadores.</li>
+                  <li data-static-update="1">v3.4.19 Update (Tournament Real Rosters + Player Profiles) — Se integraron los equipos YO4HVNS y ShinigamiGang con roles reales, clasificación, colecciones y estadísticas comunes de 26SP4. Se eliminaron los registros de demostración, los campos innecesarios y las métricas no comparables; los datos ausentes ahora se muestran como “Sin datos” y el perfil parcial procedente de Stringify identifica claramente su fuente y sus limitaciones.</li>
+                  <li class="is-current-update" data-static-update="1">v3.4.23 Update (Normalized Character Thumbs) — Se generó un set independiente de thumbnails cuadrados para el Tournament Hub, ajustando individualmente el zoom y el encuadre de los laminantes más usados para que todos tengan una escala visual uniforme sin modificar los recursos utilizados por el draft.</li>
                 </ul>
               </div>
             </section>
@@ -625,10 +628,16 @@
                         <output id="map-chibi-size-value-v346" for="map-chibi-size-range-v346">150px</output>
                       </div>
                     </label>
-                    <div class="map-chibi-paths-note">
-                      <code>img/ui/map_chibi_fall.png</code>
-                      <code>img/ui/map_chibi_land.png</code>
-                    </div>
+                    <label class="map-chibi-variant-row" for="map-chibi-variant-select-v346">
+                      <div class="subconfig-copy">
+                        <span>Chibi disponible</span>
+                        <small>Selecciona el set PNG registrado para la animación de mapa.</small>
+                      </div>
+                      <select id="map-chibi-variant-select-v346" class="map-chibi-variant-select" aria-label="Chibi disponible para selección de mapa">
+                        <option value="default">Chibi predeterminado</option>
+                      </select>
+                    </label>
+                    <div class="map-chibi-selector-note">Actualmente hay 1 chibi PNG registrado para esta animación.</div>
                   </div>
                 </div>
               </section>
@@ -903,7 +912,7 @@
   <main id="map-screen" class="screen map-screen">
     <section class="map-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.4.18 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.23 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab is-active">SELECCIÓN DE MAPA</span>
         </nav>
@@ -934,7 +943,7 @@
   <main id="summary-screen" class="screen summary-screen">
     <section class="summary-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.4.18 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.23 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab">BÁSICO</span>
           <span class="settings-tab">EQUIPOS</span>

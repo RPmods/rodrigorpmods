@@ -60,15 +60,15 @@
 
   function teamPlayers(team, includeSubs = true) {
     const ids = includeSubs ? [...(team.players || []), ...(team.substitutes || [])] : [...(team.players || [])];
-    const roster = ids.map(playerById).filter(Boolean);
-    const active = sortPlayersByRank(roster.filter(player => player.status !== "empty"));
-    const empty = roster.filter(player => player.status === "empty");
-    return [...active, ...empty];
+    return ids.map(playerById).filter(Boolean);
   }
 
-  function characterThumb(player) {
-    if (!player?.mainCharacterId) return "";
-    return `img/characters/thumbs/${String(player.mainCharacterId).replaceAll(" ", "_")}.png`;
+  function displayValue(value, fallback = "Sin datos") {
+    return value === null || value === undefined || value === "" ? fallback : String(value);
+  }
+
+  function renderInfoValue(value, fallback = "Sin datos") {
+    return esc(displayValue(value, fallback));
   }
 
   function statusLabel(value) {
@@ -82,9 +82,38 @@
     return `<span class="tournament-rank-cell">${icon ? `<img class="tournament-rank-icon" src="${esc(icon)}" alt="">` : ""}<span>${esc(label)}</span></span>`;
   }
 
+  function mostUsedCharacters(player) {
+    return Array.isArray(player?.mostUsedCharacters)
+      ? player.mostUsedCharacters.filter(Boolean).slice(0, 3)
+      : [];
+  }
+
+  function mainCharacterLabel(player) {
+    return mostUsedCharacters(player)[0] || player?.mainCharacter || "Sin información";
+  }
+
+  function slugName(name) {
+    return String(name || "").replaceAll(" ", "_");
+  }
+
+  function characterThumbPath(name) {
+    return `img/characters/tournament-thumbs/${slugName(name)}.png`;
+  }
+
+  function renderMostUsedCharacters(player) {
+    const names = mostUsedCharacters(player);
+    if (!names.length) return `<div class="tournament-most-used-empty">Sin información</div>`;
+    return `<ol class="tournament-most-used-list">${names.map((name, index) => `
+      <li title="${esc(name)}">
+        <span>${index + 1}</span>
+        <img class="tournament-most-used-thumb" src="${esc(characterThumbPath(name))}" alt="${esc(name)}" loading="lazy">
+      </li>`).join("")}</ol>`;
+  }
+
   function renderTeamCard(team, compact = false) {
     const roster = teamPlayers(team, true);
-    const activePlayers = roster.filter(player => player.status !== "empty");
+    const activePlayers = (team.players || []).map(playerById).filter(player => player && player.status !== "empty");
+    const registeredSubs = (team.substitutes || []).map(playerById).filter(player => player && player.status !== "empty");
     const rows = roster.map(player => {
       const captainMark = player.id === team.captainId ? " is-captain" : player.id === team.subCaptainId ? " is-subcaptain" : "";
       const stateClass = player.status === "empty" ? " is-empty" : "";
@@ -92,10 +121,11 @@
         <article class="tournament-roster-member${stateClass}${captainMark}">
           <div class="tournament-member-topline">
             <span class="tournament-role-badge ${player.status === "empty" ? "empty" : ""}">${esc(player.role)}</span>
-            <span class="tournament-member-character">${esc(player.mainCharacter)}</span>
+            ${player.level ? `<span class="tournament-member-level">NV. ${esc(player.level)}</span>` : ""}
           </div>
           <strong class="tournament-member-name">${esc(player.nickname)}</strong>
-          ${player.gameId ? `<small class="tournament-member-id">ID:${esc(player.gameId)}</small>` : `<small class="tournament-member-id">Sin inscripción</small>`}
+          ${player.gameId ? `<small class="tournament-member-id">ID:${esc(player.gameId)}</small>` : `<small class="tournament-member-id">Sin datos de ID</small>`}
+          <div class="tournament-member-main-character"><span>Más usado</span><b>${esc(mainCharacterLabel(player))}</b></div>
           <div class="tournament-member-ranks">
             <div><span>Actual</span>${renderRankCell(player.currentRank, player.currentRankId)}</div>
             <div><span>Máximo</span>${renderRankCell(player.peakRank, player.peakRankId)}</div>
@@ -106,7 +136,7 @@
       <article class="tournament-team-card ${compact ? "is-featured" : ""}">
         <div class="tournament-team-emblem">
           <span>${esc(team.tag || "TEAM")}</span>
-          <strong>${esc(team.name)}</strong>
+          <strong class="${String(team.name || "").length > 10 ? "is-long-name" : ""}">${esc(team.name)}</strong>
           <em>${esc(statusLabel(team.status))}</em>
         </div>
         <div class="tournament-team-main">
@@ -119,8 +149,8 @@
           </div>
           <div class="tournament-team-meta">
             <span>Capitán: <b>${esc((playerById(team.captainId) || {}).nickname || "Pendiente")}</b></span>
-            <span>Sub-capitán: <b>${esc((playerById(team.subCaptainId) || {}).nickname || "Pendiente")}</b></span>
-            <span>Suplentes: <b>${(team.substitutes || []).filter(id => (playerById(id) || {}).status !== "empty").length}/2</b></span>
+            <span>Subcapitán: <b>${esc((playerById(team.subCaptainId) || {}).nickname || "Pendiente")}</b></span>
+            <span>Suplentes: <b>${registeredSubs.length}/${(team.substitutes || []).length || 2}</b></span>
           </div>
           <div class="tournament-roster-list">${rows}</div>
           ${team.notes ? `<p class="tournament-team-note">${esc(team.notes)}</p>` : ""}
@@ -136,7 +166,7 @@
     const players = allActivePlayers();
     return `
       <table class="tournament-player-table">
-        <thead><tr><th>#</th><th>Jugador</th><th>Equipo</th><th>Rol</th><th>Rango actual</th><th>Máximo</th><th>Laminante</th></tr></thead>
+        <thead><tr><th>#</th><th>Jugador</th><th>Equipo</th><th>Rol</th><th>Nivel</th><th>Laminante más usado</th><th>Rango actual</th><th>Máximo</th></tr></thead>
         <tbody>
           ${players.map((player, index) => `
             <tr class="tournament-player-row ${index === 0 ? "is-selected" : ""}" data-player-id="${esc(player.id)}">
@@ -144,9 +174,10 @@
               <td><span class="player-name-strong">${esc(player.nickname)}</span>${player.gameId ? `<small>ID:${esc(player.gameId)}</small>` : ""}</td>
               <td>${esc(teamName(player.teamId))}</td>
               <td>${esc(player.role)}</td>
+              <td>${renderInfoValue(player.level)}</td>
+              <td><strong class="tournament-table-main-character">${esc(mainCharacterLabel(player))}</strong></td>
               <td>${renderRankCell(player.currentRank, player.currentRankId)}</td>
               <td>${renderRankCell(player.peakRank, player.peakRankId)}</td>
-              <td>${esc(player.mainCharacter)}</td>
             </tr>`).join("")}
         </tbody>
       </table>`;
@@ -155,23 +186,81 @@
   function renderPlayerDetail(player) {
     const detail = $("#tournament-player-detail");
     if (!detail || !player) return;
-    const icon = rankIcon(player.currentRankId);
-    const thumb = characterThumb(player);
+    const currentIcon = rankIcon(player.currentRankId);
+    const seasonIcon = rankIcon(player.seasonHighRankId);
+    const peakIcon = rankIcon(player.peakRankId);
+    const seasonStats = player.seasonStats || {};
+    const collections = player.collections || {};
+    const stats = [
+      ["Partidas", seasonStats.matches],
+      ["Tasa de victorias", seasonStats.winRate],
+      ["Eliminaciones", seasonStats.eliminations],
+      ["Daño promedio", seasonStats.averageDamage],
+      ["Mejor jugador", seasonStats.bestPlayerRate],
+      ["Eliminaciones por disparo a la cabeza", seasonStats.headshotEliminationRate],
+      ["Eliminaciones promedio", seasonStats.averageEliminations],
+    ];
+
     detail.innerHTML = `
       <div class="tournament-detail-header">
-        <span>Perfil destacado</span>
+        <span>Perfil registrado</span>
         <h3>${esc(player.nickname)}</h3>
-        <p class="tournament-detail-id">ID:${esc(player.gameId || "Sin inscripción")}</p>
+        <p class="tournament-detail-id">ID:${esc(player.gameId || "Sin datos")}</p>
       </div>
-      <div class="rank-big">${icon ? `<img src="${esc(icon)}" alt="">` : ""}<strong>${esc(player.currentRank)}</strong></div>
-      <div class="tournament-player-meta">
+
+      <div class="tournament-profile-basics">
+        <div><span>Nivel</span><b>${renderInfoValue(player.level)}</b></div>
         <div><span>Equipo</span><b>${esc(teamName(player.teamId))}</b></div>
         <div><span>Rol</span><b>${esc(player.role)}</b></div>
-        <div><span>Rango máximo</span><b>${esc(player.peakRank)}</b></div>
-        <div><span>Laminante frecuente</span><b>${esc(player.mainCharacter)}</b></div>
+        <div><span>Cuenta creada</span><b>${renderInfoValue(player.accountCreatedAt, "Sin información")}</b></div>
       </div>
-      ${thumb ? `<div class="tournament-character-preview"><img src="${esc(thumb)}" alt="${esc(player.mainCharacter)}" onerror="this.closest('.tournament-character-preview').remove()"><span>${esc(player.mainCharacter)}</span></div>` : ""}
-      <p class="tournament-detail-note">Las estadísticas del perfil se cargarán manualmente. Esta ficha no consulta datos en tiempo real del juego.</p>`;
+
+      <div class="tournament-rank-overview">
+        <article>
+          <span>Rango actual</span>
+          ${currentIcon ? `<img src="${esc(currentIcon)}" alt="">` : ""}
+          <strong>${renderInfoValue(player.currentRank)}</strong>
+        </article>
+        <article>
+          <span>Más alto de 26SP4</span>
+          ${seasonIcon ? `<img src="${esc(seasonIcon)}" alt="">` : ""}
+          <strong>${renderInfoValue(player.seasonHighRank)}</strong>
+        </article>
+        <article>
+          <span>Máximo histórico</span>
+          ${peakIcon ? `<img src="${esc(peakIcon)}" alt="">` : ""}
+          <strong>${renderInfoValue(player.peakRank)}</strong>
+          <small>${renderInfoValue(player.peakSeason, "Sin información")}</small>
+        </article>
+      </div>
+
+      <section class="tournament-profile-section tournament-most-used-section">
+        <div class="tournament-profile-section-title">
+          <span>Laminantes más usados</span>
+          <small>${esc(player.mostUsedContext || "Temporada 26SP4: Velo de Sombras")}</small>
+        </div>
+        ${renderMostUsedCharacters(player)}
+      </section>
+
+      <section class="tournament-profile-section">
+        <div class="tournament-profile-section-title">
+          <span>Estadísticas</span>
+          <small>${esc(player.statsContext || "Estadísticas de la temporada 26SP4: Velo de Sombras")}</small>
+        </div>
+        <div class="tournament-stat-grid">
+          ${stats.map(([label, value]) => `<div><span>${esc(label)}</span><strong>${renderInfoValue(value)}</strong></div>`).join("")}
+        </div>
+      </section>
+
+      <section class="tournament-profile-section">
+        <div class="tournament-profile-section-title"><span>Colecciones</span></div>
+        <div class="tournament-collection-grid">
+          <div><span>Aspectos de laminante</span><strong>${renderInfoValue(collections.laminantSkins)}</strong></div>
+          <div><span>Aspectos de arma</span><strong>${renderInfoValue(collections.weaponSkins)}</strong></div>
+        </div>
+      </section>
+
+      <p class="tournament-detail-note"><b>Fuente:</b> ${esc(player.profileSource || "Datos manuales")}. Los campos ausentes se muestran como “Sin datos”.</p>`;
   }
 
   function renderMaps() {
@@ -204,14 +293,14 @@
         <td>${index + 1}</td>
         <td><span class="player-name-strong">${esc(player.nickname)}</span><small>${esc(teamName(player.teamId))}</small></td>
         <td>${renderRankCell(player.currentRank, player.currentRankId)}</td>
-        <td>${esc(player.mainCharacter)}</td>
+        <td>${esc(player.role)}</td>
       </tr>`).join("");
     featured.innerHTML = `
       <div class="tournament-summary-showcase">
         <div class="tournament-showcase-main">
           <span class="tournament-section-kicker">Centro del torneo</span>
           <h3>${teams.length} equipos · ${players.length} jugadores</h3>
-          <p>Gantigun Cup 2026 funciona como extensión del Draft System. La información se gestiona localmente y sirve para perfiles, equipos y preparación de partidas.</p>
+          <p>El Tournament Hub reúne equipos, roles, clasificación y perfiles registrados. Los datos se gestionan localmente y no se consultan en tiempo real.</p>
         </div>
         <div class="tournament-mini-team-grid">${teamCards}</div>
       </div>
@@ -221,7 +310,7 @@
           <strong>Ordenados por rango de mayor a menor</strong>
         </div>
         <table class="tournament-player-table tournament-summary-table">
-          <thead><tr><th>#</th><th>Jugador</th><th>Rango</th><th>Laminante</th></tr></thead>
+          <thead><tr><th>#</th><th>Jugador</th><th>Rango</th><th>Rol</th></tr></thead>
           <tbody>${topRows}</tbody>
         </table>
       </div>`;

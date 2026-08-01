@@ -1,4 +1,4 @@
-/* STRINOVA Draft System v3.4.18
+/* STRINOVA Draft System v3.4.23
  * Rebuilt flow controller: independent map phase, official 5v5 order,
  * simultaneous picks, private teammate requests and bot simulation.
  */
@@ -7,12 +7,19 @@
   if (window.__rpmodsDraftFlowV346Installed) return;
   window.__rpmodsDraftFlowV346Installed = true;
 
-  const VERSION = "3.4.18";
+  const VERSION = "3.4.23";
   const MAP_START_DELAY_MS = 900;
   const ASSIST_TIMEOUT_MS = 10000;
   const BOT_MIN_DELAY_MS = 850;
   const BOT_MAX_DELAY_MS = 1700;
   const CHIBI_VOICE_COUNT = 8;
+  const CHIBI_VARIANTS = Object.freeze({
+    default: Object.freeze({
+      label: "Chibi predeterminado",
+      fallSrc: "img/ui/map_chibi_fall.png",
+      landSrc: "img/ui/map_chibi_land.png",
+    }),
+  });
 
   const DEFAULT_FLOW_CONFIG = Object.freeze({
     mode: "advanced",
@@ -379,6 +386,36 @@
     });
   }
 
+  function getSelectedChibiVariantKey() {
+    try {
+      const saved = localStorage.getItem("rpmods_map_chibi_variant_v346") || "default";
+      return Object.prototype.hasOwnProperty.call(CHIBI_VARIANTS, saved) ? saved : "default";
+    } catch (_) {
+      return "default";
+    }
+  }
+
+  function selectedChibiVariant() {
+    return CHIBI_VARIANTS[getSelectedChibiVariantKey()] || CHIBI_VARIANTS.default;
+  }
+
+  function syncChibiVariantSelect() {
+    const select = document.getElementById("map-chibi-variant-select-v346");
+    if (!select) return;
+    if (!select.dataset.optionsBuilt) {
+      select.innerHTML = "";
+      Object.entries(CHIBI_VARIANTS).forEach(([key, variant]) => {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = variant.label || key;
+        select.appendChild(option);
+      });
+      select.dataset.optionsBuilt = "1";
+    }
+    select.value = getSelectedChibiVariantKey();
+    select.disabled = Object.keys(CHIBI_VARIANTS).length <= 1;
+  }
+
   function bootConfigUi() {
     ensureDraftConfigUi();
     bindConfigControl("local-phase-order-v346", "phaseOrder");
@@ -388,6 +425,21 @@
     bindConfigControl("room-ban-mode-v346", value => ({ banMode: value, bansEnabled: value !== "none" }), true);
     bindConfigControl("room-delegation-v346", "delegationMode", true);
     bindConfigControl("room-map-mode-v346", "mapRandomMode", true);
+
+    const variantSelect = document.getElementById("map-chibi-variant-select-v346");
+    syncChibiVariantSelect();
+    if (variantSelect && variantSelect.dataset.flowBound !== "1") {
+      variantSelect.dataset.flowBound = "1";
+      variantSelect.addEventListener("change", () => {
+        const next = Object.prototype.hasOwnProperty.call(CHIBI_VARIANTS, variantSelect.value) ? variantSelect.value : "default";
+        try { localStorage.setItem("rpmods_map_chibi_variant_v346", next); } catch (_) {}
+        const overlay = document.getElementById("map-chibi-overlay-v346");
+        if (overlay) {
+          overlay.remove();
+        }
+        syncChibiVariantSelect();
+      });
+    }
 
     const range = document.getElementById("map-chibi-size-range-v346");
     let saved = 150;
@@ -501,7 +553,8 @@
     overlay = document.createElement("div");
     overlay.id = "map-chibi-overlay-v346";
     overlay.className = "map-chibi-overlay-v346 hidden";
-    overlay.innerHTML = `<img class="map-chibi-fall-v346" src="img/ui/map_chibi_fall.png" alt=""><img class="map-chibi-land-v346" src="img/ui/map_chibi_land.png" alt="">`;
+    const variant = selectedChibiVariant();
+    overlay.innerHTML = `<img class="map-chibi-fall-v346" src="${variant.fallSrc}" alt=""><img class="map-chibi-land-v346" src="${variant.landSrc}" alt="">`;
     document.body.appendChild(overlay);
     return overlay;
   }
@@ -1256,17 +1309,30 @@
 
   function showSlotMenu(anchor, target) {
     document.querySelectorAll(".rp346-slot-menu").forEach(node => node.remove());
+    const safeTargetName = sanitizeOnlineDisplayName(target?.name, "Jugador");
     const menu = document.createElement("div");
     menu.className = "rp346-slot-menu";
-    menu.innerHTML = `<strong>${target.name}</strong><button type="button" data-action="select">SELECCIONAR PJ</button><button type="button" data-action="cancel">CANCELAR</button>`;
+
+    const title = document.createElement("strong");
+    title.textContent = safeTargetName;
+    const selectButton = document.createElement("button");
+    selectButton.type = "button";
+    selectButton.dataset.action = "select";
+    selectButton.textContent = "SELECCIONAR PJ";
+    const cancelButton = document.createElement("button");
+    cancelButton.type = "button";
+    cancelButton.dataset.action = "cancel";
+    cancelButton.textContent = "CANCELAR";
+    menu.append(title, selectButton, cancelButton);
+
     document.body.appendChild(menu);
     clampMenu(menu, anchor);
-    menu.querySelector('[data-action="select"]')?.addEventListener("click", () => {
-      flow.assistTarget = target;
+    selectButton.addEventListener("click", () => {
+      flow.assistTarget = { ...target, name: safeTargetName };
       menu.remove();
-      showAppNotice(`Selecciona el laminante para ${target.name}.`, { type: "info" });
+      showAppNotice(`Selecciona el laminante para ${safeTargetName}.`, { type: "info" });
     });
-    menu.querySelector('[data-action="cancel"]')?.addEventListener("click", () => menu.remove());
+    cancelButton.addEventListener("click", () => menu.remove());
   }
 
   function bindSlotMenus() {
@@ -1312,7 +1378,12 @@
       if (!anchor) return;
       const bubble = document.createElement("div");
       bubble.className = "rp346-request-bubble";
-      bubble.innerHTML = `<span>ESTÁ PIDIENDO</span><strong>${request.characterName}</strong>`;
+      const requestLabel = document.createElement("span");
+      requestLabel.textContent = "ESTÁ PIDIENDO";
+      const requestedCharacter = characters.find(character => character.name === request.characterName);
+      const requestName = document.createElement("strong");
+      requestName.textContent = requestedCharacter?.name || "Laminante";
+      bubble.append(requestLabel, requestName);
       if (canControlCurrentTurn()) {
         const actions = document.createElement("div");
         actions.className = "rp346-request-actions";
@@ -1336,11 +1407,53 @@
     const modal = document.createElement("section");
     modal.className = `rp346-assist-modal ${isInitiator ? "waiting" : "decision"}`;
     const remaining = Math.max(0, Number(proposal.expiresAt) - now());
-    modal.innerHTML = isRecipient
-      ? `<div class="rp346-assist-avatar"><img src="img/characters/${proposal.characterName}/thumb.png" alt=""></div><div class="rp346-assist-content"><span>SOLICITUD DE ASIGNACIÓN</span><strong>${proposal.initiatorName} quiere asegurarte ${proposal.characterName}</strong><p>Al aceptar, ambos intercambiarán su orden de selección.</p><div class="rp346-assist-progress"><i></i></div></div><div class="rp346-assist-buttons"><button data-accept>ACEPTAR</button><button data-reject>RECHAZAR</button></div>`
-      : `<div class="rp346-assist-content"><span>ASIGNACIÓN ENVIADA</span><strong>Esperando confirmación de ${proposal.targetName}</strong><p>${proposal.characterName}</p><div class="rp346-assist-progress"><i></i></div></div>`;
+    const characterName = characters.find(character => character.name === proposal.characterName)?.name || "Laminante";
+    const initiatorName = sanitizeOnlineDisplayName(proposal.initiatorName, "Jugador");
+    const targetName = sanitizeOnlineDisplayName(proposal.targetName, "Jugador");
+
+    const content = document.createElement("div");
+    content.className = "rp346-assist-content";
+    const kicker = document.createElement("span");
+    const headline = document.createElement("strong");
+    const description = document.createElement("p");
+    const progress = document.createElement("div");
+    progress.className = "rp346-assist-progress";
+    const progressBar = document.createElement("i");
+    progress.appendChild(progressBar);
+
+    if (isRecipient) {
+      const avatar = document.createElement("div");
+      avatar.className = "rp346-assist-avatar";
+      const image = document.createElement("img");
+      image.src = `img/characters/${characterName}/thumb.png`;
+      image.alt = characterName;
+      avatar.appendChild(image);
+
+      kicker.textContent = "SOLICITUD DE ASIGNACIÓN";
+      headline.textContent = `${initiatorName} quiere asegurarte ${characterName}`;
+      description.textContent = "Al aceptar, ambos intercambiarán su orden de selección.";
+      content.append(kicker, headline, description, progress);
+
+      const buttons = document.createElement("div");
+      buttons.className = "rp346-assist-buttons";
+      const acceptButton = document.createElement("button");
+      acceptButton.dataset.accept = "";
+      acceptButton.textContent = "ACEPTAR";
+      const rejectButton = document.createElement("button");
+      rejectButton.dataset.reject = "";
+      rejectButton.textContent = "RECHAZAR";
+      buttons.append(acceptButton, rejectButton);
+      modal.append(avatar, content, buttons);
+    } else {
+      kicker.textContent = "ASIGNACIÓN ENVIADA";
+      headline.textContent = `Esperando confirmación de ${targetName}`;
+      description.textContent = characterName;
+      content.append(kicker, headline, description, progress);
+      modal.appendChild(content);
+    }
+
     document.body.appendChild(modal);
-    const bar = modal.querySelector(".rp346-assist-progress i");
+    const bar = progressBar;
     if (bar) bar.style.animationDuration = `${remaining}ms`;
     modal.querySelector("[data-accept]")?.addEventListener("click", () => acceptProposal(proposal.id));
     modal.querySelector("[data-reject]")?.addEventListener("click", () => rejectProposal(proposal.id));
@@ -3581,9 +3694,18 @@
   /* ------------------------------------------------------------------
    * Boot
    * ---------------------------------------------------------------- */
+  function resolveDisplayVersion() {
+    const historyPanel = document.querySelector("[data-current-version]");
+    const explicit = historyPanel?.getAttribute("data-current-version") || "";
+    const normalized = explicit.trim().replace(/^v/i, "");
+    return normalized || VERSION;
+  }
+
   function updateVersionLabels() {
-    document.title = `STRINOVA Draft System v${VERSION} by RPmods`;
-    document.querySelectorAll(".settings-brand").forEach(node => { node.textContent = `STRINOVA Draft System v${VERSION} by RPmods`; });
+    const displayVersion = resolveDisplayVersion();
+    document.title = `STRINOVA Draft System v${displayVersion} by RPmods`;
+    document.querySelectorAll(".settings-brand").forEach(node => { node.textContent = `STRINOVA Draft System v${displayVersion} by RPmods`; });
+    document.querySelectorAll("[data-current-version-label]").forEach(node => { node.textContent = `Versión actual: v${displayVersion}`; });
   }
 
   function boot() {

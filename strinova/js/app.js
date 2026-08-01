@@ -9,7 +9,7 @@ const factions = {
 };
 
 const characters = [
-  ...["Ming", "Lawine", "Meredith", "Reiichi", "Kanami", "Eika", "Fragrans", "Mara"].map(name => ({ name, faction: "scissors" })),
+  ...["Ming", "Lawine", "Meredith", "Reiichi", "Kanami", "Eika", "Fragrans", "Mara", "Nora"].map(name => ({ name, faction: "scissors" })),
   ...["Michele", "Nobunaga", "Kokona", "Yvette", "Flavia", "Yugiri", "Leona", "Chiyo"].map(name => ({ name, faction: "pus" })),
   ...["Celestia", "Audrey", "Maddelena", "Fuchsia", "Bai Mo", "Galatea", "Cielle"].map(name => ({ name, faction: "urbino" })),
 ];
@@ -181,6 +181,7 @@ const roles = {
   Kanami: "Vanguardia",
   "Bai Mo": "Duelista",
   Eika: "Duelista",
+  Nora: "Vanguardia",
 };
 
 const wideStageCharacters = new Set(["Audrey", "Celestia", "Chiyo", "Kanami", "Kokona", "Lawine", "Mara", "Meredith"]);
@@ -236,6 +237,7 @@ const characterDisplayTweaks = {
   Michele: { stageSingle: 0.94, stageDouble: 0.92, summary: 1.03 },
   Ming: { stageSingle: 1.02, stageDouble: 0.98, summary: 1.06 },
   Nobunaga: { stageSingle: 1.00, stageDouble: 0.97, summary: 1.04 },
+  Nora: { stageSingle: 1.02, stageDouble: 0.98, summary: 1.05 },
   Reiichi: { stageSingle: 1.02, stageDouble: 0.98, summary: 1.06 },
   Yugiri: { stageSingle: 1.02, stageDouble: 0.98, summary: 1.06 },
   Yvette: { stageSingle: 1.00, stageDouble: 0.97, summary: 1.04 },
@@ -265,6 +267,7 @@ const stageImageOffsets = {
   Michele: { x: -10, y: -58 },
   Ming: { x: 0, y: -60 },
   Nobunaga: { x: 0, y: -58 },
+  Nora: { x: 0, y: -60 },
   Reiichi: { x: 0, y: -58 },
   Yugiri: { x: -6, y: -58 },
   Yvette: { x: 0, y: -58 },
@@ -291,6 +294,7 @@ const summaryImageOffsets = {
   Michele: { x: -10, y: -4 },
   Ming: { x: 0, y: -6 },
   Nobunaga: { x: 0, y: -4 },
+  Nora: { x: 0, y: -4 },
   Reiichi: { x: 0, y: -4 },
   Yugiri: { x: -6, y: -4 },
   Yvette: { x: 0, y: -4 },
@@ -999,6 +1003,10 @@ function applyLanguage(lang = currentLanguage(), options = {}) {
   document.querySelectorAll('.locked-language-select option').forEach(o=>{o.textContent=t('default')}); setText('.language-note-panel strong','voice_system_title'); setText('.language-note-panel p','voice_system_complete_body');
   setText('[data-panel="random"] .subconfig-heading span','random_selector'); setText('[data-panel="random"] .subconfig-heading strong','random_summary'); setText('[data-panel="random"] .subconfig-copy span','random_summary_action'); setText('[data-panel="random"] .subconfig-copy small','random_summary_desc'); setText('#simulate-summary','simulate');
   setText('[data-panel="updates"] .subconfig-heading span','updates'); setText('[data-panel="updates"] .subconfig-heading strong','important_improvements'); document.querySelectorAll('.updates-history-panel li').forEach((li,i)=>{
+    if (li.dataset.staticUpdate === "1") {
+      li.style.display = "";
+      return;
+    }
     const key = `update_${i+1}`;
     const value = t(key);
     li.textContent = value === key ? "" : value;
@@ -5619,7 +5627,7 @@ function normalizeAdvancedSlotValue(value, data = {}) {
   const participant = participantByClientId(data, value.clientId);
   return {
     clientId: String(value.clientId),
-    name: String(participant?.name || value.name || `Usuario ${String(value.clientId).slice(-4)}`),
+    name: sanitizeOnlineDisplayName(participant?.name || value.name, `Usuario ${String(value.clientId).slice(-4)}`),
     connected: participant ? Boolean(participant.connected) : Boolean(value.connected),
     ready: Boolean(value.ready),
     isBot: Boolean(value.isBot),
@@ -5786,7 +5794,7 @@ function applyOnlinePlayers(players = {}) {
   ["A", "B"].forEach(team => {
     const list = Array.isArray(players?.[team]) ? players[team] : null;
     if (!list) return;
-    state.players[team] = Array.from({ length: 5 }, (_, index) => String(list[index] || `Jugador ${team}${index + 1}`));
+    state.players[team] = Array.from({ length: 5 }, (_, index) => sanitizeOnlineDisplayName(list[index], `Jugador ${team}${index + 1}`));
     changed = true;
   });
   if (changed) updateLocalPlayerInputsFromState();
@@ -5813,7 +5821,7 @@ function onlineParticipantsFromRoom(data = {}) {
   const raw = data.participants || {};
   return Object.entries(raw).map(([clientId, value]) => ({
     clientId,
-    name: String(value?.name || value?.displayName || `Usuario ${clientId.slice(-4)}`),
+    name: sanitizeOnlineDisplayName(value?.name || value?.displayName, `Usuario ${clientId.slice(-4)}`),
     connected: Boolean(value?.connected),
     joinedAt: Number(value?.joinedAt || 0),
     lastSeen: Number(value?.lastSeen || 0),
@@ -5827,7 +5835,7 @@ function onlineAssignableUsersFromRoom(data = {}) {
   if (hostId) {
     users.push({
       clientId: hostId,
-      name: String(data.host?.name || currentOnlinePlayerName || "Líder / Host"),
+      name: sanitizeOnlineDisplayName(data.host?.name || currentOnlinePlayerName, "Líder / Host"),
       connected: Boolean(data.host?.connected),
       joinedAt: Number(data.createdAt || 0),
       lastSeen: Number(data.host?.lastSeen || 0),
@@ -5854,7 +5862,7 @@ function participantByClientId(data = {}, clientId) {
   if (data.host?.clientId === clientId) {
     return {
       clientId,
-      name: String(data.host.name || currentOnlinePlayerName || "Líder / Host"),
+      name: sanitizeOnlineDisplayName(data.host.name || currentOnlinePlayerName, "Líder / Host"),
       connected: Boolean(data.host.connected),
       joinedAt: Number(data.createdAt || 0),
       lastSeen: Number(data.host.lastSeen || 0),
@@ -5865,14 +5873,14 @@ function participantByClientId(data = {}, clientId) {
   const participant = data.participants?.[clientId];
   if (participant) return {
     clientId,
-    name: String(participant.name || participant.displayName || `Usuario ${clientId.slice(-4)}`),
+    name: sanitizeOnlineDisplayName(participant.name || participant.displayName, `Usuario ${clientId.slice(-4)}`),
     connected: Boolean(participant.connected),
     joinedAt: Number(participant.joinedAt || 0),
     lastSeen: Number(participant.lastSeen || 0),
     isBot: Boolean(participant.isBot),
   };
-  if (data.teamA?.clientId === clientId) return { clientId, name: data.teamA.name || "Capitán Atacantes", connected: Boolean(data.teamA.connected), isBot: Boolean(data.teamA.isBot) };
-  if (data.teamB?.clientId === clientId) return { clientId, name: data.teamB.name || "Capitán Defensores", connected: Boolean(data.teamB.connected), isBot: Boolean(data.teamB.isBot) };
+  if (data.teamA?.clientId === clientId) return { clientId, name: sanitizeOnlineDisplayName(data.teamA.name, "Capitán Atacantes"), connected: Boolean(data.teamA.connected), isBot: Boolean(data.teamA.isBot) };
+  if (data.teamB?.clientId === clientId) return { clientId, name: sanitizeOnlineDisplayName(data.teamB.name, "Capitán Defensores"), connected: Boolean(data.teamB.connected), isBot: Boolean(data.teamB.isBot) };
   return null;
 }
 
@@ -6386,7 +6394,13 @@ function hostDisplayNameFromRoom(data = {}) {
 }
 
 function sanitizeOnlineDisplayName(name, fallback = "Líder / Host") {
-  const value = String(name || "").trim().replace(/\s+/g, " ").slice(0, 24);
+  const value = String(name || "")
+    .normalize("NFKC")
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .replace(/[<>]/g, "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .slice(0, 24);
   return value || fallback;
 }
 
@@ -7312,7 +7326,7 @@ async function joinOnlineRoom(options = {}) {
   const nameInput = document.getElementById("join-player-name");
   const roomCode = normalizeRoomCode(options.roomCode || pendingJoinRoomCode || input?.value);
   const hasProvidedName = Object.prototype.hasOwnProperty.call(options, "nameOverride");
-  const playerName = String(hasProvidedName ? options.nameOverride : "").trim();
+  const playerName = sanitizeOnlineDisplayName(hasProvidedName ? options.nameOverride : "", "");
 
   if (!roomCode) {
     showAppNotice(t("enter_room_code_alert"), { type: "warning" });
@@ -8417,7 +8431,7 @@ function onlineRequiredReadyUsersFromPrepared(roomData = {}, prepared = null) {
     if (!entry.clientId || users.some(user => user.clientId === entry.clientId)) return;
     users.push({
       clientId: entry.clientId,
-      name: String(entry.name || `Usuario ${String(entry.clientId).slice(-4)}`),
+      name: sanitizeOnlineDisplayName(entry.name, `Usuario ${String(entry.clientId).slice(-4)}`),
       team: entry.team || null,
       slotKey: entry.slotKey || null,
       slotLabel: entry.slotLabel || "",
@@ -8467,7 +8481,7 @@ function onlineRequiredReadyUsersFromRoom(data = {}) {
     return Object.entries(readyCheck.required)
       .map(([clientId, value]) => ({
         clientId,
-        name: String(value?.name || `Usuario ${clientId.slice(-4)}`),
+        name: sanitizeOnlineDisplayName(value?.name, `Usuario ${clientId.slice(-4)}`),
         team: value?.team || null,
         slotKey: value?.slotKey || null,
         slotLabel: value?.slotLabel || "",
@@ -9208,7 +9222,7 @@ async function tryRestoreOnlineSession() {
     saved = JSON.parse(localStorage.getItem(ONLINE_SESSION_STORAGE_KEY) || "null");
   } catch (_) {}
   const savedName = saved?.playerName || (() => { try { return localStorage.getItem(ONLINE_PLAYER_NAME_STORAGE_KEY); } catch (_) { return null; } })();
-  if (savedName) currentOnlinePlayerName = savedName;
+  if (savedName) currentOnlinePlayerName = sanitizeOnlineDisplayName(savedName, "");
   const nameInput = document.getElementById("join-player-name");
   if (nameInput && savedName && !nameInput.value) nameInput.value = savedName;
 
@@ -9237,19 +9251,19 @@ async function tryRestoreOnlineSession() {
       let restoredTeam = null;
       if (assignments.A === onlineClientId()) restoredTeam = "teamA";
       else if (assignments.B === onlineClientId()) restoredTeam = "teamB";
-      currentOnlinePlayerName = data.participants?.[onlineClientId()]?.name || currentOnlinePlayerName;
+      currentOnlinePlayerName = sanitizeOnlineDisplayName(data.participants?.[onlineClientId()]?.name || currentOnlinePlayerName, "");
       attachCurrentRoom(saved.roomCode, "player", restoredTeam);
       return;
     }
 
     if (saved.role === "player" && saved.playerTeam === "teamA" && data.teamA?.clientId === onlineClientId()) {
-      currentOnlinePlayerName = data.teamA?.name || currentOnlinePlayerName;
+      currentOnlinePlayerName = sanitizeOnlineDisplayName(data.teamA?.name || currentOnlinePlayerName, "");
       attachCurrentRoom(saved.roomCode, "player", "teamA");
       return;
     }
 
     if (saved.role === "player" && saved.playerTeam === "teamB" && data.teamB?.clientId === onlineClientId()) {
-      currentOnlinePlayerName = data.teamB?.name || currentOnlinePlayerName;
+      currentOnlinePlayerName = sanitizeOnlineDisplayName(data.teamB?.name || currentOnlinePlayerName, "");
       attachCurrentRoom(saved.roomCode, "player", "teamB");
       return;
     }

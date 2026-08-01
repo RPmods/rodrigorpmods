@@ -1,11 +1,14 @@
 {
   "name": "draft-simulator",
-  "version": "3.4.18",
-  "description": "STRINOVA Draft System + Gantigun Cup 2026 con PEDIR separado del turno activo.",
+  "version": "3.4.23",
+  "description": "STRINOVA Draft System + Tournament Hub con perfiles, laminantes más usados y Nora preparada para The Scissors.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win --x64"
+    "data:build": "node scripts/build-tournament-data.js",
+    "validate": "node scripts/validate-project.js",
+    "check": "npm run data:build && npm run validate",
+    "build": "npm run check && electron-builder --win --x64"
   },
   "devDependencies": {
     "electron": "latest",

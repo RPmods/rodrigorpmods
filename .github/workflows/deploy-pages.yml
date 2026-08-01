@@ -25,6 +25,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build static tournament data
+        run: node strinova/scripts/build-tournament-data.js
+
+      - name: Validate STRINOVA project
+        run: node strinova/scripts/validate-project.js
+
       - name: Create Firebase runtime config from Repository Secrets
         env:
           RPMODS_FIREBASE_API_KEY: ${{ secrets.RPMODS_FIREBASE_API_KEY }}
