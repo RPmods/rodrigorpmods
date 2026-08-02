@@ -1,4 +1,4 @@
-/* STRINOVA Draft System v3.4.23
+/* STRINOVA Draft System v3.4.24
  * Rebuilt flow controller: independent map phase, official 5v5 order,
  * simultaneous picks, private teammate requests and bot simulation.
  */
@@ -7,7 +7,7 @@
   if (window.__rpmodsDraftFlowV346Installed) return;
   window.__rpmodsDraftFlowV346Installed = true;
 
-  const VERSION = "3.4.23";
+  const VERSION = "3.4.24";
   const MAP_START_DELAY_MS = 900;
   const ASSIST_TIMEOUT_MS = 10000;
   const BOT_MIN_DELAY_MS = 850;
@@ -1425,7 +1425,7 @@
       const avatar = document.createElement("div");
       avatar.className = "rp346-assist-avatar";
       const image = document.createElement("img");
-      image.src = `img/characters/${characterName}/thumb.png`;
+      image.src = `img/characters/thumbs/${String(characterName || "").replaceAll(" ", "_")}.png`;
       image.alt = characterName;
       avatar.appendChild(image);
 
@@ -1697,11 +1697,22 @@
 
     const accepted = draftState.rp346AcceptedProposal;
     if (accepted && currentRole === "host" && accepted.acceptedAt && flow.botKeys[`accepted:${accepted.id}`] !== true) {
+      const turn = currentTurn();
+      const validAccepted = Boolean(
+        turn &&
+        accepted.draftSessionId === state.draftSessionId &&
+        accepted.turnIndex === state.turnIndex &&
+        accepted.team === turn.team &&
+        accepted.sourceSlotKey &&
+        (turn.slotKey === accepted.sourceSlotKey || (Array.isArray(turn.slotKeys) && turn.slotKeys.includes(accepted.sourceSlotKey)))
+      );
       flow.botKeys[`accepted:${accepted.id}`] = true;
       const character = characters.find(item => item.name === accepted.characterName);
-      if (character) {
+      if (validAccepted && character && baseIsCharacterAvailable(character, turn)) {
         state.selected = character;
-        confirmTurn(false, { onlineSystem: true, botSlotKey: accepted.sourceSlotKey, assistCommit: true });
+        confirmTurn(false, { onlineSystem: true, botSlotKey: accepted.sourceSlotKey, assistCommit: true, acceptedProposalId: accepted.id });
+      } else {
+        console.warn("RPmods Stability: propuesta aceptada descartada por estar fuera de turno.", accepted);
       }
       roomRefFor(currentRoomCode)?.child("draftState/rp346AcceptedProposal").remove();
     }
@@ -3689,6 +3700,197 @@
     startRequestPickModeV3417();
   }, true);
 
+
+
+
+
+  /* ------------------------------------------------------------------
+   * v3.4.24 — stability guard for offline/online draft commits
+   * ---------------------------------------------------------------- */
+  function stabilityTurnSlotKeys(turn = currentTurn()) {
+    return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
+  }
+
+  function stabilityTurnIdentity(turn = currentTurn()) {
+    return [
+      currentRoomCode || "local",
+      state.draftSessionId,
+      state.turnIndex,
+      turn?.team || "-",
+      turn?.type || "-",
+      turn?.groupId || "-",
+      stabilityTurnSlotKeys(turn).join("+"),
+    ].join(":");
+  }
+
+  function stabilityCharacterAlreadyCommitted(turn, character) {
+    if (!turn || !character?.name) return false;
+    const pool = turn.type === "ban" ? state.bans?.[turn.team] : state.picks?.[turn.team];
+    return Array.isArray(pool) && pool.some(item => String(item?.name || item) === character.name);
+  }
+
+  function stabilityResetPendingCommit(key) {
+    if (flow.__stabilityPendingCommits && key) delete flow.__stabilityPendingCommits[key];
+  }
+
+  function stabilityReleaseTurnLock(options = {}) {
+    if (options.keepSelection !== true) {
+      state.selected = null;
+      state.preselectLocked = false;
+    }
+    state.locked = false;
+    try { renderDraftStateLight({ refreshPreviewPanels: true }); }
+    catch (_) { try { renderAll(); } catch (_) {} }
+  }
+
+  async function stabilityClaimOnlineTurn(turn, character, options = {}) {
+    if (!currentRoomCode) return true;
+    if (!turn || !character?.name) return false;
+    if (currentRole !== "host" && currentRole !== "player") return false;
+
+    const roomRef = roomRefFor(currentRoomCode);
+    if (!roomRef) return false;
+
+    const identity = stabilityTurnIdentity(turn);
+    const slotKey = options.botSlotKey || actorSlotKey(turn, options) || turn.slotKey || "system";
+    const clientId = onlineClientId();
+    const claimRef = roomRef.child("draftState/rp3424TurnCommit");
+
+    try {
+      const result = await claimRef.transaction((claim) => {
+        const sameTurn = claim && claim.identity === identity;
+        const fresh = claim?.at && Math.abs(onlineNow() - Number(claim.at)) < 15000;
+        if (sameTurn && fresh) return;
+        return {
+          identity,
+          sessionId: state.draftSessionId,
+          turnIndex: state.turnIndex,
+          team: turn.team,
+          type: turn.type,
+          groupId: turn.groupId || null,
+          slotKey,
+          characterName: character.name,
+          clientId,
+          role: currentRole || "unknown",
+          isAuto: Boolean(options.isAuto),
+          reason: options.reason || options.claimKey || null,
+          at: onlineNow(),
+        };
+      });
+
+      return Boolean(result?.committed);
+    } catch (error) {
+      console.warn("RPmods Stability: no se pudo reclamar el commit del turno.", error);
+      return false;
+    }
+  }
+
+  function stabilityValidTurnAction(turn, character, options = {}) {
+    if (flow.phase !== "draft" || !state.draftActive) return false;
+    if (!turn || !character?.name) return false;
+    if (state.roulette?.active) return false;
+    if (stabilityCharacterAlreadyCommitted(turn, character)) return false;
+    try { if (!isCharacterAvailable(character, turn)) return false; }
+    catch (_) { return false; }
+
+    if (currentRoomCode && !options.onlineSystem && !canControlCurrentTurn()) return false;
+    if (!currentRoomCode && !options.onlineSystem && !canControlCurrentTurn()) return false;
+    return true;
+  }
+
+  const baseConfirmTurnV3424 = confirmTurn;
+  confirmTurn = async function confirmTurnV3424(isAuto = false, options = {}) {
+    const turn = currentTurn();
+    const selected = state.selected;
+    const key = stabilityTurnIdentity(turn);
+    flow.__stabilityPendingCommits = flow.__stabilityPendingCommits || {};
+
+    if (flow.__stabilityPendingCommits[key]) return;
+    if (state.locked) return;
+    if (!stabilityValidTurnAction(turn, selected, options)) return;
+
+    flow.__stabilityPendingCommits[key] = true;
+    const claimed = await stabilityClaimOnlineTurn(turn, selected, { ...options, isAuto });
+    if (!claimed) {
+      stabilityResetPendingCommit(key);
+      stabilityReleaseTurnLock({ keepSelection: true });
+      return;
+    }
+
+    if (!stabilityValidTurnAction(turn, selected, { ...options, onlineSystem: true })) {
+      stabilityResetPendingCommit(key);
+      stabilityReleaseTurnLock({ keepSelection: true });
+      return;
+    }
+
+    try {
+      state.selected = selected;
+      return baseConfirmTurnV3424(isAuto, options);
+    } finally {
+      window.setTimeout(() => stabilityResetPendingCommit(key), Math.max(1200, confirmedActionAnimationDuration(turn.type, isAuto) + 900));
+    }
+  };
+
+  const baseAutoResolveTurnV3424 = autoResolveTurn;
+  autoResolveTurn = async function autoResolveTurnV3424(options = {}) {
+    if (currentRoomCode && currentRole !== "host") return;
+    if (flow.__stabilityAutoResolving) return;
+    const turn = currentTurn();
+    if (!turn || state.locked || state.roulette?.active) return;
+    const valid = getValidCharacters();
+    if (!valid.length) {
+      console.warn("RPmods Stability: no hay laminantes válidos para resolver el turno automáticamente.", turn);
+      try { showAppNotice("No hay laminantes válidos para resolver este turno. Revisa la configuración del draft.", { type: "warning", duration: 5200 }); } catch (_) {}
+      stabilityReleaseTurnLock({ keepSelection: false });
+      return;
+    }
+    flow.__stabilityAutoResolving = true;
+    try {
+      return await baseAutoResolveTurnV3424(options);
+    } finally {
+      window.setTimeout(() => { flow.__stabilityAutoResolving = false; }, 1200);
+    }
+  };
+
+  const baseTryClaimOnlineAutoResolveV3424 = tryClaimOnlineAutoResolve;
+  tryClaimOnlineAutoResolve = async function tryClaimOnlineAutoResolveV3424(turnKey = onlineTurnKey()) {
+    if (currentRoomCode && currentRole !== "host") return false;
+    if (flow.__stabilityAutoResolving || Object.keys(flow.__stabilityPendingCommits || {}).length) return false;
+    return baseTryClaimOnlineAutoResolveV3424(turnKey);
+  };
+
+  const baseRegisterSimultaneousSelectionV3424 = registerSimultaneousSelection;
+  registerSimultaneousSelection = async function registerSimultaneousSelectionV3424(turn, character, options = {}) {
+    try {
+      const result = await baseRegisterSimultaneousSelectionV3424(turn, character, options);
+      if (!result) stabilityReleaseTurnLock({ keepSelection: false });
+      return result;
+    } catch (error) {
+      console.warn("RPmods Stability: falló el registro de selección simultánea.", error);
+      stabilityReleaseTurnLock({ keepSelection: false });
+      return false;
+    }
+  };
+
+  const baseFinalizeSimultaneousGroupV3424 = finalizeSimultaneousGroup;
+  finalizeSimultaneousGroup = function finalizeSimultaneousGroupV3424(turn, isAuto = false) {
+    if (!turn) return false;
+    flow.__stabilityFinalizingGroups = flow.__stabilityFinalizingGroups || {};
+    const key = `finalize:${stabilityTurnIdentity(turn)}`;
+    if (flow.__stabilityFinalizingGroups[key]) return false;
+    flow.__stabilityFinalizingGroups[key] = true;
+    try {
+      return baseFinalizeSimultaneousGroupV3424(turn, isAuto);
+    } finally {
+      window.setTimeout(() => { delete flow.__stabilityFinalizingGroups[key]; }, Math.max(1800, confirmedActionAnimationDuration("pick", isAuto) + 1200));
+    }
+  };
+
+  const baseCanControlCurrentTurnV3424 = canControlCurrentTurn;
+  canControlCurrentTurn = function canControlCurrentTurnV3424() {
+    if (Object.keys(flow.__stabilityPendingCommits || {}).length || flow.__stabilityAutoResolving) return false;
+    return baseCanControlCurrentTurnV3424();
+  };
 
 
   /* ------------------------------------------------------------------

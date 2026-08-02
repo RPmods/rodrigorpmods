@@ -6082,7 +6082,7 @@ async function assignAdvancedSlot(team, slotKey, clientId) {
   const normalizedSlot = ADVANCED_SLOT_KEYS.includes(slotKey) ? slotKey : "captain";
 
   try {
-    const snapshot = await roomRef.get();
+    const snapshot = await roomRef.once("value");
     const data = snapshot.val() || {};
     if (data.started) return;
     const config = sanitizeDraftConfig(data.draftConfig || currentDraftConfig());
@@ -6303,7 +6303,7 @@ async function claimAndRunTestingBotTurn(turnKey, botClientId) {
     });
 
     if (!result.committed) return;
-    const latestSnapshot = await roomRef.get();
+    const latestSnapshot = await roomRef.once("value");
     const latestData = latestSnapshot.val() || {};
     onlineLatestRoomData = latestData;
     syncDraftStateFromRoom(latestData);
@@ -6443,7 +6443,7 @@ async function updateHostOnlineName(name) {
   setRoomRoleDisplay(`${t("leader_spectator")} · ${safeName}`);
 
   try {
-    const snapshot = await roomRef.get();
+    const snapshot = await roomRef.once("value");
     const data = snapshot.val() || {};
     if (data.started) return;
 
@@ -6583,7 +6583,7 @@ async function fillClassicTestingBots() {
   if (!roomRef) return;
 
   try {
-    const snapshot = await roomRef.get();
+    const snapshot = await roomRef.once("value");
     const data = snapshot.val() || {};
     if (data.started) return;
     const config = sanitizeDraftConfig(data.draftConfig || currentDraftConfig());
@@ -6626,7 +6626,7 @@ async function fillAdvancedTestingBots() {
   if (!roomRef) return;
 
   try {
-    const snapshot = await roomRef.get();
+    const snapshot = await roomRef.once("value");
     const data = snapshot.val() || {};
     if (data.started) return;
     const config = sanitizeDraftConfig(data.draftConfig || currentDraftConfig());
@@ -6679,7 +6679,7 @@ async function removeTestingBots() {
   if (!roomRef) return;
 
   try {
-    const snapshot = await roomRef.get();
+    const snapshot = await roomRef.once("value");
     const data = snapshot.val() || {};
     if (data.started) return;
     const config = sanitizeDraftConfig(data.draftConfig || currentDraftConfig());
@@ -7360,7 +7360,7 @@ async function performJoinOnlineRoom({ roomCode, playerName }) {
   currentOnlinePlayerName = playerName;
 
   const roomRef = database.ref("rooms/" + roomCode);
-  const snapshot = await roomRef.get();
+  const snapshot = await roomRef.once("value");
 
   if (!snapshot.exists()) {
     showAppNotice(t("room_not_found"), { type: "error" });
@@ -8338,7 +8338,7 @@ async function assignOnlineCaptain(team, clientId) {
   if (!roomRef) return;
 
   try {
-    const snapshot = await roomRef.get();
+    const snapshot = await roomRef.once("value");
     const data = snapshot.val() || {};
     if (data.started) return;
     const participant = clientId ? participantByClientId(data, clientId) : null;
@@ -8696,7 +8696,7 @@ async function markCurrentPlayerReady() {
   const roomRef = roomRefFor(currentRoomCode);
   if (!roomRef) return;
   try {
-    const snapshot = await roomRef.get();
+    const snapshot = await roomRef.once("value");
     const data = snapshot.val() || {};
     const required = currentClientReadyRequirement(data);
     const readyCheck = onlineReadyCheckFromRoom(data);
@@ -8890,7 +8890,7 @@ function scheduleOnlineReadyTimeout(roomRef, readyCheck = {}) {
   onlineReadyTimeoutKey = key;
   onlineReadyTimeoutTimerId = setTimeout(async () => {
     try {
-      const snapshot = await roomRef.get();
+      const snapshot = await roomRef.once("value");
       const latest = snapshot.val() || {};
       const latestReady = onlineReadyCheckFromRoom(latest);
       if (!latestReady?.active || latestReady.status !== "waiting" || latest.started) return;
@@ -8964,7 +8964,7 @@ function maybeAdvanceOnlineReadyCheck(data = {}) {
     const delayMs = Math.max(1200, 4200 - elapsed);
     setTimeout(async () => {
       try {
-        const snapshot = await roomRef.get();
+        const snapshot = await roomRef.once("value");
         const latest = snapshot.val() || {};
         const latestReady = onlineReadyCheckFromRoom(latest);
         if (!latestReady?.active || latestReady.status !== "loading" || latest.started) return;
@@ -9072,7 +9072,7 @@ function setupOnlineControls() {
       }
       try {
         onlineStartBtn.disabled = true;
-        const snapshot = await roomRef.get();
+        const snapshot = await roomRef.once("value");
         const roomData = snapshot.val() || {};
         if (roomData.readyCheck?.active) return;
         await requestOnlineReadyCheck(roomRef, roomData);
@@ -9115,7 +9115,7 @@ async function disconnectCurrentRoom() {
     const roomRef = roomRefFor(roomCode);
     if (roomRef && role === "player") {
       try { await roomRef.child(`participants/${clientId}`).onDisconnect().cancel(); } catch (_) {}
-      const snapshot = await roomRef.get();
+      const snapshot = await roomRef.once("value");
       const data = snapshot.val() || {};
       const assignments = captainAssignmentsFromRoom(data);
       const updates = { updatedAt: onlineNow() };
@@ -9230,7 +9230,7 @@ async function tryRestoreOnlineSession() {
   const roomRef = roomRefFor(saved.roomCode);
   if (!roomRef) return;
   try {
-    const snapshot = await roomRef.get();
+    const snapshot = await roomRef.once("value");
     if (!snapshot.exists()) {
       clearOnlineSession();
       return;
