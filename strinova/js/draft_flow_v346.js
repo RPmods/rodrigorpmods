@@ -1,4 +1,4 @@
-/* STRINOVA Draft System v3.4.27
+/* STRINOVA Draft System v3.4.28
  * Rebuilt flow controller: independent map phase, official 5v5 order,
  * simultaneous picks, private teammate requests and bot simulation.
  */
@@ -7,7 +7,7 @@
   if (window.__rpmodsDraftFlowV346Installed) return;
   window.__rpmodsDraftFlowV346Installed = true;
 
-  const VERSION = "3.4.27";
+  const VERSION = "3.4.28";
   const MAP_START_DELAY_MS = 900;
   const ASSIST_TIMEOUT_MS = 10000;
   const BOT_MIN_DELAY_MS = 850;
@@ -3705,7 +3705,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.27 — stability guard for offline/online draft commits
+   * v3.4.28 — stability guard for offline/online draft commits
    * ---------------------------------------------------------------- */
   function stabilityTurnSlotKeys(turn = currentTurn()) {
     return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
@@ -4005,7 +4005,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.27 — deterministic commit path for manual and timeout actions
+   * v3.4.28 — deterministic commit path for manual and timeout actions
    * ---------------------------------------------------------------- */
   function stabilityCommitDirectV3427(turn, character, isAuto = false, options = {}) {
     if (flow.phase !== "draft" || !state.draftActive) return false;
@@ -4152,6 +4152,121 @@
   canControlCurrentTurn = function canControlCurrentTurnV3427() {
     if (stabilityHasPendingCommit() || flow.__stabilityAutoResolving) return false;
     return baseCanControlCurrentTurnV3424();
+  };
+
+  /* ------------------------------------------------------------------
+   * v3.4.28 — safer timeout and direct commit path for pick/ban
+   * ---------------------------------------------------------------- */
+  async function stabilityCommitOnlineDirectV3428(turn, selected, isAuto = false, options = {}) {
+    const key = stabilityTurnIdentity(turn);
+    flow.__stabilityPendingCommits = flow.__stabilityPendingCommits || {};
+    if (stabilityHasPendingCommit(turn)) return false;
+    if (!stabilityValidTurnAction(turn, selected, options)) return false;
+
+    flow.__stabilityPendingCommits[key] = true;
+    const claimed = await stabilityClaimOnlineTurn(turn, selected, { ...options, isAuto });
+    if (!claimed) {
+      stabilityResetPendingCommit(key);
+      stabilityReleaseTurnLock({ keepSelection: true });
+      return false;
+    }
+
+    try {
+      const started = stabilityCommitDirectV3427(turn, selected, isAuto, {
+        ...options,
+        onlineSystem: true,
+        stabilityAuthorized: true,
+        stabilityCommitIdentity: key,
+      });
+      if (!started) {
+        await stabilityRollbackOnlineClaim(key);
+        stabilityResetPendingCommit(key);
+        stabilityReleaseTurnLock({ keepSelection: true });
+        return false;
+      }
+      if (!turn?.simultaneous) void stabilityMarkOnlineCommit(key, selected);
+      return true;
+    } catch (error) {
+      await stabilityRollbackOnlineClaim(key);
+      stabilityResetPendingCommit(key);
+      stabilityReleaseTurnLock({ keepSelection: true });
+      console.error("RPmods Stability: commit online directo falló.", error);
+      return false;
+    } finally {
+      window.setTimeout(() => stabilityResetPendingCommit(key), Math.max(1200, confirmedActionAnimationDuration(turn?.type || "pick", isAuto) + 900));
+    }
+  }
+
+  confirmTurn = async function confirmTurnV3428(isAuto = false, options = {}) {
+    const turn = currentTurn();
+    const selected = state.selected;
+    if (!turn || !selected?.name) return false;
+    if (flow.phase !== "draft" || !state.draftActive) return false;
+    if (state.roulette?.active && !isAuto) return false;
+
+    if (!currentRoomCode) {
+      if (state.locked) return false;
+      if (stabilityHasPendingCommit(turn)) return false;
+      if (!stabilityValidTurnAction(turn, selected, { ...options, stabilityAuthorized: true })) return false;
+      return stabilityCommitDirectV3427(turn, selected, isAuto, { ...options, stabilityAuthorized: true });
+    }
+
+    if (state.locked) return false;
+    return stabilityCommitOnlineDirectV3428(turn, selected, isAuto, options);
+  };
+
+  autoResolveTurn = async function autoResolveTurnV3428(options = {}) {
+    if (currentRoomCode && currentRole !== "host") return false;
+    if (flow.__stabilityAutoResolving) return false;
+    const sessionId = state.draftSessionId;
+    const turn = currentTurn();
+    if (!isDraftSessionActive(sessionId) || !turn || state.roulette?.active) return false;
+    if (state.locked && !options.forceTimeoutResolve) return false;
+
+    const valid = getValidCharacters();
+    if (!valid.length) {
+      console.warn("RPmods Stability: no hay laminantes válidos para resolver el turno automáticamente.", turn);
+      try { showAppNotice("No hay laminantes válidos para resolver este turno. Revisa la configuración del draft.", { type: "warning", duration: 5200 }); } catch (_) {}
+      stabilityReleaseTurnLock({ keepSelection: false });
+      return false;
+    }
+
+    flow.__stabilityAutoResolving = true;
+    stabilityResetPendingCommit();
+    try {
+      state.locked = true;
+      pushOnlineDraftState({ phase: "draft", audioEvent: createOnlineAudioEvent("randomStart") });
+      playNarration(systemDraftVoiceLines.random_start.src, systemDraftVoiceLines.random_start.text, 0.9);
+      await delay(1800);
+      if (!isDraftSessionActive(sessionId)) return false;
+
+      const selected = await runCharacterRoulette(valid);
+      if (!isDraftSessionActive(sessionId) || !selected) {
+        stabilityReleaseTurnLock({ keepSelection: false });
+        return false;
+      }
+
+      state.selected = selected;
+      state.roulette.active = false;
+      state.locked = false;
+
+      if (!currentRoomCode) {
+        return stabilityCommitDirectV3427(turn, selected, true, { ...options, stabilityAuthorized: true, stabilityAutoResolve: true, reason: "timeout" });
+      }
+      return await stabilityCommitOnlineDirectV3428(turn, selected, true, { ...options, onlineSystem: true, stabilityAutoResolve: true, reason: "timeout" });
+    } catch (error) {
+      console.warn("RPmods Stability: falló la auto-selección por tiempo.", error);
+      stabilityReleaseTurnLock({ keepSelection: false });
+      return false;
+    } finally {
+      window.setTimeout(() => { flow.__stabilityAutoResolving = false; }, 1200);
+    }
+  };
+
+  tryClaimOnlineAutoResolve = async function tryClaimOnlineAutoResolveV3428(turnKey = onlineTurnKey()) {
+    if (currentRoomCode && currentRole !== "host") return false;
+    if (flow.__stabilityAutoResolving || stabilityHasPendingCommit()) return false;
+    return baseTryClaimOnlineAutoResolveV3424(turnKey);
   };
 
 

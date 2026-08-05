@@ -21746,3 +21746,300 @@ body.setup-responsive-active .setup-shell.view-gacha .setup-center-card {
     min-height: 34px !important;
   }
 }
+
+/* ==================================================================
+   v3.4.28 — final overrides for top menu and Gacha Sim layout
+   ================================================================== */
+.setup-screen .settings-tabs,
+html.setup-responsive-active .settings-tabs,
+body.setup-responsive-active .settings-tabs {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  white-space: nowrap !important;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.setup-screen .settings-tabs::-webkit-scrollbar,
+html.setup-responsive-active .settings-tabs::-webkit-scrollbar,
+body.setup-responsive-active .settings-tabs::-webkit-scrollbar {
+  display: none !important;
+}
+.setup-screen .setup-top-tab,
+.setup-screen .setup-top-tab[data-tab],
+html.setup-responsive-active .setup-top-tab,
+body.setup-responsive-active .setup-top-tab {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  width: auto !important;
+  padding-inline: 10px !important;
+  font-size: 12px !important;
+  letter-spacing: .045em !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+}
+.setup-screen .title-banner {
+  min-width: 285px;
+}
+.setup-screen .setup-top-tab[data-tab="gacha"] {
+  min-width: 118px !important;
+}
+.setup-screen .setup-top-tab[data-tab="updates"] {
+  min-width: 136px !important;
+}
+.setup-screen .setup-top-tab[data-tab="creditos"] {
+  min-width: 100px !important;
+}
+
+html.setup-responsive-active .setup-shell.view-gacha,
+body.setup-responsive-active .setup-shell.view-gacha,
+.setup-shell.view-gacha {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.setup-panel.gacha-panel {
+  overflow: visible !important;
+}
+
+.gacha-lab {
+  --gacha-legendary: #df4a4a;
+  --gacha-epic: #deb84a;
+  --gacha-rare: #8f5bff;
+  --gacha-refined: #4ea9ff;
+  position: relative;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 780px;
+  padding: 26px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  box-sizing: border-box;
+}
+.gacha-lab::before,
+.gacha-lab::after {
+  pointer-events: none;
+}
+.gacha-lab-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+}
+.gacha-lab-header > div:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.gacha-lab-status {
+  flex: 0 0 180px;
+  text-align: right;
+}
+.gacha-lab-layout {
+  display: grid !important;
+  grid-template-columns: minmax(340px, 420px) minmax(0, 1fr) !important;
+  gap: 24px !important;
+  align-items: stretch;
+}
+.gacha-control-panel,
+.gacha-wheel-stage {
+  min-width: 0;
+  border-radius: 0 !important;
+  box-sizing: border-box;
+}
+.gacha-control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px !important;
+}
+.gacha-counter-grid,
+.gacha-counter-grid--triple {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+.gacha-recent-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gacha-recent-slots {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+.gacha-recent-slot,
+.gacha-forecast-cell {
+  border-radius: 0 !important;
+  box-sizing: border-box;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.gacha-recent-slot {
+  min-height: 64px;
+}
+.gacha-action-row,
+.gacha-stage-actions {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+.gacha-generate-button,
+.gacha-reset-button,
+.gacha-stage-chip {
+  min-width: 0;
+}
+.gacha-wheel-stage {
+  display: grid !important;
+  grid-template-rows: auto auto auto 1fr !important;
+  align-content: start;
+  justify-items: stretch;
+  gap: 18px !important;
+  min-height: 620px;
+  padding: 24px !important;
+}
+.gacha-wheel-copy {
+  position: relative !important;
+  inset: auto !important;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  text-align: center;
+}
+.gacha-wheel-copy strong,
+.gacha-wheel-copy small {
+  max-width: 100%;
+}
+.gacha-portal-shell {
+  position: relative !important;
+  width: min(100%, 500px) !important;
+  aspect-ratio: 1 / 1 !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  place-items: center !important;
+}
+.gacha-portal-shell::before,
+.gacha-portal-shell::after {
+  content: "";
+  position: absolute;
+  inset: 8% !important;
+  border: 1px solid rgba(76, 180, 255, .18);
+  border-radius: 50%;
+}
+.gacha-portal-shell::after {
+  inset: 20% !important;
+  border-color: rgba(76, 180, 255, .1);
+}
+.gacha-portal-pointer {
+  position: absolute !important;
+  top: 8% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 3;
+}
+.gacha-wheel {
+  position: relative !important;
+  width: min(68%, 320px) !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 50% !important;
+  margin: 0 auto !important;
+  flex: none !important;
+}
+.gacha-wheel::before {
+  content: "";
+  position: absolute;
+  inset: 13%;
+  border-radius: 50%;
+}
+.gacha-wheel-inner {
+  position: absolute !important;
+  inset: 28% !important;
+  border-radius: 50% !important;
+}
+.gacha-portal-core {
+  position: absolute !important;
+  inset: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+}
+.gacha-portal-core span {
+  width: 18% !important;
+  min-width: 46px;
+  aspect-ratio: 1 / 1 !important;
+}
+.gacha-forecast-strip {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  align-self: stretch;
+}
+.gacha-forecast-cell {
+  min-height: 78px;
+  padding: 10px 12px !important;
+}
+.gacha-forecast-cell b {
+  font-size: .74rem !important;
+  line-height: 1.15;
+}
+.gacha-forecast-cell span {
+  font-size: .66rem !important;
+}
+.gacha-probability-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+.gacha-probability-grid article {
+  min-width: 0;
+}
+.gacha-lab-note {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+@media (max-width: 1360px) {
+  .setup-screen .title-banner { min-width: 250px; }
+  .setup-screen .setup-top-tab,
+  .setup-screen .setup-top-tab[data-tab],
+  html.setup-responsive-active .setup-top-tab,
+  body.setup-responsive-active .setup-top-tab {
+    font-size: 11px !important;
+    padding-inline: 8px !important;
+  }
+  .gacha-probability-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 1180px) {
+  .gacha-lab-layout { grid-template-columns: 1fr !important; }
+  .gacha-wheel-stage { min-height: 0; }
+}
+@media (max-width: 860px) {
+  .gacha-counter-grid,
+  .gacha-counter-grid--triple,
+  .gacha-action-row,
+  .gacha-stage-actions,
+  .gacha-probability-grid,
+  .gacha-forecast-strip,
+  .gacha-recent-slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+@media (max-width: 560px) {
+  .gacha-lab { padding: 18px !important; }
+  .gacha-counter-grid,
+  .gacha-counter-grid--triple,
+  .gacha-action-row,
+  .gacha-stage-actions,
+  .gacha-probability-grid,
+  .gacha-forecast-strip,
+  .gacha-recent-slots {
+    grid-template-columns: 1fr !important;
+  }
+}
