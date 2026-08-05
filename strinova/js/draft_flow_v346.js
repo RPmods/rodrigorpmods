@@ -1,4 +1,4 @@
-/* STRINOVA Draft System v3.4.28
+/* STRINOVA Draft System v3.4.29
  * Rebuilt flow controller: independent map phase, official 5v5 order,
  * simultaneous picks, private teammate requests and bot simulation.
  */
@@ -7,7 +7,7 @@
   if (window.__rpmodsDraftFlowV346Installed) return;
   window.__rpmodsDraftFlowV346Installed = true;
 
-  const VERSION = "3.4.28";
+  const VERSION = "3.4.29";
   const MAP_START_DELAY_MS = 900;
   const ASSIST_TIMEOUT_MS = 10000;
   const BOT_MIN_DELAY_MS = 850;
@@ -3705,7 +3705,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.28 — stability guard for offline/online draft commits
+   * v3.4.29 — stability guard for offline/online draft commits
    * ---------------------------------------------------------------- */
   function stabilityTurnSlotKeys(turn = currentTurn()) {
     return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
@@ -4005,7 +4005,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.28 — deterministic commit path for manual and timeout actions
+   * v3.4.29 — deterministic commit path for manual and timeout actions
    * ---------------------------------------------------------------- */
   function stabilityCommitDirectV3427(turn, character, isAuto = false, options = {}) {
     if (flow.phase !== "draft" || !state.draftActive) return false;
@@ -4155,7 +4155,7 @@
   };
 
   /* ------------------------------------------------------------------
-   * v3.4.28 — safer timeout and direct commit path for pick/ban
+   * v3.4.29 — safer timeout and direct commit path for pick/ban
    * ---------------------------------------------------------------- */
   async function stabilityCommitOnlineDirectV3428(turn, selected, isAuto = false, options = {}) {
     const key = stabilityTurnIdentity(turn);
