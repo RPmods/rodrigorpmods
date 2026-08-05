@@ -42,6 +42,7 @@ function checkRequiredFiles() {
     "js/draft_flow_v346.js",
     "js/firebase.js",
     "js/tournament.js",
+    "js/gacha_forecast.js",
     "js/tournament_data.js",
     "main.js",
     "preload.js",
@@ -152,6 +153,36 @@ function checkTournamentRelations() {
   }
 }
 
+
+function checkDraftStabilityRegression() {
+  const draftPath = path.join(PROJECT_ROOT, "js", "draft_flow_v346.js");
+  const htmlPath = path.join(PROJECT_ROOT, "index.html");
+  if (!fs.existsSync(draftPath) || !fs.existsSync(htmlPath)) return;
+
+  const draft = fs.readFileSync(draftPath, "utf8");
+  const html = fs.readFileSync(htmlPath, "utf8");
+
+  if (!draft.includes("confirmTurnV3425")) {
+    errors.push("Falta el wrapper confirmTurnV3425 para jugadores reales.");
+  }
+  if (!draft.includes("onlineSystem: true,\n        stabilityAuthorized: true")) {
+    errors.push("El wrapper de confirmación no autoriza la llamada base después de validar el turno.");
+  }
+  if (!draft.includes('draftState/rp3425TurnCommit')) {
+    errors.push("Falta el claim transaccional rp3425TurnCommit.");
+  }
+  if (draft.includes('draftState/rp3424TurnCommit')) {
+    warnings.push("Todavía existe una referencia al claim antiguo rp3424TurnCommit.");
+  }
+  [
+    'data-tab="gacha"',
+    'data-panel="gacha"',
+    'js/gacha_forecast.js',
+  ].forEach(marker => {
+    if (!html.includes(marker)) errors.push(`Falta la integración de Gacha Lab: ${marker}`);
+  });
+}
+
 function checkFirebaseEnvSafety() {
   const runtimeConfig = path.join(PROJECT_ROOT, "js", "firebase-env.js");
   if (fs.existsSync(runtimeConfig)) {
@@ -165,6 +196,7 @@ function main() {
   checkJavaScriptSyntax();
   checkHtmlIdsAndLocalReferences();
   checkTournamentRelations();
+  checkDraftStabilityRegression();
   checkFirebaseEnvSafety();
 
   warnings.forEach(message => console.warn(`ADVERTENCIA: ${message}`));

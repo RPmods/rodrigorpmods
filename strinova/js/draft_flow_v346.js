@@ -1,4 +1,4 @@
-/* STRINOVA Draft System v3.4.24
+/* STRINOVA Draft System v3.4.25
  * Rebuilt flow controller: independent map phase, official 5v5 order,
  * simultaneous picks, private teammate requests and bot simulation.
  */
@@ -7,7 +7,7 @@
   if (window.__rpmodsDraftFlowV346Installed) return;
   window.__rpmodsDraftFlowV346Installed = true;
 
-  const VERSION = "3.4.24";
+  const VERSION = "3.4.25";
   const MAP_START_DELAY_MS = 900;
   const ASSIST_TIMEOUT_MS = 10000;
   const BOT_MIN_DELAY_MS = 850;
@@ -3705,7 +3705,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.24 — stability guard for offline/online draft commits
+   * v3.4.25 — stability guard for offline/online draft commits
    * ---------------------------------------------------------------- */
   function stabilityTurnSlotKeys(turn = currentTurn()) {
     return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
@@ -3743,24 +3743,44 @@
     catch (_) { try { renderAll(); } catch (_) {} }
   }
 
+  function stabilityCommitRef() {
+    if (!currentRoomCode) return null;
+    const roomRef = roomRefFor(currentRoomCode);
+    return roomRef ? roomRef.child("draftState/rp3425TurnCommit") : null;
+  }
+
+  function stabilityCommitOwnerId() {
+    if (!flow.__stabilityPageToken) {
+      flow.__stabilityPageToken = `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
+    }
+    return `${onlineClientId()}:${flow.__stabilityPageToken}`;
+  }
+
   async function stabilityClaimOnlineTurn(turn, character, options = {}) {
     if (!currentRoomCode) return true;
     if (!turn || !character?.name) return false;
     if (currentRole !== "host" && currentRole !== "player") return false;
 
-    const roomRef = roomRefFor(currentRoomCode);
-    if (!roomRef) return false;
+    const claimRef = stabilityCommitRef();
+    if (!claimRef) return false;
 
     const identity = stabilityTurnIdentity(turn);
     const slotKey = options.botSlotKey || actorSlotKey(turn, options) || turn.slotKey || "system";
     const clientId = onlineClientId();
-    const claimRef = roomRef.child("draftState/rp3424TurnCommit");
+    const ownerId = stabilityCommitOwnerId();
 
     try {
       const result = await claimRef.transaction((claim) => {
         const sameTurn = claim && claim.identity === identity;
         const fresh = claim?.at && Math.abs(onlineNow() - Number(claim.at)) < 15000;
-        if (sameTurn && fresh) return;
+        const committed = claim?.status === "committed";
+
+        // A committed identity remains closed until the turn changes. An incomplete
+        // claim can be replaced only by the same page instance, not by another tab
+        // that shares the persistent online client id.
+        if (sameTurn && committed) return;
+        if (sameTurn && fresh && claim?.ownerId !== ownerId) return;
+
         return {
           identity,
           sessionId: state.draftSessionId,
@@ -3771,9 +3791,11 @@
           slotKey,
           characterName: character.name,
           clientId,
+          ownerId,
           role: currentRole || "unknown",
           isAuto: Boolean(options.isAuto),
           reason: options.reason || options.claimKey || null,
+          status: "claimed",
           at: onlineNow(),
         };
       });
@@ -3782,6 +3804,38 @@
     } catch (error) {
       console.warn("RPmods Stability: no se pudo reclamar el commit del turno.", error);
       return false;
+    }
+  }
+
+  async function stabilityMarkOnlineCommit(identity, character) {
+    const claimRef = stabilityCommitRef();
+    if (!claimRef || !identity) return;
+    try {
+      await claimRef.transaction((claim) => {
+        if (!claim || claim.identity !== identity || claim.ownerId !== stabilityCommitOwnerId()) return;
+        return {
+          ...claim,
+          characterName: character?.name || claim.characterName || null,
+          status: "committed",
+          committedAt: onlineNow(),
+        };
+      });
+    } catch (error) {
+      console.warn("RPmods Stability: no se pudo marcar el commit como confirmado.", error);
+    }
+  }
+
+  async function stabilityRollbackOnlineClaim(identity) {
+    const claimRef = stabilityCommitRef();
+    if (!claimRef || !identity) return;
+    try {
+      await claimRef.transaction((claim) => {
+        if (!claim || claim.identity !== identity || claim.ownerId !== stabilityCommitOwnerId()) return;
+        if (claim.status === "committed") return;
+        return null;
+      });
+    } catch (error) {
+      console.warn("RPmods Stability: no se pudo liberar el claim incompleto.", error);
     }
   }
 
@@ -3799,35 +3853,70 @@
   }
 
   const baseConfirmTurnV3424 = confirmTurn;
-  confirmTurn = async function confirmTurnV3424(isAuto = false, options = {}) {
+  confirmTurn = async function confirmTurnV3425(isAuto = false, options = {}) {
     const turn = currentTurn();
     const selected = state.selected;
     const key = stabilityTurnIdentity(turn);
     flow.__stabilityPendingCommits = flow.__stabilityPendingCommits || {};
 
-    if (flow.__stabilityPendingCommits[key]) return;
-    if (state.locked) return;
-    if (!stabilityValidTurnAction(turn, selected, options)) return;
+    if (flow.__stabilityPendingCommits[key]) return false;
+    if (state.locked) return false;
+
+    // Permission is checked before the pending flag is set. The v3.4.24 wrapper
+    // then called the base function without authorization, while its own pending
+    // flag made canControlCurrentTurn() return false. That prevented every real
+    // player (offline and online) from completing the confirmation.
+    if (!stabilityValidTurnAction(turn, selected, options)) return false;
 
     flow.__stabilityPendingCommits[key] = true;
     const claimed = await stabilityClaimOnlineTurn(turn, selected, { ...options, isAuto });
     if (!claimed) {
       stabilityResetPendingCommit(key);
       stabilityReleaseTurnLock({ keepSelection: true });
-      return;
+      return false;
     }
 
     if (!stabilityValidTurnAction(turn, selected, { ...options, onlineSystem: true })) {
+      await stabilityRollbackOnlineClaim(key);
       stabilityResetPendingCommit(key);
       stabilityReleaseTurnLock({ keepSelection: true });
-      return;
+      return false;
     }
 
     try {
       state.selected = selected;
-      return baseConfirmTurnV3424(isAuto, options);
+
+      // The action was already permission-checked and (online) atomically claimed.
+      // Passing onlineSystem=true only bypasses the pending guard inside the older
+      // base wrapper; it does not grant control to an unauthorized player.
+      const result = baseConfirmTurnV3424(isAuto, {
+        ...options,
+        onlineSystem: true,
+        stabilityAuthorized: true,
+        stabilityCommitIdentity: key,
+      });
+
+      const started = Boolean(state.locked || stabilityCharacterAlreadyCommitted(turn, selected));
+      if (!started) {
+        await stabilityRollbackOnlineClaim(key);
+        stabilityResetPendingCommit(key);
+        stabilityReleaseTurnLock({ keepSelection: true });
+        return false;
+      }
+
+      if (!turn?.simultaneous) void stabilityMarkOnlineCommit(key, selected);
+      return result ?? true;
+    } catch (error) {
+      await stabilityRollbackOnlineClaim(key);
+      stabilityResetPendingCommit(key);
+      stabilityReleaseTurnLock({ keepSelection: true });
+      console.error("RPmods Stability: la confirmación del turno falló.", error);
+      try {
+        showAppNotice("No se pudo confirmar la selección. Inténtalo nuevamente.", { type: "warning", duration: 4200 });
+      } catch (_) {}
+      return false;
     } finally {
-      window.setTimeout(() => stabilityResetPendingCommit(key), Math.max(1200, confirmedActionAnimationDuration(turn.type, isAuto) + 900));
+      window.setTimeout(() => stabilityResetPendingCommit(key), Math.max(1200, confirmedActionAnimationDuration(turn?.type || "pick", isAuto) + 900));
     }
   };
 
@@ -3860,12 +3949,19 @@
   };
 
   const baseRegisterSimultaneousSelectionV3424 = registerSimultaneousSelection;
-  registerSimultaneousSelection = async function registerSimultaneousSelectionV3424(turn, character, options = {}) {
+  registerSimultaneousSelection = async function registerSimultaneousSelectionV3425(turn, character, options = {}) {
+    const identity = options.stabilityCommitIdentity || stabilityTurnIdentity(turn);
     try {
       const result = await baseRegisterSimultaneousSelectionV3424(turn, character, options);
-      if (!result) stabilityReleaseTurnLock({ keepSelection: false });
-      return result;
+      if (!result) {
+        await stabilityRollbackOnlineClaim(identity);
+        stabilityReleaseTurnLock({ keepSelection: false });
+        return false;
+      }
+      void stabilityMarkOnlineCommit(identity, character);
+      return true;
     } catch (error) {
+      await stabilityRollbackOnlineClaim(identity);
       console.warn("RPmods Stability: falló el registro de selección simultánea.", error);
       stabilityReleaseTurnLock({ keepSelection: false });
       return false;

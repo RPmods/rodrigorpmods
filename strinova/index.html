@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STRINOVA Draft System v3.4.24 by RPmods</title>
+  <title>STRINOVA Draft System v3.4.25 by RPmods</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -36,10 +36,11 @@
   <main id="setup-screen" class="screen setup-screen active">
     <section class="setup-shell settings-surface">
       <header class="settings-topbar">
-        <div class="settings-brand">STRINOVA Draft System v3.4.24 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.25 by RPmods</div>
         <nav class="settings-tabs">
           <button type="button" class="settings-tab setup-top-tab is-active" data-tab="menu">MENÚ</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="tournament">TORNEO</button>
+          <button type="button" class="settings-tab setup-top-tab" data-tab="gacha">GACHA LAB</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="volumen">VOLUMEN</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="configuracion">CONFIGURACIÓN</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="random">RANDOM SELECTOR</button>
@@ -170,6 +171,92 @@
                   </div>
                 </div>
 
+              </div>
+            </section>
+
+
+
+            <section class="setup-panel gacha-panel" data-panel="gacha">
+              <div id="gacha-lab" class="gacha-lab">
+                <header class="gacha-lab-header">
+                  <div>
+                    <span class="gacha-lab-kicker">RECONSTRUCTION · PROBABILITY SIMULATOR</span>
+                    <h2>GACHA LAB</h2>
+                    <p>Simula una ventana de 12 tiradas usando los contadores de garantía y las tasas públicas de calidad. No predice recompensas concretas.</p>
+                  </div>
+                  <div class="gacha-lab-status">
+                    <span>Modelo</span>
+                    <strong>APROXIMADO</strong>
+                  </div>
+                </header>
+
+                <div class="gacha-lab-layout">
+                  <aside class="gacha-control-panel">
+                    <div class="gacha-control-heading">
+                      <span>DATOS DE LA ÚLTIMA RULETA</span>
+                      <small>Los colores recientes se usan como semilla visual; no modifican las tasas oficiales.</small>
+                    </div>
+
+                    <label class="gacha-field" for="gacha-last-result">
+                      <span>Último resultado</span>
+                      <select id="gacha-last-result">
+                        <option value="refined">Refined</option>
+                        <option value="rare">Rare</option>
+                        <option value="epic">Epic</option>
+                        <option value="legendary">Legendary</option>
+                      </select>
+                    </label>
+
+                    <div class="gacha-counter-grid">
+                      <label class="gacha-field" for="gacha-legendary-remaining">
+                        <span>Legendary en</span>
+                        <div class="gacha-number-wrap"><input id="gacha-legendary-remaining" type="number" min="1" max="80" value="80"><b>tiradas</b></div>
+                      </label>
+                      <label class="gacha-field" for="gacha-epic-remaining">
+                        <span>Epic o superior en</span>
+                        <div class="gacha-number-wrap"><input id="gacha-epic-remaining" type="number" min="1" max="30" value="30"><b>tiradas</b></div>
+                      </label>
+                    </div>
+
+                    <div class="gacha-recent-block">
+                      <div class="gacha-recent-heading">
+                        <span>Colores del último aro</span>
+                        <small>Haz clic en cada casillero para cambiar su calidad.</small>
+                      </div>
+                      <div id="gacha-recent-slots" class="gacha-recent-slots" aria-label="Colores recientes de la ruleta"></div>
+                    </div>
+
+                    <button id="gacha-generate" class="gacha-generate-button" type="button">GENERATE FORECAST</button>
+                    <button id="gacha-reset" class="gacha-reset-button" type="button">RESTABLECER</button>
+                  </aside>
+
+                  <section class="gacha-wheel-stage" aria-live="polite">
+                    <div class="gacha-wheel-copy">
+                      <span>NEXT 12 PULLS</span>
+                      <strong id="gacha-wheel-title">FORECAST READY</strong>
+                    </div>
+                    <div class="gacha-portal-shell">
+                      <div class="gacha-portal-pointer" aria-hidden="true"></div>
+                      <div id="gacha-wheel" class="gacha-wheel" aria-label="Ruleta estimada">
+                        <div class="gacha-wheel-inner"></div>
+                      </div>
+                      <div class="gacha-portal-core" aria-hidden="true"><span></span></div>
+                    </div>
+                    <div id="gacha-forecast-strip" class="gacha-forecast-strip"></div>
+                  </section>
+                </div>
+
+                <div class="gacha-probability-grid">
+                  <article data-quality="legendary"><span>Legendary</span><strong id="gacha-prob-legendary">0.65%</strong><small>Garantía máxima: 80</small></article>
+                  <article data-quality="epic"><span>Epic</span><strong id="gacha-prob-epic">5.00%</strong><small>Epic o superior: 30</small></article>
+                  <article data-quality="rare"><span>Rare</span><strong id="gacha-prob-rare">24.00%</strong><small>Tasa base</small></article>
+                  <article data-quality="refined"><span>Refined</span><strong id="gacha-prob-refined">70.40%</strong><small>Tasa base</small></article>
+                </div>
+
+                <div class="gacha-lab-note">
+                  <strong>Importante:</strong>
+                  <span>Este apartado es un simulador visual. Los sorteos anteriores no garantizan un patrón futuro; el cálculo solo fuerza los límites de garantía configurados.</span>
+                </div>
               </div>
             </section>
 
@@ -403,11 +490,12 @@
               <div class="subconfig-heading updates-heading">
                 <span>Updates / Historial</span>
                 <strong>Mejoras importantes</strong>
-                <small class="updates-current-version" data-current-version-label>Versión actual: v3.4.24</small>
+                <small class="updates-current-version" data-current-version-label>Versión actual: v3.4.25</small>
               </div>
 
-              <div class="updates-history-panel" data-current-version="3.4.24">
+              <div class="updates-history-panel" data-current-version="3.4.25">
                 <ul>
+                  <li class="is-current-update" data-static-update="1">v3.4.25 Update (Real Player Confirm Fix + Gacha Lab) — Se corrigió el bloqueo que impedía a jugadores reales confirmar picks/bans después del guard de estabilidad v3.4.24, incluyendo selección manual, ruleta manual y auto-resolución por tiempo. También se añadió Gacha Lab, un simulador visual de 12 tiradas con tasas de calidad y garantías configurables.</li>
                   <li>v2.3 — Base estable: se consolidó la interfaz competitiva, el draft local, bloqueos, selecciones, audios y resumen final.</li>
                   <li>v2.4 — Se añadió el modo online con salas por código, líder espectador, sincronización de picks, bans, turnos, mapa y estado completo.</li>
                   <li>v2.5 — Se corrigieron errores de sincronización de turnos, temporizador, reconexión, selección aleatoria y bloqueo de acciones por rol.</li>
@@ -472,7 +560,7 @@
                   <li>v3.3.3 Hotfix (Tournament Scroll + UI Polish) — Se corrigió el recorte vertical del Tournament Hub, se mejoró el desplazamiento con rueda del mouse, se rediseñaron tarjetas de equipos/jugadores para evitar nombres cortados y se modernizó la barra del menú principal sin tocar la lógica del draft.</li>
                   <li>v3.3.2 Hotfix (Tournament Wide Layout) — Se amplió el Tournament Hub para usar más espacio de pantalla, se retiraron las pestañas innecesarias de Mapas y Reglas, se reforzó el escalado responsivo y se mejoró la visualización de Resumen, Equipos y Jugadores.</li>
                   <li data-static-update="1">v3.4.19 Update (Tournament Real Rosters + Player Profiles) — Se integraron los equipos YO4HVNS y ShinigamiGang con roles reales, clasificación, colecciones y estadísticas comunes de 26SP4. Se eliminaron los registros de demostración, los campos innecesarios y las métricas no comparables; los datos ausentes ahora se muestran como “Sin datos” y el perfil parcial procedente de Stringify identifica claramente su fuente y sus limitaciones.</li>
-                  <li class="is-current-update" data-static-update="1">v3.4.24 Stability Hotfix (Draft Guard) — Se reforzó el motor del draft offline/online para evitar doble confirmación de turnos, limitar la auto-resolución online al host, validar propuestas aceptadas antes de aplicarlas, restaurar el bloqueo si falla una selección simultánea, corregir consultas Firebase v8 y reparar la ruta del avatar en solicitudes PEDIR.</li>
+                  <li data-static-update="1">v3.4.24 Stability Hotfix (Draft Guard) — Se reforzó el motor del draft offline/online para evitar doble confirmación de turnos, limitar la auto-resolución online al host, validar propuestas aceptadas antes de aplicarlas, restaurar el bloqueo si falla una selección simultánea, corregir consultas Firebase v8 y reparar la ruta del avatar en solicitudes PEDIR.</li>
                 </ul>
               </div>
             </section>
@@ -912,7 +1000,7 @@
   <main id="map-screen" class="screen map-screen">
     <section class="map-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.4.24 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.25 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab is-active">SELECCIÓN DE MAPA</span>
         </nav>
@@ -943,7 +1031,7 @@
   <main id="summary-screen" class="screen summary-screen">
     <section class="summary-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.4.24 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.25 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab">BÁSICO</span>
           <span class="settings-tab">EQUIPOS</span>
@@ -1034,5 +1122,6 @@
   <script src="js/app.js"></script>
   <script src="js/draft_flow_v346.js"></script>
   <script src="js/tournament.js"></script>
+  <script src="js/gacha_forecast.js"></script>
 </body>
 </html>

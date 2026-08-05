@@ -373,7 +373,7 @@
       setupScreen.classList.toggle('menu-surface-active', isMenu);
     }
     if (shell) {
-      const knownViews = ['view-menu', 'view-tournament', 'view-volumen', 'view-configuracion', 'view-development', 'view-random', 'view-idioma', 'view-creditos', 'view-updates'];
+      const knownViews = ['view-menu', 'view-tournament', 'view-gacha', 'view-volumen', 'view-configuracion', 'view-development', 'view-random', 'view-idioma', 'view-creditos', 'view-updates'];
       shell.classList.remove(...knownViews);
       shell.classList.add(`view-${activeTabName}`);
       shell.dataset.activeSetupTab = activeTabName;
