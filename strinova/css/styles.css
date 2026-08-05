@@ -21320,3 +21320,429 @@ body.setup-responsive-active .setup-shell.view-gacha .setup-panel.gacha-panel.is
 @media (prefers-reduced-motion: reduce) {
   .gacha-wheel.is-spinning { animation-duration: .01ms !important; }
 }
+
+/* v3.4.26 — fixed menu layout, consistent Gacha Sim surface, timeout-safe draft */
+.settings-tab[data-tab="menu"] { order: 1; }
+.settings-tab[data-tab="tournament"] { order: 2; }
+.settings-tab[data-tab="gacha"] { order: 3; }
+.settings-tab[data-tab="volumen"] { order: 4; }
+.settings-tab[data-tab="configuracion"] { order: 5; }
+.settings-tab[data-tab="random"] { order: 6; }
+.settings-tab[data-tab="idioma"] { order: 7; }
+.settings-tab[data-tab="updates"] { order: 8; }
+.settings-tab[data-tab="creditos"] { order: 9; }
+
+html.setup-responsive-active .settings-tabs,
+body.setup-responsive-active .settings-tabs {
+  grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
+}
+
+html.setup-responsive-active .setup-shell.view-gacha,
+body.setup-responsive-active .setup-shell.view-gacha {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.setup-screen .setup-top-tab[data-tab="gacha"] {
+  min-width: 116px !important;
+}
+
+.gacha-lab {
+  --gacha-legendary: #e64a4a;
+  --gacha-epic: #e7b94c;
+  --gacha-rare: #9d61ff;
+  --gacha-refined: #57b8ff;
+  min-height: 740px;
+  padding: clamp(20px, 2.5vw, 34px);
+  border: 1px solid rgba(122, 169, 225, .28);
+  background:
+    linear-gradient(180deg, rgba(13, 21, 33, .92), rgba(19, 29, 42, .9)),
+    radial-gradient(circle at 75% 25%, rgba(120, 220, 255, .16), transparent 28%);
+  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
+}
+
+.gacha-lab-header h2 {
+  font-size: clamp(2.2rem, 4vw, 3.7rem);
+  letter-spacing: .03em;
+}
+
+.gacha-lab-layout {
+  grid-template-columns: minmax(340px, 430px) minmax(0, 1fr);
+  gap: clamp(20px, 2vw, 30px);
+}
+
+.gacha-control-panel,
+.gacha-wheel-stage {
+  border-radius: 0;
+  border: 1px solid rgba(113, 177, 241, .2);
+  background: linear-gradient(160deg, rgba(12, 20, 32, .88), rgba(21, 34, 49, .82));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.02), 0 18px 40px rgba(0,0,0,.18);
+}
+
+.gacha-control-panel { padding: 22px; }
+.gacha-counter-grid--triple { grid-template-columns: 1fr 1fr; margin-bottom: 16px; }
+.gacha-field > span,
+.gacha-recent-heading > span { font-size: .76rem; }
+.gacha-field input,
+.gacha-field select {
+  min-height: 48px;
+  border: 1px solid rgba(124, 166, 212, .26);
+  background: rgba(5, 10, 18, .8);
+}
+.gacha-number-wrap b { right: 14px; }
+.gacha-quality-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0 18px;
+}
+.gacha-quality-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.035);
+  color: rgba(242,247,255,.86);
+  font-size: .74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.gacha-quality-legend span::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+.gacha-quality-legend .quality-legendary { color: var(--gacha-legendary); }
+.gacha-quality-legend .quality-epic { color: var(--gacha-epic); }
+.gacha-quality-legend .quality-rare { color: var(--gacha-rare); }
+.gacha-quality-legend .quality-refined { color: var(--gacha-refined); }
+
+.gacha-action-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.gacha-generate-button,
+.gacha-reset-button {
+  min-height: 54px;
+  border: 1px solid rgba(255,255,255,.12);
+  font-size: .78rem;
+  letter-spacing: .08em;
+}
+.gacha-generate-button {
+  background: linear-gradient(180deg, #f24959, #cf3040);
+}
+.gacha-reset-button {
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+}
+.gacha-reset-button.gacha-reset-danger {
+  border-color: rgba(230, 74, 74, .28);
+}
+
+.gacha-recent-slots {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+.gacha-recent-slot {
+  height: 62px;
+  border-radius: 0;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  border: 1px solid rgba(255,255,255,.12);
+  padding: 8px;
+  justify-content: space-between;
+}
+.gacha-recent-slot span {
+  font-size: .68rem;
+  opacity: .82;
+}
+.gacha-recent-slot b {
+  font-size: 1rem;
+  line-height: 1;
+}
+.quality-legendary { --slot-color: var(--gacha-legendary); }
+.quality-epic { --slot-color: var(--gacha-epic); }
+.quality-rare { --slot-color: var(--gacha-rare); }
+.quality-refined { --slot-color: var(--gacha-refined); }
+
+.gacha-wheel-stage {
+  position: relative;
+  min-height: 620px;
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  padding: 24px;
+  background:
+    linear-gradient(180deg, rgba(7, 16, 28, .94), rgba(11, 18, 31, .96)),
+    radial-gradient(circle at 50% 25%, rgba(32, 173, 255, .12), transparent 28%);
+}
+.gacha-wheel-stage::before {
+  inset: 20px 24px auto;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(60,193,255,.0), rgba(60,193,255,.9), rgba(60,193,255,.0));
+}
+.gacha-wheel-copy {
+  position: relative;
+  top: auto;
+  left: auto;
+  gap: 6px;
+}
+.gacha-wheel-copy strong {
+  font-size: clamp(1.35rem, 2.2vw, 2rem);
+}
+.gacha-wheel-copy small {
+  color: rgba(226, 239, 255, .65);
+  line-height: 1.4;
+}
+.gacha-portal-shell {
+  width: min(100%, 420px);
+  margin: 0 auto;
+  aspect-ratio: 1;
+}
+.gacha-wheel {
+  --gacha-wheel-gradient: conic-gradient(#57b8ff, #9d61ff, #e7b94c, #e64a4a, #57b8ff);
+  width: 66%;
+  aspect-ratio: 1;
+  background: var(--gacha-wheel-gradient);
+  box-shadow: 0 0 40px rgba(71, 206, 255, .22), 0 0 120px rgba(71, 206, 255, .08);
+}
+.gacha-wheel::before { background: radial-gradient(circle, #0f1d32 0 30%, #050a14 68%); }
+.gacha-wheel.is-spinning { animation: gachaWheelSpin 1.25s cubic-bezier(.19,.77,.15,1); }
+.gacha-portal-core span {
+  border-color: rgba(255,255,255,.75);
+  box-shadow: 0 0 18px rgba(255,255,255,.82);
+}
+.gacha-stage-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.gacha-stage-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  color: rgba(241,246,255,.78);
+  font-size: .78rem;
+  font-weight: 1000;
+  letter-spacing: .08em;
+  clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+}
+.gacha-stage-chip.is-primary {
+  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.07));
+  color: #ffffff;
+}
+.gacha-forecast-strip {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+.gacha-forecast-cell {
+  min-height: 76px;
+  border-radius: 0;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  border: 1px solid rgba(255,255,255,.12);
+  transition: transform .18s ease, opacity .18s ease, filter .18s ease;
+}
+.gacha-forecast-cell.is-pending {
+  opacity: .28;
+  transform: translateY(4px) scale(.98);
+  filter: saturate(.55);
+}
+.gacha-forecast-cell b { font-size: .76rem; }
+
+.gacha-probability-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+.gacha-probability-grid article {
+  min-height: 108px;
+  padding: 16px 18px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+}
+.gacha-probability-grid article[data-quality="legendary"] { --quality-color: var(--gacha-legendary); }
+.gacha-probability-grid article[data-quality="epic"] { --quality-color: var(--gacha-epic); }
+.gacha-probability-grid article[data-quality="rare"] { --quality-color: var(--gacha-rare); }
+.gacha-probability-grid article[data-quality="refined"] { --quality-color: var(--gacha-refined); }
+.gacha-lab-note {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255,255,255,.09);
+  background: rgba(255,255,255,.04);
+}
+
+@media (max-width: 1180px) {
+  .gacha-lab-layout { grid-template-columns: 1fr; }
+  .gacha-wheel-stage { min-height: 0; }
+}
+@media (max-width: 860px) {
+  .gacha-action-row,
+  .gacha-stage-actions,
+  .gacha-probability-grid,
+  .gacha-quality-legend,
+  .gacha-counter-grid,
+  .gacha-counter-grid--triple,
+  .gacha-recent-slots,
+  .gacha-forecast-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .gacha-action-row,
+  .gacha-stage-actions,
+  .gacha-probability-grid,
+  .gacha-quality-legend,
+  .gacha-counter-grid,
+  .gacha-counter-grid--triple,
+  .gacha-recent-slots,
+  .gacha-forecast-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* v3.4.27 — definitive topbar and Gacha Sim width lock */
+.setup-screen .settings-topbar,
+html.setup-responsive-active .settings-topbar,
+body.setup-responsive-active .settings-topbar {
+  display: grid !important;
+  grid-template-columns: minmax(280px, 380px) minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 14px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  padding: 0 clamp(16px, 2.2vw, 34px) !important;
+  overflow: hidden !important;
+}
+
+.setup-screen .settings-brand,
+html.setup-responsive-active .settings-brand,
+body.setup-responsive-active .settings-brand {
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  flex: initial !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  font-size: clamp(.62rem, .68vw, .78rem) !important;
+}
+
+.setup-screen .settings-tabs,
+html.setup-responsive-active .settings-tabs,
+body.setup-responsive-active .settings-tabs {
+  display: grid !important;
+  grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
+  grid-auto-flow: column !important;
+  grid-auto-columns: minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 2px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  overflow: hidden !important;
+  flex: initial !important;
+  flex-wrap: nowrap !important;
+}
+
+.setup-screen .settings-tab,
+.setup-screen .setup-top-tab,
+html.setup-responsive-active .settings-tab,
+html.setup-responsive-active .setup-top-tab,
+body.setup-responsive-active .settings-tab,
+body.setup-responsive-active .setup-top-tab {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  padding: 0 clamp(2px, .45vw, 9px) !important;
+  font-size: clamp(.46rem, .54vw, .64rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: .055em !important;
+  white-space: normal !important;
+  text-align: center !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+}
+
+.setup-screen .setup-top-tab.is-active,
+html.setup-responsive-active .setup-top-tab.is-active,
+body.setup-responsive-active .setup-top-tab.is-active,
+.setup-screen .settings-tab.is-active,
+html.setup-responsive-active .settings-tab.is-active,
+body.setup-responsive-active .settings-tab.is-active {
+  clip-path: polygon(12px 0, 100% 0, calc(100% - 14px) 100%, 0 100%) !important;
+}
+
+.setup-screen .setup-shell,
+html.setup-responsive-active .setup-shell,
+body.setup-responsive-active .setup-shell,
+html.setup-responsive-active .setup-shell.view-gacha,
+body.setup-responsive-active .setup-shell.view-gacha {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+html.setup-responsive-active .setup-shell.view-gacha .setup-teams,
+body.setup-responsive-active .setup-shell.view-gacha .setup-teams,
+html.setup-responsive-active .setup-shell.view-gacha .setup-center-card,
+body.setup-responsive-active .setup-shell.view-gacha .setup-center-card {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+@media (max-width: 1280px) {
+  .setup-screen .settings-topbar,
+  html.setup-responsive-active .settings-topbar,
+  body.setup-responsive-active .settings-topbar {
+    grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 920px) {
+  .setup-screen .settings-topbar,
+  html.setup-responsive-active .settings-topbar,
+  body.setup-responsive-active .settings-topbar {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    min-height: 118px !important;
+    padding-block: 8px !important;
+  }
+  .setup-screen .settings-brand,
+  html.setup-responsive-active .settings-brand,
+  body.setup-responsive-active .settings-brand {
+    height: 34px !important;
+    min-height: 34px !important;
+    justify-content: center !important;
+  }
+  .setup-screen .settings-tabs,
+  html.setup-responsive-active .settings-tabs,
+  body.setup-responsive-active .settings-tabs {
+    height: auto !important;
+    min-height: 68px !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-auto-flow: row !important;
+  }
+  .setup-screen .settings-tab,
+  .setup-screen .setup-top-tab,
+  html.setup-responsive-active .settings-tab,
+  html.setup-responsive-active .setup-top-tab,
+  body.setup-responsive-active .settings-tab,
+  body.setup-responsive-active .setup-top-tab {
+    height: 34px !important;
+    min-height: 34px !important;
+  }
+}

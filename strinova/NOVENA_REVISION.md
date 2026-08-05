@@ -1,4 +1,4 @@
-# Novena revisión — v3.4.25
+# Novena revisión — v3.4.26
 
 ## Corrección del Draft
 
@@ -19,7 +19,7 @@ La nueva implementación:
 5. libera claims incompletos cuando ocurre un error;
 6. permite que el mismo cliente recupere un claim incompleto, evitando bloqueos temporales.
 
-## Gacha Lab
+## Gacha Sim
 
 Se añadió un nuevo apartado **GACHA LAB** junto a Torneo.
 

@@ -1,4 +1,4 @@
-/* STRINOVA Draft System v3.4.25
+/* STRINOVA Draft System v3.4.27
  * Rebuilt flow controller: independent map phase, official 5v5 order,
  * simultaneous picks, private teammate requests and bot simulation.
  */
@@ -7,7 +7,7 @@
   if (window.__rpmodsDraftFlowV346Installed) return;
   window.__rpmodsDraftFlowV346Installed = true;
 
-  const VERSION = "3.4.25";
+  const VERSION = "3.4.27";
   const MAP_START_DELAY_MS = 900;
   const ASSIST_TIMEOUT_MS = 10000;
   const BOT_MIN_DELAY_MS = 850;
@@ -3705,7 +3705,7 @@
 
 
   /* ------------------------------------------------------------------
-   * v3.4.25 — stability guard for offline/online draft commits
+   * v3.4.27 — stability guard for offline/online draft commits
    * ---------------------------------------------------------------- */
   function stabilityTurnSlotKeys(turn = currentTurn()) {
     return (turn?.slotKeys || [turn?.slotKey]).filter(Boolean);
@@ -3730,7 +3730,14 @@
   }
 
   function stabilityResetPendingCommit(key) {
-    if (flow.__stabilityPendingCommits && key) delete flow.__stabilityPendingCommits[key];
+    if (!flow.__stabilityPendingCommits) return;
+    if (key) delete flow.__stabilityPendingCommits[key];
+    if (!key) flow.__stabilityPendingCommits = {};
+  }
+
+  function stabilityHasPendingCommit(turn = currentTurn()) {
+    const identity = typeof turn === "string" ? turn : stabilityTurnIdentity(turn);
+    return Boolean(identity && flow.__stabilityPendingCommits && flow.__stabilityPendingCommits[identity]);
   }
 
   function stabilityReleaseTurnLock(options = {}) {
@@ -3847,8 +3854,9 @@
     try { if (!isCharacterAvailable(character, turn)) return false; }
     catch (_) { return false; }
 
-    if (currentRoomCode && !options.onlineSystem && !canControlCurrentTurn()) return false;
-    if (!currentRoomCode && !options.onlineSystem && !canControlCurrentTurn()) return false;
+    const bypassOwnership = Boolean(options.onlineSystem || options.stabilityAuthorized || options.stabilityAutoResolve);
+    if (currentRoomCode && !bypassOwnership && !canControlCurrentTurn()) return false;
+    if (!currentRoomCode && !bypassOwnership && !canControlCurrentTurn()) return false;
     return true;
   }
 
@@ -3859,7 +3867,7 @@
     const key = stabilityTurnIdentity(turn);
     flow.__stabilityPendingCommits = flow.__stabilityPendingCommits || {};
 
-    if (flow.__stabilityPendingCommits[key]) return false;
+    if (stabilityHasPendingCommit(turn)) return false;
     if (state.locked) return false;
 
     // Permission is checked before the pending flag is set. The v3.4.24 wrapper
@@ -3921,7 +3929,7 @@
   };
 
   const baseAutoResolveTurnV3424 = autoResolveTurn;
-  autoResolveTurn = async function autoResolveTurnV3424(options = {}) {
+  autoResolveTurn = async function autoResolveTurnV3426(options = {}) {
     if (currentRoomCode && currentRole !== "host") return;
     if (flow.__stabilityAutoResolving) return;
     const turn = currentTurn();
@@ -3935,16 +3943,16 @@
     }
     flow.__stabilityAutoResolving = true;
     try {
-      return await baseAutoResolveTurnV3424(options);
+      return await baseAutoResolveTurnV3424({ ...options, onlineSystem: true, stabilityAutoResolve: true });
     } finally {
       window.setTimeout(() => { flow.__stabilityAutoResolving = false; }, 1200);
     }
   };
 
   const baseTryClaimOnlineAutoResolveV3424 = tryClaimOnlineAutoResolve;
-  tryClaimOnlineAutoResolve = async function tryClaimOnlineAutoResolveV3424(turnKey = onlineTurnKey()) {
+  tryClaimOnlineAutoResolve = async function tryClaimOnlineAutoResolveV3426(turnKey = onlineTurnKey()) {
     if (currentRoomCode && currentRole !== "host") return false;
-    if (flow.__stabilityAutoResolving || Object.keys(flow.__stabilityPendingCommits || {}).length) return false;
+    if (flow.__stabilityAutoResolving || stabilityHasPendingCommit()) return false;
     return baseTryClaimOnlineAutoResolveV3424(turnKey);
   };
 
@@ -3983,8 +3991,166 @@
   };
 
   const baseCanControlCurrentTurnV3424 = canControlCurrentTurn;
-  canControlCurrentTurn = function canControlCurrentTurnV3424() {
-    if (Object.keys(flow.__stabilityPendingCommits || {}).length || flow.__stabilityAutoResolving) return false;
+  canControlCurrentTurn = function canControlCurrentTurnV3426() {
+    if (stabilityHasPendingCommit() || flow.__stabilityAutoResolving) return false;
+    return baseCanControlCurrentTurnV3424();
+  };
+
+  const baseStartTurnV3426 = startTurn;
+  startTurn = function startTurnV3426(options = {}) {
+    stabilityResetPendingCommit();
+    flow.__stabilityAutoResolving = false;
+    return baseStartTurnV3426(options);
+  };
+
+
+  /* ------------------------------------------------------------------
+   * v3.4.27 — deterministic commit path for manual and timeout actions
+   * ---------------------------------------------------------------- */
+  function stabilityCommitDirectV3427(turn, character, isAuto = false, options = {}) {
+    if (flow.phase !== "draft" || !state.draftActive) return false;
+    if (!turn || !character?.name) return false;
+    if (!isCharacterAvailable(character, turn)) return false;
+
+    if (flow.assistTarget && turn.type === "pick" && !options.assistCommit && !isAuto) {
+      const target = flow.assistTarget;
+      flow.assistTarget = null;
+      createProposal(target, character);
+      state.selected = null;
+      state.preselectLocked = false;
+      state.locked = false;
+      renderDraftStateLight({ refreshPreviewPanels: true });
+      return true;
+    }
+
+    if (turn.simultaneous) {
+      state.selected = character;
+      state.locked = true;
+      clearInterval(state.timerId);
+      void registerSimultaneousSelection(turn, character, { ...options, isAuto });
+      return true;
+    }
+
+    state.selected = character;
+    state.locked = true;
+    clearInterval(state.timerId);
+    timerCore?.classList.remove("timer-warning");
+    const previousStage = turnStage(turn);
+    const wait = commitSingleAction(turn, character, isAuto);
+    window.setTimeout(() => {
+      if (!isDraftSessionActive()) return;
+      state.turnIndex += 1;
+      prepareNextTurn(previousStage);
+    }, wait);
+    return true;
+  }
+
+  confirmTurn = async function confirmTurnV3427(isAuto = false, options = {}) {
+    const turn = currentTurn();
+    const selected = state.selected;
+    const key = stabilityTurnIdentity(turn);
+    flow.__stabilityPendingCommits = flow.__stabilityPendingCommits || {};
+
+    if (stabilityHasPendingCommit(turn)) return false;
+    if (state.locked) return false;
+
+    if (!stabilityValidTurnAction(turn, selected, options)) return false;
+
+    flow.__stabilityPendingCommits[key] = true;
+    const claimed = await stabilityClaimOnlineTurn(turn, selected, { ...options, isAuto });
+    if (!claimed) {
+      stabilityResetPendingCommit(key);
+      stabilityReleaseTurnLock({ keepSelection: true });
+      return false;
+    }
+
+    if (!stabilityValidTurnAction(turn, selected, { ...options, onlineSystem: true, stabilityAuthorized: true })) {
+      await stabilityRollbackOnlineClaim(key);
+      stabilityResetPendingCommit(key);
+      stabilityReleaseTurnLock({ keepSelection: true });
+      return false;
+    }
+
+    try {
+      const started = stabilityCommitDirectV3427(turn, selected, isAuto, {
+        ...options,
+        onlineSystem: true,
+        stabilityAuthorized: true,
+        stabilityCommitIdentity: key,
+      });
+
+      if (!started) {
+        await stabilityRollbackOnlineClaim(key);
+        stabilityResetPendingCommit(key);
+        stabilityReleaseTurnLock({ keepSelection: true });
+        return false;
+      }
+
+      if (!turn?.simultaneous) void stabilityMarkOnlineCommit(key, selected);
+      return true;
+    } catch (error) {
+      await stabilityRollbackOnlineClaim(key);
+      stabilityResetPendingCommit(key);
+      stabilityReleaseTurnLock({ keepSelection: true });
+      console.error("RPmods Stability: confirmación directa fallida.", error);
+      try { showAppNotice("No se pudo confirmar la selección. Inténtalo nuevamente.", { type: "warning", duration: 4200 }); } catch (_) {}
+      return false;
+    } finally {
+      window.setTimeout(() => stabilityResetPendingCommit(key), Math.max(1200, confirmedActionAnimationDuration(turn?.type || "pick", isAuto) + 900));
+    }
+  };
+
+  autoResolveTurn = async function autoResolveTurnV3427(options = {}) {
+    if (currentRoomCode && currentRole !== "host") return false;
+    if (flow.__stabilityAutoResolving) return false;
+    const sessionId = state.draftSessionId;
+    const turn = currentTurn();
+    if (!isDraftSessionActive(sessionId) || !turn || state.locked || state.roulette?.active) return false;
+
+    const valid = getValidCharacters();
+    if (!valid.length) {
+      console.warn("RPmods Stability: no hay laminantes válidos para resolver el turno automáticamente.", turn);
+      try { showAppNotice("No hay laminantes válidos para resolver este turno. Revisa la configuración del draft.", { type: "warning", duration: 5200 }); } catch (_) {}
+      stabilityReleaseTurnLock({ keepSelection: false });
+      return false;
+    }
+
+    flow.__stabilityAutoResolving = true;
+    try {
+      state.locked = true;
+      pushOnlineDraftState({ phase: "draft", audioEvent: createOnlineAudioEvent("randomStart") });
+      playNarration(systemDraftVoiceLines.random_start.src, systemDraftVoiceLines.random_start.text, 0.9);
+      await delay(2000);
+      if (!isDraftSessionActive(sessionId)) return false;
+
+      const selected = await runCharacterRoulette(valid);
+      if (!isDraftSessionActive(sessionId)) return false;
+      if (!selected) {
+        stabilityReleaseTurnLock({ keepSelection: false });
+        return false;
+      }
+
+      state.locked = false;
+      state.roulette.active = false;
+      state.selected = selected;
+      return await confirmTurn(true, { onlineSystem: true, stabilityAutoResolve: true, reason: "timeout" });
+    } catch (error) {
+      console.warn("RPmods Stability: falló la auto-selección por tiempo.", error);
+      stabilityReleaseTurnLock({ keepSelection: false });
+      return false;
+    } finally {
+      window.setTimeout(() => { flow.__stabilityAutoResolving = false; }, 1200);
+    }
+  };
+
+  tryClaimOnlineAutoResolve = async function tryClaimOnlineAutoResolveV3427(turnKey = onlineTurnKey()) {
+    if (currentRoomCode && currentRole !== "host") return false;
+    if (flow.__stabilityAutoResolving || stabilityHasPendingCommit()) return false;
+    return baseTryClaimOnlineAutoResolveV3424(turnKey);
+  };
+
+  canControlCurrentTurn = function canControlCurrentTurnV3427() {
+    if (stabilityHasPendingCommit() || flow.__stabilityAutoResolving) return false;
     return baseCanControlCurrentTurnV3424();
   };
 

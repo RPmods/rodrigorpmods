@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STRINOVA Draft System v3.4.25 by RPmods</title>
+  <title>STRINOVA Draft System v3.4.27 by RPmods</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -36,11 +36,11 @@
   <main id="setup-screen" class="screen setup-screen active">
     <section class="setup-shell settings-surface">
       <header class="settings-topbar">
-        <div class="settings-brand">STRINOVA Draft System v3.4.25 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.27 by RPmods</div>
         <nav class="settings-tabs">
           <button type="button" class="settings-tab setup-top-tab is-active" data-tab="menu">MENÚ</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="tournament">TORNEO</button>
-          <button type="button" class="settings-tab setup-top-tab" data-tab="gacha">GACHA LAB</button>
+          <button type="button" class="settings-tab setup-top-tab" data-tab="gacha">GACHA SIM</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="volumen">VOLUMEN</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="configuracion">CONFIGURACIÓN</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="random">RANDOM SELECTOR</button>
@@ -180,61 +180,74 @@
               <div id="gacha-lab" class="gacha-lab">
                 <header class="gacha-lab-header">
                   <div>
-                    <span class="gacha-lab-kicker">RECONSTRUCTION · PROBABILITY SIMULATOR</span>
-                    <h2>GACHA LAB</h2>
-                    <p>Simula una ventana de 12 tiradas usando los contadores de garantía y las tasas públicas de calidad. No predice recompensas concretas.</p>
+                    <span class="gacha-lab-kicker">RECONSTRUCTION · APPROXIMATE PREDICTION</span>
+                    <h2>GACHA SIM</h2>
+                    <p>Simula una ruleta aproximada de 1 a 10 secuencias usando los contadores de garantía y los colores que salieron en tu última ruleta. No predice recompensas exactas: solo la calidad probable de cada casillero.</p>
                   </div>
                   <div class="gacha-lab-status">
-                    <span>Modelo</span>
-                    <strong>APROXIMADO</strong>
+                    <span>MODELO</span>
+                    <strong>PROBABILÍSTICO</strong>
                   </div>
                 </header>
 
                 <div class="gacha-lab-layout">
                   <aside class="gacha-control-panel">
                     <div class="gacha-control-heading">
-                      <span>DATOS DE LA ÚLTIMA RULETA</span>
-                      <small>Los colores recientes se usan como semilla visual; no modifican las tasas oficiales.</small>
+                      <span>LAST ROLL DATA</span>
+                      <small>Indica cuántas secuencias usaste, qué colores salieron y cuánto falta para tus garantías.</small>
                     </div>
 
-                    <label class="gacha-field" for="gacha-last-result">
-                      <span>Último resultado</span>
-                      <select id="gacha-last-result">
-                        <option value="refined">Refined</option>
-                        <option value="rare">Rare</option>
-                        <option value="epic">Epic</option>
-                        <option value="legendary">Legendary</option>
-                      </select>
-                    </label>
+                    <div class="gacha-counter-grid gacha-counter-grid--triple">
+                      <label class="gacha-field" for="gacha-history-count">
+                        <span>Secuencias usadas en la última ruleta</span>
+                        <div class="gacha-number-wrap"><input id="gacha-history-count" type="number" min="1" max="10" value="10"><b>max 10</b></div>
+                      </label>
+                      <label class="gacha-field" for="gacha-sequence-count">
+                        <span>Secuencias a simular</span>
+                        <div class="gacha-number-wrap"><input id="gacha-sequence-count" type="number" min="1" max="10" value="10"><b>1–10</b></div>
+                      </label>
+                    </div>
 
                     <div class="gacha-counter-grid">
                       <label class="gacha-field" for="gacha-legendary-remaining">
-                        <span>Legendary en</span>
-                        <div class="gacha-number-wrap"><input id="gacha-legendary-remaining" type="number" min="1" max="80" value="80"><b>tiradas</b></div>
+                        <span>Legendary garantizado en</span>
+                        <div class="gacha-number-wrap"><input id="gacha-legendary-remaining" type="number" min="1" max="80" value="80"><b>sorteos</b></div>
                       </label>
                       <label class="gacha-field" for="gacha-epic-remaining">
-                        <span>Epic o superior en</span>
-                        <div class="gacha-number-wrap"><input id="gacha-epic-remaining" type="number" min="1" max="30" value="30"><b>tiradas</b></div>
+                        <span>Epic o superior garantizado en</span>
+                        <div class="gacha-number-wrap"><input id="gacha-epic-remaining" type="number" min="1" max="30" value="30"><b>sorteos</b></div>
                       </label>
                     </div>
 
                     <div class="gacha-recent-block">
                       <div class="gacha-recent-heading">
-                        <span>Colores del último aro</span>
-                        <small>Haz clic en cada casillero para cambiar su calidad.</small>
+                        <span>Colores de la última ruleta</span>
+                        <small>Haz clic en cada casillero para alternar entre rojo, dorado, morado y azul.</small>
                       </div>
                       <div id="gacha-recent-slots" class="gacha-recent-slots" aria-label="Colores recientes de la ruleta"></div>
                     </div>
 
-                    <button id="gacha-generate" class="gacha-generate-button" type="button">GENERATE FORECAST</button>
-                    <button id="gacha-reset" class="gacha-reset-button" type="button">RESTABLECER</button>
+                    <div class="gacha-quality-legend" aria-label="Leyenda de colores">
+                      <span class="quality-legendary">Legendary · rojo</span>
+                      <span class="quality-epic">Epic · dorado</span>
+                      <span class="quality-rare">Rare · morado</span>
+                      <span class="quality-refined">Fine · azul</span>
+                    </div>
+
+                    <div class="gacha-action-row">
+                      <button id="gacha-generate" class="gacha-generate-button" type="button">RUN ANIMATION</button>
+                      <button id="gacha-quick" class="gacha-reset-button" type="button">QUICK RESULT</button>
+                      <button id="gacha-reset" class="gacha-reset-button gacha-reset-danger" type="button">RESET</button>
+                    </div>
                   </aside>
 
                   <section class="gacha-wheel-stage" aria-live="polite">
                     <div class="gacha-wheel-copy">
-                      <span>NEXT 12 PULLS</span>
-                      <strong id="gacha-wheel-title">FORECAST READY</strong>
+                      <span>PREDICTED ROLL</span>
+                      <strong id="gacha-wheel-title">READY TO SIMULATE</strong>
+                      <small id="gacha-result-summary">Selecciona los datos y genera una predicción.</small>
                     </div>
+
                     <div class="gacha-portal-shell">
                       <div class="gacha-portal-pointer" aria-hidden="true"></div>
                       <div id="gacha-wheel" class="gacha-wheel" aria-label="Ruleta estimada">
@@ -242,20 +255,27 @@
                       </div>
                       <div class="gacha-portal-core" aria-hidden="true"><span></span></div>
                     </div>
+
+                    <div class="gacha-stage-actions" aria-hidden="true">
+                      <div class="gacha-stage-chip">REMOVE</div>
+                      <div class="gacha-stage-chip is-primary">DRAW</div>
+                      <div class="gacha-stage-chip">RANDOM</div>
+                    </div>
+
                     <div id="gacha-forecast-strip" class="gacha-forecast-strip"></div>
                   </section>
                 </div>
 
                 <div class="gacha-probability-grid">
-                  <article data-quality="legendary"><span>Legendary</span><strong id="gacha-prob-legendary">0.65%</strong><small>Garantía máxima: 80</small></article>
-                  <article data-quality="epic"><span>Epic</span><strong id="gacha-prob-epic">5.00%</strong><small>Epic o superior: 30</small></article>
-                  <article data-quality="rare"><span>Rare</span><strong id="gacha-prob-rare">24.00%</strong><small>Tasa base</small></article>
-                  <article data-quality="refined"><span>Refined</span><strong id="gacha-prob-refined">70.40%</strong><small>Tasa base</small></article>
+                  <article data-quality="legendary"><span>Legendary</span><strong id="gacha-prob-legendary">0.65%</strong><small>Básica 0.65% · general 1.7% · garantía máxima 80</small></article>
+                  <article data-quality="epic"><span>Epic</span><strong id="gacha-prob-epic">5.00%</strong><small>Básica 5.0% · general 5.8% · Epic+ garantizado en 30</small></article>
+                  <article data-quality="rare"><span>Rare</span><strong id="gacha-prob-rare">24.00%</strong><small>Básica 24.0% · general 24.3%</small></article>
+                  <article data-quality="refined"><span>Fine</span><strong id="gacha-prob-refined">70.40%</strong><small>Básica 70.4% · general 68.2%</small></article>
                 </div>
 
                 <div class="gacha-lab-note">
-                  <strong>Importante:</strong>
-                  <span>Este apartado es un simulador visual. Los sorteos anteriores no garantizan un patrón futuro; el cálculo solo fuerza los límites de garantía configurados.</span>
+                  <strong>Mecanismo de garantía:</strong>
+                  <span>La Reconstrucción cognitiva y la Reconstrucción estándar comparten el mismo progreso de garantía. Los colores de la última ruleta se usan solo como semilla aproximada para la simulación visual.</span>
                 </div>
               </div>
             </section>
@@ -490,12 +510,12 @@
               <div class="subconfig-heading updates-heading">
                 <span>Updates / Historial</span>
                 <strong>Mejoras importantes</strong>
-                <small class="updates-current-version" data-current-version-label>Versión actual: v3.4.25</small>
+                <small class="updates-current-version" data-current-version-label>Versión actual: v3.4.27</small>
               </div>
 
-              <div class="updates-history-panel" data-current-version="3.4.25">
+              <div class="updates-history-panel" data-current-version="3.4.27">
                 <ul>
-                  <li class="is-current-update" data-static-update="1">v3.4.25 Update (Real Player Confirm Fix + Gacha Lab) — Se corrigió el bloqueo que impedía a jugadores reales confirmar picks/bans después del guard de estabilidad v3.4.24, incluyendo selección manual, ruleta manual y auto-resolución por tiempo. También se añadió Gacha Lab, un simulador visual de 12 tiradas con tasas de calidad y garantías configurables.</li>
+                  <li class="is-current-update" data-static-update="1">v3.4.27 Update (Real Player Confirm Fix + Gacha Lab) — Se corrigió el bloqueo que impedía a jugadores reales confirmar picks/bans después del guard de estabilidad v3.4.24, incluyendo selección manual, ruleta manual y auto-resolución por tiempo. También se añadió Gacha Lab, un simulador visual de 12 tiradas con tasas de calidad y garantías configurables.</li>
                   <li>v2.3 — Base estable: se consolidó la interfaz competitiva, el draft local, bloqueos, selecciones, audios y resumen final.</li>
                   <li>v2.4 — Se añadió el modo online con salas por código, líder espectador, sincronización de picks, bans, turnos, mapa y estado completo.</li>
                   <li>v2.5 — Se corrigieron errores de sincronización de turnos, temporizador, reconexión, selección aleatoria y bloqueo de acciones por rol.</li>
@@ -1000,7 +1020,7 @@
   <main id="map-screen" class="screen map-screen">
     <section class="map-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.4.25 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.27 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab is-active">SELECCIÓN DE MAPA</span>
         </nav>
@@ -1031,7 +1051,7 @@
   <main id="summary-screen" class="screen summary-screen">
     <section class="summary-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.4.25 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.27 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab">BÁSICO</span>
           <span class="settings-tab">EQUIPOS</span>
