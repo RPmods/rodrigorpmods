@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STRINOVA Draft System v3.4.29 by RPmods</title>
+  <title>STRINOVA Draft System v3.4.31 by RPmods</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -36,7 +36,7 @@
   <main id="setup-screen" class="screen setup-screen active">
     <section class="setup-shell settings-surface">
       <header class="settings-topbar">
-        <div class="settings-brand">STRINOVA Draft System v3.4.29 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.31 by RPmods</div>
         <nav class="settings-tabs">
           <button type="button" class="settings-tab setup-top-tab is-active" data-tab="menu">MENÚ</button>
           <button type="button" class="settings-tab setup-top-tab" data-tab="tournament">TORNEO</button>
@@ -266,16 +266,19 @@
                   </section>
                 </div>
 
-                <div class="gacha-probability-grid">
-                  <article data-quality="legendary"><span>Legendario</span><strong id="gacha-prob-legendary">0.65%</strong><small>Básica 0.65% · general 1.7% · garantía máxima 80</small></article>
-                  <article data-quality="epic"><span>Épico</span><strong id="gacha-prob-epic">5.00%</strong><small>Básica 5.0% · general 5.8% · Épico+ garantizado en 30</small></article>
-                  <article data-quality="rare"><span>Raro</span><strong id="gacha-prob-rare">24.00%</strong><small>Básica 24.0% · general 24.3%</small></article>
-                  <article data-quality="refined"><span>Fino</span><strong id="gacha-prob-refined">70.40%</strong><small>Básica 70.4% · general 68.2%</small></article>
-                </div>
+                <div class="gacha-bottom-grid">
+                  <div class="gacha-probability-grid">
+                    <article data-quality="legendary"><span>Legendario</span><strong id="gacha-prob-legendary">0.65%</strong><small>Básica 0.65% · general 1.7% · garantía máxima 80</small></article>
+                    <article data-quality="epic"><span>Épico</span><strong id="gacha-prob-epic">5.00%</strong><small>Básica 5.0% · general 5.8% · Épico+ garantizado en 30</small></article>
+                    <article data-quality="rare"><span>Raro</span><strong id="gacha-prob-rare">24.00%</strong><small>Básica 24.0% · general 24.3%</small></article>
+                    <article data-quality="refined"><span>Fino</span><strong id="gacha-prob-refined">70.40%</strong><small>Básica 70.4% · general 68.2%</small></article>
+                  </div>
 
-                <div class="gacha-lab-note">
-                  <strong>Mecanismo de garantía:</strong>
-                  <span>La Reconstrucción cognitiva y la Reconstrucción estándar comparten el mismo progreso de garantía. Los colores de la última ruleta se usan solo como semilla aproximada para la simulación visual.</span>
+                  <div class="gacha-lab-note">
+                    <strong>Mecanismo de garantía</strong>
+                    <span>La Reconstrucción cognitiva y la Reconstrucción estándar comparten el mismo progreso de garantía.</span>
+                    <small>Los colores de la última ruleta se usan solo como semilla aproximada para la simulación visual. La herramienta no predice recompensas exactas, solo probabilidades y distribución esperada.</small>
+                  </div>
                 </div>
               </div>
             </section>
@@ -510,12 +513,12 @@
               <div class="subconfig-heading updates-heading">
                 <span>Updates / Historial</span>
                 <strong>Mejoras importantes</strong>
-                <small class="updates-current-version" data-current-version-label>Versión actual: v3.4.29</small>
+                <small class="updates-current-version" data-current-version-label>Versión actual: v3.4.31</small>
               </div>
 
-              <div class="updates-history-panel" data-current-version="3.4.29">
+              <div class="updates-history-panel" data-current-version="3.4.31">
                 <ul>
-                  <li class="is-current-update" data-static-update="1">v3.4.29 Update (Real Player Confirm Fix + Gacha Lab) — Se corrigió el bloqueo que impedía a jugadores reales confirmar picks/bans después del guard de estabilidad v3.4.24, incluyendo selección manual, ruleta manual y auto-resolución por tiempo. También se añadió Gacha Lab, un simulador visual de 12 tiradas con tasas de calidad y garantías configurables.</li>
+                  <li class="is-current-update" data-static-update="1">v3.4.31 Update (Real Player Confirm Fix + Gacha Lab) — Se corrigió el bloqueo que impedía a jugadores reales confirmar picks/bans después del guard de estabilidad v3.4.24, incluyendo selección manual, ruleta manual y auto-resolución por tiempo. También se añadió Gacha Lab, un simulador visual de 12 tiradas con tasas de calidad y garantías configurables.</li>
                   <li>v2.3 — Base estable: se consolidó la interfaz competitiva, el draft local, bloqueos, selecciones, audios y resumen final.</li>
                   <li>v2.4 — Se añadió el modo online con salas por código, líder espectador, sincronización de picks, bans, turnos, mapa y estado completo.</li>
                   <li>v2.5 — Se corrigieron errores de sincronización de turnos, temporizador, reconexión, selección aleatoria y bloqueo de acciones por rol.</li>
@@ -1020,7 +1023,7 @@
   <main id="map-screen" class="screen map-screen">
     <section class="map-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.4.29 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.31 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab is-active">SELECCIÓN DE MAPA</span>
         </nav>
@@ -1051,7 +1054,7 @@
   <main id="summary-screen" class="screen summary-screen">
     <section class="summary-shell settings-surface">
       <header class="settings-topbar" aria-hidden="true">
-        <div class="settings-brand">STRINOVA Draft System v3.4.29 by RPmods</div>
+        <div class="settings-brand">STRINOVA Draft System v3.4.31 by RPmods</div>
         <nav class="settings-tabs">
           <span class="settings-tab">BÁSICO</span>
           <span class="settings-tab">EQUIPOS</span>

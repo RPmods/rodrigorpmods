@@ -22328,3 +22328,748 @@ body.setup-responsive-active .setup-shell.view-gacha {
   .gacha-counter-grid,
   .gacha-counter-grid--triple { grid-template-columns: 1fr !important; }
 }
+
+/* ==================================================================
+   v3.4.30 — Gacha Sim reconstruction / full-width structured layout
+   ================================================================== */
+.setup-shell.view-gacha,
+html.setup-responsive-active .setup-shell.view-gacha,
+body.setup-responsive-active .setup-shell.view-gacha {
+  width: min(98vw, 1880px) !important;
+  max-width: 1880px !important;
+}
+
+.setup-panel.gacha-panel {
+  padding: 10px !important;
+}
+
+#gacha-lab.gacha-lab {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: calc(100vh - 210px);
+  padding: 30px !important;
+  gap: 26px !important;
+  display: grid !important;
+  grid-template-rows: auto auto auto !important;
+  align-content: start !important;
+  overflow: hidden !important;
+}
+
+#gacha-lab .gacha-lab-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 24px !important;
+}
+
+#gacha-lab .gacha-lab-header > div:first-child { min-width: 0; }
+#gacha-lab .gacha-lab-kicker { font-size: .9rem !important; }
+#gacha-lab .gacha-lab-header h2 {
+  margin: 6px 0 10px !important;
+  font-size: clamp(2.4rem, 3vw, 4rem) !important;
+  line-height: .95 !important;
+}
+#gacha-lab .gacha-lab-header p {
+  margin: 0 !important;
+  max-width: 980px !important;
+  font-size: 1rem !important;
+}
+#gacha-lab .gacha-lab-status {
+  min-width: 220px !important;
+  text-align: right !important;
+  align-self: start !important;
+}
+
+#gacha-lab .gacha-lab-layout {
+  display: grid !important;
+  grid-template-columns: 460px minmax(0, 1fr) !important;
+  gap: 28px !important;
+  align-items: stretch !important;
+  min-height: 700px !important;
+}
+
+#gacha-lab .gacha-control-panel,
+#gacha-lab .gacha-wheel-stage {
+  min-width: 0 !important;
+  min-height: 700px !important;
+  padding: 26px !important;
+  overflow: hidden !important;
+}
+
+#gacha-lab .gacha-control-panel {
+  display: grid !important;
+  grid-template-rows: auto auto auto auto auto auto !important;
+  gap: 18px !important;
+}
+
+#gacha-lab .gacha-control-heading span,
+#gacha-lab .gacha-wheel-copy span { font-size: .95rem !important; }
+#gacha-lab .gacha-control-heading small,
+#gacha-lab .gacha-wheel-copy small { font-size: .95rem !important; }
+
+#gacha-lab .gacha-counter-grid,
+#gacha-lab .gacha-counter-grid--triple {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+#gacha-lab .gacha-field > span { font-size: .92rem !important; }
+#gacha-lab .gacha-number-wrap { min-height: 68px !important; }
+#gacha-lab .gacha-number-wrap input { font-size: 1.16rem !important; }
+
+#gacha-lab .gacha-recent-block {
+  display: grid !important;
+  grid-template-rows: auto 1fr !important;
+  gap: 12px !important;
+  min-height: 340px !important;
+}
+
+#gacha-lab .gacha-recent-slots {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 300px !important;
+}
+
+#gacha-lab .gacha-orbit-board {
+  --orbit-size: 296px;
+  --slot-size: 34px;
+  --orbit-radius: 113px;
+  position: relative !important;
+  width: var(--orbit-size) !important;
+  height: var(--orbit-size) !important;
+  margin: 0 auto !important;
+}
+
+#gacha-lab .gacha-orbit-board--input {
+  --orbit-size: 290px;
+  --slot-size: 34px;
+  --orbit-radius: 112px;
+}
+
+#gacha-lab .gacha-orbit-board--output {
+  --orbit-size: clamp(360px, 34vw, 470px);
+  --slot-size: clamp(28px, 2.1vw, 38px);
+  --orbit-radius: calc((var(--orbit-size) / 2) - 48px);
+}
+
+#gacha-lab .gacha-orbit-board .gacha-slot {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: var(--slot-size) !important;
+  height: var(--slot-size) !important;
+  margin-left: calc(var(--slot-size) / -2) !important;
+  margin-top: calc(var(--slot-size) / -2) !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  transform:
+    translate(-50%, -50%)
+    rotate(calc(360deg / var(--slot-count) * var(--slot-index)))
+    translateY(calc(var(--orbit-radius) * -1))
+    rotate(calc(-360deg / var(--slot-count) * var(--slot-index))) !important;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255,255,255,.28), rgba(255,255,255,.08) 30%, transparent 31%),
+    color-mix(in srgb, var(--slot-color, #62b0ff) 88%, #08101a 12%) !important;
+  border: 1px solid color-mix(in srgb, var(--slot-color, #62b0ff) 75%, white 25%) !important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.08) inset,
+    0 0 16px color-mix(in srgb, var(--slot-color, #62b0ff) 45%, transparent) !important;
+  color: #fff !important;
+}
+
+#gacha-lab .gacha-slot .slot-short {
+  font-size: .9rem !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+#gacha-lab .gacha-slot small {
+  position: absolute !important;
+  bottom: -13px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  font-size: .52rem !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  color: rgba(255,255,255,.72) !important;
+}
+
+#gacha-lab .gacha-orbit-center {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 132px !important;
+  height: 132px !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  text-align: center !important;
+  gap: 6px !important;
+  padding: 16px !important;
+}
+
+#gacha-lab .gacha-orbit-center strong { font-size: 1rem !important; }
+#gacha-lab .gacha-orbit-center span { font-size: .8rem !important; }
+
+#gacha-lab .gacha-wheel-stage {
+  display: grid !important;
+  grid-template-rows: auto minmax(380px, 1fr) auto auto !important;
+  gap: 18px !important;
+}
+
+#gacha-lab #gacha-wheel.gacha-wheel {
+  width: 100% !important;
+  min-height: 430px !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+#gacha-lab #gacha-wheel.gacha-wheel::before,
+#gacha-lab #gacha-wheel.gacha-wheel::after,
+#gacha-lab .gacha-wheel-inner,
+#gacha-lab .gacha-portal-core,
+#gacha-lab .gacha-portal-shell::before,
+#gacha-lab .gacha-portal-shell::after {
+  display: none !important;
+  content: none !important;
+}
+
+#gacha-lab .gacha-portal-shell {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  aspect-ratio: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 auto !important;
+}
+
+#gacha-lab .gacha-portal-pointer {
+  position: absolute !important;
+  top: calc(50% - 225px) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-left: 12px solid transparent !important;
+  border-right: 12px solid transparent !important;
+  border-top: 0 !important;
+  border-bottom: 22px solid rgba(255,248,206,.96) !important;
+  filter: drop-shadow(0 0 10px rgba(255,244,182,.38));
+  z-index: 3 !important;
+}
+
+#gacha-lab #gacha-wheel.is-spinning .gacha-orbit-board--output {
+  animation: rpmodsGachaOrbitSpin 2.1s cubic-bezier(.2,.84,.1,1) 1 !important;
+}
+@keyframes rpmodsGachaOrbitSpin {
+  0% { transform: rotate(0deg) scale(.98); }
+  70% { transform: rotate(820deg) scale(1); }
+  100% { transform: rotate(900deg) scale(1); }
+}
+
+#gacha-lab .gacha-stage-actions {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+#gacha-lab .gacha-stage-chip {
+  min-height: 52px !important;
+  font-size: .86rem !important;
+}
+
+#gacha-lab .gacha-forecast-strip {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  align-self: end !important;
+}
+
+#gacha-lab .gacha-forecast-cell {
+  min-height: 92px !important;
+  padding: 12px 14px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.02)),
+    color-mix(in srgb, var(--slot-color, #62b0ff) 26%, #07111d 74%) !important;
+  border: 1px solid color-mix(in srgb, var(--slot-color, #62b0ff) 58%, transparent) !important;
+  box-shadow: inset 0 0 22px rgba(255,255,255,.03) !important;
+}
+
+#gacha-lab .gacha-forecast-cell b { font-size: .92rem !important; }
+#gacha-lab .gacha-forecast-cell span { font-size: .72rem !important; }
+
+#gacha-lab .gacha-quality-legend,
+#gacha-lab .gacha-action-row,
+#gacha-lab .gacha-probability-grid {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+#gacha-lab .gacha-quality-legend { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+#gacha-lab .gacha-action-row { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+#gacha-lab .gacha-probability-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+
+#gacha-lab .gacha-generate-button,
+#gacha-lab .gacha-reset-button {
+  min-height: 60px !important;
+  font-size: .92rem !important;
+}
+
+@media (max-width: 1380px) {
+  #gacha-lab .gacha-lab-layout {
+    grid-template-columns: 420px minmax(0, 1fr) !important;
+  }
+  #gacha-lab .gacha-orbit-board--output {
+    --orbit-size: clamp(340px, 36vw, 430px);
+  }
+}
+
+@media (max-width: 1180px) {
+  #gacha-lab.gacha-lab { min-height: auto !important; }
+  #gacha-lab .gacha-lab-layout {
+    grid-template-columns: 1fr !important;
+  }
+  #gacha-lab .gacha-control-panel,
+  #gacha-lab .gacha-wheel-stage {
+    min-height: auto !important;
+  }
+  #gacha-lab .gacha-portal-pointer { top: calc(50% - 185px) !important; }
+}
+
+@media (max-width: 760px) {
+  #gacha-lab .gacha-lab-header {
+    grid-template-columns: 1fr !important;
+  }
+  #gacha-lab .gacha-counter-grid,
+  #gacha-lab .gacha-counter-grid--triple,
+  #gacha-lab .gacha-quality-legend,
+  #gacha-lab .gacha-action-row,
+  #gacha-lab .gacha-probability-grid,
+  #gacha-lab .gacha-forecast-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  #gacha-lab .gacha-orbit-board--output {
+    --orbit-size: min(86vw, 360px);
+    --slot-size: 30px;
+    --orbit-radius: calc((var(--orbit-size) / 2) - 44px);
+  }
+  #gacha-lab .gacha-portal-pointer { top: calc(50% - 160px) !important; }
+}
+
+@media (max-width: 540px) {
+  #gacha-lab .gacha-counter-grid,
+  #gacha-lab .gacha-counter-grid--triple,
+  #gacha-lab .gacha-quality-legend,
+  #gacha-lab .gacha-action-row,
+  #gacha-lab .gacha-probability-grid,
+  #gacha-lab .gacha-forecast-strip {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ==================================================================
+   v3.4.31 — Gacha Lab layout rebuild
+   ================================================================== */
+.setup-shell.view-gacha,
+html.setup-responsive-active .setup-shell.view-gacha,
+body.setup-responsive-active .setup-shell.view-gacha {
+  width: min(98vw, 1860px) !important;
+  max-width: 1860px !important;
+}
+
+.setup-panel.gacha-panel {
+  padding: 12px !important;
+}
+
+#gacha-lab.gacha-lab {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 24px !important;
+  width: 100% !important;
+  min-height: calc(100vh - 220px) !important;
+  padding: 28px !important;
+  overflow: visible !important;
+}
+
+#gacha-lab .gacha-lab-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 20px !important;
+  align-items: end !important;
+}
+
+#gacha-lab .gacha-lab-header h2 {
+  margin: 6px 0 8px !important;
+  font-size: clamp(2.1rem, 2.8vw, 3.2rem) !important;
+  line-height: .98 !important;
+}
+
+#gacha-lab .gacha-lab-header p {
+  max-width: 980px !important;
+  margin: 0 !important;
+  font-size: .98rem !important;
+}
+
+#gacha-lab .gacha-lab-status {
+  min-width: 220px !important;
+  align-self: start !important;
+  text-align: right !important;
+}
+
+#gacha-lab .gacha-lab-layout {
+  display: grid !important;
+  grid-template-columns: minmax(390px, 430px) minmax(0, 1fr) !important;
+  gap: 24px !important;
+  align-items: stretch !important;
+}
+
+#gacha-lab .gacha-control-panel,
+#gacha-lab .gacha-wheel-stage {
+  min-width: 0 !important;
+  padding: 24px !important;
+  overflow: hidden !important;
+  border-radius: 0 !important;
+}
+
+#gacha-lab .gacha-control-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 18px !important;
+}
+
+#gacha-lab .gacha-counter-grid,
+#gacha-lab .gacha-counter-grid--triple {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+#gacha-lab .gacha-field > span {
+  font-size: .9rem !important;
+  line-height: 1.25 !important;
+}
+
+#gacha-lab .gacha-number-wrap {
+  min-height: 66px !important;
+}
+
+#gacha-lab .gacha-number-wrap input {
+  font-size: 1.1rem !important;
+}
+
+#gacha-lab .gacha-recent-block {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+#gacha-lab .gacha-recent-slots {
+  min-height: 286px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#gacha-lab .gacha-orbit-board {
+  --orbit-size: 278px;
+  --slot-size: 33px;
+  --orbit-radius: 109px;
+  position: relative !important;
+  width: var(--orbit-size) !important;
+  height: var(--orbit-size) !important;
+  margin: 0 auto !important;
+}
+
+#gacha-lab .gacha-orbit-board--output {
+  --orbit-size: clamp(340px, 29vw, 430px);
+  --slot-size: clamp(28px, 1.9vw, 36px);
+  --orbit-radius: calc((var(--orbit-size) / 2) - 42px);
+}
+
+#gacha-lab .gacha-orbit-board .gacha-slot {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: var(--slot-size) !important;
+  height: var(--slot-size) !important;
+  margin-left: calc(var(--slot-size) / -2) !important;
+  margin-top: calc(var(--slot-size) / -2) !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  transform:
+    translate(-50%, -50%)
+    rotate(calc(360deg / var(--slot-count) * var(--slot-index)))
+    translateY(calc(var(--orbit-radius) * -1))
+    rotate(calc(-360deg / var(--slot-count) * var(--slot-index))) !important;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255,255,255,.26), rgba(255,255,255,.08) 30%, transparent 31%),
+    color-mix(in srgb, var(--slot-color, #62b0ff) 86%, #08101a 14%) !important;
+  border: 1px solid color-mix(in srgb, var(--slot-color, #62b0ff) 72%, white 28%) !important;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--slot-color, #62b0ff) 40%, transparent) !important;
+}
+
+#gacha-lab .gacha-slot .slot-short {
+  font-size: .84rem !important;
+  font-weight: 900 !important;
+}
+
+#gacha-lab .gacha-slot small {
+  position: absolute !important;
+  bottom: -12px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  font-size: .5rem !important;
+  color: rgba(255,255,255,.72) !important;
+}
+
+#gacha-lab .gacha-orbit-center {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 128px !important;
+  height: 128px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 6px !important;
+  padding: 14px !important;
+}
+
+#gacha-lab .gacha-wheel-stage {
+  display: grid !important;
+  grid-template-rows: auto minmax(370px, 1fr) auto auto !important;
+  gap: 18px !important;
+}
+
+#gacha-lab .gacha-wheel-copy {
+  text-align: center !important;
+}
+
+#gacha-lab .gacha-wheel-copy strong {
+  font-size: clamp(1.5rem, 2vw, 2.6rem) !important;
+  line-height: 1.05 !important;
+}
+
+#gacha-lab .gacha-wheel-copy small {
+  display: block !important;
+  margin-top: 6px !important;
+}
+
+#gacha-lab .gacha-portal-shell {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-height: 390px !important;
+  padding: 8px 0 !important;
+}
+
+#gacha-lab .gacha-portal-pointer {
+  position: absolute !important;
+  top: 14px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-left: 11px solid transparent !important;
+  border-right: 11px solid transparent !important;
+  border-bottom: 20px solid rgba(255,245,205,.95) !important;
+  z-index: 3 !important;
+  filter: drop-shadow(0 0 8px rgba(255,240,180,.35));
+}
+
+#gacha-lab #gacha-wheel {
+  width: 100% !important;
+  min-height: 390px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: visible !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#gacha-lab #gacha-wheel::before,
+#gacha-lab #gacha-wheel::after,
+#gacha-lab .gacha-wheel-inner,
+#gacha-lab .gacha-portal-core,
+#gacha-lab .gacha-portal-shell::before,
+#gacha-lab .gacha-portal-shell::after {
+  display: none !important;
+  content: none !important;
+}
+
+#gacha-lab #gacha-wheel.is-spinning .gacha-orbit-board--output {
+  animation: gachaOrbitSpinStable 1.9s cubic-bezier(.18,.88,.12,1) 1 !important;
+}
+
+@keyframes gachaOrbitSpinStable {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(810deg); }
+}
+
+#gacha-lab .gacha-stage-actions {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+#gacha-lab .gacha-stage-chip {
+  min-height: 50px !important;
+  font-size: .84rem !important;
+}
+
+#gacha-lab .gacha-forecast-strip {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+#gacha-lab .gacha-forecast-cell {
+  min-height: 82px !important;
+  padding: 10px 12px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.02)),
+    color-mix(in srgb, var(--slot-color, #62b0ff) 22%, #07111d 78%) !important;
+  border: 1px solid color-mix(in srgb, var(--slot-color, #62b0ff) 52%, transparent) !important;
+  box-shadow: inset 0 0 16px rgba(255,255,255,.03) !important;
+}
+
+#gacha-lab .gacha-forecast-cell b {
+  font-size: .9rem !important;
+}
+
+#gacha-lab .gacha-forecast-cell span {
+  font-size: .7rem !important;
+}
+
+#gacha-lab .gacha-quality-legend {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+#gacha-lab .gacha-action-row {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+#gacha-lab .gacha-generate-button,
+#gacha-lab .gacha-reset-button {
+  min-height: 58px !important;
+  font-size: .92rem !important;
+}
+
+#gacha-lab .gacha-bottom-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 340px !important;
+  gap: 24px !important;
+  align-items: stretch !important;
+}
+
+#gacha-lab .gacha-probability-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+#gacha-lab .gacha-probability-grid article,
+#gacha-lab .gacha-lab-note {
+  min-width: 0 !important;
+  border-radius: 0 !important;
+}
+
+#gacha-lab .gacha-probability-grid article {
+  padding: 16px !important;
+}
+
+#gacha-lab .gacha-lab-note {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 18px 20px !important;
+}
+
+#gacha-lab .gacha-lab-note strong {
+  font-size: 1rem !important;
+}
+
+#gacha-lab .gacha-lab-note small {
+  font-size: .84rem !important;
+  line-height: 1.45 !important;
+  color: rgba(255,255,255,.72) !important;
+}
+
+@media (max-width: 1460px) {
+  #gacha-lab .gacha-lab-layout {
+    grid-template-columns: minmax(360px, 400px) minmax(0, 1fr) !important;
+  }
+  #gacha-lab .gacha-probability-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  #gacha-lab .gacha-lab-layout,
+  #gacha-lab .gacha-bottom-grid {
+    grid-template-columns: 1fr !important;
+  }
+  #gacha-lab .gacha-wheel-stage,
+  #gacha-lab .gacha-control-panel {
+    min-height: auto !important;
+  }
+}
+
+@media (max-width: 760px) {
+  #gacha-lab .gacha-lab-header {
+    grid-template-columns: 1fr !important;
+  }
+  #gacha-lab .gacha-counter-grid,
+  #gacha-lab .gacha-counter-grid--triple,
+  #gacha-lab .gacha-quality-legend,
+  #gacha-lab .gacha-action-row,
+  #gacha-lab .gacha-stage-actions,
+  #gacha-lab .gacha-probability-grid,
+  #gacha-lab .gacha-forecast-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  #gacha-lab .gacha-orbit-board--output {
+    --orbit-size: min(82vw, 340px);
+    --slot-size: 28px;
+    --orbit-radius: calc((var(--orbit-size) / 2) - 38px);
+  }
+}
+
+@media (max-width: 560px) {
+  #gacha-lab .gacha-counter-grid,
+  #gacha-lab .gacha-counter-grid--triple,
+  #gacha-lab .gacha-quality-legend,
+  #gacha-lab .gacha-action-row,
+  #gacha-lab .gacha-stage-actions,
+  #gacha-lab .gacha-probability-grid,
+  #gacha-lab .gacha-forecast-strip {
+    grid-template-columns: 1fr !important;
+  }
+}
