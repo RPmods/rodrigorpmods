@@ -4,14 +4,14 @@
   const root = document.getElementById("gacha-lab");
   if (!root) return;
 
-  const STORAGE_KEY = "rpmods_gacha_sim_v3";
+  const STORAGE_KEY = "rpmods_gacha_sim_v4";
   const TOTAL_WHEEL_SLOTS = 24;
   const QUALITY_CYCLE = ["refined", "rare", "epic", "legendary"];
   const QUALITY = Object.freeze({
-    legendary: Object.freeze({ label: "Legendario", color: "#e65454", base: 0.65, general: 1.7, short: "L" }),
-    epic: Object.freeze({ label: "Épico", color: "#e1bc4c", base: 5.0, general: 5.8, short: "E" }),
-    rare: Object.freeze({ label: "Raro", color: "#935dff", base: 24.0, general: 24.3, short: "R" }),
-    refined: Object.freeze({ label: "Fino", color: "#62b0ff", base: 70.4, general: 68.2, short: "F" }),
+    legendary: Object.freeze({ label: "Legendario", color: "#ff5f6d", base: 0.65, general: 1.7, short: "L" }),
+    epic: Object.freeze({ label: "Épico", color: "#f6c453", base: 5.0, general: 5.8, short: "E" }),
+    rare: Object.freeze({ label: "Raro", color: "#8f6bff", base: 24.0, general: 24.3, short: "R" }),
+    refined: Object.freeze({ label: "Fino", color: "#5ab8ff", base: 70.4, general: 68.2, short: "F" }),
   });
 
   const els = {
@@ -102,12 +102,8 @@
   }
 
   function nextPullProbabilities(legendaryRemaining, epicRemaining) {
-    if (legendaryRemaining <= 1) {
-      return { legendary: 100, epic: 0, rare: 0, refined: 0 };
-    }
-    if (epicRemaining <= 1) {
-      return { legendary: QUALITY.legendary.base, epic: 100 - QUALITY.legendary.base, rare: 0, refined: 0 };
-    }
+    if (legendaryRemaining <= 1) return { legendary: 100, epic: 0, rare: 0, refined: 0 };
+    if (epicRemaining <= 1) return { legendary: QUALITY.legendary.base, epic: 100 - QUALITY.legendary.base, rare: 0, refined: 0 };
     return {
       legendary: QUALITY.legendary.base,
       epic: QUALITY.epic.base,
@@ -148,47 +144,53 @@
     });
   }
 
-  function setButtonQuality(node, quality, index, showIndex = true) {
+  function setSlotContent(node, quality, index, compact = false) {
     node.className = `gacha-slot quality-${quality}`;
     node.dataset.quality = quality;
     node.style.setProperty("--slot-color", QUALITY[quality].color);
     node.title = `Casillero ${index + 1}: ${QUALITY[quality].label}`;
     node.setAttribute("aria-label", `Casillero ${index + 1}: ${QUALITY[quality].label}`);
     node.innerHTML = `
+      <small>${index + 1}</small>
       <span class="slot-short">${QUALITY[quality].short}</span>
-      ${showIndex ? `<small>${index + 1}</small>` : ""}
+      <em>${compact ? QUALITY[quality].short : QUALITY[quality].label}</em>
     `;
+  }
+
+  function createBoardMeta(title, subtitle, toneClass = "") {
+    const meta = document.createElement("div");
+    meta.className = `gacha-board-meta ${toneClass}`.trim();
+    meta.innerHTML = `<strong>${title}</strong><span>${subtitle}</span>`;
+    return meta;
   }
 
   function renderRecentSlots() {
     if (!els.recentSlots) return;
     els.recentSlots.replaceChildren();
 
-    const orbit = document.createElement("div");
-    orbit.className = "gacha-orbit-board gacha-orbit-board--input";
-    const center = document.createElement("div");
-    center.className = "gacha-orbit-center";
-    center.innerHTML = `<strong>RUEDA ANTERIOR</strong><span>${state.historyCount} secuencias usadas</span>`;
-    orbit.appendChild(center);
+    const board = document.createElement("div");
+    board.className = "gacha-square-board gacha-square-board--input";
+    board.appendChild(createBoardMeta("RUEDA ANTERIOR", `${state.historyCount} secuencias usadas`, "is-input"));
+
+    const grid = document.createElement("div");
+    grid.className = "gacha-slot-grid gacha-slot-grid--input";
 
     for (let index = 0; index < TOTAL_WHEEL_SLOTS; index += 1) {
       const quality = sanitizeQuality(state.recentSlots[index]);
       const button = document.createElement("button");
       button.type = "button";
-      button.style.setProperty("--slot-index", String(index));
-      button.style.setProperty("--slot-count", String(TOTAL_WHEEL_SLOTS));
-      button.className = "gacha-slot";
-      setButtonQuality(button, quality, index, true);
+      setSlotContent(button, quality, index, true);
       button.addEventListener("click", () => {
         const currentIndex = QUALITY_CYCLE.indexOf(state.recentSlots[index]);
         state.recentSlots[index] = QUALITY_CYCLE[(currentIndex + 1) % QUALITY_CYCLE.length];
         saveState();
         renderForecast({ animate: false });
       });
-      orbit.appendChild(button);
+      grid.appendChild(button);
     }
 
-    els.recentSlots.appendChild(orbit);
+    board.appendChild(grid);
+    els.recentSlots.appendChild(board);
   }
 
   function summarize(items) {
@@ -212,7 +214,7 @@
     ].join(":");
 
     const randomForRewards = mulberry32(hashSeed(`reward:${seedInput}`));
-    const randomForWheel = mulberry32(hashSeed(`wheel:${seedInput}`));
+    const randomForBoard = mulberry32(hashSeed(`board:${seedInput}`));
 
     const rewards = [];
     const wheelSlots = [];
@@ -236,9 +238,12 @@
       }
     }
 
-    const wheelProbabilities = nextPullProbabilities(state.legendaryRemaining, state.epicRemaining);
     for (let i = 0; i < TOTAL_WHEEL_SLOTS; i += 1) {
-      wheelSlots.push({ index: i + 1, quality: pickWeighted(randomForWheel, wheelProbabilities) });
+      const probabilities = nextPullProbabilities(
+        Math.max(1, state.legendaryRemaining - Math.floor(i / 3)),
+        Math.max(1, state.epicRemaining - Math.floor(i / 6))
+      );
+      wheelSlots.push({ index: i + 1, quality: pickWeighted(randomForBoard, probabilities) });
     }
 
     return {
@@ -254,23 +259,24 @@
     els.wheel.replaceChildren();
     els.wheel.classList.remove("is-spinning");
 
-    const orbit = document.createElement("div");
-    orbit.className = "gacha-orbit-board gacha-orbit-board--output";
+    const board = document.createElement("div");
+    board.className = "gacha-square-board gacha-square-board--output";
+    board.appendChild(createBoardMeta("PANEL PREDICTIVO", "24 casilleros de salida estimada", "is-output"));
 
-    const center = document.createElement("div");
-    center.className = "gacha-orbit-center gacha-orbit-center--output";
-    center.innerHTML = `<strong>24 CASILLEROS</strong><span>Predicción visual</span>`;
-    orbit.appendChild(center);
+    const grid = document.createElement("div");
+    grid.className = "gacha-slot-grid gacha-slot-grid--output";
 
     items.forEach((item, index) => {
       const slot = document.createElement("div");
-      slot.style.setProperty("--slot-index", String(index));
-      slot.style.setProperty("--slot-count", String(TOTAL_WHEEL_SLOTS));
-      setButtonQuality(slot, item.quality, index, false);
-      orbit.appendChild(slot);
+      setSlotContent(slot, item.quality, index, false);
+      if (animate) slot.classList.add("is-animated");
+      grid.appendChild(slot);
+      if (animate) window.setTimeout(() => slot.classList.remove("is-animated"), 80 + (index * 28));
     });
 
-    els.wheel.appendChild(orbit);
+    board.appendChild(grid);
+    els.wheel.appendChild(board);
+
     if (animate) {
       requestAnimationFrame(() => {
         els.wheel.classList.add("is-spinning");
@@ -287,9 +293,9 @@
       cell.style.setProperty("--slot-color", QUALITY[item.quality].color);
       if (animate) cell.classList.add("is-pending");
       cell.title = `Secuencia ${item.index}: ${QUALITY[item.quality].label}`;
-      cell.innerHTML = `<span>${item.index}</span><b>${QUALITY[item.quality].label}</b>`;
+      cell.innerHTML = `<span>SEC ${item.index}</span><b>${QUALITY[item.quality].label}</b>`;
       els.strip.appendChild(cell);
-      if (animate) window.setTimeout(() => cell.classList.remove("is-pending"), 100 + (index * 120));
+      if (animate) window.setTimeout(() => cell.classList.remove("is-pending"), 100 + (index * 100));
     });
   }
 
