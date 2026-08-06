@@ -24411,3 +24411,161 @@ body.setup-responsive-active .setup-shell.view-gacha .setup-panel.gacha-panel.is
   #gacha-lab .gacha-slot-grid--input,
   #gacha-lab .gacha-slot-grid--output { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
 }
+
+
+/* ==================================================================
+   v3.4.35 — True full-width Gacha Sim structure hotfix
+   Fixes the inherited three-column setup grid that constrained Gacha Sim.
+   ================================================================== */
+html.setup-responsive-active .setup-shell.settings-surface.view-gacha,
+body.setup-responsive-active .setup-shell.settings-surface.view-gacha,
+.setup-screen .setup-shell.settings-surface.view-gacha {
+  width: calc(100vw - 24px) !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
+html.setup-responsive-active .setup-shell.view-gacha .setup-teams,
+body.setup-responsive-active .setup-shell.view-gacha .setup-teams,
+.setup-screen .setup-shell.view-gacha .setup-teams {
+  display: block !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 18px 0 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  box-sizing: border-box !important;
+}
+
+html.setup-responsive-active .setup-shell.view-gacha .setup-team,
+body.setup-responsive-active .setup-shell.view-gacha .setup-team,
+.setup-screen .setup-shell.view-gacha .setup-team,
+html.setup-responsive-active .setup-shell.view-gacha .setup-hero,
+body.setup-responsive-active .setup-shell.view-gacha .setup-hero,
+.setup-screen .setup-shell.view-gacha .setup-hero,
+html.setup-responsive-active .setup-shell.view-gacha .versus-core,
+body.setup-responsive-active .setup-shell.view-gacha .versus-core,
+.setup-screen .setup-shell.view-gacha .versus-core {
+  display: none !important;
+}
+
+html.setup-responsive-active .setup-shell.view-gacha .setup-center-card,
+body.setup-responsive-active .setup-shell.view-gacha .setup-center-card,
+.setup-screen .setup-shell.view-gacha .setup-center-card {
+  display: block !important;
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  box-sizing: border-box !important;
+}
+
+html.setup-responsive-active .setup-shell.view-gacha .setup-panels,
+body.setup-responsive-active .setup-shell.view-gacha .setup-panels,
+.setup-screen .setup-shell.view-gacha .setup-panels,
+html.setup-responsive-active .setup-shell.view-gacha .setup-panel.gacha-panel,
+body.setup-responsive-active .setup-shell.view-gacha .setup-panel.gacha-panel,
+.setup-screen .setup-shell.view-gacha .setup-panel.gacha-panel,
+html.setup-responsive-active .setup-shell.view-gacha .setup-panel.gacha-panel.is-active,
+body.setup-responsive-active .setup-shell.view-gacha .setup-panel.gacha-panel.is-active,
+.setup-screen .setup-shell.view-gacha .setup-panel.gacha-panel.is-active {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+}
+
+#gacha-lab,
+#gacha-lab *,
+#gacha-lab *::before,
+#gacha-lab *::after {
+  box-sizing: border-box !important;
+}
+
+#gacha-lab.gacha-lab {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+#gacha-lab .gacha-lab-header,
+#gacha-lab .gacha-lab-layout,
+#gacha-lab .gacha-control-panel,
+#gacha-lab .gacha-wheel-stage,
+#gacha-lab .gacha-bottom-grid,
+#gacha-lab .gacha-probability-grid,
+#gacha-lab .gacha-square-board,
+#gacha-lab .gacha-slot-grid,
+#gacha-lab .gacha-forecast-strip {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+#gacha-lab .gacha-lab-layout {
+  grid-template-columns: minmax(430px, 0.72fr) minmax(0, 1.28fr) !important;
+  align-items: start !important;
+}
+
+#gacha-lab .gacha-wheel-copy strong,
+#gacha-lab .gacha-wheel-copy small,
+#gacha-lab .gacha-board-meta strong,
+#gacha-lab .gacha-board-meta span {
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+}
+
+@media (min-width: 1800px) {
+  html.setup-responsive-active .setup-shell.settings-surface.view-gacha,
+  body.setup-responsive-active .setup-shell.settings-surface.view-gacha,
+  .setup-screen .setup-shell.settings-surface.view-gacha {
+    width: calc(100vw - 32px) !important;
+  }
+
+  #gacha-lab.gacha-lab {
+    padding-left: 38px !important;
+    padding-right: 38px !important;
+  }
+
+  #gacha-lab .gacha-lab-layout {
+    grid-template-columns: minmax(480px, 0.68fr) minmax(0, 1.32fr) !important;
+  }
+}
+
+@media (max-width: 1380px) {
+  #gacha-lab .gacha-lab-layout,
+  #gacha-lab .gacha-bottom-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+@media (max-width: 820px) {
+  html.setup-responsive-active .setup-shell.settings-surface.view-gacha,
+  body.setup-responsive-active .setup-shell.settings-surface.view-gacha,
+  .setup-screen .setup-shell.settings-surface.view-gacha {
+    width: calc(100vw - 12px) !important;
+  }
+}

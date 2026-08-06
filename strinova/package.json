@@ -1,6 +1,6 @@
 {
   "name": "draft-simulator",
-  "version": "3.4.34",
+  "version": "3.4.35",
   "description": "STRINOVA Draft System + Tournament Hub con perfiles, laminantes más usados y Nora preparada para The Scissors.",
   "main": "main.js",
   "scripts": {
