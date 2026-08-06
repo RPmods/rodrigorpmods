@@ -18613,31 +18613,31 @@ body.setup-responsive-active .setup-shell:not(.view-menu) .setup-hero {
   display: none !important;
 }
 
-html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-teams,
-body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-teams {
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .setup-teams,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .setup-teams {
   display: block !important;
   width: min(1180px, 100%) !important;
   margin: 0 auto !important;
   min-height: 0 !important;
 }
-html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-team,
-html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .versus-core,
-html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-rules,
-html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .menu-panel-copy,
-html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .menu-panel-highlights,
-html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .player-name-mode-panel,
-html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) #start-draft,
-body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-team,
-body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .versus-core,
-body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-rules,
-body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .menu-panel-copy,
-body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .menu-panel-highlights,
-body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .player-name-mode-panel,
-body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) #start-draft {
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .setup-team,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .versus-core,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .setup-rules,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .menu-panel-copy,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .menu-panel-highlights,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .player-name-mode-panel,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) #start-draft,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .setup-team,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .versus-core,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .setup-rules,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .menu-panel-copy,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .menu-panel-highlights,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .player-name-mode-panel,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) #start-draft {
   display: none !important;
 }
-html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-center-card,
-body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-center-card {
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .setup-center-card,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .setup-center-card {
   display: block !important;
   width: 100% !important;
   min-height: 0 !important;
@@ -18648,10 +18648,10 @@ body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) 
   box-shadow: 0 16px 38px rgba(28,36,48,.08) !important;
   clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%) !important;
 }
-html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-panels,
-body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-panels,
-html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-panel.is-active,
-body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament) .setup-panel.is-active {
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .setup-panels,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .setup-panels,
+html.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .setup-panel.is-active,
+body.setup-responsive-active .setup-shell:not(.view-menu):not(.view-tournament):not(.view-gacha) .setup-panel.is-active {
   display: grid !important;
   width: 100% !important;
   height: auto !important;
@@ -24566,6 +24566,75 @@ body.setup-responsive-active .setup-shell.view-gacha .setup-panel.gacha-panel.is
   html.setup-responsive-active .setup-shell.settings-surface.view-gacha,
   body.setup-responsive-active .setup-shell.settings-surface.view-gacha,
   .setup-screen .setup-shell.settings-surface.view-gacha {
+    width: calc(100vw - 12px) !important;
+  }
+}
+
+
+/* ==================================================================
+   v3.4.36 — definitive Gacha Sim width regression guard
+   The generic non-menu surface no longer applies to Gacha. These rules
+   isolate the Gacha document surface without changing Menu, Tournament,
+   Draft, Summary, or Online room layouts.
+   ================================================================== */
+html.gacha-surface-active,
+html.gacha-surface-active body,
+body.gacha-surface-active {
+  overflow-x: hidden !important;
+}
+
+html.gacha-surface-active body.gacha-surface-active #setup-screen,
+html.gacha-surface-active body.gacha-surface-active #setup-screen .setup-shell.view-gacha {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+html.gacha-surface-active body.gacha-surface-active #setup-screen .setup-shell.view-gacha {
+  width: calc(100vw - 24px) !important;
+  margin-inline: auto !important;
+  padding-inline: 0 !important;
+}
+
+html.gacha-surface-active body.gacha-surface-active #setup-screen .setup-shell.view-gacha .setup-teams,
+html.gacha-surface-active body.gacha-surface-active #setup-screen .setup-shell.view-gacha .setup-center-card,
+html.gacha-surface-active body.gacha-surface-active #setup-screen .setup-shell.view-gacha .setup-panels,
+html.gacha-surface-active body.gacha-surface-active #setup-screen .setup-shell.view-gacha .setup-panel.gacha-panel,
+html.gacha-surface-active body.gacha-surface-active #setup-screen .setup-shell.view-gacha #gacha-lab {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin-inline: 0 !important;
+  box-sizing: border-box !important;
+}
+
+html.gacha-surface-active body.gacha-surface-active #setup-screen .setup-shell.view-gacha .setup-teams {
+  display: block !important;
+}
+
+html.gacha-surface-active body.gacha-surface-active #setup-screen .setup-shell.view-gacha .setup-center-card,
+html.gacha-surface-active body.gacha-surface-active #setup-screen .setup-shell.view-gacha .setup-panel.gacha-panel {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+}
+
+html.gacha-surface-active body.gacha-surface-active #gacha-lab .gacha-lab-layout {
+  grid-template-columns: minmax(480px, 0.72fr) minmax(0, 1.28fr) !important;
+  gap: 24px !important;
+}
+
+@media (max-width: 1380px) {
+  html.gacha-surface-active body.gacha-surface-active #gacha-lab .gacha-lab-layout,
+  html.gacha-surface-active body.gacha-surface-active #gacha-lab .gacha-bottom-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+@media (max-width: 820px) {
+  html.gacha-surface-active body.gacha-surface-active #setup-screen .setup-shell.view-gacha {
     width: calc(100vw - 12px) !important;
   }
 }

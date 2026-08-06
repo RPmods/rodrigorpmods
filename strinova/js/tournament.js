@@ -360,6 +360,7 @@
     const activeTabName = activeTopTab?.dataset?.tab || activePanel?.dataset?.panel || 'menu';
     const isTournament = Boolean(isSetupActive && activeTabName === 'tournament');
     const isMenu = Boolean(isSetupActive && activeTabName === 'menu');
+    const isGacha = Boolean(isSetupActive && activeTabName === 'gacha');
 
     document.documentElement.classList.toggle('setup-responsive-active', isSetupActive);
     document.body.classList.toggle('setup-responsive-active', isSetupActive);
@@ -367,10 +368,13 @@
     document.body.classList.toggle('tournament-surface-active', isTournament);
     document.documentElement.classList.toggle('menu-surface-active', isMenu);
     document.body.classList.toggle('menu-surface-active', isMenu);
+    document.documentElement.classList.toggle('gacha-surface-active', isGacha);
+    document.body.classList.toggle('gacha-surface-active', isGacha);
 
     if (setupScreen) {
       setupScreen.classList.toggle('tournament-surface-active', isTournament);
       setupScreen.classList.toggle('menu-surface-active', isMenu);
+      setupScreen.classList.toggle('gacha-surface-active', isGacha);
     }
     if (shell) {
       const knownViews = ['view-menu', 'view-tournament', 'view-gacha', 'view-volumen', 'view-configuracion', 'view-development', 'view-random', 'view-idioma', 'view-creditos', 'view-updates'];
